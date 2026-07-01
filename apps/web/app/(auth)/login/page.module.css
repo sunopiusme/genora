@@ -1,0 +1,88 @@
+.main {
+  position: relative;
+  min-height: 100vh;
+  background-color: #000000;
+  color: var(--color-foreground);
+}
+
+.grid {
+  display: grid;
+  min-height: 100vh;
+  grid-template-columns: 1fr;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: var(--space-12) var(--space-6);
+}
+
+.logo {
+  align-self: flex-start;
+  height: 3rem;
+  width: 3rem;
+}
+
+.tagline {
+  margin-top: var(--space-6);
+  max-width: 28rem;
+  font-size: var(--text-lg);
+  line-height: var(--leading-lg);
+  font-weight: 300;
+  color: var(--color-foreground);
+  text-wrap: balance;
+}
+
+.formColumn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-6);
+}
+
+.formInner {
+  width: 100%;
+  max-width: 28rem;
+}
+
+.card {
+  border-radius: var(--radius-3xl);
+  background-color: var(--neutral-800);
+  padding: var(--space-8) var(--space-10);
+}
+
+.support {
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 1.1fr 1fr;
+    column-gap: var(--space-16);
+    width: 100%;
+    max-width: 78rem;
+    margin-inline: auto;
+    padding-inline: var(--space-10);
+  }
+
+  .hero {
+    padding-inline: 0;
+    padding-block: var(--space-12) 14vh;
+  }
+
+  .logo {
+    height: 3.5rem;
+    width: 3.5rem;
+  }
+
+  .tagline {
+    margin-top: var(--space-8);
+  }
+
+  .formColumn {
+    justify-content: center;
+    padding-inline: 0;
+    padding-block: var(--space-12) 14vh;
+  }
+}

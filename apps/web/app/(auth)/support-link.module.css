@@ -1,0 +1,16 @@
+.root {
+  text-align: center;
+  font-size: var(--text-xs);
+  color: var(--color-foreground-subtle);
+}
+
+.link {
+  color: var(--color-foreground-muted);
+  text-underline-offset: 4px;
+  transition: color 0.15s ease;
+}
+
+.link:hover {
+  color: var(--color-foreground);
+  text-decoration: underline;
+}

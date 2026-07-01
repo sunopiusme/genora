@@ -1,0 +1,39 @@
+{
+  "name": "@genora/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@genora/database": "workspace:*",
+    "@genora/design-tokens": "workspace:*",
+    "@genora/ui": "workspace:*",
+    "@genora/utils": "workspace:*",
+    "@auth/prisma-adapter": "2.7.4",
+    "@hookform/resolvers": "3.9.1",
+    "@iconify/react": "5.2.0",
+    "@tanstack/react-query": "5.62.7",
+    "next": "15.1.2",
+    "next-auth": "5.0.0-beta.25",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-hook-form": "7.54.1",
+    "zod": "3.24.1",
+    "zustand": "5.0.2"
+  },
+  "devDependencies": {
+    "@genora/config": "workspace:*",
+    "@sentry/nextjs": "8.47.0",
+    "@types/node": "20.17.10",
+    "@types/react": "19.0.2",
+    "@types/react-dom": "19.0.2",
+    "eslint": "9.17.0",
+    "eslint-config-next": "15.1.2",
+    "typescript": "5.7.2"
+  }
+}

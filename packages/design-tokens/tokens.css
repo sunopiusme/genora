@@ -1,0 +1,127 @@
+/**
+ * Design tokens as CSS custom properties.
+ * Зеркало значений из colors.ts / typography.ts / spacing.ts.
+ * Подключается один раз в приложении (globals.css) и служит источником
+ * переменных для всех CSS Modules.
+ */
+
+:root {
+  /* — Палитра (нейтральная шкала) — */
+  --neutral-0: #ffffff;
+  --neutral-50: #fafafa;
+  --neutral-100: #f5f5f5;
+  --neutral-200: #e5e5e5;
+  --neutral-300: #d4d4d4;
+  --neutral-400: #a3a3a3;
+  --neutral-450: #8a8a8a;
+  --neutral-500: #737373;
+  --neutral-600: #525252;
+  --neutral-700: #404040;
+  --neutral-800: #262626;
+  --neutral-850: #1f1f1f;
+  --neutral-900: #171717;
+  --neutral-950: #0a0a0a;
+  --neutral-1000: #000000;
+  --blue-400: #5eb0ee;
+  --amber-400: #eab873;
+  --amber-500: #dd9a4b;
+
+  /* — Семантические цвета — */
+  --color-background: var(--neutral-1000);
+  --color-input: var(--neutral-950);
+  --color-surface: var(--neutral-900);
+  --color-surface-elevated: var(--neutral-800);
+  --color-border: var(--neutral-800);
+  --color-border-strong: var(--neutral-700);
+  --color-foreground: var(--neutral-200);
+  --color-foreground-muted: var(--neutral-400);
+  --color-foreground-subtle: var(--neutral-450);
+  --color-primary: var(--neutral-0);
+  --color-primary-foreground: var(--neutral-950);
+
+  /* Акценты «оживления» (10%): успех / ошибка */
+  --color-success: #22c55e;
+  --color-success-foreground: #bbf7d0;
+  --color-success-surface: #0e2417;
+  --color-danger: #ef4444;
+  --color-danger-foreground: #fecaca;
+  --color-danger-surface: #2a1212;
+  --color-warm: var(--amber-400);
+  --color-warm-strong: var(--amber-500);
+  --color-warm-foreground: var(--neutral-0);
+  --color-avatar: var(--blue-400);
+  --color-avatar-foreground: var(--neutral-0);
+  --color-overlay: rgba(0, 0, 0, 0.72);
+
+  /* — Типографика — */
+  --font-sans: "Geist", "Inter", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", "Roboto", "Helvetica Neue", "Arial", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SFMono-Regular", "Menlo",
+    "Consolas", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+
+  --leading-xs: 1rem;
+  --leading-sm: 1.25rem;
+  --leading-base: 1.5rem;
+  --leading-lg: 1.75rem;
+  --leading-xl: 1.75rem;
+  --leading-2xl: 2rem;
+  --leading-3xl: 2.25rem;
+  --leading-4xl: 2.5rem;
+  --leading-5xl: 1.1;
+  --leading-6xl: 1.05;
+
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0em;
+  --tracking-wide: 0.02em;
+
+  /* — Отступы — */
+  --space-0: 0rem;
+  --space-px: 1px;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+  --space-32: 8rem;
+
+  /* — Радиусы — */
+  --radius-none: 0rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+
+  /* — Тени — */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.24);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.32);
+  --shadow-lg: 0 12px 32px 0 rgba(0, 0, 0, 0.44);
+
+  --z-base: 0;
+  --z-overlay: 60;
+}

@@ -1,0 +1,57 @@
+.main {
+  position: relative;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: var(--space-6);
+  color: var(--color-foreground);
+}
+
+.content {
+  display: flex;
+  width: 100%;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-block: var(--space-16) 16vh;
+}
+
+.inner {
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+}
+
+.brand {
+  height: 1.75rem;
+  width: 1.75rem;
+}
+
+.title {
+  margin-top: var(--space-3);
+  margin-bottom: 0;
+  font-size: var(--text-3xl);
+  line-height: var(--leading-3xl);
+  font-weight: 300;
+  letter-spacing: var(--tracking-normal);
+}
+
+.subtitle {
+  margin-inline: auto;
+  margin-top: var(--space-4);
+  max-width: 20rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+  color: var(--color-foreground-muted);
+  text-wrap: balance;
+}
+
+.email {
+  color: var(--color-foreground);
+}
+
+.support {
+  padding-bottom: var(--space-8);
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@genora/database",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./index.ts",
+  "types": "./index.ts",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "generate": "prisma generate",
+    "migrate": "prisma migrate dev",
+    "deploy": "prisma migrate deploy",
+    "studio": "prisma studio",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "6.1.0"
+  },
+  "devDependencies": {
+    "@genora/config": "workspace:*",
+    "eslint": "9.17.0",
+    "prisma": "6.1.0",
+    "typescript": "5.7.2"
+  }
+}

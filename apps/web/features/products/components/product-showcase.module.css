@@ -1,0 +1,10 @@
+.showcase {
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  justify-content: start;
+  gap: var(--space-6);
+}

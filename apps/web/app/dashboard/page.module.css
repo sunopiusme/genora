@@ -1,0 +1,50 @@
+.page {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.scroll {
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: none;
+}
+
+.scrollInner {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: var(--space-6);
+  padding-block: var(--space-20) var(--space-32);
+}
+
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+  padding-block: var(--space-6) var(--space-8);
+  padding-inline: var(--space-4);
+  background: linear-gradient(
+    to bottom,
+    var(--neutral-1000) 60%,
+    transparent
+  );
+}
+
+.headerInner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+}
+

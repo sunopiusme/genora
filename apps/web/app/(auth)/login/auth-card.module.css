@@ -1,0 +1,163 @@
+.root {
+  width: 100%;
+}
+
+.header {
+  margin-bottom: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  text-align: center;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-normal);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-foreground);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.inputRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.inputRow > input {
+  padding-right: 2.5rem;
+}
+
+.toggleButton {
+  position: absolute;
+  right: var(--space-4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-foreground-muted);
+  transition: color 0.15s ease;
+}
+
+.toggleButton:hover {
+  color: var(--color-foreground);
+}
+
+.toggleIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* Зелёная «галочка» валидности — точечный позитивный акцент (10%) */
+.validMark {
+  position: absolute;
+  right: var(--space-3);
+  display: inline-flex;
+  color: var(--color-success);
+  pointer-events: none;
+}
+
+/* Подпись поля: по умолчанию место зарезервировано, ошибка — красным */
+.hint {
+  min-height: 1rem;
+  padding-inline: var(--space-5);
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: 1rem;
+  color: var(--color-foreground-subtle);
+}
+
+.hintError {
+  color: var(--color-danger-foreground);
+}
+
+/* Скруглённые кнопки авторизации (bump специфичности, чтобы перебить базу) */
+.submit.submit {
+  margin-top: var(--space-2);
+  height: 3.25rem;
+  border-radius: var(--radius-full);
+  font-size: var(--text-base);
+}
+
+.divider {
+  margin-block: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.dividerLine {
+  height: 1px;
+  flex: 1;
+  background-color: var(--neutral-600);
+}
+
+.dividerText {
+  font-size: var(--text-sm);
+  color: var(--color-foreground-subtle);
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.socialButton.socialButton {
+  height: 3.25rem;
+  gap: var(--space-3);
+  border-radius: var(--radius-full);
+  font-weight: var(--weight-normal);
+  font-size: var(--text-base);
+  background-color: var(--neutral-700);
+  border-color: var(--neutral-700);
+}
+
+.socialButton.socialButton:hover {
+  background-color: var(--neutral-600);
+  border-color: var(--neutral-600);
+}
+
+.brandMark {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+.footer {
+  margin-top: var(--space-6);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--color-foreground-muted);
+}
+
+.switchButton {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+  font-size: inherit;
+  color: var(--color-foreground);
+  text-underline-offset: 4px;
+}
+
+.switchButton:hover {
+  text-decoration: underline;
+}

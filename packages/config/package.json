@@ -1,0 +1,15 @@
+{
+  "name": "@genora/config",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./eslint": "./eslint/index.mjs",
+    "./typescript/base": "./typescript/base.json"
+  },
+  "dependencies": {
+    "@next/eslint-plugin-next": "15.1.2",
+    "eslint-config-next": "15.1.2",
+    "typescript-eslint": "8.18.1"
+  }
+}
