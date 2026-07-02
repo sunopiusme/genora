@@ -7,25 +7,21 @@ import styles from "./page.module.css";
 export default function LoginPage() {
   return (
     <main className={styles.main}>
-      <div className={styles.grid}>
-        <section className={styles.hero}>
-          <Logo className={styles.logo} />
+      <section className={styles.brand}>
+        <div className={styles.brandGrid} aria-hidden="true" />
+        <Logo className={styles.logo} />
 
-          <p className={styles.tagline}>
-            Claude, ChatGPT и Cursor под одним аккаунтом. Оплата в рублях, без
-            карты и VPN.
-          </p>
-        </section>
+        <div className={styles.brandBottom}>
+          <h1 className={styles.headline}>Верните себе лучшие нейросети</h1>
+        </div>
+      </section>
 
-        <section className={styles.formColumn}>
-          <div className={styles.formInner}>
-            <div className={styles.card}>
-              <AuthCard />
-            </div>
-            <SupportLink className={styles.support} />
-          </div>
-        </section>
-      </div>
+      <section className={styles.formColumn}>
+        <div className={styles.formInner}>
+          <AuthCard />
+        </div>
+        <SupportLink className={styles.support} />
+      </section>
     </main>
   );
 }

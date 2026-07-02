@@ -1,103 +1,118 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-  type FormEvent,
-  type KeyboardEvent,
-  type TransitionEvent,
-} from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
+import { getBrandInitial } from "../brand";
+import type { Product } from "../types";
 import styles from "./assistant-bar.module.css";
 
 export function AssistantBar() {
-  const router = useRouter();
-  const [query, setQuery] = useState("");
-  const attachedProduct = useComposerStore((state) => state.attachedProduct);
-  const detach = useComposerStore((state) => state.detach);
-  const hasQuery = query.trim().length > 0;
+	const router = useRouter();
+	const inputRef = useRef<HTMLInputElement>(null);
+	const [query, setQuery] = useState("");
+	const attachedProduct = useComposerStore((state) => state.attachedProduct);
+	const detachProduct = useComposerStore((state) => state.detach);
+	const hasQuery = query.trim().length > 0;
 
-  const [visibleProduct, setVisibleProduct] = useState(attachedProduct);
-  const [isOpen, setIsOpen] = useState(Boolean(attachedProduct));
+	useFocusInputOnAttach(inputRef, attachedProduct);
 
-  useEffect(() => {
-    if (attachedProduct) {
-      setVisibleProduct(attachedProduct);
-      const frame = requestAnimationFrame(() => setIsOpen(true));
-      return () => cancelAnimationFrame(frame);
-    }
-    setIsOpen(false);
-  }, [attachedProduct]);
+	function handleSubmit(event: FormEvent<HTMLFormElement>) {
+		event.preventDefault();
+		if (!hasQuery) {
+			return;
+		}
+		router.push(`/products?q=${encodeURIComponent(query.trim())}`);
+	}
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!hasQuery) {
-      return;
-    }
-    router.push(`/products?q=${encodeURIComponent(query.trim())}`);
-  }
+	const placeholder = attachedProduct
+		? `Спросите про ${attachedProduct.name}…`
+		: "Спросите что угодно";
 
-  function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-    if (event.key === "Backspace" && query.length === 0 && attachedProduct) {
-      detach();
-    }
-  }
+	return (
+		<form className={styles.bar} onSubmit={handleSubmit}>
+			{attachedProduct ? (
+				<AttachedProductChip
+					product={attachedProduct}
+					onRemove={detachProduct}
+				/>
+			) : (
+				<span className={styles.searchIcon}>
+					<Icon
+						icon="solar:magnifer-linear"
+						className={styles.searchGlyph}
+						aria-hidden="true"
+					/>
+				</span>
+			)}
 
-  function handleSlotTransitionEnd(event: TransitionEvent<HTMLSpanElement>) {
-    if (event.propertyName === "opacity" && !attachedProduct) {
-      setVisibleProduct(null);
-    }
-  }
+			<input
+				ref={inputRef}
+				name="query"
+				value={query}
+				onChange={(event) => setQuery(event.target.value)}
+				placeholder={placeholder}
+				autoComplete="off"
+				className={styles.input}
+				aria-label="Сообщение ассистенту"
+			/>
 
-  return (
-    <form className={styles.bar} onSubmit={handleSubmit}>
-      <span className={styles.lead}>
-        <span className={attachedProduct ? styles.slot : `${styles.slot} ${styles.slotOpen}`}>
-          <span className={styles.slotInner}>
-            <span className={styles.searchIcon}>
-              <Icon icon="solar:magnifer-linear" className={styles.searchGlyph} aria-hidden="true" />
-            </span>
-          </span>
-        </span>
+			<button
+				type="submit"
+				className={styles.submit}
+				disabled={!hasQuery}
+				aria-label="Отправить"
+			>
+				<Icon icon="solar:arrow-up-linear" className={styles.submitGlyph} />
+			</button>
+		</form>
+	);
+}
 
-        {visibleProduct && (
-          <span
-            className={isOpen ? `${styles.slot} ${styles.slotOpen}` : styles.slot}
-            onTransitionEnd={handleSlotTransitionEnd}
-          >
-            <span className={styles.slotInner}>
-              <span className={styles.attachment} role="status" aria-label={`Прикреплён: ${visibleProduct.name}`}>
-                <span className={styles.attachmentIcon}>
-                  <Icon icon="solar:pin-linear" className={styles.attachmentGlyph} aria-hidden="true" />
-                </span>
-                <span className={styles.attachmentLabel}>{visibleProduct.name}</span>
-              </span>
-            </span>
-          </span>
-        )}
-      </span>
+type AttachedProductChipProps = {
+	product: Product;
+	onRemove: () => void;
+};
 
-      <input
-        name="query"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        onKeyDown={handleKeyDown}
-        placeholder={attachedProduct ? "Спросите…" : "Спросите что угодно"}
-        autoComplete="off"
-        className={styles.input}
-        aria-label="Поиск по товарам"
-      />
+function AttachedProductChip({ product, onRemove }: AttachedProductChipProps) {
+	return (
+		<span
+			className={styles.chip}
+			role="status"
+			aria-label={`Прикреплён товар: ${product.name}`}
+		>
+			<span className={styles.chipMonogram} aria-hidden="true">
+				{getBrandInitial(product)}
+			</span>
+			<span className={styles.chipLabel}>{product.name}</span>
+			<button
+				type="button"
+				className={styles.chipRemove}
+				onClick={onRemove}
+				aria-label={`Открепить ${product.name}`}
+			>
+				<Icon
+					icon="solar:close-linear"
+					className={styles.chipRemoveGlyph}
+					aria-hidden="true"
+				/>
+			</button>
+		</span>
+	);
+}
 
-      <button
-        type="submit"
-        className={styles.submit}
-        disabled={!hasQuery}
-        aria-label="Отправить"
-      >
-        <Icon icon="solar:arrow-up-linear" className={styles.icon} />
-      </button>
-    </form>
-  );
+function useFocusInputOnAttach(
+	inputRef: React.RefObject<HTMLInputElement | null>,
+	attachedProduct: Product | null,
+) {
+	useEffect(() => {
+		if (!attachedProduct) {
+			return;
+		}
+		const frameId = requestAnimationFrame(() => {
+			inputRef.current?.focus();
+		});
+		return () => cancelAnimationFrame(frameId);
+	}, [inputRef, attachedProduct]);
 }

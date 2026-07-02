@@ -8,26 +8,29 @@ import { ProductDetail } from "./product-detail";
 import styles from "./product-showcase.module.css";
 
 export function ProductShowcase() {
-  const products = getFeaturedProducts();
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+	const featuredProducts = getFeaturedProducts();
+	const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  function closeDetail() {
-    setSelectedProduct(null);
-  }
+	function openProductDetail(product: Product) {
+		setSelectedProduct(product);
+	}
 
-  return (
-    <section className={styles.showcase}>
-      <div className={styles.grid}>
-        {products.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
-            onOpen={() => setSelectedProduct(product)}
-          />
-        ))}
-      </div>
+	function closeProductDetail() {
+		setSelectedProduct(null);
+	}
 
-      <ProductDetail product={selectedProduct} onClose={closeDetail} />
-    </section>
-  );
+	return (
+		<section className={styles.showcase}>
+			<div className={styles.grid}>
+				{featuredProducts.map((product) => (
+					<ProductCard
+						key={product.id}
+						product={product}
+						onOpen={() => openProductDetail(product)}
+					/>
+				))}
+			</div>
+			<ProductDetail product={selectedProduct} onClose={closeProductDetail} />
+		</section>
+	);
 }

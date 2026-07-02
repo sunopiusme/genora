@@ -1,41 +1,47 @@
 # Genora Documentation OS
 
-Эта документация организована как система сопровождения разработки: не просто «справка»,
-а рабочий слой принятия решений для платформы Genora Pro.
+## Назначение
 
-## Что это даёт
+Документация Genora Pro — не справка, а операционная система разработки: единый
+источник правил, по которым принимаются продуктовые и технические решения.
+Каждый документ отвечает на один тип вопросов и связан с соседними явными ссылками.
 
-- Единые правила для продуктовых и технических решений.
-- Быстрый вход в задачу через маршруты чтения.
-- Предсказуемая разработка без потери контекста.
+## Как пользоваться
 
-## Разделы
-
-- `_system` — протокол документации: порядок чтения, маршрутизация, приоритеты.
-- `standards` — стандарты кода и технологий. Содержит главный документ `CODE_STANDARD.md`.
-- `foundations` — продуктовая основа.
-- `architecture` — системная и репозиторная архитектура, фичи, данные, состояние, auth.
-- `stack` — закреплённый технический стек и версии.
-- `decisions` — архитектурные решения (ADR).
-- `playbooks` — операционные сценарии работы.
-- `operations` — окружения и эксплуатационные процедуры.
-- `templates` — шаблоны для быстрой фиксации решений.
+1. Новый участник читает стартовый маршрут (ниже) сверху вниз, без пропусков.
+2. Перед задачей документ подбирается по карте маршрутизации: `_system/ROUTING.md`.
+3. При конфликте документов действует приоритет источников: `_system/MANIFEST.md`.
+4. Спорное техническое решение фиксируется как ADR до начала реализации.
 
 ## Стартовый маршрут
 
-1. `_system/MANIFEST.md`
-2. `standards/CODE_STANDARD.md`
-3. `_system/READING_ORDER.md`
-4. `_system/ROUTING.md`
+1. `_system/MANIFEST.md` — роль документации и приоритет источников.
+2. `standards/CODE_STANDARD.md` — главный стандарт кода. Обязателен до написания любого кода.
+3. `_system/READING_ORDER.md` — порядок чтения по сценариям.
+4. `_system/ROUTING.md` — карта «задача → документ».
+
+## Разделы
+
+| Раздел | Отвечает на вопрос |
+| --- | --- |
+| `_system` | Как устроена сама документация: порядок чтения, маршрутизация, приоритеты |
+| `standards` | Как писать код: главный стандарт, Next.js, TypeScript, UI |
+| `foundations` | Что мы делаем и зачем: продуктовый скоуп, метрики успеха |
+| `architecture` | Как устроена система: репозиторий, фичи, данные, состояние, auth, UI |
+| `stack` | На чём мы это делаем: закреплённый стек и версии |
+| `decisions` | Почему так решили: ADR с контекстом и альтернативами |
+| `playbooks` | Как выполняется работа: сценарии поставки |
+| `operations` | Как это живёт в окружениях: переменные, конфигурация |
+| `templates` | Формы для фиксации решений и спецификаций |
 
 ## Маршруты по доменам
 
-- Архитектура: `architecture/SYSTEM_OVERVIEW.md` -> `architecture/REPO_STRUCTURE.md` -> `architecture/MONOREPO.md`.
-- UI: `standards/UI_STANDARDS.md` -> `architecture/UI_LIBRARY.md`.
-- Фичи и данные: `architecture/FEATURE_STRUCTURE.md` -> `architecture/DATA_LAYER.md` -> `architecture/STATE_MANAGEMENT.md`.
-- Web качество: `standards/NEXTJS_STANDARDS.md` -> `standards/TYPESCRIPT_STANDARDS.md`.
+- Архитектура: `architecture/SYSTEM_OVERVIEW.md` → `architecture/REPO_STRUCTURE.md` → `architecture/MONOREPO.md`
+- UI: `standards/UI_STANDARDS.md` → `architecture/UI_LIBRARY.md`
+- Фичи и данные: `architecture/FEATURE_STRUCTURE.md` → `architecture/DATA_LAYER.md` → `architecture/STATE_MANAGEMENT.md`
+- Качество web: `standards/NEXTJS_STANDARDS.md` → `standards/TYPESCRIPT_STANDARDS.md`
 
 ## Главное правило
 
-Главный документ — `standards/CODE_STANDARD.md`. Любой код в репозитории подчиняется ему
-без исключений.
+Главный документ репозитория — `standards/CODE_STANDARD.md`. Любой код подчиняется ему
+без исключений: код не должен быть «умным», код должен быть читаемым.

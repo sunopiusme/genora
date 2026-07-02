@@ -1,155 +1,167 @@
 .bar {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-1);
-  padding-left: var(--space-2);
-  border-radius: var(--radius-full);
-  background-color: var(--color-surface-elevated);
-  box-shadow: var(--shadow-lg);
-}
-
-.lead {
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  min-width: 0;
-}
-
-.slot {
-  display: grid;
-  grid-template-columns: 0fr;
-  align-items: center;
-  min-width: 0;
-  opacity: 0;
-  transition:
-    grid-template-columns 0.16s cubic-bezier(0.4, 0, 0.2, 1),
-    opacity 0.16s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.slotOpen {
-  grid-template-columns: 1fr;
-  opacity: 1;
-}
-
-.slotInner {
-  min-width: 0;
-  overflow: hidden;
-}
-
-.attachment {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  width: max-content;
-  padding-right: var(--space-2);
-  white-space: nowrap;
-}
-
-.attachmentIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 1.75rem;
-  height: 1.75rem;
-  border-radius: var(--radius-md);
-  background-image: linear-gradient(
-    to bottom,
-    var(--color-warm),
-    var(--color-warm-strong)
-  );
-  color: var(--color-warm-foreground);
-}
-
-.attachmentGlyph {
-  width: 1rem;
-  height: 1rem;
-}
-
-.attachmentLabel {
-  max-width: 12rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
-  color: var(--color-foreground);
+	display: flex;
+	align-items: center;
+	gap: var(--space-2);
+	width: 100%;
+	padding: var(--space-2);
+	padding-left: var(--space-3);
+	border-radius: var(--radius-full);
+	background-color: var(--color-surface-elevated);
+	box-shadow: var(--shadow-lg);
 }
 
 .searchIcon {
-  display: flex;
-  align-items: center;
-  padding-left: var(--space-2);
-  padding-right: var(--space-1);
-  color: var(--color-foreground-muted);
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	padding-left: var(--space-2);
+	padding-right: var(--space-1);
+	color: var(--color-foreground-muted);
 }
 
 .searchGlyph {
-  width: 1.25rem;
-  height: 1.25rem;
+	width: 1.25rem;
+	height: 1.25rem;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .slot {
-    transition:
-      grid-template-columns 0.01s linear,
-      opacity 0.12s linear;
-  }
+.chip {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	flex-shrink: 0;
+	max-width: 14rem;
+	padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2);
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.06);
+	animation: chipIn 0.16s ease both;
+}
+
+@keyframes chipIn {
+	from {
+		opacity: 0;
+		transform: scale(0.96);
+	}
+	to {
+		opacity: 1;
+		transform: scale(1);
+	}
+}
+
+.chipMonogram {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: var(--radius-md);
+	background-image: linear-gradient(
+		160deg,
+		var(--color-warm),
+		var(--color-warm-strong)
+	);
+	color: var(--color-warm-foreground);
+	font-size: var(--text-xs);
+	font-weight: var(--weight-semibold);
+}
+
+.chipLabel {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	line-height: 1;
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground);
+}
+
+.chipRemove {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.08);
+	color: var(--color-foreground-muted);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.chipRemove:hover {
+	color: var(--color-foreground);
+	background-color: rgb(255 255 255 / 0.16);
+}
+
+.chipRemove:focus-visible {
+	outline: none;
+}
+
+.chipRemoveGlyph {
+	width: 0.85rem;
+	height: 0.85rem;
 }
 
 .input {
-  flex: 1;
-  min-width: 0;
-  height: 2.25rem;
-  border: none;
-  background: none;
-  padding-inline: var(--space-1);
-  font-family: var(--font-sans);
-  font-size: var(--text-base);
-  color: var(--color-foreground);
+	flex: 1;
+	min-width: 0;
+	height: 2.5rem;
+	border: none;
+	background: none;
+	padding-inline: var(--space-2);
+	font-family: var(--font-sans);
+	font-size: var(--text-base);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground);
 }
 
 .input::placeholder {
-  color: var(--color-foreground-muted);
+	color: var(--color-foreground-muted);
 }
 
 .input:focus-visible {
-  outline: none;
+	outline: none;
 }
 
 .submit {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 2.25rem;
-  height: 2.25rem;
-  border: none;
-  border-radius: var(--radius-full);
-  background-color: var(--color-primary);
-  cursor: pointer;
-  color: var(--color-primary-foreground);
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 2.5rem;
+	height: 2.5rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: var(--color-primary);
+	color: var(--color-primary-foreground);
+	cursor: pointer;
+	transition: opacity 0.15s ease;
 }
 
 .submit:hover {
-  opacity: 0.9;
+	opacity: 0.9;
 }
 
-.submit:active {
-  transform: scale(0.97);
+.submit:focus-visible {
+	outline: none;
 }
 
 .submit:disabled {
-  cursor: not-allowed;
-  opacity: 0.4;
+	cursor: not-allowed;
+	opacity: 0.4;
 }
 
-.icon {
-  width: 1.25rem;
-  height: 1.25rem;
+.submitGlyph {
+	width: 1.25rem;
+	height: 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.chip {
+		animation: none;
+	}
 }

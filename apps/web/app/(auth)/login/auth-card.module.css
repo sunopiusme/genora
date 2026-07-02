@@ -4,10 +4,6 @@
 
 .header {
   margin-bottom: var(--space-6);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-5);
   text-align: center;
 }
 
@@ -17,6 +13,61 @@
   font-weight: var(--weight-normal);
   letter-spacing: var(--tracking-tight);
   color: var(--color-foreground);
+}
+
+.social {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.socialButton.socialButton {
+  height: 3.25rem;
+  gap: var(--space-2);
+  border-radius: var(--radius-full);
+  font-weight: var(--weight-normal);
+  font-size: var(--text-base);
+  background-color: var(--neutral-700);
+  border-color: var(--neutral-700);
+}
+
+.socialButton.socialButton:hover {
+  background-color: var(--neutral-600);
+  border-color: var(--neutral-600);
+}
+
+.socialButton.socialButton:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+.socialButton.socialButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+}
+
+.brandMark {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+}
+
+.divider {
+  margin-block: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.dividerLine {
+  height: 1px;
+  flex: 1;
+  background-color: var(--neutral-600);
+}
+
+.dividerText {
+  font-size: var(--text-sm);
+  color: var(--color-foreground-subtle);
 }
 
 .form {
@@ -59,24 +110,24 @@
   color: var(--color-foreground);
 }
 
+.toggleButton:focus {
+  outline: none;
+}
+
+.toggleButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
 .toggleIcon {
   width: 1.25rem;
   height: 1.25rem;
 }
 
-/* Зелёная «галочка» валидности — точечный позитивный акцент (10%) */
-.validMark {
-  position: absolute;
-  right: var(--space-3);
-  display: inline-flex;
-  color: var(--color-success);
-  pointer-events: none;
-}
-
-/* Подпись поля: по умолчанию место зарезервировано, ошибка — красным */
 .hint {
   min-height: 1rem;
-  padding-inline: var(--space-5);
+  padding-inline: var(--space-4);
   margin: 0;
   font-size: var(--text-xs);
   line-height: 1rem;
@@ -87,57 +138,21 @@
   color: var(--color-danger-foreground);
 }
 
-/* Скруглённые кнопки авторизации (bump специфичности, чтобы перебить базу) */
 .submit.submit {
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
   height: 3.25rem;
   border-radius: var(--radius-full);
   font-size: var(--text-base);
 }
 
-.divider {
-  margin-block: var(--space-6);
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
+.submit.submit:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
 }
 
-.dividerLine {
-  height: 1px;
-  flex: 1;
-  background-color: var(--neutral-600);
-}
-
-.dividerText {
-  font-size: var(--text-sm);
-  color: var(--color-foreground-subtle);
-}
-
-.social {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-}
-
-.socialButton.socialButton {
-  height: 3.25rem;
-  gap: var(--space-3);
-  border-radius: var(--radius-full);
-  font-weight: var(--weight-normal);
-  font-size: var(--text-base);
-  background-color: var(--neutral-700);
-  border-color: var(--neutral-700);
-}
-
-.socialButton.socialButton:hover {
-  background-color: var(--neutral-600);
-  border-color: var(--neutral-600);
-}
-
-.brandMark {
-  width: 1.25rem;
-  height: 1.25rem;
-  fill: currentColor;
+.submit.submit:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
 }
 
 .footer {
@@ -160,4 +175,14 @@
 
 .switchButton:hover {
   text-decoration: underline;
+}
+
+.switchButton:focus {
+  outline: none;
+}
+
+.switchButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
 }

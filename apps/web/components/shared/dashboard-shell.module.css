@@ -1,5 +1,8 @@
 .shell {
+  --sidebar-rail-width: 3.75rem;
+  --sidebar-expanded-width: clamp(13rem, 12.5vw + 5rem, 16.25rem);
   position: relative;
+  font-weight: var(--weight-medium);
 }
 
 .sidebar {
@@ -7,13 +10,13 @@
   top: 0;
   left: 0;
   z-index: 30;
-  width: 3.25rem;
+  width: var(--sidebar-rail-width);
   height: 100dvh;
   transition: width 0.2s ease;
 }
 
 .sidebarOpen {
-  width: 17rem;
+  width: var(--sidebar-expanded-width);
 }
 
 .sidebarInner {
@@ -22,8 +25,8 @@
   gap: var(--space-2);
   width: 100%;
   height: 100%;
-  padding: var(--space-2);
-  background-color: var(--neutral-1000);
+  padding: var(--space-3);
+  background-color: #000000;
   border-right: 1px solid var(--color-border);
   overflow: hidden;
 }
@@ -58,7 +61,7 @@
 
 .sidebarToggle {
   position: absolute;
-  left: var(--space-2);
+  right: var(--space-2);
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
@@ -70,12 +73,18 @@
   color: var(--color-foreground);
   cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .sidebarToggle svg {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+.sidebarToggle:hover {
+  color: var(--color-foreground);
 }
 
 .sidebarHeader:hover .logo {
@@ -87,9 +96,6 @@
 }
 
 .sidebarOpen .sidebarToggle {
-  position: static;
-  transform: none;
-  margin-left: auto;
   opacity: 1;
 }
 
@@ -100,23 +106,26 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-px);
+  gap: var(--space-1);
 }
 
 .navLink {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
   padding: var(--space-2);
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   color: var(--color-foreground);
   text-decoration: none;
-  transition: background-color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .navLink:hover {
+  color: var(--color-foreground);
   background-color: var(--color-surface);
 }
 
@@ -124,11 +133,18 @@
   background-color: var(--color-surface-elevated);
 }
 
+.navLinkActive:hover {
+  background-color: var(--color-surface-elevated);
+}
+
 .navIcon {
   width: 1.25rem;
   height: 1.25rem;
   flex-shrink: 0;
-  color: var(--color-foreground);
+}
+
+.navIcon * {
+  stroke-width: 1.8;
 }
 
 .navLabel {
@@ -144,8 +160,8 @@
 .section {
   display: none;
   flex-direction: column;
-  gap: var(--space-px);
-  margin-top: var(--space-2);
+  gap: var(--space-1);
+  margin-top: var(--space-4);
 }
 
 .sidebarOpen .section {
@@ -154,9 +170,11 @@
 
 .sectionTitle {
   margin: 0;
-  padding: var(--space-2);
-  font-size: var(--text-base);
+  padding: var(--space-1) var(--space-2);
+  font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   color: var(--color-foreground);
 }
 
@@ -170,6 +188,7 @@
   padding: var(--space-2);
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
   color: var(--color-foreground);
   text-decoration: none;
   white-space: nowrap;
@@ -187,6 +206,7 @@
 
 .sidebarFooter {
   flex-shrink: 0;
+  padding-top: var(--space-2);
 }
 
 .profile {
@@ -194,15 +214,23 @@
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-1);
   border: none;
+  border-radius: var(--radius-full);
   background: none;
   font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
-  color: var(--color-foreground);
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.profile:hover {
+  background-color: var(--color-surface);
+}
+
+.profile:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .profileAvatar {
@@ -210,28 +238,82 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: var(--radius-full);
   background-color: var(--color-avatar);
   color: var(--color-avatar-foreground);
   font-size: var(--text-xs);
   font-weight: var(--weight-semibold);
-  transition: filter 0.15s ease;
 }
 
-.profile:hover .profileAvatar {
-  filter: brightness(1.08);
-}
-
-.profileName {
-  white-space: nowrap;
+.profileText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  flex: 1;
+  min-width: 0;
   opacity: 0;
   transition: opacity 0.15s ease;
 }
 
-.sidebarOpen .profileName {
+.sidebarOpen .profileText {
   opacity: 1;
+}
+
+.profileName {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+}
+
+.profileMeta {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground);
+}
+
+.profileChevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-foreground);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.profileChevron svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.sidebarOpen .profileChevron {
+  opacity: 1;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  border: none;
+  padding: 0;
+  background-color: rgb(0 0 0 / 0.5);
+  cursor: pointer;
+  animation: backdropIn 0.2s ease both;
+}
+
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .main {
@@ -240,12 +322,8 @@
   flex-direction: column;
   height: 100dvh;
   overflow: hidden;
-  padding-left: 3.25rem;
+  padding-left: var(--sidebar-rail-width);
   transition: padding-left 0.2s ease;
-}
-
-.shellOpen .main {
-  padding-left: 17rem;
 }
 
 .content {
@@ -263,12 +341,17 @@
   right: 0;
   z-index: 10;
   flex-shrink: 0;
-  padding-block: var(--space-8) var(--space-6);
+  padding-block: var(--space-12) var(--space-8);
   padding-inline: var(--space-4);
   background: linear-gradient(
     to top,
-    var(--neutral-1000) 60%,
-    transparent
+    #000000 0%,
+    rgb(0 0 0 / 0.96) 34%,
+    rgb(0 0 0 / 0.86) 52%,
+    rgb(0 0 0 / 0.68) 68%,
+    rgb(0 0 0 / 0.42) 82%,
+    rgb(0 0 0 / 0.18) 92%,
+    transparent 100%
   );
 }
 
@@ -276,4 +359,31 @@
   width: 100%;
   max-width: 48rem;
   margin-inline: auto;
+}
+
+@media (min-width: 48rem) {
+  .composer {
+    padding-inline: var(--space-8);
+  }
+}
+
+@media (min-width: 64rem) {
+  .backdrop {
+    display: none;
+  }
+
+  .shellOpen .main {
+    padding-left: var(--sidebar-expanded-width);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar,
+  .main {
+    transition: none;
+  }
+
+  .backdrop {
+    animation: none;
+  }
 }

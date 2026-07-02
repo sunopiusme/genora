@@ -6,6 +6,7 @@ import { Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { Icon } from "@/lib/icon";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
+import { SidebarTooltip } from "./sidebar-tooltip";
 import styles from "./dashboard-shell.module.css";
 
 type NavItem = {
@@ -42,6 +43,7 @@ const RECENT_ITEMS = [
 
 const PROFILE = {
   name: "Иван Петров",
+  meta: "Личный аккаунт",
 };
 
 function getInitial(name: string) {
@@ -87,15 +89,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <div className={styles.sidebarScroll}>
             <nav className={styles.nav}>
               {NAV_ITEMS.map((item) => (
-                <Link
+                <SidebarTooltip
                   key={item.label}
-                  href={item.href}
-                  title={item.label}
-                  className={cn(styles.navLink, item.active && styles.navLinkActive)}
+                  label={item.label}
+                  isEnabled={!isSidebarOpen}
                 >
-                  <Icon icon={item.icon} className={styles.navIcon} />
-                  <span className={styles.navLabel}>{item.label}</span>
-                </Link>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      styles.navLink,
+                      item.active && styles.navLinkActive,
+                    )}
+                  >
+                    <Icon icon={item.icon} className={styles.navIcon} />
+                    <span className={styles.navLabel}>{item.label}</span>
+                  </Link>
+                </SidebarTooltip>
               ))}
             </nav>
 
@@ -112,13 +121,32 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className={styles.sidebarFooter}>
-            <button type="button" title={PROFILE.name} className={styles.profile}>
-              <span className={styles.profileAvatar}>{getInitial(PROFILE.name)}</span>
-              <span className={styles.profileName}>{PROFILE.name}</span>
-            </button>
+            <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen}>
+              <button type="button" className={styles.profile}>
+                <span className={styles.profileAvatar}>
+                  {getInitial(PROFILE.name)}
+                </span>
+                <span className={styles.profileText}>
+                  <span className={styles.profileName}>{PROFILE.name}</span>
+                  <span className={styles.profileMeta}>{PROFILE.meta}</span>
+                </span>
+                <span className={styles.profileChevron}>
+                  <ChevronIcon />
+                </span>
+              </button>
+            </SidebarTooltip>
           </div>
         </div>
       </aside>
+
+      {isSidebarOpen && (
+        <button
+          type="button"
+          className={styles.backdrop}
+          onClick={closeSidebar}
+          aria-label="Закрыть меню"
+        />
+      )}
 
       <div className={styles.main}>
         <div className={styles.content}>
@@ -152,6 +180,21 @@ function SidebarIcon() {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M8 9l4-4 4 4M8 15l4 4 4-4"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
         fill="none"
       />
     </svg>

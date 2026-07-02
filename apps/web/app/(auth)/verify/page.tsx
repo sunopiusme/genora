@@ -13,11 +13,18 @@ export default async function VerifyPage({
 
   return (
     <main className={styles.main}>
-      <div className={styles.content}>
-        <div className={styles.inner}>
-          <Logo className={styles.brand} />
+      <section className={styles.brand}>
+        <div className={styles.brandGrid} aria-hidden="true" />
+        <Logo className={styles.logo} />
 
-          <h1 className={styles.title}>Введите код</h1>
+        <div className={styles.brandBottom}>
+          <h1 className={styles.headline}>Верните себе лучшие нейросети</h1>
+        </div>
+      </section>
+
+      <section className={styles.formColumn}>
+        <div className={styles.formInner}>
+          <h2 className={styles.title}>Введите код</h2>
           <p className={styles.subtitle}>
             Отправили 6‑значный код{" "}
             {email ? (
@@ -32,9 +39,9 @@ export default async function VerifyPage({
 
           <VerifyCard />
         </div>
-      </div>
 
-      <SupportLink className={styles.support} />
+        <SupportLink className={styles.support} />
+      </section>
     </main>
   );
 }
