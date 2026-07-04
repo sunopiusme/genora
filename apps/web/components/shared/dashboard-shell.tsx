@@ -42,12 +42,42 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Заказы", href: "/dashboard", icon: "solar:bag-4-linear" },
 ];
 
-const RECENT_ITEMS = [
-  "Подписка на ChatGPT",
-  "Сравнить Claude и Gemini",
-  "Midjourney для дизайна",
-  "Доступ к GitHub Copilot",
-  "Что выбрать для кода",
+type RecentGroup = {
+  title: string;
+  icon: string;
+  items: string[];
+};
+
+const RECENT_GROUPS: RecentGroup[] = [
+  {
+    title: "Проблемы",
+    icon: "solar:shield-warning-linear",
+    items: [
+      "Не приходит код подтверждения",
+      "Оплата подписки не прошла",
+      "Восстановить доступ к аккаунту",
+    ],
+  },
+  {
+    title: "Запросы",
+    icon: "solar:chat-round-dots-linear",
+    items: [
+      "Материалы для обучения модели",
+      "Промпты для генерации изображений",
+      "Подборка датасетов для анализа",
+    ],
+  },
+  {
+    title: "Темы",
+    icon: "solar:folder-2-linear",
+    items: [
+      "Подписка на ChatGPT",
+      "Сравнить Claude и Gemini",
+      "Midjourney для дизайна",
+      "Доступ к GitHub Copilot",
+      "Что выбрать для кода",
+    ],
+  },
 ];
 
 /* A leftward swipe longer than this closes the sidebar. */
@@ -204,13 +234,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
             <div className={styles.section}>
               <p className={styles.sectionTitle}>Недавние</p>
-              <nav className={styles.recents}>
-                {RECENT_ITEMS.map((item) => (
-                  <Link key={item} href="/dashboard" className={styles.recentLink}>
-                    {item}
-                  </Link>
-                ))}
-              </nav>
+              {RECENT_GROUPS.map((group) => (
+                <div key={group.title} className={styles.subsection}>
+                  <p className={styles.subsectionTitle}>
+                    <Icon icon={group.icon} className={styles.subsectionIcon} />
+                    {group.title}
+                  </p>
+                  <nav className={styles.recents}>
+                    {group.items.map((item) => (
+                      <Link
+                        key={item}
+                        href="/dashboard"
+                        className={styles.recentLink}
+                      >
+                        {item}
+                      </Link>
+                    ))}
+                  </nav>
+                </div>
+              ))}
             </div>
           </div>
 
