@@ -85,8 +85,6 @@
 .token {
 	display: inline-flex;
 	align-items: center;
-	/* Зазор небольшой: у крестика и так есть собственные «поля» —
-	   иконка 1.125rem внутри кнопки 1.75rem. */
 	gap: var(--space-1);
 	max-width: min(11rem, 44vw);
 	height: 1.75rem;
@@ -139,32 +137,35 @@
 }
 
 .tokenRemove {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	/* Тот же масштаб, что у крестика чипа раньше: заметная мишень
-	   для пальца и иконка в размер логотипа. Иконка 1.125rem внутри
-	   кнопки 1.75rem даёт по 0.3125rem невидимых полей с каждой
-	   стороны — компенсируем их отрицательными отступами полностью,
-	   иначе после тега перед текстом возникает двойной пробел. */
-	width: 1.75rem;
-	height: 1.75rem;
-	margin-inline: calc((1.125rem - 1.75rem) / 2 + var(--space-1) / 2)
-		calc((1.125rem - 1.75rem) / 2);
+	/* Кнопка ровно в размер иконки — никаких невидимых полей,
+	   из-за которых после тега появлялся двойной пробел. Мишень
+	   для пальца расширяет псевдоэлемент ниже. */
+	width: 1.125rem;
+	height: 1.125rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
 	color: var(--color-foreground-muted);
 	cursor: pointer;
-	transition:
-		color 0.15s ease,
-		background-color 0.15s ease;
+	transition: color 0.15s ease;
+}
+
+/* Невидимая зона нажатия 2.25rem — комфортная для пальца, но не
+   занимающая места в потоке текста. */
+.tokenRemove::after {
+	content: "";
+	position: absolute;
+	inset: calc((1.125rem - 2.25rem) / 2);
+	border-radius: var(--radius-full);
 }
 
 .tokenRemove:hover {
 	color: var(--color-foreground);
-	background-color: rgb(255 255 255 / 0.16);
 }
 
 .tokenRemove:focus-visible {
