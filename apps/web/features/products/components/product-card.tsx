@@ -50,17 +50,20 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				className={styles.cover}
 				onClick={handleCoverClick}
 				aria-label={`Открыть ${product.name}`}
+				style={
+					{
+						"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+					} as CSSProperties
+				}
 			>
-				<span
-					className={styles.logo}
-					style={
-						{
-							"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
-						} as CSSProperties
-					}
-					role="img"
-					aria-label={product.provider}
-				/>
+				<span className={styles.watermark} aria-hidden="true" />
+				<span className={styles.logoTile}>
+					<span
+						className={styles.logo}
+						role="img"
+						aria-label={product.provider}
+					/>
+				</span>
 			</button>
 			<div className={styles.info}>
 				<h3 className={styles.name}>{product.name}</h3>
