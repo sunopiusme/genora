@@ -441,6 +441,19 @@
    push drawer) — the sidebar occupies roughly half of an iPhone
    screen while the page slides over. */
 @media (max-width: 47.9375rem) {
+  .shell {
+    /* Native iPhone drawer: ~80% of the screen, capped at 300px —
+       the width used by native iOS side menus. Also drives the
+       distance the page is pushed right when the drawer opens. */
+    --sidebar-expanded-width: min(80vw, 18.75rem);
+    /* Match the FAB inset so the drawer header lands exactly where
+       the floating circle sits. */
+    --sidebar-inset: var(--space-3);
+    /* Apple HIG minimum touch target: 44px (2.75rem) — the same size
+       as the floating circle. */
+    --sidebar-touch-target: 2.75rem;
+  }
+
   .mobileFab {
     display: inline-flex;
   }
@@ -472,6 +485,12 @@
     );
   }
 
+  /* The header row is exactly as tall as the floating circle and sits
+     at the same inset, so the logo lines up with the FAB position. */
+  .sidebarHeader {
+    min-height: var(--sidebar-touch-target);
+  }
+
   /* Labels are always laid out on mobile — the drawer only ever
      appears in its expanded form. */
   .navLabel {
@@ -481,6 +500,19 @@
 
   .navLink {
     gap: var(--space-3);
+    min-height: var(--sidebar-touch-target);
+    font-size: var(--text-base);
+  }
+
+  .recentLink {
+    display: flex;
+    align-items: center;
+    min-height: var(--sidebar-touch-target);
+    padding-block: 0;
+  }
+
+  .profile {
+    min-height: var(--sidebar-touch-target);
   }
 
   .profileName {
