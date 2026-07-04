@@ -32,8 +32,8 @@
   --color-surface: var(--neutral-900);
   --color-surface-elevated: var(--neutral-800);
   --color-border: var(--neutral-800);
-  --color-border-strong: var(--neutral-700);
-  --color-foreground: var(--neutral-200);
+  --color-border-strong: var(--neutral-600);
+  --color-foreground: var(--neutral-50);
   --color-foreground-muted: var(--neutral-400);
   --color-foreground-subtle: var(--neutral-450);
   --color-primary: var(--neutral-0);
