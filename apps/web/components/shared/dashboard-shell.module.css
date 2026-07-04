@@ -5,7 +5,7 @@
      inset + item-pad + icon/2 = 8 + 8 + 9 = 25px from the left edge. */
   --sidebar-inset: var(--space-2);
   --sidebar-item-pad: var(--space-2);
-  --sidebar-icon-size: 1rem;
+  --sidebar-icon-size: 1.0625rem;
   --sidebar-border-width: 1px;
   /* Insets + item paddings + icon column + right border. Including the
      border keeps the inner content column exact, so pills never
@@ -170,7 +170,9 @@
   display: flex;
   align-items: center;
   gap: 0;
-  padding: calc(var(--space-1) + var(--space-px)) var(--sidebar-item-pad);
+  /* 6px vertical padding: rows stay compact, but the hover pills of
+     adjacent items nearly touch (1px gap) — ChatGPT-style density. */
+  padding: 0.375rem var(--sidebar-item-pad);
   border-radius: var(--radius-lg);
   /* Label text sits a step below the icon size so the icons read as
      the dominant element while text stays on the same baseline axis. */
@@ -249,7 +251,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-px);
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .subsectionTitle {
@@ -277,7 +279,7 @@
 }
 
 .recentLink {
-  padding: calc(var(--space-1) + var(--space-px)) var(--sidebar-item-pad);
+  padding: 0.375rem var(--sidebar-item-pad);
   padding-left: calc(var(--sidebar-item-pad) + 0.875rem + var(--space-2));
   border-radius: var(--radius-lg);
   font-size: var(--text-xs);
