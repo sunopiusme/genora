@@ -65,15 +65,17 @@
   position: absolute;
   left: 0;
   right: 0;
-  height: 2.5rem;
   z-index: 1;
   pointer-events: none;
 }
 
 /* Same eased dissolve as the composer scrim, scaled down: content
-   fades into the sidebar's black background at both scroll edges. */
+   fades into the sidebar's black background at both scroll edges.
+   The top fade is deliberately short — just enough to melt a row
+   into the header without dimming the visible list. */
 .scrollArea::before {
   top: 0;
+  height: 1rem;
   background: linear-gradient(
     to bottom,
     rgb(0 0 0 / 1),
@@ -88,6 +90,7 @@
 
 .scrollArea::after {
   bottom: 0;
+  height: 2rem;
   background: linear-gradient(
     to top,
     rgb(0 0 0 / 1),
@@ -348,6 +351,75 @@
   padding-top: var(--space-1);
 }
 
+/* Anchor for the profile popup: the menu opens upward from the
+   profile button, mirroring the composer's attach menu. */
+.profileRoot {
+  position: relative;
+}
+
+.profileMenu {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
+  z-index: var(--z-overlay, 40);
+  display: flex;
+  flex-direction: column;
+  min-width: 11rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  animation: profileMenuIn 0.16s ease both;
+}
+
+@keyframes profileMenuIn {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.profileMenuItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
+  color: var(--color-foreground);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.profileMenuItem:hover {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.profileMenuItem:focus-visible {
+  outline: none;
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.profileMenuGlyph {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-foreground-muted);
+}
+
 /* The avatar (1.625rem) is wider than the icon column, so its side
    padding is reduced by half the difference — this puts the avatar
    center on the exact same axis as the logo and nav icons. */
@@ -369,7 +441,8 @@
   transition: background-color 0.15s ease;
 }
 
-.profile:hover {
+.profile:hover,
+.profile[data-open] {
   background-color: var(--color-surface);
 }
 

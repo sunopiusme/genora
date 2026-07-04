@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactNode,
@@ -70,8 +71,9 @@ const RECENT_GROUPS: RecentGroup[] = [
   },
 ];
 
-/* Utility links pinned to the bottom of the sidebar, above the profile. */
-const FOOTER_ITEMS: NavItem[] = [
+/* Entries of the profile popup menu, mirroring the composer's
+   attach menu pattern. */
+const PROFILE_MENU_ITEMS: NavItem[] = [
   {
     label: "Настройки",
     href: "/dashboard",
@@ -259,30 +261,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
 
           <div className={styles.sidebarFooter}>
-            <nav className={styles.nav}>
-              {FOOTER_ITEMS.map((item) => (
-                <SidebarTooltip
-                  key={item.label}
-                  label={item.label}
-                  isEnabled={!isSidebarOpen}
-                >
-                  <Link href={item.href} className={styles.navLink}>
-                    <Icon icon={item.icon} className={styles.navIcon} />
-                    <span className={styles.navLabel}>{item.label}</span>
-                  </Link>
-                </SidebarTooltip>
-              ))}
-            </nav>
-            <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen}>
-              <button type="button" className={styles.profile}>
-                <Avatar
-                  name={PROFILE.name}
-                  size="1.625rem"
-                  className={styles.profileAvatar}
-                />
-                <span className={styles.profileName}>{PROFILE.name}</span>
-              </button>
-            </SidebarTooltip>
+            <ProfileMenu isSidebarOpen={isSidebarOpen} />
           </div>
         </div>
       </aside>
@@ -317,6 +296,88 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Кнопка профиля с выпадающим меню, раскрывающимся вверх от самой
+ * кнопки — тот же паттерн, что у меню плюсика в чат-инпуте.
+ */
+function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
+  const menuId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // Collapsing the sidebar hides the anchor context — close the menu.
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      setIsOpen(false);
+    }
+  }, [isSidebarOpen]);
+
+  return (
+    <div ref={rootRef} className={styles.profileRoot}>
+      {isOpen && (
+        <div id={menuId} role="menu" className={styles.profileMenu}>
+          {PROFILE_MENU_ITEMS.map((item) => (
+            <Link
+              key={item.label}
+              href={item.href}
+              role="menuitem"
+              className={styles.profileMenuItem}
+              onClick={() => setIsOpen(false)}
+            >
+              <Icon
+                icon={item.icon}
+                className={styles.profileMenuGlyph}
+                aria-hidden="true"
+              />
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      )}
+      <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen && !isOpen}>
+        <button
+          type="button"
+          className={styles.profile}
+          data-open={isOpen || undefined}
+          onClick={() => setIsOpen((open) => !open)}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
+        >
+          <Avatar
+            name={PROFILE.name}
+            size="1.625rem"
+            className={styles.profileAvatar}
+          />
+          <span className={styles.profileName}>{PROFILE.name}</span>
+        </button>
+      </SidebarTooltip>
     </div>
   );
 }
