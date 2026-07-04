@@ -37,15 +37,11 @@ const SOLAR_ICONS: Record<string, string> = {
   "pin-linear":
     '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4.5l-4 4l-4 1.5l-1.5 1.5l7 7l1.5-1.5l1.5-4l4-4"/><path d="M9 15l-4.5 4.5"/><path d="M14.5 4l5.5 5.5"/></g>',
   "share-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v8a2 2 0 002 2h12a2 2 0 002-2v-8"/><polyline stroke-linecap="round" stroke-linejoin="round" points="16 6 12 2 8 6"/><line stroke-linecap="round" x1="12" y1="2" x2="12" y2="15"/></g>',
-  "link-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></g>',
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="17.5" cy="5.5" r="2.75"/><circle cx="6.5" cy="12" r="2.75"/><circle cx="17.5" cy="18.5" r="2.75"/><path stroke-linecap="round" d="M9 10.7l6-3.7M9 13.3l6 3.7"/></g>',
+  "square-share-line-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M22 12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 12L21 3m0 0h-5.344M21 3v5.344"/></g>',
   "chat-round-linear":
     '<g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01"/></g>',
-  "check-read-linear":
-    '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"/>',
-  "plain-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 14L21 3"/><path d="M21 3l-6.5 18a.55.55 0 01-1 0l-3.5-7l-7-3.5a.55.55 0 010-1L21 3z"/></g>',
 };
 
 for (const [name, body] of Object.entries(SOLAR_ICONS)) {

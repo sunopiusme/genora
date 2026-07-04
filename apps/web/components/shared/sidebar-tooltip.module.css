@@ -23,7 +23,7 @@
 @keyframes tooltipIn {
   from {
     opacity: 0;
-    transform: translate(-0.25rem, -50%);
+    transform: translate(-0.375rem, -50%);
   }
   to {
     opacity: 1;

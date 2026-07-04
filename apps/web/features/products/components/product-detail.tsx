@@ -39,6 +39,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 
 	useEscapeKey(onClose);
 	useInitialFocus(panelRef);
+	useSurfaceFocus(SURFACE_ELEMENT_ID);
 
 	function handleAskAssistant() {
 		attachProduct(product);
@@ -193,7 +194,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 				aria-haspopup="true"
 				aria-expanded={isOpen}
 			>
-				<Icon icon="solar:share-linear" aria-hidden="true" />
+				<Icon icon="solar:square-share-line-linear" aria-hidden="true" />
 			</button>
 			{isOpen && (
 				<div className={styles.shareMenu} role="menu">
@@ -205,17 +206,16 @@ function ShareMenu({ product }: ShareMenuProps) {
 					>
 						<CopyLinkItem isCopied={isCopied} />
 					</button>
-					<div className={styles.shareDivider} aria-hidden="true" />
 					<button
 						type="button"
 						className={styles.shareItem}
 						onClick={handleShareTelegram}
 						role="menuitem"
 					>
-						<span className={styles.shareItemLabel}>Отправить в Telegram</span>
 						<span className={styles.shareItemGlyph}>
 							<Icon icon="solar:plain-linear" aria-hidden="true" />
 						</span>
+						<span className={styles.shareItemLabel}>Telegram</span>
 					</button>
 				</div>
 			)}
@@ -229,19 +229,27 @@ type CopyLinkItemProps = {
 
 function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
 	const iconName = isCopied ? "solar:check-read-linear" : "solar:link-linear";
-	const label = isCopied ? "Скопировано" : "Копировать ссылку";
+	const label = isCopied ? "Скопировано" : "Ссылка";
 	const glyphClassName = isCopied
 		? styles.shareItemGlyphSuccess
 		: styles.shareItemGlyph;
 
 	return (
 		<>
-			<span className={styles.shareItemLabel}>{label}</span>
 			<span className={glyphClassName}>
 				<Icon icon={iconName} aria-hidden="true" />
 			</span>
+			<span className={styles.shareItemLabel}>{label}</span>
 		</>
 	);
+}
+
+function useSurfaceFocus(elementId: string) {
+	useEffect(() => {
+		const surface = document.getElementById(elementId);
+		surface?.setAttribute("data-detail-open", "true");
+		return () => surface?.removeAttribute("data-detail-open");
+	}, [elementId]);
 }
 
 function usePortalSurface(elementId: string) {

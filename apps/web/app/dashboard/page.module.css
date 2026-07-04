@@ -12,7 +12,7 @@
 
 .scrollInner {
   width: 100%;
-  max-width: 72rem;
+  max-width: 64rem;
   margin-inline: auto;
   padding-inline: clamp(var(--space-8), 6vw, var(--space-12));
   padding-block: var(--space-24) var(--space-32);
@@ -25,7 +25,7 @@
   right: 0;
   z-index: 10;
   pointer-events: none;
-  padding-block: var(--space-6) var(--space-8);
+  padding-block: var(--space-5) var(--space-8);
   padding-inline: var(--space-6);
   background: linear-gradient(
     to bottom,
@@ -48,8 +48,18 @@
 
 .title {
   margin: 0;
-  font-size: var(--text-base);
+  font-size: 0.9375rem;
   font-weight: var(--weight-semibold);
   color: var(--color-foreground);
+}
+
+.header,
+.scroll {
+  transition: filter 0.25s ease;
+}
+
+.page[data-detail-open] .header,
+.page[data-detail-open] .scroll {
+  filter: blur(12px);
 }
 

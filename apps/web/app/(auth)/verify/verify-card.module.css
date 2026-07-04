@@ -1,5 +1,5 @@
 .form {
-  margin-top: var(--space-8);
+  margin-top: var(--space-6);
 }
 
 .cells {
@@ -9,14 +9,14 @@
 }
 
 .cell {
-  height: 3.5rem;
+  height: 3rem;
   width: 100%;
   border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   background-color: transparent;
   text-align: center;
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-normal);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
   color: var(--color-foreground);
   transition:
     border-color 0.15s ease,
@@ -61,15 +61,15 @@
 }
 
 .submit.submit {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
   width: 100%;
-  height: 3.25rem;
+  height: 2.75rem;
   border-radius: var(--radius-full);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
 }
 
 .footer {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
   display: flex;
   align-items: center;
   justify-content: space-between;

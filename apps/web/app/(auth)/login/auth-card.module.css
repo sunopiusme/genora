@@ -3,14 +3,14 @@
 }
 
 .header {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
   text-align: center;
 }
 
 .title {
   margin: 0;
-  font-size: var(--text-2xl);
-  font-weight: var(--weight-normal);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
   letter-spacing: var(--tracking-tight);
   color: var(--color-foreground);
 }
@@ -22,11 +22,11 @@
 }
 
 .socialButton.socialButton {
-  height: 3.25rem;
+  height: 2.75rem;
   gap: var(--space-2);
   border-radius: var(--radius-full);
   font-weight: var(--weight-normal);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   background-color: var(--neutral-700);
   border-color: var(--neutral-700);
 }
@@ -47,13 +47,13 @@
 }
 
 .brandMark {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
   fill: currentColor;
 }
 
 .divider {
-  margin-block: var(--space-6);
+  margin-block: var(--space-5);
   display: flex;
   align-items: center;
   gap: var(--space-4);
@@ -89,6 +89,8 @@
 }
 
 .inputRow > input {
+  height: 2.75rem;
+  font-size: var(--text-sm);
   padding-right: 2.5rem;
 }
 
@@ -121,8 +123,8 @@
 }
 
 .toggleIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .hint {
@@ -140,9 +142,9 @@
 
 .submit.submit {
   margin-top: var(--space-1);
-  height: 3.25rem;
+  height: 2.75rem;
   border-radius: var(--radius-full);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
 }
 
 .submit.submit:focus:not(:focus-visible) {
@@ -156,7 +158,7 @@
 }
 
 .footer {
-  margin-top: var(--space-6);
+  margin-top: var(--space-5);
   text-align: center;
   font-size: var(--text-sm);
   color: var(--color-foreground-muted);

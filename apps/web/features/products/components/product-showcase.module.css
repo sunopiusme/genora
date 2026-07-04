@@ -4,13 +4,13 @@
 
 .grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
-	gap: var(--space-8) var(--space-5);
+	grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+	gap: var(--space-6) var(--space-4);
 }
 
 @media (min-width: 48rem) {
 	.grid {
-		column-gap: var(--space-8);
-		row-gap: var(--space-12);
+		column-gap: var(--space-6);
+		row-gap: var(--space-10);
 	}
 }

@@ -7,8 +7,8 @@
 	background:
 		radial-gradient(
 			130% 120% at 50% 38%,
-			rgb(0 0 0 / 0.72),
-			rgb(0 0 0 / 0.93) 78%
+			rgb(0 0 0 / 0.68),
+			rgb(0 0 0 / 0.9) 78%
 		);
 	overflow-y: auto;
 	animation: overlayIn 0.2s ease both;
@@ -17,17 +17,18 @@
 .panel {
 	position: relative;
 	width: 100%;
-	max-width: 60rem;
+	max-width: 52rem;
 	max-height: calc(100dvh - 3rem);
 	margin: auto;
-	border-radius: var(--radius-3xl);
+	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface);
+	border: 1px solid rgb(255 255 255 / 0.09);
 	box-shadow:
-		0 0 0 1px rgb(255 255 255 / 0.08),
-		0 40px 90px -28px rgb(0 0 0 / 0.85);
+		0 32px 80px -24px rgb(0 0 0 / 0.85),
+		0 12px 32px -16px rgb(0 0 0 / 0.6);
 	overflow: hidden;
 	outline: none;
-	animation: panelIn 0.24s ease both;
+	animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes overlayIn {
@@ -42,21 +43,21 @@
 @keyframes panelIn {
 	from {
 		opacity: 0;
-		transform: translateY(0.75rem);
+		transform: scale(0.97) translateY(0.625rem);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0);
+		transform: scale(1) translateY(0);
 	}
 }
 
 .controls {
 	position: absolute;
-	top: var(--space-4);
-	right: var(--space-4);
+	top: var(--space-3);
+	right: var(--space-3);
 	display: flex;
 	align-items: center;
-	gap: var(--space-1);
+	gap: var(--space-2);
 	z-index: 3;
 }
 
@@ -69,29 +70,30 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 2.375rem;
-	height: 2.375rem;
+	width: 2.125rem;
+	height: 2.125rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background-color: rgb(255 255 255 / 0.08);
-	-webkit-backdrop-filter: blur(12px);
-	backdrop-filter: blur(12px);
-	color: var(--color-foreground-muted);
+	color: var(--color-foreground);
 	cursor: pointer;
-	font-size: 1.05rem;
+	font-size: 1rem;
 	transition:
 		color 0.15s ease,
 		background-color 0.15s ease,
-		transform 0.15s ease;
+		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.iconButton svg * {
+	stroke-width: 1.8;
 }
 
 .iconButton:active {
-	transform: scale(0.94);
+	transform: scale(0.97);
 }
 
 .iconButton:hover {
-	color: var(--color-foreground);
-	background-color: rgb(255 255 255 / 0.12);
+	background-color: rgb(255 255 255 / 0.14);
 }
 
 .iconButton:focus-visible {
@@ -101,33 +103,33 @@
 
 .iconButtonActive {
 	composes: iconButton;
-	color: var(--color-foreground);
-	background-color: rgb(255 255 255 / 0.12);
+	background-color: rgb(255 255 255 / 0.14);
 }
 
 .shareMenu {
 	position: absolute;
 	top: calc(100% + 0.5rem);
 	right: 0;
-	width: 15rem;
-	padding: 0;
-	border-radius: 1rem;
-	background-color: rgb(40 40 44 / 0.82);
-	-webkit-backdrop-filter: blur(28px) saturate(1.8);
-	backdrop-filter: blur(28px) saturate(1.8);
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(32 32 36 / 0.98);
 	box-shadow:
-		0 0 0 1px rgb(255 255 255 / 0.06),
-		0 16px 44px -14px rgb(0 0 0 / 0.6);
-	overflow: hidden;
+		0 0 0 1px rgb(255 255 255 / 0.08),
+		0 24px 48px -16px rgb(0 0 0 / 0.6),
+		0 4px 12px -6px rgb(0 0 0 / 0.45);
+	white-space: nowrap;
 	z-index: 4;
-	animation: menuIn 0.16s ease both;
+	animation: menuIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 	transform-origin: top right;
 }
 
 @keyframes menuIn {
 	from {
 		opacity: 0;
-		transform: scale(0.96) translateY(-0.25rem);
+		transform: scale(0.85) translateY(-0.25rem);
 	}
 	to {
 		opacity: 1;
@@ -136,33 +138,31 @@
 }
 
 .shareItem {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
-	width: 100%;
-	min-height: 2.75rem;
-	padding: 0 var(--space-4);
+	gap: 0.375rem;
+	height: 2rem;
+	padding: 0 0.75rem 0 0.625rem;
 	border: none;
+	border-radius: var(--radius-full);
 	background: none;
 	font-family: var(--font-sans);
 	text-align: left;
 	color: var(--color-foreground);
 	cursor: pointer;
-	transition: background-color 0.15s ease;
+	transition: background-color 0.12s ease;
 }
 
 .shareItem:hover {
-	background-color: rgb(255 255 255 / 0.07);
+	background-color: rgb(255 255 255 / 0.08);
+}
+
+.shareItem:active {
+	background-color: rgb(255 255 255 / 0.12);
 }
 
 .shareItem:focus-visible {
 	outline: none;
-	background-color: rgb(255 255 255 / 0.07);
-}
-
-.shareDivider {
-	height: 1px;
 	background-color: rgb(255 255 255 / 0.08);
 }
 
@@ -176,12 +176,16 @@
 .shareItemGlyph {
 	display: inline-flex;
 	flex-shrink: 0;
-	color: var(--color-foreground-muted);
+	color: var(--color-foreground);
 }
 
 .shareItemGlyph svg {
-	width: 1.1rem;
-	height: 1.1rem;
+	width: 1rem;
+	height: 1rem;
+}
+
+.shareItemGlyph svg * {
+	stroke-width: 1.8;
 }
 
 .shareItemGlyphSuccess {
@@ -200,8 +204,8 @@
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
-	min-height: 14rem;
-	padding: var(--space-8);
+	min-height: 12rem;
+	padding: var(--space-6);
 	overflow: hidden;
 	background:
 		radial-gradient(90% 80% at 25% 12%, rgb(255 255 255 / 0.08), transparent 72%),
@@ -223,7 +227,7 @@
 .wordmark {
 	position: relative;
 	margin: 0;
-	font-size: var(--text-3xl);
+	font-size: var(--text-2xl);
 	font-weight: var(--weight-semibold);
 	letter-spacing: -0.025em;
 	color: var(--color-foreground);
@@ -232,12 +236,12 @@
 .content {
 	display: flex;
 	flex-direction: column;
-	padding: var(--space-8);
+	padding: var(--space-6);
 }
 
 .eyebrow {
 	margin: 0 0 var(--space-2);
-	font-size: var(--text-sm);
+	font-size: var(--text-xs);
 	font-weight: var(--weight-semibold);
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
@@ -245,8 +249,8 @@
 }
 
 .name {
-	margin: 0 0 var(--space-4);
-	font-size: var(--text-2xl);
+	margin: 0 0 var(--space-3);
+	font-size: var(--text-xl);
 	font-weight: var(--weight-semibold);
 	line-height: var(--leading-lg);
 	letter-spacing: -0.02em;
@@ -255,15 +259,16 @@
 
 .description {
 	margin: 0;
-	max-width: 34rem;
+	max-width: 30rem;
 	font-size: var(--text-base);
+	font-weight: var(--weight-medium);
 	line-height: var(--leading-lg);
-	color: var(--color-foreground-muted);
+	color: rgb(255 255 255 / 0.85);
 }
 
 .divider {
 	height: 1px;
-	margin: var(--space-6) 0;
+	margin: var(--space-5) 0;
 	background-color: var(--color-border);
 }
 
@@ -276,7 +281,7 @@
 }
 
 .amount {
-	font-size: var(--text-3xl);
+	font-size: var(--text-2xl);
 	font-weight: var(--weight-semibold);
 	letter-spacing: -0.01em;
 	font-variant-numeric: tabular-nums;
@@ -284,12 +289,12 @@
 }
 
 .separator {
-	font-size: var(--text-base);
+	font-size: var(--text-sm);
 	color: var(--color-foreground-subtle);
 }
 
 .period {
-	font-size: var(--text-base);
+	font-size: var(--text-sm);
 	color: var(--color-foreground-muted);
 }
 
@@ -297,7 +302,7 @@
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
-	margin-top: var(--space-6);
+	margin-top: var(--space-5);
 }
 
 .primaryAction {
@@ -305,13 +310,13 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-2);
-	height: 3.25rem;
+	height: 2.75rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background-color: var(--color-primary);
 	color: var(--color-primary-foreground);
 	font-family: var(--font-sans);
-	font-size: var(--text-base);
+	font-size: var(--text-sm);
 	font-weight: var(--weight-semibold);
 	cursor: pointer;
 	transition: opacity 0.15s ease;
@@ -331,14 +336,14 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-2);
-	height: 3.25rem;
+	height: 2.75rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background-color: var(--color-surface-elevated);
 	box-shadow: inset 0 0 0 1px var(--color-border);
 	color: var(--color-foreground);
 	font-family: var(--font-sans);
-	font-size: var(--text-base);
+	font-size: var(--text-sm);
 	font-weight: var(--weight-semibold);
 	cursor: pointer;
 	transition: background-color 0.15s ease;
@@ -354,28 +359,28 @@
 }
 
 .secondaryAction svg {
-	width: 1.2rem;
-	height: 1.2rem;
+	width: 1.05rem;
+	height: 1.05rem;
 }
 
 @media (min-width: 52rem) {
 	.layout {
-		grid-template-columns: minmax(0, 22rem) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
 		align-items: stretch;
 	}
 
 	.hero {
-		min-height: 30rem;
-		padding: var(--space-10);
+		min-height: 24rem;
+		padding: var(--space-8);
 	}
 
 	.content {
-		padding: var(--space-12) var(--space-10);
+		padding: var(--space-10) var(--space-8);
 		justify-content: center;
 	}
 
 	.name {
-		font-size: var(--text-3xl);
+		font-size: var(--text-2xl);
 	}
 }
 

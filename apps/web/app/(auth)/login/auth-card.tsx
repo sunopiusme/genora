@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, cn } from "@genora/ui";
 import styles from "./auth-card.module.css";
@@ -21,6 +21,8 @@ export function AuthCard() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const isRegister = mode === "register";
 
   function switchMode(next: Mode) {
@@ -35,19 +37,21 @@ export function AuthCard() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const nextErrors: FieldErrors = {};
     if (!EMAIL_RE.test(email.trim())) {
-      nextErrors.email = "Введите корректный email";
-    }
-    if (!password) {
-      nextErrors.password = "Введите пароль";
-    }
-
-    setErrors(nextErrors);
-    if (nextErrors.email || nextErrors.password) {
+      setErrors({ email: "Введите корректный email" });
+      emailRef.current?.focus();
       return;
     }
 
+    if (!password) {
+      const passwordWasFocused =
+        document.activeElement === passwordRef.current;
+      setErrors(passwordWasFocused ? { password: "Введите пароль" } : {});
+      passwordRef.current?.focus();
+      return;
+    }
+
+    setErrors({});
     router.push(`/verify?email=${encodeURIComponent(email.trim())}`);
   }
 
@@ -79,6 +83,7 @@ export function AuthCard() {
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <Field error={errors.email}>
           <Input
+            ref={emailRef}
             name="email"
             type="email"
             autoComplete="email"
@@ -93,6 +98,7 @@ export function AuthCard() {
         </Field>
         <Field error={errors.password}>
           <Input
+            ref={passwordRef}
             name="password"
             type={showPassword ? "text" : "password"}
             autoComplete={isRegister ? "new-password" : "current-password"}

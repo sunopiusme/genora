@@ -8,7 +8,7 @@ import {
 } from "react";
 import styles from "./sidebar-tooltip.module.css";
 
-const TOOLTIP_GAP_PX = 12;
+const TOOLTIP_GAP_PX = 20;
 
 type TooltipPosition = {
   top: number;

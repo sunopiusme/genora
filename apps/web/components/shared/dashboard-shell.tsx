@@ -43,7 +43,6 @@ const RECENT_ITEMS = [
 
 const PROFILE = {
   name: "Иван Петров",
-  meta: "Личный аккаунт",
 };
 
 function getInitial(name: string) {
@@ -126,13 +125,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 <span className={styles.profileAvatar}>
                   {getInitial(PROFILE.name)}
                 </span>
-                <span className={styles.profileText}>
-                  <span className={styles.profileName}>{PROFILE.name}</span>
-                  <span className={styles.profileMeta}>{PROFILE.meta}</span>
-                </span>
-                <span className={styles.profileChevron}>
-                  <ChevronIcon />
-                </span>
+                <span className={styles.profileName}>{PROFILE.name}</span>
               </button>
             </SidebarTooltip>
           </div>
@@ -180,21 +173,6 @@ function SidebarIcon() {
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
-        fill="none"
-      />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path
-        d="M8 9l4-4 4 4M8 15l4 4 4-4"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
       />
     </svg>
