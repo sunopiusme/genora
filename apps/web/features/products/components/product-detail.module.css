@@ -202,8 +202,8 @@
 .hero {
 	position: relative;
 	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
+	align-items: center;
+	justify-content: center;
 	min-height: 12rem;
 	padding: var(--space-6);
 	overflow: hidden;
@@ -224,13 +224,13 @@
 	pointer-events: none;
 }
 
-.wordmark {
+.heroLogo {
 	position: relative;
-	margin: 0;
-	font-size: var(--text-2xl);
-	font-weight: var(--weight-semibold);
-	letter-spacing: -0.025em;
-	color: var(--color-foreground);
+	width: 3.5rem;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
 }
 
 .content {
