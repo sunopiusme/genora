@@ -15,7 +15,8 @@ const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
 const HERO_STRETCH_RANGE_PX = 96;
 const HERO_STRETCH_DAMPING = 0.6;
-const CLOSE_ANIMATION_MS = 280;
+const CLOSE_ANIMATION_DESKTOP_MS = 140;
+const CLOSE_ANIMATION_MOBILE_MS = 280;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -45,7 +46,10 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const attachProduct = useComposerStore((state) => state.attach);
 	const isMobile = useMobileViewport();
-	const requestClose = useDelayedClose(onClose);
+	const requestClose = useDelayedClose(
+		onClose,
+		isMobile ? CLOSE_ANIMATION_MOBILE_MS : CLOSE_ANIMATION_DESKTOP_MS,
+	);
 	const isDragging = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
 	const isScrolled = usePanelScrolled(bodyRef, isMobile);
 
@@ -290,10 +294,12 @@ function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
 	);
 }
 
-function useDelayedClose(onClose: () => void) {
+function useDelayedClose(onClose: () => void, durationMs: number) {
 	const [isClosing, setIsClosing] = useState(false);
 	const closeTimerRef = useRef<number | undefined>(undefined);
 	const isClosingRef = useRef(false);
+	const durationRef = useRef(durationMs);
+	durationRef.current = durationMs;
 
 	useEffect(() => {
 		return () => window.clearTimeout(closeTimerRef.current);
@@ -305,7 +311,7 @@ function useDelayedClose(onClose: () => void) {
 		}
 		isClosingRef.current = true;
 		setIsClosing(true);
-		closeTimerRef.current = window.setTimeout(onClose, CLOSE_ANIMATION_MS);
+		closeTimerRef.current = window.setTimeout(onClose, durationRef.current);
 	}, [onClose]);
 
 	return { isClosing, begin };
