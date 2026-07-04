@@ -60,6 +60,29 @@
 	color: var(--color-foreground);
 }
 
+/* На мобильных в теге остаётся только логотип с крестиком —
+   название не съедает место у поля ввода. Полное имя по-прежнему
+   доступно скринридерам через aria-label самого чипа. */
+@media (max-width: 40rem) {
+	.chip {
+		max-width: none;
+		gap: var(--space-1);
+	}
+
+	.chipLabel {
+		display: none;
+	}
+
+	.chipLogo,
+	.chipFileGlyph {
+		width: 1.375rem;
+	}
+
+	.chipFileGlyph {
+		height: 1.375rem;
+	}
+}
+
 .chipRemove {
 	display: inline-flex;
 	align-items: center;
