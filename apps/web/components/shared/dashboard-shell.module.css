@@ -57,7 +57,6 @@
 
 .logo {
   display: inline-flex;
-  transition: opacity 0.15s ease;
 }
 
 .sidebarToggle {
@@ -88,27 +87,21 @@
 }
 
 .sidebarHeader:hover .logo {
-  opacity: 0;
+  visibility: hidden;
 }
 
 .sidebarHeader:hover .sidebarToggle {
   opacity: 1;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
 }
 
 .sidebarOpen .sidebarToggle {
   left: auto;
   right: var(--space-2);
   opacity: 1;
-  transition:
-    color 0.15s ease,
-    opacity 0.15s ease;
 }
 
 .sidebarOpen .sidebarHeader:hover .logo {
-  opacity: 1;
+  visibility: visible;
 }
 
 .nav {
@@ -158,11 +151,11 @@
 .navLabel {
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.15s ease;
 }
 
 .sidebarOpen .navLabel {
   opacity: 1;
+  transition: opacity 0.15s ease 0.05s;
 }
 
 .section {
