@@ -111,13 +111,12 @@
   opacity: 1;
 }
 
-/* While the width animation runs, keep the header empty: the toggle
-   vanishes instantly on click and the logo stays hidden, regardless of
-   hover. Once the animation ends the class is removed and the logo
-   fades back in via its opacity transition. */
+/* While the width animation runs the toggle vanishes instantly and the
+   logo stays fully visible in place, regardless of hover, so nothing
+   fades or collides mid-transition. */
 .sidebarAnimating .sidebarHeader .logo,
 .sidebarAnimating .sidebarHeader:hover .logo {
-  opacity: 0;
+  opacity: 1;
   transition: none;
 }
 
