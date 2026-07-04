@@ -136,8 +136,8 @@
 .navLink {
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-2);
+  gap: 0;
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-lg);
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
@@ -145,7 +145,14 @@
   text-decoration: none;
   transition:
     color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.15s ease,
+    padding 0.2s ease,
+    gap 0.2s ease;
+}
+
+.sidebarOpen .navLink {
+  gap: var(--space-3);
+  padding: var(--space-2);
 }
 
 .navLink:hover {
@@ -172,11 +179,14 @@
 }
 
 .navLabel {
+  width: 0;
+  overflow: hidden;
   white-space: nowrap;
   opacity: 0;
 }
 
 .sidebarOpen .navLabel {
+  width: auto;
   opacity: 1;
   transition: opacity 0.15s ease 0.05s;
 }
