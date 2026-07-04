@@ -18,26 +18,21 @@
 	border-radius: var(--radius-xl);
 	background:
 		radial-gradient(
-			70% 58% at 82% 112%,
+			42% 34% at 50% 38%,
+			color-mix(in srgb, var(--brand) 44%, transparent),
+			transparent 100%
+		),
+		radial-gradient(
+			78% 64% at 50% 40%,
 			color-mix(in srgb, var(--brand-glow) 26%, transparent),
-			transparent 68%
+			transparent 72%
 		),
 		radial-gradient(
-			75% 52% at 12% 108%,
-			color-mix(in srgb, var(--brand) 20%, transparent),
-			transparent 70%
+			120% 96% at 50% 44%,
+			color-mix(in srgb, var(--brand-glow) 10%, transparent),
+			transparent 78%
 		),
-		radial-gradient(
-			95% 85% at 78% -18%,
-			color-mix(in srgb, var(--brand) 30%, transparent),
-			transparent 58%
-		),
-		radial-gradient(
-			90% 75% at 14% -14%,
-			color-mix(in srgb, var(--brand-glow) 24%, transparent),
-			transparent 56%
-		),
-		linear-gradient(180deg, var(--neutral-900), var(--neutral-950));
+		#060607;
 	box-shadow: inset 0 0 0 1px var(--color-border);
 	overflow: hidden;
 	cursor: pointer;
@@ -62,9 +57,9 @@
 	position: absolute;
 	inset: 0;
 	background: radial-gradient(
-		95% 95% at 50% 42%,
-		transparent 44%,
-		rgb(0 0 0 / 0.32)
+		110% 105% at 50% 40%,
+		transparent 48%,
+		rgb(0 0 0 / 0.5)
 	);
 	pointer-events: none;
 }
