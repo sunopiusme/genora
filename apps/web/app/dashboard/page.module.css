@@ -27,19 +27,48 @@
   pointer-events: none;
   padding-block: var(--space-5) var(--space-8);
   padding-inline: var(--space-6);
+}
+
+/* Progressive blur mirrored from the composer: strongest at the very
+   top, dissolving downward, with an eased scrim on top of it. */
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
   background: linear-gradient(
     to bottom,
-    #000000 0%,
-    rgb(0 0 0 / 0.96) 34%,
-    rgb(0 0 0 / 0.86) 52%,
-    rgb(0 0 0 / 0.68) 68%,
-    rgb(0 0 0 / 0.42) 82%,
-    rgb(0 0 0 / 0.18) 92%,
+    rgb(0 0 0 / 0.92),
+    rgb(0 0 0 / 0.913) 8.1%,
+    rgb(0 0 0 / 0.895) 15.5%,
+    rgb(0 0 0 / 0.863) 22.5%,
+    rgb(0 0 0 / 0.816) 29%,
+    rgb(0 0 0 / 0.757) 35.3%,
+    rgb(0 0 0 / 0.684) 41.2%,
+    rgb(0 0 0 / 0.603) 47.1%,
+    rgb(0 0 0 / 0.513) 52.9%,
+    rgb(0 0 0 / 0.419) 58.8%,
+    rgb(0 0 0 / 0.323) 64.7%,
+    rgb(0 0 0 / 0.23) 71%,
+    rgb(0 0 0 / 0.144) 77.5%,
+    rgb(0 0 0 / 0.073) 84.5%,
+    rgb(0 0 0 / 0.02) 91.9%,
     transparent 100%
   );
 }
 
 .headerInner {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: center;

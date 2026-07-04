@@ -4,14 +4,9 @@
 	z-index: 20;
 	display: flex;
 	padding: var(--space-6);
-	background:
-		radial-gradient(
-			130% 120% at 50% 38%,
-			rgb(0 0 0 / 0.68),
-			rgb(0 0 0 / 0.9) 78%
-		);
-	backdrop-filter: blur(6px);
-	-webkit-backdrop-filter: blur(6px);
+	background-color: rgb(0 0 0 / 0.72);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 	overflow-y: auto;
 	animation: overlayIn 0.2s ease both;
 }
@@ -19,16 +14,16 @@
 .panel {
 	position: relative;
 	width: 100%;
-	max-width: 52rem;
+	max-width: 46rem;
 	max-height: calc(100dvh - 3rem);
 	margin: auto;
 	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface);
-	border: 1px solid rgb(255 255 255 / 0.14);
+	border: 1px solid rgb(255 255 255 / 0.12);
 	box-shadow:
 		inset 0 1px 0 rgb(255 255 255 / 0.06),
-		0 32px 80px -24px rgb(0 0 0 / 0.85),
-		0 12px 32px -16px rgb(0 0 0 / 0.6);
+		0 24px 64px -20px rgb(0 0 0 / 0.8),
+		0 8px 24px -12px rgb(0 0 0 / 0.55);
 	overflow: hidden;
 	outline: none;
 	animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -66,6 +61,43 @@
 .panelDragging {
 	composes: panel;
 	animation: none;
+	transition: none;
+}
+
+@keyframes overlayOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes panelOut {
+	from {
+		opacity: 1;
+		transform: scale(1);
+	}
+	to {
+		opacity: 0;
+		transform: scale(0.98);
+	}
+}
+
+@keyframes sheetOut {
+	to {
+		transform: translateY(100%);
+	}
+}
+
+.overlayClosing {
+	animation: overlayOut 0.14s ease-out both;
+	pointer-events: none;
+}
+
+.panelClosing {
+	composes: panel;
+	animation: panelOut 0.12s ease-out both;
 	transition: none;
 }
 
@@ -110,6 +142,20 @@
 		transition: none;
 	}
 
+	.overlayClosing.overlayClosing {
+		animation: none;
+		opacity: 1;
+	}
+
+	.overlayClosing::before {
+		animation: overlayOut 0.28s ease both;
+	}
+
+	.panelClosing.panelClosing {
+		animation: sheetOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+		transition: none;
+	}
+
 	.body {
 		overflow-y: auto;
 		overscroll-behavior: contain;
@@ -131,11 +177,26 @@
 		content: "";
 		position: absolute;
 		inset: 0 0 auto 0;
-		height: 2.75rem;
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		-webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-		mask-image: linear-gradient(to bottom, #000, transparent);
+		height: 4.5rem;
+		background: linear-gradient(
+			to bottom,
+			rgb(0 0 0 / 0.72),
+			rgb(0 0 0 / 0.715) 8.1%,
+			rgb(0 0 0 / 0.7) 15.5%,
+			rgb(0 0 0 / 0.676) 22.5%,
+			rgb(0 0 0 / 0.639) 29%,
+			rgb(0 0 0 / 0.592) 35.3%,
+			rgb(0 0 0 / 0.535) 41.2%,
+			rgb(0 0 0 / 0.472) 47.1%,
+			rgb(0 0 0 / 0.402) 52.9%,
+			rgb(0 0 0 / 0.328) 58.8%,
+			rgb(0 0 0 / 0.253) 64.7%,
+			rgb(0 0 0 / 0.18) 71%,
+			rgb(0 0 0 / 0.113) 77.5%,
+			rgb(0 0 0 / 0.057) 84.5%,
+			rgb(0 0 0 / 0.016) 91.9%,
+			transparent 100%
+		);
 		opacity: 0;
 		transition: opacity 0.3s ease;
 		pointer-events: none;
@@ -153,7 +214,7 @@
 	}
 
 	.hero.hero {
-		min-height: calc(12rem + var(--hero-stretch, 0px));
+		min-height: calc(14rem + var(--hero-stretch, 0px));
 		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
@@ -319,30 +380,110 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 12rem;
+	min-height: 14rem;
 	padding: var(--space-6);
 	overflow: hidden;
 	background:
-		radial-gradient(130% 90% at 50% 0%, var(--neutral-850), transparent 72%),
-		linear-gradient(180deg, var(--neutral-900), var(--neutral-950));
+		radial-gradient(
+			95% 46% at 30% 108%,
+			color-mix(in srgb, var(--brand) 42%, transparent),
+			transparent 72%
+		),
+		radial-gradient(
+			90% 52% at 74% 112%,
+			color-mix(in srgb, var(--brand-glow) 34%, transparent),
+			transparent 74%
+		),
+		radial-gradient(
+			140% 60% at 50% 118%,
+			color-mix(in srgb, var(--brand-glow) 14%, transparent),
+			transparent 80%
+		),
+		#060607;
+	box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
 }
 
-.heroGrid {
+.hero::before {
+	content: "";
 	position: absolute;
 	inset: 0;
-	background-image:
-		linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
-		linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
-	background-size: 2.5rem 2.5rem;
-	-webkit-mask-image: radial-gradient(80% 70% at 50% 42%, #000, transparent 78%);
-	mask-image: radial-gradient(80% 70% at 50% 42%, #000, transparent 78%);
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+	opacity: 0.05;
 	pointer-events: none;
 }
 
-.heroLogo {
+.hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		110% 105% at 50% 40%,
+		transparent 50%,
+		rgb(0 0 0 / 0.48)
+	);
+	pointer-events: none;
+}
+
+.heroLogoTile {
 	position: relative;
-	width: 3.5rem;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 6.75rem;
 	aspect-ratio: 1;
+	transform: translateY(-16%);
+	border-radius: 27.5%;
+	background: linear-gradient(
+		180deg,
+		rgb(255 255 255 / 0.1),
+		rgb(255 255 255 / 0.02)
+	);
+	box-shadow:
+		inset 0 1px 0 rgb(255 255 255 / 0.16),
+		inset 0 0 0 1px rgb(255 255 255 / 0.07),
+		0 28px 60px -14px
+			color-mix(
+				in srgb,
+				color-mix(in srgb, var(--brand) 55%, var(--brand-glow)) 48%,
+				rgb(0 0 0 / 0.5)
+			),
+		0 4px 12px -6px rgb(0 0 0 / 0.5);
+}
+
+.heroLogo {
+	width: 54%;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
+}
+
+/* Mirrored copy of the tile on the "glossy floor" below it */
+.heroReflection {
+	position: absolute;
+	top: calc(100% + 5%);
+	left: 0;
+	width: 100%;
+	height: 100%;
+	border-radius: 27.5%;
+	transform: scaleY(-1);
+	background: linear-gradient(
+		180deg,
+		rgb(255 255 255 / 0.1),
+		rgb(255 255 255 / 0.02)
+	);
+	opacity: 0.3;
+	filter: blur(2px);
+	-webkit-mask-image: linear-gradient(to top, #000 4%, transparent 62%);
+	mask-image: linear-gradient(to top, #000 4%, transparent 62%);
+	pointer-events: none;
+}
+
+.heroReflection::after {
+	content: "";
+	position: absolute;
+	inset: 23%;
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
 	mask: var(--logo-url) no-repeat center / contain;
@@ -376,16 +517,21 @@
 	margin: 0;
 	max-width: 30rem;
 	font-size: var(--text-base);
-	font-weight: var(--weight-medium);
+	font-weight: var(--weight-normal);
 	line-height: var(--leading-lg);
 	text-wrap: pretty;
-	color: var(--color-foreground);
+	color: var(--color-foreground-muted);
 }
 
 .divider {
 	height: 1px;
 	margin: var(--space-5) 0;
-	background: linear-gradient(90deg, var(--color-border) 55%, transparent);
+	background: linear-gradient(
+		90deg,
+		var(--color-border-strong),
+		var(--color-border) 45%,
+		transparent
+	);
 }
 
 .priceRow {
@@ -435,13 +581,16 @@
 	font-size: var(--text-sm);
 	font-weight: var(--weight-semibold);
 	cursor: pointer;
+	box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
 	transition:
 		background-color 0.15s ease,
+		box-shadow 0.2s ease,
 		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .primaryAction:hover {
 	background-color: var(--neutral-200);
+	box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
 }
 
 .primaryAction:active {
@@ -500,6 +649,11 @@
 	.hero {
 		min-height: 24rem;
 		padding: var(--space-8);
+		box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.07);
+	}
+
+	.heroLogoTile {
+		width: 8.25rem;
 	}
 
 	.content {
@@ -509,10 +663,6 @@
 
 	.name {
 		font-size: var(--text-2xl);
-	}
-
-	.heroLogo {
-		width: 4.5rem;
 	}
 
 	.amount {
@@ -531,5 +681,16 @@
 	.panel {
 		transform: none;
 		transition: none;
+	}
+
+	.overlayClosing,
+	.overlayClosing::before {
+		animation: none;
+		opacity: 0;
+	}
+
+	.panelClosing.panelClosing {
+		animation: none;
+		opacity: 0;
 	}
 }

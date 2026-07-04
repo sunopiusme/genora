@@ -9,6 +9,9 @@ export function ComposerBar() {
       <div className={styles.input}>
         <AssistantBar />
       </div>
+      <p className={styles.disclaimer}>
+        Даже топовые модели могут ошибаться.
+      </p>
     </div>
   );
 }

@@ -56,7 +56,7 @@ export function AssistantBar() {
 			) : (
 				<span className={styles.searchIcon}>
 					<Icon
-						icon="solar:magnifer-bold-stroke"
+						icon="solar:plus-bold-stroke"
 						className={styles.searchGlyph}
 						aria-hidden="true"
 					/>
