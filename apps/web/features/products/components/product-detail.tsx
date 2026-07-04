@@ -39,10 +39,11 @@ type ProductDetailModalProps = {
 
 function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const panelRef = useRef<HTMLDivElement>(null);
+	const bodyRef = useRef<HTMLDivElement>(null);
 	const attachProduct = useComposerStore((state) => state.attach);
 	const isMobile = useMobileViewport();
-	const isDragging = useSwipeToDismiss(panelRef, onClose, isMobile);
-	const isScrolled = usePanelScrolled(panelRef, isMobile);
+	const isDragging = useSwipeToDismiss(panelRef, bodyRef, onClose, isMobile);
+	const isScrolled = usePanelScrolled(bodyRef, isMobile);
 
 	useEscapeKey(onClose);
 	useInitialFocus(panelRef);
@@ -86,9 +87,14 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 					</button>
 				</div>
 
-				<div className={styles.layout}>
-					<ProductHero product={product} />
-					<ProductPanel product={product} onAskAssistant={handleAskAssistant} />
+				<div ref={bodyRef} className={styles.body}>
+					<div className={styles.layout}>
+						<ProductHero product={product} />
+						<ProductPanel
+							product={product}
+							onAskAssistant={handleAskAssistant}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -276,6 +282,7 @@ function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
 
 function useSwipeToDismiss(
 	panelRef: React.RefObject<HTMLDivElement | null>,
+	bodyRef: React.RefObject<HTMLDivElement | null>,
 	onDismiss: () => void,
 	isEnabled: boolean,
 ) {
@@ -290,6 +297,7 @@ function useSwipeToDismiss(
 			return;
 		}
 		const panel: HTMLDivElement = panelElement;
+		const getScrollTop = () => bodyRef.current?.scrollTop ?? 0;
 
 		let activePointerId: number | null = null;
 		let startY = 0;
@@ -299,7 +307,7 @@ function useSwipeToDismiss(
 		let dragOffset = 0;
 
 		function handlePointerDown(event: PointerEvent) {
-			if (activePointerId !== null || panel.scrollTop > 0) {
+			if (activePointerId !== null || getScrollTop() > 0) {
 				return;
 			}
 			activePointerId = event.pointerId;
@@ -325,7 +333,7 @@ function useSwipeToDismiss(
 			if (dragOffset === 0 && deltaY < SWIPE_START_THRESHOLD_PX) {
 				return;
 			}
-			if (dragOffset === 0 && panel.scrollTop > 0) {
+			if (dragOffset === 0 && getScrollTop() > 0) {
 				activePointerId = null;
 				return;
 			}
@@ -374,13 +382,13 @@ function useSwipeToDismiss(
 			panel.removeEventListener("touchmove", handleTouchMove);
 			panel.style.transform = "";
 		};
-	}, [isEnabled, onDismiss, panelRef]);
+	}, [isEnabled, onDismiss, panelRef, bodyRef]);
 
 	return isDragging;
 }
 
 function usePanelScrolled(
-	panelRef: React.RefObject<HTMLDivElement | null>,
+	bodyRef: React.RefObject<HTMLDivElement | null>,
 	isEnabled: boolean,
 ) {
 	const [isScrolled, setIsScrolled] = useState(false);
@@ -390,19 +398,19 @@ function usePanelScrolled(
 			setIsScrolled(false);
 			return;
 		}
-		const panel = panelRef.current;
-		if (!panel) {
+		const body = bodyRef.current;
+		if (!body) {
 			return;
 		}
 
 		function handleScroll() {
-			setIsScrolled((panel?.scrollTop ?? 0) > 4);
+			setIsScrolled((body?.scrollTop ?? 0) > 4);
 		}
 
 		handleScroll();
-		panel.addEventListener("scroll", handleScroll, { passive: true });
-		return () => panel.removeEventListener("scroll", handleScroll);
-	}, [isEnabled, panelRef]);
+		body.addEventListener("scroll", handleScroll, { passive: true });
+		return () => body.removeEventListener("scroll", handleScroll);
+	}, [isEnabled, bodyRef]);
 
 	return isScrolled;
 }
