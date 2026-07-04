@@ -129,7 +129,6 @@ function ProductHero({ product }: ProductHeroProps) {
 				} as React.CSSProperties
 			}
 		>
-			<span className={styles.heroWatermark} aria-hidden="true" />
 			<span className={styles.heroLogoTile}>
 				<span
 					className={styles.heroLogo}

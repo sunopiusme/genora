@@ -22,7 +22,6 @@ type ProductCardProps = {
 
 export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 	const openGesture = useCardOpenGesture(onOpen);
-	const spotlight = useCoverSpotlight();
 
 	function handleCoverClick(event: MouseEvent<HTMLButtonElement>) {
 		event.stopPropagation();
@@ -47,12 +46,9 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 			onDoubleClick={openGesture.cancelPendingOpen}
 		>
 			<button
-				ref={spotlight.coverRef}
 				type="button"
 				className={styles.cover}
 				onClick={handleCoverClick}
-				onPointerMove={spotlight.handlePointerMove}
-				onPointerLeave={spotlight.handlePointerLeave}
 				aria-label={`Открыть ${product.name}`}
 				style={
 					{
@@ -60,8 +56,6 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 					} as CSSProperties
 				}
 			>
-				<span className={styles.watermark} aria-hidden="true" />
-				<span className={styles.spotlight} aria-hidden="true" />
 				<span className={styles.logoTile}>
 					<span
 						className={styles.logo}
@@ -87,36 +81,6 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 			</Button>
 		</article>
 	);
-}
-
-function useCoverSpotlight() {
-	const coverRef = useRef<HTMLButtonElement>(null);
-
-	function handlePointerMove(event: PointerEvent<HTMLButtonElement>) {
-		if (event.pointerType !== "mouse") {
-			return;
-		}
-		const cover = coverRef.current;
-		if (!cover) {
-			return;
-		}
-		const rect = cover.getBoundingClientRect();
-		cover.style.setProperty(
-			"--spot-x",
-			`${(((event.clientX - rect.left) / rect.width) * 100).toFixed(2)}%`,
-		);
-		cover.style.setProperty(
-			"--spot-y",
-			`${(((event.clientY - rect.top) / rect.height) * 100).toFixed(2)}%`,
-		);
-		cover.style.setProperty("--spot-opacity", "1");
-	}
-
-	function handlePointerLeave() {
-		coverRef.current?.style.setProperty("--spot-opacity", "0");
-	}
-
-	return { coverRef, handlePointerMove, handlePointerLeave };
 }
 
 type PressStartPoint = {
