@@ -53,6 +53,7 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				style={
 					{
 						"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+						"--brand": product.brandColor,
 					} as CSSProperties
 				}
 			>

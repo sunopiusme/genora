@@ -3,6 +3,7 @@ export type Product = {
   name: string;
   provider: string;
   logoSlug: string;
+  brandColor: string;
   priceLabel: string;
   periodLabel: string;
   description: string;
