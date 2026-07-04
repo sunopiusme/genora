@@ -93,6 +93,12 @@
 .token {
 	display: inline;
 	white-space: pre;
+	/* line-height: normal схлопывает inline-бокс тега до метрики
+	   шрифта (~18px) — как у обычного текста. С унаследованными
+	   22px бокс тега был выше текстового, и Chrome рисовал каретку
+	   рядом с тегом по его высоте: она «подрастала». Позицию строки
+	   это не меняет — line box задаёт сам редактор. */
+	line-height: normal;
 	user-select: none;
 	animation: tokenIn 0.16s ease both;
 }
@@ -107,10 +113,10 @@
 }
 
 .tokenLabel {
-	/* Наследует размер и line box редактора — тег никак не влияет
-	   на высоту строки и каретку. */
+	/* Размер — как у основного текста, line box — по метрике шрифта
+	   (см. комментарий у .token). */
 	font-size: inherit;
-	line-height: inherit;
+	line-height: normal;
 	font-weight: var(--weight-semibold);
 	color: var(--blue-400);
 }
