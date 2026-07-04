@@ -14,7 +14,7 @@
     var(--sidebar-inset) * 2 + var(--sidebar-item-pad) * 2 +
       var(--sidebar-icon-size) + var(--sidebar-border-width)
   );
-  --sidebar-expanded-width: clamp(12rem, 11vw + 4.5rem, 14.5rem);
+  --sidebar-expanded-width: clamp(14.5rem, 12vw + 5.5rem, 17rem);
   position: relative;
   font-weight: var(--weight-medium);
 }

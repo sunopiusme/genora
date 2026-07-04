@@ -16,6 +16,7 @@ import { Icon } from "@/lib/icon";
 import { PROFILE } from "@/lib/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
+import { ProfileSheet } from "./profile-sheet";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
 import styles from "./dashboard-shell.module.css";
 
@@ -234,7 +235,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               type="button"
               className={styles.sidebarToggle}
               onClick={toggleSidebar}
-              aria-label="Переключить меню"
+              aria-label="Переключи��ь меню"
             >
               <SidebarIcon />
             </button>
@@ -332,6 +333,17 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // On mobile the profile opens a full-screen sheet instead of the
+  // anchored popover — the popover doesn't fit the drawer width.
+  function handleProfileClick() {
+    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+      setIsSheetOpen(true);
+      return;
+    }
+    setIsOpen((open) => !open);
+  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -414,7 +426,7 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
           type="button"
           className={styles.profile}
           data-open={isOpen || undefined}
-          onClick={() => setIsOpen((open) => !open)}
+          onClick={handleProfileClick}
           aria-haspopup="menu"
           aria-expanded={isOpen}
           aria-controls={isOpen ? menuId : undefined}
@@ -427,6 +439,10 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
           <span className={styles.profileName}>{PROFILE.name}</span>
         </button>
       </SidebarTooltip>
+      <ProfileSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+      />
     </div>
   );
 }

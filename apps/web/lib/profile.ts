@@ -5,5 +5,6 @@
  */
 export const PROFILE = {
 	name: "Иван Петров",
+	email: "ivan.petrov@example.com",
 	plan: "Бесплатный",
 };
