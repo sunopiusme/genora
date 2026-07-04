@@ -20,21 +20,83 @@
 	}
 }
 
-.chip {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-2);
-	flex-shrink: 0;
-	max-width: min(12rem, 48vw);
-	/* Высота совпадает с инпутом и кнопкой отправки, чтобы чип
-	   стоял ровно по вертикальной оси бара. Без собственного фона —
-	   он сливается с баром и выглядит легче. */
-	height: 2.25rem;
-	padding-inline: var(--space-2) 0;
-	animation: chipIn 0.16s ease both;
+.editorWrap {
+	position: relative;
+	display: flex;
+	flex: 1;
+	min-width: 0;
 }
 
-@keyframes chipIn {
+/* Однострочный contenteditable-редактор: теги живут прямо в потоке
+   текста. white-space: pre сохраняет пробелы вокруг тегов, длинная
+   строка скроллится по горизонтали. */
+.editor {
+	flex: 1;
+	min-width: 0;
+	height: 2.25rem;
+	line-height: 2.25rem;
+	padding-inline: var(--space-1) var(--space-2);
+	font-family: var(--font-sans);
+	/* 16px minimum: iOS Safari force-zooms the page when focusing an
+	   input with a smaller font, which shifts the layout off-screen. */
+	font-size: 1rem;
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground);
+	white-space: pre;
+	overflow-x: auto;
+	overflow-y: hidden;
+	scrollbar-width: none;
+	outline: none;
+}
+
+.editor::-webkit-scrollbar {
+	display: none;
+}
+
+@media (min-width: 48rem) {
+	.editor {
+		font-size: 0.9375rem;
+	}
+}
+
+.editorPlaceholder {
+	position: absolute;
+	top: 0;
+	left: var(--space-1);
+	right: var(--space-2);
+	overflow: hidden;
+	line-height: 2.25rem;
+	font-size: 1rem;
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-muted);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	pointer-events: none;
+}
+
+@media (min-width: 48rem) {
+	.editorPlaceholder {
+		font-size: 0.9375rem;
+	}
+}
+
+/* Инлайн-тег в потоке текста: логотип/аватарка + имя + крестик.
+   Без собственного фона — атомарность передают иконка и крестик. */
+.token {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+	max-width: min(11rem, 44vw);
+	height: 1.75rem;
+	margin-inline: 0.0625rem;
+	vertical-align: middle;
+	border-radius: var(--radius-full);
+	white-space: nowrap;
+	user-select: none;
+	animation: tokenIn 0.16s ease both;
+}
+
+@keyframes tokenIn {
 	from {
 		opacity: 0;
 		transform: scale(0.96);
@@ -45,27 +107,27 @@
 	}
 }
 
-.chipLogo {
+.tokenLogo {
 	flex-shrink: 0;
-	width: 1.125rem;
+	width: 1rem;
 	aspect-ratio: 1;
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
 	mask: var(--logo-url) no-repeat center / contain;
 }
 
-.chipFileGlyph {
+.tokenAvatar {
 	flex-shrink: 0;
-	width: 1.125rem;
-	height: 1.125rem;
+}
+
+.tokenFileGlyph {
+	flex-shrink: 0;
+	width: 1rem;
+	height: 1rem;
 	color: var(--color-foreground);
 }
 
-.chipAvatar {
-	flex-shrink: 0;
-}
-
-.chipLabel {
+.tokenLabel {
 	overflow: hidden;
 	text-overflow: ellipsis;
 	white-space: nowrap;
@@ -75,30 +137,13 @@
 	color: var(--color-foreground);
 }
 
-/* На мобильных в теге остаётся только логотип с крестиком —
-   название не съедает место у поля ввода. Полное имя по-прежнему
-   доступно скринридерам через aria-label самого чипа. Логотип
-   держим того же размера, что и на десктопе, — увеличенный он
-   выбивается из масштаба остальных иконок бара. */
-@media (max-width: 40rem) {
-	.chip {
-		max-width: none;
-		gap: 0;
-		padding-inline: var(--space-1) 0;
-	}
-
-	.chipLabel {
-		display: none;
-	}
-}
-
-.chipRemove {
+.tokenRemove {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: 1.75rem;
-	height: 1.75rem;
+	width: 1.25rem;
+	height: 1.25rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
@@ -109,52 +154,18 @@
 		background-color 0.15s ease;
 }
 
-.chipRemove:hover {
+.tokenRemove:hover {
 	color: var(--color-foreground);
 	background-color: rgb(255 255 255 / 0.16);
 }
 
-.chipRemove:focus-visible {
+.tokenRemove:focus-visible {
 	outline: none;
 }
 
-.chipRemoveGlyph {
-	width: 1.125rem;
-	height: 1.125rem;
-}
-
-.input {
-	flex: 1;
-	min-width: 0;
-	height: 2.25rem;
-	border: none;
-	background: none;
-	padding-inline: var(--space-1) var(--space-2);
-	font-family: var(--font-sans);
-	/* 16px minimum: iOS Safari force-zooms the page when focusing an
-	   input with a smaller font, which shifts the layout off-screen. */
-	font-size: 1rem;
-	font-weight: var(--weight-medium);
-	color: var(--color-foreground);
-	/* On narrow screens the placeholder may not fit — trim it with an
-	   ellipsis instead of a hard mid-letter cut. Browsers apply the
-	   input's own text-overflow to its placeholder. */
-	text-overflow: ellipsis;
-}
-
-@media (min-width: 48rem) {
-	.input {
-		font-size: 0.9375rem;
-	}
-}
-
-.input::placeholder {
-	color: var(--color-foreground-muted);
-	font-weight: var(--weight-medium);
-}
-
-.input:focus-visible {
-	outline: none;
+.tokenRemoveGlyph {
+	width: 0.875rem;
+	height: 0.875rem;
 }
 
 .submit {
@@ -191,7 +202,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.chip {
+	.token {
 		animation: none;
 	}
 }
