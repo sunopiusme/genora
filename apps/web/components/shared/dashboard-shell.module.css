@@ -25,7 +25,10 @@
   left: 0;
   z-index: 30;
   width: var(--sidebar-rail-width);
-  height: 100dvh;
+  /* svh, not dvh: dvh changes when the iOS Safari toolbar collapses
+     while scrolling, which resizes the layout and makes content drift.
+     svh stays constant, so the shell never shifts. */
+  height: 100svh;
   transition: width 0.2s ease;
 }
 
@@ -352,7 +355,9 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  /* svh, not dvh — see .sidebar: keeps the layout height constant
+     while the iOS Safari toolbar shows and hides. */
+  height: 100svh;
   overflow: hidden;
   padding-left: var(--sidebar-rail-width);
   transition: padding-left 0.2s ease;
