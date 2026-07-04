@@ -5,6 +5,8 @@
  */
 export const PROFILE = {
 	name: "Иван Петров",
+	/* Короткое имя для компактных мест вроде кнопки в сайдбаре. */
+	username: "Иван",
 	email: "ivan.petrov@example.com",
 	plan: "Бесплатный",
 };

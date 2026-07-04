@@ -421,7 +421,10 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
           ))}
         </div>
       )}
-      <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen && !isOpen}>
+      <SidebarTooltip
+        label={PROFILE.username}
+        isEnabled={!isSidebarOpen && !isOpen}
+      >
         <button
           type="button"
           className={styles.profile}
@@ -436,7 +439,10 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
             size="1.625rem"
             className={styles.profileAvatar}
           />
-          <span className={styles.profileName}>{PROFILE.name}</span>
+          <span className={styles.profileIdentity}>
+            <span className={styles.profileName}>{PROFILE.username}</span>
+            <span className={styles.profilePlan}>{PROFILE.plan}</span>
+          </span>
         </button>
       </SidebarTooltip>
       <ProfileSheet
