@@ -1,6 +1,13 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+	useEffect,
+	useId,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
 import { getFeaturedProducts } from "../queries/featured-products";
@@ -22,13 +29,38 @@ export function AttachMenu() {
 	const imageInputRef = useRef<HTMLInputElement>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const searchInputRef = useRef<HTMLInputElement>(null);
+	const actionsPaneRef = useRef<HTMLDivElement>(null);
+	const productsPaneRef = useRef<HTMLDivElement>(null);
 	const [isOpen, setIsOpen] = useState(false);
 	const [view, setView] = useState<MenuView>("actions");
 	const [search, setSearch] = useState("");
+	/* Высота видимого экрана меню. Оба экрана всегда в DOM — контейнер
+	   плавно анимирует высоту к активному, вместо скачка размера. */
+	const [viewportHeight, setViewportHeight] = useState<number | null>(null);
 	const attachProduct = useComposerStore((state) => state.attach);
 	const attachFile = useComposerStore((state) => state.attachFile);
 
 	useCloseOnOutsideInteraction(rootRef, isOpen, close);
+
+	/* Следим за фактической высотой активного экрана: смена экрана
+	   и фильтрация списка товаров меняют её — ResizeObserver ловит
+	   всё, transition на контейнере превращает это в плавный морф. */
+	useLayoutEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+		const pane =
+			view === "actions" ? actionsPaneRef.current : productsPaneRef.current;
+		if (!pane) {
+			return;
+		}
+		setViewportHeight(pane.offsetHeight);
+		const observer = new ResizeObserver(() => {
+			setViewportHeight(pane.offsetHeight);
+		});
+		observer.observe(pane);
+		return () => observer.disconnect();
+	}, [isOpen, view]);
 
 	function close() {
 		setIsOpen(false);
@@ -99,22 +131,47 @@ export function AttachMenu() {
 			</button>
 
 			{isOpen && (
-				<div id={menuId} role="menu" className={styles.menu}>
-					{view === "actions" ? (
-						<ActionsView
-							onAttachProduct={openProductPicker}
-							onPickImage={handlePickImage}
-							onPickFile={handlePickFile}
-						/>
-					) : (
-						<ProductPickerView
-							search={search}
-							searchInputRef={searchInputRef}
-							onSearchChange={setSearch}
-							onBack={() => setView("actions")}
-							onSelect={handleSelectProduct}
-						/>
-					)}
+				<div
+					id={menuId}
+					role="menu"
+					className={styles.menu}
+					data-view={view}
+				>
+					<div
+						className={styles.viewport}
+						style={
+							viewportHeight !== null
+								? { height: `${viewportHeight}px` }
+								: undefined
+						}
+					>
+						<div className={styles.track} data-view={view}>
+							<div
+								ref={actionsPaneRef}
+								className={styles.pane}
+								inert={view !== "actions"}
+							>
+								<ActionsView
+									onAttachProduct={openProductPicker}
+									onPickImage={handlePickImage}
+									onPickFile={handlePickFile}
+								/>
+							</div>
+							<div
+								ref={productsPaneRef}
+								className={styles.pane}
+								inert={view !== "products"}
+							>
+								<ProductPickerView
+									search={search}
+									searchInputRef={searchInputRef}
+									onSearchChange={setSearch}
+									onBack={() => setView("actions")}
+									onSelect={handleSelectProduct}
+								/>
+							</div>
+						</div>
+					</div>
 				</div>
 			)}
 
