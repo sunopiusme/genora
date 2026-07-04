@@ -32,13 +32,6 @@ export function AssistantBar() {
 
 	useFocusInputOnAttach(inputRef, attachedProduct);
 
-	function handlePrefill(text: string) {
-		setQuery(text);
-		requestAnimationFrame(() => {
-			inputRef.current?.focus();
-		});
-	}
-
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
 		if (!hasQuery) {
@@ -75,7 +68,7 @@ export function AssistantBar() {
 			) : attachedFile ? (
 				<AttachedFileChip file={attachedFile} onRemove={detachFile} />
 			) : (
-				<AttachMenu onPrefill={handlePrefill} />
+				<AttachMenu />
 			)}
 
 			<input

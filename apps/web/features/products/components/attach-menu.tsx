@@ -6,25 +6,13 @@ import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
 import styles from "./attach-menu.module.css";
 
-type AttachMenuProps = {
-	/* Заполняет строку ввода готовым сценарием. */
-	onPrefill: (text: string) => void;
-};
-
-const QUICK_PROMPTS = [
-	"Подбери сервис под мою задачу",
-	"Сравни два продукта между собой",
-	"Помоги разобраться с оплатой",
-];
-
 /**
  * Выпадающее меню на «плюсике» строки ассистента.
  *
- * Два раздела: «Прикрепить» (товар из каталога, изображение, файл)
- * и «Быстрые сценарии» — готовые формулировки, которые попадают
- * в строку ввода и остаются редактируемыми.
+ * Компактный список без заголовков: товар из каталога,
+ * изображение, файл.
  */
-export function AttachMenu({ onPrefill }: AttachMenuProps) {
+export function AttachMenu() {
 	const router = useRouter();
 	const menuId = useId();
 	const rootRef = useRef<HTMLDivElement>(null);
@@ -62,11 +50,6 @@ export function AttachMenu({ onPrefill }: AttachMenuProps) {
 		setIsOpen(false);
 	}
 
-	function handlePrompt(text: string) {
-		setIsOpen(false);
-		onPrefill(text);
-	}
-
 	return (
 		<div ref={rootRef} className={styles.root}>
 			<button
@@ -77,7 +60,7 @@ export function AttachMenu({ onPrefill }: AttachMenuProps) {
 				aria-haspopup="menu"
 				aria-expanded={isOpen}
 				aria-controls={isOpen ? menuId : undefined}
-				aria-label="Прикрепить или выбрать сценарий"
+				aria-label="Прикрепить к вопросу"
 			>
 				<Icon
 					icon="solar:plus-bold-stroke"
@@ -88,9 +71,6 @@ export function AttachMenu({ onPrefill }: AttachMenuProps) {
 
 			{isOpen && (
 				<div id={menuId} role="menu" className={styles.menu}>
-					<p className={styles.sectionLabel} role="presentation">
-						Прикрепить
-					</p>
 					<button
 						type="button"
 						role="menuitem"
@@ -130,28 +110,6 @@ export function AttachMenu({ onPrefill }: AttachMenuProps) {
 						/>
 						Файл или документ
 					</button>
-
-					<div className={styles.divider} role="separator" />
-
-					<p className={styles.sectionLabel} role="presentation">
-						Быстрые сценарии
-					</p>
-					{QUICK_PROMPTS.map((prompt) => (
-						<button
-							key={prompt}
-							type="button"
-							role="menuitem"
-							className={styles.item}
-							onClick={() => handlePrompt(prompt)}
-						>
-							<Icon
-								icon="solar:chat-round-linear"
-								className={styles.itemGlyph}
-								aria-hidden="true"
-							/>
-							{prompt}
-						</button>
-					))}
 				</div>
 			)}
 
