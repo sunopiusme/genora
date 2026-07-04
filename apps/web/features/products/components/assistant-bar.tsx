@@ -164,12 +164,6 @@ export function AssistantBar() {
 		setHasContent(true);
 	}
 
-	function removeToken(token: Token) {
-		token.host.remove();
-		refreshEditorState();
-		editorRef.current?.focus();
-	}
-
 	/* Заявки из меню плюсика и карточек товара: стор используется
 	   как «почтовый ящик» — тег вставляется в текст, заявка
 	   сбрасывается. */
@@ -453,10 +447,7 @@ export function AssistantBar() {
 			{tokens.map((token) =>
 				token.host.isConnected
 					? createPortal(
-							<TokenContent
-								token={token}
-								onRemove={() => removeToken(token)}
-							/>,
+							<TokenContent token={token} />,
 							token.host,
 							token.id,
 						)
@@ -468,16 +459,19 @@ export function AssistantBar() {
 
 type TokenContentProps = {
 	token: Token;
-	onRemove: () => void;
 };
 
-function TokenContent({ token, onRemove }: TokenContentProps) {
+/* Упоминание в стиле Slack/Telegram: подсвеченный акцентом текст
+   с маленькой иконкой, без крестика в потоке. Удаляется целиком
+   одним Backspace — host не редактируется, браузер стирает его
+   как один символ. */
+function TokenContent({ token }: TokenContentProps) {
 	return (
-		<>
+		<span className={styles.tokenInner}>
 			{token.kind === "profile" ? (
 				<Avatar
 					name={token.label}
-					size="1.125rem"
+					size="1rem"
 					className={styles.tokenAvatar}
 					aria-hidden="true"
 				/>
@@ -503,19 +497,7 @@ function TokenContent({ token, onRemove }: TokenContentProps) {
 				/>
 			)}
 			<span className={styles.tokenLabel}>{token.label}</span>
-			<button
-				type="button"
-				className={styles.tokenRemove}
-				onClick={onRemove}
-				aria-label={`Убрать ${token.label}`}
-			>
-				<Icon
-					icon="solar:close-bold-stroke"
-					className={styles.tokenRemoveGlyph}
-					aria-hidden="true"
-				/>
-			</button>
-		</>
+		</span>
 	);
 }
 
