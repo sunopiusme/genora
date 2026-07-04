@@ -119,6 +119,10 @@
 	font-size: 1rem;
 	font-weight: var(--weight-medium);
 	color: var(--color-foreground);
+	/* On narrow screens the placeholder may not fit — trim it with an
+	   ellipsis instead of a hard mid-letter cut. Browsers apply the
+	   input's own text-overflow to its placeholder. */
+	text-overflow: ellipsis;
 }
 
 @media (min-width: 48rem) {

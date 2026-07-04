@@ -51,6 +51,9 @@ const PROFILE = {
   name: "Иван Петров",
 };
 
+/* Must match the mobile breakpoint in dashboard-shell.module.css. */
+const MOBILE_MEDIA_QUERY = "(max-width: 47.9375rem)";
+
 export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
@@ -109,6 +112,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSidebarOpen, closeSidebar]);
+
+  // Desktop and mobile share one sidebar state, but their layouts
+  // differ: on mobile an open sidebar pushes the whole page aside.
+  // When the viewport crosses into the mobile range (device rotation,
+  // window resize, DevTools device toolbar), close the sidebar so the
+  // page never appears pre-shifted.
+  useEffect(() => {
+    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    function handleChange(event: MediaQueryListEvent) {
+      if (event.matches) {
+        closeSidebar();
+      }
+    }
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, [closeSidebar]);
 
   return (
     <div className={cn(styles.shell, isSidebarOpen && styles.shellOpen)}>
