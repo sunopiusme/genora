@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { Icon } from "@/lib/icon";
+import { PROFILE } from "@/lib/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
@@ -48,10 +49,6 @@ const RECENT_ITEMS = [
   "Доступ к GitHub Copilot",
   "Что выбрать для кода",
 ];
-
-const PROFILE = {
-  name: "Иван Петров",
-};
 
 /* A leftward swipe longer than this closes the sidebar. */
 const SWIPE_CLOSE_DISTANCE = 48;
