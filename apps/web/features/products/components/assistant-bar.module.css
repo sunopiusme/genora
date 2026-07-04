@@ -34,7 +34,14 @@
 	flex: 1;
 	min-width: 0;
 	height: 2.25rem;
-	line-height: 2.25rem;
+	/* Компактный line box (22px = высоте тега) + центровка строки
+	   вертикальными padding-ами вместo line-height: 2.25rem.
+	   Каретка рядом с атомарным inline-элементом (тегом) рисуется
+	   по высоте line box — с большим line-height она раздувалась
+	   до 36px и «прыгала». Теперь line box одинаково низкий и в
+	   тексте, и вплотную к тегу. */
+	line-height: 1.375rem;
+	padding-block: calc((2.25rem - 1.375rem) / 2);
 	padding-inline: var(--space-1) var(--space-2);
 	font-family: var(--font-sans);
 	/* 16px minimum: iOS Safari force-zooms the page when focusing an
@@ -80,17 +87,18 @@
 	}
 }
 
-/* Инлайн-тег в потоке текста: логотип/аватарка + имя + крестик.
-   Без собственного фона — атомарность передают иконка и крестик. */
+/* Упоминание — просто синий текст в потоке фразы. Тот же размер и
+   та же строка, что у основного текста: ничего не меняется, кроме
+   цвета и чуть большей жирности. Backspace стирает тег целиком. */
 .token {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-1);
-	max-width: min(11rem, 44vw);
-	height: 1.75rem;
-	vertical-align: middle;
-	border-radius: var(--radius-full);
-	white-space: nowrap;
+	display: inline;
+	white-space: pre;
+	/* line-height: normal схлопывает inline-бокс тега до метрики
+	   шрифта (~18px) — как у обычного текста. С унаследованными
+	   22px бокс тега был выше текстового, и Chrome рисовал каретку
+	   рядом с тегом по его высоте: она «подрастала». Позицию строки
+	   это не меняет — line box задаёт сам редактор. */
+	line-height: normal;
 	user-select: none;
 	animation: tokenIn 0.16s ease both;
 }
@@ -98,83 +106,19 @@
 @keyframes tokenIn {
 	from {
 		opacity: 0;
-		transform: scale(0.96);
 	}
 	to {
 		opacity: 1;
-		transform: scale(1);
 	}
 }
 
-.tokenLogo {
-	flex-shrink: 0;
-	width: 1.125rem;
-	aspect-ratio: 1;
-	background-color: var(--color-foreground);
-	-webkit-mask: var(--logo-url) no-repeat center / contain;
-	mask: var(--logo-url) no-repeat center / contain;
-}
-
-.tokenAvatar {
-	flex-shrink: 0;
-}
-
-.tokenFileGlyph {
-	flex-shrink: 0;
-	width: 1.125rem;
-	height: 1.125rem;
-	color: var(--color-foreground);
-}
-
 .tokenLabel {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	line-height: 1;
-	font-size: var(--text-sm);
-	font-weight: var(--weight-medium);
-	color: var(--color-foreground);
-}
-
-.tokenRemove {
-	position: relative;
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	/* Кнопка ровно в размер иконки — никаких невидимых полей,
-	   из-за которых после тега появлялся двойной пробел. Мишень
-	   для пальца расширяет псевдоэлемент ниже. */
-	width: 1.125rem;
-	height: 1.125rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background: none;
-	color: var(--color-foreground-muted);
-	cursor: pointer;
-	transition: color 0.15s ease;
-}
-
-/* Невидимая зона нажатия 2.25rem — комфортная для пальца, но не
-   занимающая места в потоке текста. */
-.tokenRemove::after {
-	content: "";
-	position: absolute;
-	inset: calc((1.125rem - 2.25rem) / 2);
-	border-radius: var(--radius-full);
-}
-
-.tokenRemove:hover {
-	color: var(--color-foreground);
-}
-
-.tokenRemove:focus-visible {
-	outline: none;
-}
-
-.tokenRemoveGlyph {
-	width: 1.125rem;
-	height: 1.125rem;
+	/* Размер — как у основного текста, line box — по метрике шрифта
+	   (см. комментарий у .token). */
+	font-size: inherit;
+	line-height: normal;
+	font-weight: var(--weight-semibold);
+	color: var(--blue-400);
 }
 
 .submit {

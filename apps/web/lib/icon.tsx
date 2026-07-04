@@ -27,8 +27,11 @@ const SOLAR_ICONS: Record<string, string> = {
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/>',
   "arrow-up-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20V4m0 0l6 6m-6-6l-6 6"/>',
+  /* Геометрически идентичен plus-bold-stroke, повёрнутому на 45°:
+     те же штрихи длиной 14 единиц вокруг центра. Так крестик в тегах
+     выглядит ровно как плюсик прикрепления в «открытом» состоянии. */
   "close-bold-stroke":
-    '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M6 6l12 12M18 6L6 18"/>',
+    '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M7.05 7.05L16.95 16.95M16.95 7.05L7.05 16.95"/>',
   "shop-2-linear":
     '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M22 22H2m18 0V11M4 22V11"/><path stroke-linejoin="round" d="M16.528 2H7.472c-1.203 0-1.804 0-2.287.299c-.484.298-.753.836-1.29 1.912L2.49 7.76c-.324.82-.608 1.786-.062 2.479A2 2 0 0 0 6 9a2 2 0 1 0 4 0a2 2 0 1 0 4 0a2 2 0 1 0 4 0a2 2 0 0 0 3.571 1.238c.546-.693.262-1.659-.062-2.479l-1.404-3.548c-.537-1.076-.806-1.614-1.29-1.912C18.332 2 17.731 2 16.528 2Z"/><path stroke-linecap="round" d="M9.5 21.5v-3c0-.935 0-1.402.201-1.75a1.5 1.5 0 0 1 .549-.549C10.598 16 11.065 16 12 16s1.402 0 1.75.201a1.5 1.5 0 0 1 .549.549c.201.348.201.815.201 1.75v3"/></g>',
   "card-2-linear":
