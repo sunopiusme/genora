@@ -125,6 +125,127 @@
 	color: var(--color-foreground-muted);
 }
 
+.pickerHeader {
+	display: flex;
+	align-items: center;
+	gap: var(--space-1);
+	padding-bottom: var(--space-2);
+}
+
+.backButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1.75rem;
+	height: 1.75rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background: none;
+	color: var(--color-foreground-muted);
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.backButton:hover,
+.backButton:focus-visible {
+	outline: none;
+	background-color: rgb(255 255 255 / 0.08);
+	color: var(--color-foreground);
+}
+
+.backGlyph {
+	width: 1.125rem;
+	height: 1.125rem;
+}
+
+.searchInput {
+	flex: 1;
+	min-width: 0;
+	padding: var(--space-1) var(--space-2);
+	border: none;
+	background: none;
+	font-family: var(--font-sans);
+	font-size: var(--text-sm);
+	line-height: var(--leading-sm);
+	color: var(--color-foreground);
+}
+
+.searchInput::placeholder {
+	color: var(--color-foreground-subtle);
+}
+
+.searchInput:focus-visible {
+	outline: none;
+}
+
+.productList {
+	display: flex;
+	flex-direction: column;
+	max-height: 15rem;
+	overflow-y: auto;
+}
+
+.productItem {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	width: 100%;
+	padding: var(--space-2) var(--space-3);
+	border: none;
+	border-radius: var(--radius-full);
+	background: none;
+	font-family: var(--font-sans);
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+.productItem:hover,
+.productItem:focus-visible {
+	outline: none;
+	background-color: rgb(255 255 255 / 0.08);
+}
+
+.productLogo {
+	flex-shrink: 0;
+	width: 1.125rem;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
+}
+
+.productMeta {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.productName {
+	overflow: hidden;
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	line-height: var(--leading-sm);
+	color: var(--color-foreground);
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.productPrice {
+	font-size: var(--text-xs);
+	line-height: var(--leading-sm);
+	color: var(--color-foreground-subtle);
+}
+
+.emptyState {
+	margin: 0;
+	padding: var(--space-3);
+	font-size: var(--text-sm);
+	color: var(--color-foreground-subtle);
+	text-align: center;
+}
+
 .hiddenInput {
 	display: none;
 }
