@@ -104,6 +104,20 @@
   visibility: visible;
 }
 
+/* While the width animation runs, freeze the header: keep the toggle
+   pinned at the collapsed position and the logo hidden, regardless of
+   hover, so nothing flips mid-transition. */
+.sidebarAnimating .sidebarHeader .logo,
+.sidebarAnimating .sidebarHeader:hover .logo {
+  visibility: hidden;
+}
+
+.sidebarAnimating .sidebarHeader .sidebarToggle {
+  left: var(--space-2);
+  right: auto;
+  opacity: 1;
+}
+
 .nav {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
 import { Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
@@ -53,6 +53,27 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function handleToggle() {
+    toggleSidebar();
+    setIsAnimating(true);
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
+    }
+    animationTimeout.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 250);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (animationTimeout.current) {
+        clearTimeout(animationTimeout.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -69,7 +90,13 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={cn(styles.shell, isSidebarOpen && styles.shellOpen)}>
-      <aside className={cn(styles.sidebar, isSidebarOpen && styles.sidebarOpen)}>
+      <aside
+        className={cn(
+          styles.sidebar,
+          isSidebarOpen && styles.sidebarOpen,
+          isAnimating && styles.sidebarAnimating,
+        )}
+      >
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarHeader}>
             <span className={styles.logo}>
@@ -78,7 +105,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               className={styles.sidebarToggle}
-              onClick={toggleSidebar}
+              onClick={handleToggle}
               aria-label="Переключить меню"
             >
               <SidebarIcon />
