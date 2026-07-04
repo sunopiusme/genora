@@ -4,9 +4,9 @@
 	z-index: 20;
 	display: flex;
 	padding: var(--space-6);
-	background-color: rgb(0 0 0 / 0.6);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
+	background-color: rgb(0 0 0 / 0.72);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
 	overflow-y: auto;
 	animation: overlayIn 0.2s ease both;
 }
@@ -19,10 +19,11 @@
 	margin: auto;
 	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface);
-	border: 1px solid rgb(255 255 255 / 0.1);
+	border: 1px solid rgb(255 255 255 / 0.12);
 	box-shadow:
-		0 24px 64px -20px rgb(0 0 0 / 0.7),
-		0 8px 24px -12px rgb(0 0 0 / 0.5);
+		inset 0 1px 0 rgb(255 255 255 / 0.06),
+		0 24px 64px -20px rgb(0 0 0 / 0.8),
+		0 8px 24px -12px rgb(0 0 0 / 0.55);
 	overflow: hidden;
 	outline: none;
 	animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -60,6 +61,43 @@
 .panelDragging {
 	composes: panel;
 	animation: none;
+	transition: none;
+}
+
+@keyframes overlayOut {
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
+}
+
+@keyframes panelOut {
+	from {
+		opacity: 1;
+		transform: scale(1) translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: scale(0.97) translateY(0.625rem);
+	}
+}
+
+@keyframes sheetOut {
+	to {
+		transform: translateY(100%);
+	}
+}
+
+.overlayClosing {
+	animation: overlayOut 0.24s ease both;
+	pointer-events: none;
+}
+
+.panelClosing {
+	composes: panel;
+	animation: panelOut 0.24s cubic-bezier(0.4, 0, 1, 1) both;
 	transition: none;
 }
 
@@ -101,6 +139,20 @@
 
 	.panelDragging {
 		animation: none;
+		transition: none;
+	}
+
+	.overlayClosing.overlayClosing {
+		animation: none;
+		opacity: 1;
+	}
+
+	.overlayClosing::before {
+		animation: overlayOut 0.28s ease both;
+	}
+
+	.panelClosing.panelClosing {
+		animation: sheetOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
 		transition: none;
 	}
 
@@ -321,6 +373,19 @@
 		linear-gradient(180deg, var(--neutral-850), var(--neutral-950));
 }
 
+.hero::before {
+	content: "";
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 70%;
+	aspect-ratio: 1;
+	transform: translate(-50%, -50%);
+	border-radius: var(--radius-full);
+	background: radial-gradient(circle, rgb(255 255 255 / 0.1), transparent 68%);
+	pointer-events: none;
+}
+
 .heroLogo {
 	position: relative;
 	width: 5rem;
@@ -513,5 +578,16 @@
 	.panel {
 		transform: none;
 		transition: none;
+	}
+
+	.overlayClosing,
+	.overlayClosing::before {
+		animation: none;
+		opacity: 0;
+	}
+
+	.panelClosing.panelClosing {
+		animation: none;
+		opacity: 0;
 	}
 }

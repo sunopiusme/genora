@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
@@ -15,6 +15,7 @@ const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
 const HERO_STRETCH_RANGE_PX = 96;
 const HERO_STRETCH_DAMPING = 0.6;
+const CLOSE_ANIMATION_MS = 280;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -44,29 +45,37 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const bodyRef = useRef<HTMLDivElement>(null);
 	const attachProduct = useComposerStore((state) => state.attach);
 	const isMobile = useMobileViewport();
-	const isDragging = useSwipeToDismiss(panelRef, bodyRef, onClose, isMobile);
+	const requestClose = useDelayedClose(onClose);
+	const isDragging = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
 	const isScrolled = usePanelScrolled(bodyRef, isMobile);
 
-	useEscapeKey(onClose);
+	useEscapeKey(requestClose.begin);
 	useInitialFocus(panelRef);
 	useSurfaceFocus(SURFACE_ELEMENT_ID);
 
 	function handleAskAssistant() {
 		attachProduct(product);
-		onClose();
+		requestClose.begin();
 	}
 
 	function stopBackdropClose(event: React.MouseEvent<HTMLDivElement>) {
 		event.stopPropagation();
 	}
 
-	const panelClassName = isDragging ? styles.panelDragging : styles.panel;
+	const overlayClassName = requestClose.isClosing
+		? `${styles.overlay} ${styles.overlayClosing}`
+		: styles.overlay;
+	const panelClassName = requestClose.isClosing
+		? styles.panelClosing
+		: isDragging
+			? styles.panelDragging
+			: styles.panel;
 	const controlsClassName = isScrolled
 		? `${styles.controls} ${styles.controlsScrolled}`
 		: styles.controls;
 
 	return (
-		<div className={styles.overlay} onClick={onClose}>
+		<div className={overlayClassName} onClick={requestClose.begin}>
 			<div
 				ref={panelRef}
 				role="dialog"
@@ -81,7 +90,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 					<button
 						type="button"
 						className={styles.iconButton}
-						onClick={onClose}
+						onClick={requestClose.begin}
 						aria-label="Закрыть"
 						title="Закрыть"
 					>
@@ -279,6 +288,27 @@ function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
 			<span className={styles.shareItemLabel}>{label}</span>
 		</>
 	);
+}
+
+function useDelayedClose(onClose: () => void) {
+	const [isClosing, setIsClosing] = useState(false);
+	const closeTimerRef = useRef<number | undefined>(undefined);
+	const isClosingRef = useRef(false);
+
+	useEffect(() => {
+		return () => window.clearTimeout(closeTimerRef.current);
+	}, []);
+
+	const begin = useCallback(() => {
+		if (isClosingRef.current) {
+			return;
+		}
+		isClosingRef.current = true;
+		setIsClosing(true);
+		closeTimerRef.current = window.setTimeout(onClose, CLOSE_ANIMATION_MS);
+	}, [onClose]);
+
+	return { isClosing, begin };
 }
 
 function useSwipeToDismiss(
