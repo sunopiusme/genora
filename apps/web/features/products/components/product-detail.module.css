@@ -128,11 +128,12 @@
 	.controls::before {
 		content: "";
 		position: absolute;
-		inset: 0;
+		inset: 0 0 auto 0;
+		height: 2.75rem;
 		backdrop-filter: blur(8px);
 		-webkit-backdrop-filter: blur(8px);
-		-webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
-		mask-image: linear-gradient(to bottom, #000, transparent 70%);
+		-webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+		mask-image: linear-gradient(to bottom, #000, transparent);
 		opacity: 0;
 		transition: opacity 0.3s ease;
 		pointer-events: none;
@@ -149,12 +150,12 @@
 		transform-origin: top left;
 	}
 
-	.hero {
+	.hero.hero {
 		min-height: calc(12rem + var(--hero-stretch, 0px));
 		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
-	.panelDragging .hero {
+	.panelDragging .hero.hero {
 		transition: none;
 	}
 }
