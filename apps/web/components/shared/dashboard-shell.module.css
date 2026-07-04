@@ -398,29 +398,29 @@
 }
 
 .composer::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    to top,
-    rgb(0 0 0 / 0.92),
-    rgb(0 0 0 / 0.913) 8.1%,
-    rgb(0 0 0 / 0.895) 15.5%,
-    rgb(0 0 0 / 0.863) 22.5%,
-    rgb(0 0 0 / 0.816) 29%,
-    rgb(0 0 0 / 0.757) 35.3%,
-    rgb(0 0 0 / 0.684) 41.2%,
-    rgb(0 0 0 / 0.603) 47.1%,
-    rgb(0 0 0 / 0.513) 52.9%,
-    rgb(0 0 0 / 0.419) 58.8%,
-    rgb(0 0 0 / 0.323) 64.7%,
-    rgb(0 0 0 / 0.23) 71%,
-    rgb(0 0 0 / 0.144) 77.5%,
-    rgb(0 0 0 / 0.073) 84.5%,
-    rgb(0 0 0 / 0.02) 91.9%,
-    transparent 100%
-  );
-  pointer-events: none;
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		to top,
+		rgb(0 0 0 / 1),
+		rgb(0 0 0 / 0.993) 8.1%,
+		rgb(0 0 0 / 0.973) 15.5%,
+		rgb(0 0 0 / 0.938) 22.5%,
+		rgb(0 0 0 / 0.887) 29%,
+		rgb(0 0 0 / 0.823) 35.3%,
+		rgb(0 0 0 / 0.744) 41.2%,
+		rgb(0 0 0 / 0.656) 47.1%,
+		rgb(0 0 0 / 0.558) 52.9%,
+		rgb(0 0 0 / 0.456) 58.8%,
+		rgb(0 0 0 / 0.351) 64.7%,
+		rgb(0 0 0 / 0.25) 71%,
+		rgb(0 0 0 / 0.157) 77.5%,
+		rgb(0 0 0 / 0.079) 84.5%,
+		rgb(0 0 0 / 0.022) 91.9%,
+		transparent 100%
+	);
+	pointer-events: none;
 }
 
 .composerInner {
