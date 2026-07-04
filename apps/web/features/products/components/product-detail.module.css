@@ -129,10 +129,10 @@
 		content: "";
 		position: absolute;
 		inset: 0;
-		backdrop-filter: blur(10px);
-		-webkit-backdrop-filter: blur(10px);
-		-webkit-mask-image: linear-gradient(to bottom, #000 40%, transparent);
-		mask-image: linear-gradient(to bottom, #000 40%, transparent);
+		backdrop-filter: blur(8px);
+		-webkit-backdrop-filter: blur(8px);
+		-webkit-mask-image: linear-gradient(to bottom, #000, transparent 70%);
+		mask-image: linear-gradient(to bottom, #000, transparent 70%);
 		opacity: 0;
 		transition: opacity 0.3s ease;
 		pointer-events: none;
@@ -147,6 +147,15 @@
 		right: auto;
 		left: 0;
 		transform-origin: top left;
+	}
+
+	.hero {
+		min-height: calc(12rem + var(--hero-stretch, 0px));
+		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+	}
+
+	.panelDragging .hero {
+		transition: none;
 	}
 }
 

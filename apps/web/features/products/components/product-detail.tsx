@@ -13,6 +13,8 @@ const COPIED_RESET_DELAY_MS = 1500;
 const SWIPE_START_THRESHOLD_PX = 8;
 const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
+const HERO_STRETCH_RANGE_PX = 96;
+const HERO_STRETCH_DAMPING = 0.6;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -342,7 +344,12 @@ function useSwipeToDismiss(
 				capturePointerSafely(panel, event.pointerId);
 				setIsDragging(true);
 			}
-			panel.style.transform = `translateY(${dragOffset}px)`;
+			const stretch =
+				Math.min(dragOffset, HERO_STRETCH_RANGE_PX) * HERO_STRETCH_DAMPING;
+			const translate = Math.max(dragOffset - HERO_STRETCH_RANGE_PX, 0);
+			panel.style.setProperty("--hero-stretch", `${stretch}px`);
+			panel.style.transform =
+				translate > 0 ? `translateY(${translate}px)` : "";
 		}
 
 		function handlePointerEnd(event: PointerEvent) {
@@ -359,6 +366,7 @@ function useSwipeToDismiss(
 				onDismiss();
 				return;
 			}
+			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
 		}
 
@@ -380,6 +388,7 @@ function useSwipeToDismiss(
 			panel.removeEventListener("pointerup", handlePointerEnd);
 			panel.removeEventListener("pointercancel", handlePointerEnd);
 			panel.removeEventListener("touchmove", handleTouchMove);
+			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
 		};
 	}, [isEnabled, onDismiss, panelRef, bodyRef]);
