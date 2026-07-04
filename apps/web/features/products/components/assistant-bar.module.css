@@ -34,7 +34,14 @@
 	flex: 1;
 	min-width: 0;
 	height: 2.25rem;
-	line-height: 2.25rem;
+	/* Компактный line box (22px = высоте тега) + центровка строки
+	   вертикальными padding-ами вместo line-height: 2.25rem.
+	   Каретка рядом с атомарным inline-элементом (тегом) рисуется
+	   по высоте line box — с большим line-height она раздувалась
+	   до 36px и «прыгала». Теперь line box одинаково низкий и в
+	   тексте, и вплотную к тегу. */
+	line-height: 1.375rem;
+	padding-block: calc((2.25rem - 1.375rem) / 2);
 	padding-inline: var(--space-1) var(--space-2);
 	font-family: var(--font-sans);
 	/* 16px minimum: iOS Safari force-zooms the page when focusing an
