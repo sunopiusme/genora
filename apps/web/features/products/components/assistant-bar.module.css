@@ -85,10 +85,14 @@
 .token {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--space-1);
+	gap: 0.1875rem;
 	max-width: min(11rem, 44vw);
-	height: 1.75rem;
-	vertical-align: middle;
+	/* Высота тега равна строке редактора: содержимое (иконка, имя,
+	   крестик) центрируется ровно по уровню текста и остальных
+	   элементов бара. vertical-align: top заставляет тег занять
+	   строку целиком, без смещения относительно базовой линии. */
+	height: 2.25rem;
+	vertical-align: top;
 	border-radius: var(--radius-full);
 	white-space: nowrap;
 	user-select: none;
