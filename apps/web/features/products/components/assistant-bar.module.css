@@ -114,9 +114,17 @@
 	background: none;
 	padding-inline: var(--space-2);
 	font-family: var(--font-sans);
-	font-size: 0.9375rem;
+	/* 16px minimum: iOS Safari force-zooms the page when focusing an
+	   input with a smaller font, which shifts the layout off-screen. */
+	font-size: 1rem;
 	font-weight: var(--weight-medium);
 	color: var(--color-foreground);
+}
+
+@media (min-width: 48rem) {
+	.input {
+		font-size: 0.9375rem;
+	}
 }
 
 .input::placeholder {

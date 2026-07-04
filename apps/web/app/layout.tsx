@@ -12,6 +12,7 @@ export const viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: "cover" as const,
+  interactiveWidget: "resizes-content" as const,
   themeColor: "#000000",
 };
 
