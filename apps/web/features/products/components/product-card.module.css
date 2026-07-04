@@ -83,6 +83,19 @@
 	transform: translate(-30%, -16%) rotate(-10deg);
 }
 
+.spotlight {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		13rem circle at var(--spot-x, 50%) var(--spot-y, 50%),
+		rgb(255 255 255 / 0.09),
+		transparent 70%
+	);
+	opacity: var(--spot-opacity, 0);
+	transition: opacity 0.3s ease;
+	pointer-events: none;
+}
+
 .logoTile {
 	position: relative;
 	z-index: 1;
@@ -193,8 +206,13 @@
 	.cover,
 	.cover::after,
 	.watermark,
-	.logoTile {
+	.logoTile,
+	.spotlight {
 		transition: none;
+	}
+
+	.spotlight {
+		opacity: 0;
 	}
 
 	.cover:active {
