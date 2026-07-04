@@ -125,16 +125,23 @@
 	.controls::before {
 		content: "";
 		position: absolute;
-		inset: 0 0 -100% 0;
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
+		inset: 0 0 -0.75rem 0;
+		backdrop-filter: blur(12px);
+		-webkit-backdrop-filter: blur(12px);
 		-webkit-mask-image: linear-gradient(
 			to bottom,
 			#000 0%,
-			#000 35%,
-			transparent 70%
+			#000 25%,
+			transparent 100%
 		);
-		mask-image: linear-gradient(to bottom, #000 0%, #000 35%, transparent 70%);
+		mask-image: linear-gradient(
+			to bottom,
+			#000 0%,
+			#000 25%,
+			transparent 100%
+		);
+		opacity: 0;
+		transition: opacity 0.25s ease;
 		pointer-events: none;
 		z-index: -1;
 	}
@@ -142,15 +149,21 @@
 	.controls::after {
 		content: "";
 		position: absolute;
-		inset: 0 0 -50% 0;
+		inset: 0 0 -0.5rem 0;
 		background: linear-gradient(
 			to bottom,
-			rgb(12 12 14 / 0.6),
-			rgb(12 12 14 / 0.25) 55%,
+			rgb(12 12 14 / 0.45),
 			transparent
 		);
+		opacity: 0;
+		transition: opacity 0.25s ease;
 		pointer-events: none;
 		z-index: -1;
+	}
+
+	.controlsScrolled::before,
+	.controlsScrolled::after {
+		opacity: 1;
 	}
 
 	.shareMenu {

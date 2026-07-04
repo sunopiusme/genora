@@ -42,6 +42,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const attachProduct = useComposerStore((state) => state.attach);
 	const isMobile = useMobileViewport();
 	const isDragging = useSwipeToDismiss(panelRef, onClose, isMobile);
+	const isScrolled = usePanelScrolled(panelRef, isMobile);
 
 	useEscapeKey(onClose);
 	useInitialFocus(panelRef);
@@ -57,6 +58,9 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	}
 
 	const panelClassName = isDragging ? styles.panelDragging : styles.panel;
+	const controlsClassName = isScrolled
+		? `${styles.controls} ${styles.controlsScrolled}`
+		: styles.controls;
 
 	return (
 		<div className={styles.overlay} onClick={onClose}>
@@ -69,7 +73,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 				className={panelClassName}
 				onClick={stopBackdropClose}
 			>
-				<div className={styles.controls}>
+				<div className={controlsClassName}>
 					<ShareMenu product={product} />
 					<button
 						type="button"
@@ -373,6 +377,34 @@ function useSwipeToDismiss(
 	}, [isEnabled, onDismiss, panelRef]);
 
 	return isDragging;
+}
+
+function usePanelScrolled(
+	panelRef: React.RefObject<HTMLDivElement | null>,
+	isEnabled: boolean,
+) {
+	const [isScrolled, setIsScrolled] = useState(false);
+
+	useEffect(() => {
+		if (!isEnabled) {
+			setIsScrolled(false);
+			return;
+		}
+		const panel = panelRef.current;
+		if (!panel) {
+			return;
+		}
+
+		function handleScroll() {
+			setIsScrolled((panel?.scrollTop ?? 0) > 4);
+		}
+
+		handleScroll();
+		panel.addEventListener("scroll", handleScroll, { passive: true });
+		return () => panel.removeEventListener("scroll", handleScroll);
+	}, [isEnabled, panelRef]);
+
+	return isScrolled;
 }
 
 function capturePointerSafely(element: HTMLElement, pointerId: number) {
