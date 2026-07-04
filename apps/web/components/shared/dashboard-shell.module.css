@@ -397,6 +397,102 @@
   filter: blur(12px);
 }
 
+/* Floating circular sidebar trigger — mobile only. */
+.mobileFab {
+  position: fixed;
+  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
+  left: calc(var(--space-3) + env(safe-area-inset-left, 0px));
+  z-index: 20;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-foreground);
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.mobileFab svg {
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+}
+
+/* Mobile: hide the rail entirely, show the floating circle instead.
+   Opening the sidebar pushes the page to the right (native iOS-style
+   push drawer) — the sidebar occupies roughly half of an iPhone
+   screen while the page slides over. */
+@media (max-width: 47.9375rem) {
+  .mobileFab {
+    display: inline-flex;
+  }
+
+  .shellOpen .mobileFab {
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+  }
+
+  .sidebar {
+    width: var(--sidebar-expanded-width);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+
+  .sidebarOpen {
+    width: var(--sidebar-expanded-width);
+    transform: translateX(0);
+  }
+
+  .sidebarInner {
+    padding-top: calc(var(--sidebar-inset) + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(
+      var(--sidebar-inset) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  /* Labels are always laid out on mobile — the drawer only ever
+     appears in its expanded form. */
+  .navLabel {
+    width: auto;
+    opacity: 1;
+  }
+
+  .navLink {
+    gap: var(--space-3);
+  }
+
+  .profileName {
+    display: block;
+  }
+
+  .section {
+    display: flex;
+  }
+
+  .sidebarOpen .sidebarToggle {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .main {
+    padding-left: 0;
+    transition: transform 0.25s ease;
+    will-change: transform;
+  }
+
+  .shellOpen .main {
+    transform: translateX(var(--sidebar-expanded-width));
+  }
+}
+
 @media (min-width: 48rem) {
   .composer {
     padding-inline: var(--space-8);

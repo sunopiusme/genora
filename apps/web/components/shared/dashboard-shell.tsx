@@ -184,6 +184,15 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
+      <button
+        type="button"
+        className={styles.mobileFab}
+        onClick={toggleSidebar}
+        aria-label="Открыть меню"
+      >
+        <SidebarIcon />
+      </button>
+
       {isSidebarOpen && (
         <button
           type="button"
