@@ -63,6 +63,7 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 						role="img"
 						aria-label={product.provider}
 					/>
+					<span className={styles.reflection} aria-hidden="true" />
 				</span>
 			</button>
 			<div className={styles.info}>

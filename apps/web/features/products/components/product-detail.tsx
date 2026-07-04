@@ -136,6 +136,7 @@ function ProductHero({ product }: ProductHeroProps) {
 					role="img"
 					aria-label={product.provider}
 				/>
+				<span className={styles.heroReflection} aria-hidden="true" />
 			</span>
 		</div>
 	);
