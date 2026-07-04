@@ -91,7 +91,16 @@ function ProductHero({ product }: ProductHeroProps) {
 	return (
 		<div className={styles.hero}>
 			<div className={styles.heroGrid} aria-hidden="true" />
-			<p className={styles.wordmark}>{product.provider}</p>
+			<span
+				className={styles.heroLogo}
+				style={
+					{
+						"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+					} as React.CSSProperties
+				}
+				role="img"
+				aria-label={product.provider}
+			/>
 		</div>
 	);
 }

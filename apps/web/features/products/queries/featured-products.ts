@@ -5,6 +5,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "chatgpt-plus",
     name: "ChatGPT Plus",
     provider: "OpenAI",
+    logoSlug: "openai",
     priceLabel: "1 990 ₽",
     periodLabel: "мес",
     description:
@@ -14,6 +15,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "claude-pro",
     name: "Claude Pro",
     provider: "Anthropic",
+    logoSlug: "anthropic",
     priceLabel: "1 890 ₽",
     periodLabel: "мес",
     description:
@@ -23,6 +25,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "midjourney-standard",
     name: "Midjourney Standard",
     provider: "Midjourney",
+    logoSlug: "midjourney",
     priceLabel: "2 400 ₽",
     periodLabel: "мес",
     description:
@@ -32,6 +35,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "gemini-advanced",
     name: "Gemini Advanced",
     provider: "Google",
+    logoSlug: "gemini",
     priceLabel: "1 750 ₽",
     periodLabel: "мес",
     description:
@@ -41,6 +45,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "perplexity-pro",
     name: "Perplexity Pro",
     provider: "Perplexity",
+    logoSlug: "perplexity",
     priceLabel: "1 690 ₽",
     periodLabel: "мес",
     description:
@@ -50,6 +55,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "github-copilot",
     name: "GitHub Copilot",
     provider: "GitHub",
+    logoSlug: "github",
     priceLabel: "990 ₽",
     periodLabel: "мес",
     description:
