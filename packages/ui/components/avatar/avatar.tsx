@@ -9,19 +9,19 @@ export interface AvatarProps extends SVGProps<SVGSVGElement> {
   size?: string | number;
 }
 
-/** Deep-space disc behind every shape. */
-const SPACE = "#0a0a0f";
+/** Near-black ink for the flat glyph inside the disc. */
+const INK = "#101014";
 
-/** Vivid flat accents that pop on black. */
+/** Muted, earthy accents that sit nicely on a dark UI. */
 const COLORS = [
-  "#4ade80", // aurora green
-  "#22d3ee", // cyan
-  "#f472b6", // pink
-  "#fb923c", // orange
-  "#facc15", // yellow
-  "#60a5fa", // blue
-  "#fb7185", // coral
-  "#5eead4", // mint
+  "#98a25f", // olive
+  "#d98551", // terracotta
+  "#d9b16f", // amber
+  "#7ba7bc", // steel blue
+  "#c98d9c", // dusty rose
+  "#74ac9a", // sage teal
+  "#c3776b", // clay
+  "#a9b2b8", // fog gray
 ];
 
 const SIZE = 64;
@@ -55,83 +55,72 @@ function starPoints(
   return points.join(" ");
 }
 
-function polygonPoints(cx: number, cy: number, radius: number, sides: number) {
-  const points: string[] = [];
-  for (let i = 0; i < sides; i += 1) {
-    const angle = ((Math.PI * 2) / sides) * i - Math.PI / 2;
-    points.push(
-      `${(cx + Math.cos(angle) * radius).toFixed(2)},${(cy + Math.sin(angle) * radius).toFixed(2)}`,
-    );
-  }
-  return points.join(" ");
-}
-
 /**
- * Flat bold shapes, one per avatar — sparkles, clovers, crescents,
- * flowers, stars, arches. All drawn in a 64x64 box around (32, 32).
+ * One bold flat ink glyph per avatar, drawn in a 64x64 box.
+ * Several are anchored to the bottom edge and get cropped by the
+ * circular clip, like an object resting inside the disc.
  */
-const SHAPES: Array<(color: string) => ReactNode> = [
-  // Four-point sparkle with concave sides
-  (color) => (
+const SHAPES: Array<() => ReactNode> = [
+  // Rounded steps rising to the right, resting on the bottom edge
+  () => (
     <path
-      d="M32 8 C34.5 24 40 29.5 56 32 C40 34.5 34.5 40 32 56 C29.5 40 24 34.5 8 32 C24 29.5 29.5 24 32 8 Z"
-      fill={color}
+      d="M12 64 L12 46 Q12 42 16 42 L25 42 L25 32 Q25 28 29 28 L38 28 L38 18 Q38 14 42 14 L48 14 Q52 14 52 18 L52 64 Z"
+      fill={INK}
     />
   ),
-  // Quatrefoil clover (four overlapping lobes)
-  (color) => (
-    <g fill={color}>
-      <circle cx={32} cy={21.5} r={10.5} />
-      <circle cx={42.5} cy={32} r={10.5} />
-      <circle cx={32} cy={42.5} r={10.5} />
-      <circle cx={21.5} cy={32} r={10.5} />
-      <rect x={24} y={24} width={16} height={16} />
+  // Crescent moon
+  () => (
+    <path d="M38 12 A21 21 0 1 0 38 52 A17 17 0 1 1 38 12 Z" fill={INK} />
+  ),
+  // Arch (doorway) resting on the bottom edge
+  () => <path d="M19 64 L19 33 A13 13 0 0 1 45 33 L45 64 Z" fill={INK} />,
+  // Four-point sparkle with concave sides
+  () => (
+    <path
+      d="M32 11 C34.2 25 39 29.8 53 32 C39 34.2 34.2 39 32 53 C29.8 39 25 34.2 11 32 C25 29.8 29.8 25 32 11 Z"
+      fill={INK}
+    />
+  ),
+  // Half circle rising from the bottom edge
+  () => <path d="M11 64 A21 21 0 0 1 53 64 Z" fill={INK} />,
+  // Five-point star
+  () => <polygon points={starPoints(32, 33.5, 21, 9, 5)} fill={INK} />,
+  // Quatrefoil clover
+  () => (
+    <g fill={INK}>
+      <circle cx={32} cy={23} r={9} />
+      <circle cx={41} cy={32} r={9} />
+      <circle cx={32} cy={41} r={9} />
+      <circle cx={23} cy={32} r={9} />
+      <rect x={25} y={25} width={14} height={14} />
     </g>
   ),
-  // Scalloped flower (center + eight petals)
-  (color) => (
-    <g fill={color}>
-      <circle cx={32} cy={32} r={13} />
-      {Array.from({ length: 8 }, (_, i) => {
-        const angle = ((Math.PI * 2) / 8) * i - Math.PI / 2;
+  // Leaning quarter-circle leaf, cropped at the bottom-left
+  () => <path d="M14 64 L14 24 A40 40 0 0 1 54 64 Z" fill={INK} />,
+  // Scalloped flower (center + six petals)
+  () => (
+    <g fill={INK}>
+      <circle cx={32} cy={32} r={11} />
+      {Array.from({ length: 6 }, (_, i) => {
+        const angle = ((Math.PI * 2) / 6) * i - Math.PI / 2;
         return (
           <circle
             key={i}
-            cx={(32 + Math.cos(angle) * 13.5).toFixed(2)}
-            cy={(32 + Math.sin(angle) * 13.5).toFixed(2)}
-            r={7}
+            cx={(32 + Math.cos(angle) * 11.5).toFixed(2)}
+            cy={(32 + Math.sin(angle) * 11.5).toFixed(2)}
+            r={6.5}
           />
         );
       })}
     </g>
   ),
-  // Crescent moon
-  (color) => (
+  // Rolling hills on the bottom edge
+  () => (
     <path
-      d="M39 9 A23.5 23.5 0 1 0 39 55 A19 19 0 1 1 39 9 Z"
-      fill={color}
+      d="M4 64 L4 52 A14 14 0 0 1 31 48 A13 13 0 0 1 56 51 L60 64 Z"
+      fill={INK}
     />
   ),
-  // Five-point star
-  (color) => <polygon points={starPoints(32, 33.5, 24, 10, 5)} fill={color} />,
-  // Hexagon
-  (color) => <polygon points={polygonPoints(32, 32, 23, 6)} fill={color} />,
-  // Arch (doorway)
-  (color) => (
-    <path
-      d="M17 54 L17 31 A15 15 0 0 1 47 31 L47 54 Z"
-      fill={color}
-    />
-  ),
-  // Soft four-point diamond (rounded star)
-  (color) => (
-    <path
-      d="M32 9 C36 22 42 28 55 32 C42 36 36 42 32 55 C28 42 22 36 9 32 C22 28 28 22 32 9 Z"
-      fill={color}
-    />
-  ),
-  // Half circle (rising sun)
-  (color) => <path d="M10 43 A22 22 0 0 1 54 43 Z" fill={color} />,
 ];
 
 export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
@@ -143,17 +132,6 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
 
   const shape = SHAPES[seed % SHAPES.length];
   const color = COLORS[(seed >>> 4) % COLORS.length];
-
-  // Two tiny stars for the space vibe, tucked into opposite corners.
-  const starAngle = ((seed >>> 8) % 360) * (Math.PI / 180);
-  const starA = {
-    x: CENTER + Math.cos(starAngle) * 25,
-    y: CENTER + Math.sin(starAngle) * 25,
-  };
-  const starB = {
-    x: CENTER + Math.cos(starAngle + Math.PI) * 26,
-    y: CENTER + Math.sin(starAngle + Math.PI) * 26,
-  };
 
   const clipId = `av-clip-${uid}`;
 
@@ -175,22 +153,9 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
       </defs>
 
       <g clipPath={`url(#${clipId})`}>
-        <rect width={SIZE} height={SIZE} fill={SPACE} />
-        {shape(color)}
-        <circle cx={starA.x} cy={starA.y} r={1.1} fill={color} opacity={0.6} />
-        <circle cx={starB.x} cy={starB.y} r={0.8} fill={color} opacity={0.4} />
+        <circle cx={CENTER} cy={CENTER} r={CENTER} fill={color} />
+        {shape()}
       </g>
-
-      {/* Hairline rim so the disc reads as a solid object on black. */}
-      <circle
-        cx={CENTER}
-        cy={CENTER}
-        r={CENTER - 0.5}
-        fill="none"
-        stroke={color}
-        strokeOpacity="0.3"
-        strokeWidth="1"
-      />
     </svg>
   );
 });
