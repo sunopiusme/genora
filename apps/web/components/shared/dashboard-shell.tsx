@@ -8,7 +8,7 @@ import {
   type TransitionEvent,
 } from "react";
 import Link from "next/link";
-import { Logo, cn } from "@genora/ui";
+import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { Icon } from "@/lib/icon";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
@@ -50,10 +50,6 @@ const RECENT_ITEMS = [
 const PROFILE = {
   name: "Иван Петров",
 };
-
-function getInitial(name: string) {
-  return name.trim().charAt(0).toUpperCase();
-}
 
 export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
@@ -176,9 +172,11 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <div className={styles.sidebarFooter}>
             <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen}>
               <button type="button" className={styles.profile}>
-                <span className={styles.profileAvatar}>
-                  {getInitial(PROFILE.name)}
-                </span>
+                <Avatar
+                  name={PROFILE.name}
+                  size="1.625rem"
+                  className={styles.profileAvatar}
+                />
                 <span className={styles.profileName}>{PROFILE.name}</span>
               </button>
             </SidebarTooltip>

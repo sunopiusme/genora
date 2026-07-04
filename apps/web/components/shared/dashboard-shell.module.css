@@ -302,17 +302,10 @@
 }
 
 .profileAvatar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
   width: 1.625rem;
   height: 1.625rem;
   border-radius: var(--radius-full);
-  background-color: var(--color-avatar);
-  color: var(--color-avatar-foreground);
-  font-size: var(--text-xs);
-  font-weight: var(--weight-semibold);
 }
 
 .profileName {
