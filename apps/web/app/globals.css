@@ -12,6 +12,11 @@ html {
   /* Native-app feel on mobile: the page itself never rubber-bands or
      shifts — scrolling happens only inside dedicated scroll areas. */
   overscroll-behavior: none;
+  /* Mobile browsers (and DevTools device mode) auto-inflate text
+     sizes ("font boosting"), which reflows the layout and makes
+     content drift compared to desktop. Keep text at authored size. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 html::-webkit-scrollbar {
