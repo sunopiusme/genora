@@ -149,8 +149,8 @@
 	/* Кнопка ровно в размер иконки — никаких невидимых полей,
 	   из-за которых после тега появлялся двойной пробел. Мишень
 	   для пальца расширяет псевдоэлемент ниже. */
-	width: 1.125rem;
-	height: 1.125rem;
+	width: 1.375rem;
+	height: 1.375rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
@@ -164,7 +164,7 @@
 .tokenRemove::after {
 	content: "";
 	position: absolute;
-	inset: calc((1.125rem - 2.25rem) / 2);
+	inset: calc((1.375rem - 2.25rem) / 2);
 	border-radius: var(--radius-full);
 }
 
@@ -177,8 +177,8 @@
 }
 
 .tokenRemoveGlyph {
-	width: 1.125rem;
-	height: 1.125rem;
+	width: 1.375rem;
+	height: 1.375rem;
 }
 
 .submit {
