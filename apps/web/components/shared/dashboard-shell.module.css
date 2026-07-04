@@ -364,7 +364,7 @@
   z-index: var(--z-overlay, 40);
   display: flex;
   flex-direction: column;
-  min-width: 11rem;
+  min-width: 15rem;
   padding: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
@@ -384,6 +384,65 @@
   }
 }
 
+/* Account row at the top of the menu: avatar, name + plan, chevron. */
+.profileMenuHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xl);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.profileMenuHeader:hover,
+.profileMenuHeader:focus-visible {
+  outline: none;
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.profileMenuAvatar {
+  flex-shrink: 0;
+}
+
+.profileMenuIdentity {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-px);
+  flex: 1;
+  min-width: 0;
+}
+
+.profileMenuName {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileMenuPlan {
+  font-size: var(--text-xs);
+  color: var(--color-foreground-muted);
+}
+
+.profileMenuChevron {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-foreground-subtle);
+}
+
+/* Groups separated by hairline dividers, like the reference menu. */
+.profileMenuGroup {
+  display: flex;
+  flex-direction: column;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+}
+
 .profileMenuItem {
   display: flex;
   align-items: center;
@@ -391,7 +450,7 @@
   width: 100%;
   padding: var(--space-2) var(--space-3);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-xl);
   background: none;
   font-family: var(--font-sans);
   font-size: var(--text-sm);

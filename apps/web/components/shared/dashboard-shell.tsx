@@ -71,19 +71,43 @@ const RECENT_GROUPS: RecentGroup[] = [
   },
 ];
 
-/* Entries of the profile popup menu, mirroring the composer's
-   attach menu pattern. */
-const PROFILE_MENU_ITEMS: NavItem[] = [
-  {
-    label: "Настройки",
-    href: "/dashboard",
-    icon: "solar:settings-linear",
-  },
-  {
-    label: "Помощь",
-    href: "/dashboard",
-    icon: "solar:question-circle-linear",
-  },
+/* Groups of the profile popup menu (ChatGPT-style), separated by
+   dividers. The header row with avatar/name/plan is rendered apart. */
+const PROFILE_MENU_GROUPS: NavItem[][] = [
+  [
+    {
+      label: "Улучшить план",
+      href: "/dashboard",
+      icon: "solar:star-fall-minimalistic-2-linear",
+    },
+    {
+      label: "Персонализация",
+      href: "/dashboard",
+      icon: "solar:magic-stick-3-linear",
+    },
+    {
+      label: "Профиль",
+      href: "/dashboard",
+      icon: "solar:user-circle-linear",
+    },
+    {
+      label: "Настройки",
+      href: "/dashboard",
+      icon: "solar:settings-linear",
+    },
+  ],
+  [
+    {
+      label: "Помощь",
+      href: "/dashboard",
+      icon: "solar:question-circle-linear",
+    },
+    {
+      label: "Выйти",
+      href: "/dashboard",
+      icon: "solar:logout-2-linear",
+    },
+  ],
 ];
 
 /* A leftward swipe longer than this closes the sidebar. */
@@ -342,21 +366,46 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
     <div ref={rootRef} className={styles.profileRoot}>
       {isOpen && (
         <div id={menuId} role="menu" className={styles.profileMenu}>
-          {PROFILE_MENU_ITEMS.map((item) => (
-            <Link
-              key={item.label}
-              href={item.href}
-              role="menuitem"
-              className={styles.profileMenuItem}
-              onClick={() => setIsOpen(false)}
-            >
-              <Icon
-                icon={item.icon}
-                className={styles.profileMenuGlyph}
-                aria-hidden="true"
-              />
-              {item.label}
-            </Link>
+          <Link
+            href="/dashboard"
+            role="menuitem"
+            className={styles.profileMenuHeader}
+            onClick={() => setIsOpen(false)}
+          >
+            <Avatar
+              name={PROFILE.name}
+              size="2rem"
+              className={styles.profileMenuAvatar}
+            />
+            <span className={styles.profileMenuIdentity}>
+              <span className={styles.profileMenuName}>{PROFILE.name}</span>
+              <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
+            </span>
+            <Icon
+              icon="solar:alt-arrow-right-linear"
+              className={styles.profileMenuChevron}
+              aria-hidden="true"
+            />
+          </Link>
+          {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
+            <div key={groupIndex} className={styles.profileMenuGroup}>
+              {group.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  role="menuitem"
+                  className={styles.profileMenuItem}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Icon
+                    icon={item.icon}
+                    className={styles.profileMenuGlyph}
+                    aria-hidden="true"
+                  />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           ))}
         </div>
       )}

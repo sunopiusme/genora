@@ -5,4 +5,5 @@
  */
 export const PROFILE = {
 	name: "Иван Петров",
+	plan: "Бесплатный",
 };
