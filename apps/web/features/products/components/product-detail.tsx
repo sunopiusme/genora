@@ -121,14 +121,17 @@ type ProductHeroProps = {
 
 function ProductHero({ product }: ProductHeroProps) {
 	return (
-		<div className={styles.hero}>
+		<div
+			className={styles.hero}
+			style={
+				{
+					"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+				} as React.CSSProperties
+			}
+		>
+			<span className={styles.heroWatermark} aria-hidden="true" />
 			<span
 				className={styles.heroLogo}
-				style={
-					{
-						"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
-					} as React.CSSProperties
-				}
 				role="img"
 				aria-label={product.provider}
 			/>

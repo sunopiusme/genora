@@ -374,16 +374,16 @@
 	box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
 }
 
-.hero::before {
-	content: "";
+.heroWatermark {
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: 78%;
+	width: 170%;
 	aspect-ratio: 1;
-	transform: translate(-50%, -50%);
-	border-radius: var(--radius-full);
-	background: radial-gradient(circle, rgb(255 255 255 / 0.12), transparent 66%);
+	transform: translate(-32%, -18%) rotate(-12deg);
+	background-color: rgb(255 255 255 / 0.045);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
 	pointer-events: none;
 }
 
@@ -391,7 +391,11 @@
 	content: "";
 	position: absolute;
 	inset: 0;
-	background: linear-gradient(180deg, transparent 62%, rgb(0 0 0 / 0.28));
+	background: radial-gradient(
+		90% 90% at 50% 50%,
+		transparent 40%,
+		rgb(0 0 0 / 0.32)
+	);
 	pointer-events: none;
 }
 
@@ -403,7 +407,7 @@
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
 	mask: var(--logo-url) no-repeat center / contain;
-	filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.45));
+	filter: drop-shadow(0 12px 32px rgb(0 0 0 / 0.5));
 }
 
 .content {
@@ -569,8 +573,9 @@
 		box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.07);
 	}
 
-	.hero::after {
-		background: linear-gradient(180deg, transparent 66%, rgb(0 0 0 / 0.24));
+	.heroWatermark {
+		width: 220%;
+		transform: translate(-30%, -22%) rotate(-12deg);
 	}
 
 	.content {
