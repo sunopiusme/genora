@@ -46,6 +46,56 @@ type MentionDraft = {
 	query: string;
 };
 
+/**
+ * Не даёт каретке стоять «голой» в DIV редактора вплотную к тегу.
+ * В этой позиции Chrome рисует каретку по высоте соседнего
+ * inline-flex элемента — она резко вырастает. Каретка пересаживается
+ * в соседний текстовый узел, а если его нет — создаётся узел с
+ * нулевой шириной (\u200B), невидимый и вычищаемый при serialize.
+ */
+function normalizeCaret(editor: HTMLElement) {
+	const selection = window.getSelection();
+	if (
+		!selection ||
+		selection.rangeCount === 0 ||
+		!selection.isCollapsed ||
+		document.activeElement !== editor
+	) {
+		return;
+	}
+	const range = selection.getRangeAt(0);
+	if (range.startContainer !== editor) {
+		return;
+	}
+
+	const offset = range.startOffset;
+	const prev = editor.childNodes[offset - 1] ?? null;
+	const next = editor.childNodes[offset] ?? null;
+	const caret = document.createRange();
+
+	if (prev && prev.nodeType === Node.TEXT_NODE) {
+		caret.setStart(prev, (prev as Text).length);
+	} else if (next && next.nodeType === Node.TEXT_NODE) {
+		caret.setStart(next, 0);
+	} else if (prev || next) {
+		/* Каретка зажата между тегами или тегом и краем поля —
+		   подкладываем невидимый текстовый узел. */
+		const filler = document.createTextNode("\u200B");
+		if (prev) {
+			prev.after(filler);
+		} else {
+			editor.prepend(filler);
+		}
+		caret.setStart(filler, filler.length);
+	} else {
+		return;
+	}
+
+	caret.collapse(true);
+	selection.removeAllRanges();
+	selection.addRange(caret);
+}
+
 export function AssistantBar() {
 	const router = useRouter();
 	const formRef = useRef<HTMLFormElement>(null);
@@ -83,8 +133,11 @@ export function AssistantBar() {
 		if (!editor) {
 			return;
 		}
+		normalizeCaret(editor);
 		setTokens((prev) => prev.filter((token) => token.host.isConnected));
-		const text = (editor.textContent ?? "").replace(/\u00A0/g, " ").trim();
+		const text = (editor.textContent ?? "")
+			.replace(/[\u00A0\u200B]/g, " ")
+			.trim();
 		const hasToken = editor.querySelector("[data-token-id]") !== null;
 		setHasContent(text.length > 0 || hasToken);
 	}
@@ -217,6 +270,11 @@ export function AssistantBar() {
 
 	function updateMentionDraft() {
 		const editor = editorRef.current;
+		/* Стрелки и клики тоже могут поставить каретку вплотную
+		   к тегу — выравниваем при каждом движении. */
+		if (editor && document.activeElement === editor) {
+			normalizeCaret(editor);
+		}
 		const selection = window.getSelection();
 
 		/* Пока каретка в редакторе — запоминаем её позицию для
@@ -253,7 +311,7 @@ export function AssistantBar() {
 			const char = text[i];
 			if (char === "@") {
 				const before = i === 0 ? "" : text[i - 1];
-				if (before === "" || /[\s\u00A0]/.test(before)) {
+				if (before === "" || /[\s\u00A0\u200B]/.test(before)) {
 					setMentionDraft((prev) => {
 						const next = { node, start: i, query: text.slice(i + 1, caret) };
 						if (
@@ -271,7 +329,7 @@ export function AssistantBar() {
 				}
 				break;
 			}
-			if (/[\s\u00A0]/.test(char)) {
+			if (/[\s\u00A0\u200B]/.test(char)) {
 				break;
 			}
 		}
@@ -326,7 +384,11 @@ export function AssistantBar() {
 				result += node.textContent ?? "";
 			}
 		});
-		return result.replace(/\u00A0/g, " ").replace(/\s+/g, " ").trim();
+		return result
+			.replace(/\u200B/g, "")
+			.replace(/\u00A0/g, " ")
+			.replace(/\s+/g, " ")
+			.trim();
 	}
 
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -376,6 +438,61 @@ export function AssistantBar() {
 		if (event.key === "Enter") {
 			event.preventDefault();
 			formRef.current?.requestSubmit();
+			return;
+		}
+
+		/* Backspace вплотную к тегу удаляет сам тег. Без этого
+		   Backspace стирал бы невидимую подложку (\u200B), которую
+		   normalizeCaret тут же создавал бы заново — и тег стал бы
+		   неудаляемым. */
+		if (event.key === "Backspace") {
+			const editor = editorRef.current;
+			const selection = window.getSelection();
+			if (
+				!editor ||
+				!selection ||
+				selection.rangeCount === 0 ||
+				!selection.isCollapsed
+			) {
+				return;
+			}
+			const range = selection.getRangeAt(0);
+			const { startContainer, startOffset } = range;
+
+			let tokenBefore: Element | null = null;
+			if (startContainer === editor) {
+				const prev = editor.childNodes[startOffset - 1];
+				if (prev instanceof Element && prev.hasAttribute("data-token-id")) {
+					tokenBefore = prev;
+				}
+			} else if (startContainer.nodeType === Node.TEXT_NODE) {
+				const text = startContainer.textContent ?? "";
+				/* До каретки только невидимые символы — фактически
+				   каретка стоит сразу за тегом. */
+				if (/^[\u200B]*$/.test(text.slice(0, startOffset))) {
+					const prev = startContainer.previousSibling;
+					if (
+						prev instanceof Element &&
+						prev.hasAttribute("data-token-id")
+					) {
+						tokenBefore = prev;
+					}
+				}
+			}
+
+			if (tokenBefore) {
+				event.preventDefault();
+				/* Вместе с тегом убираем невидимую подложку перед
+				   кареткой, чтобы она не копилась. */
+				if (
+					startContainer.nodeType === Node.TEXT_NODE &&
+					startOffset > 0
+				) {
+					(startContainer as Text).deleteData(0, startOffset);
+				}
+				tokenBefore.remove();
+				refreshEditorState();
+			}
 		}
 	}
 
