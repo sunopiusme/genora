@@ -129,10 +129,10 @@ function getPlaceholder(
 	attachedProduct: Product | null,
 	isNarrowScreen: boolean,
 ) {
+	/* Название товара уже видно в теге слева — плейсхолдер его
+	   не дублирует. */
 	if (attachedProduct) {
-		return isNarrowScreen
-			? "Ваш вопрос…"
-			: `Спросите про ${attachedProduct.name}…`;
+		return "Ваш вопрос…";
 	}
 	return isNarrowScreen ? "Спросите" : "Спросите что угодно";
 }
