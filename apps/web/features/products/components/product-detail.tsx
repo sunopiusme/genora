@@ -15,7 +15,6 @@ const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
 const HERO_STRETCH_RANGE_PX = 96;
 const HERO_STRETCH_DAMPING = 0.6;
-const CLOSE_ANIMATION_DESKTOP_MS = 140;
 const CLOSE_ANIMATION_MOBILE_MS = 280;
 
 type ProductDetailProps = {
@@ -48,7 +47,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const isMobile = useMobileViewport();
 	const requestClose = useDelayedClose(
 		onClose,
-		isMobile ? CLOSE_ANIMATION_MOBILE_MS : CLOSE_ANIMATION_DESKTOP_MS,
+		isMobile ? CLOSE_ANIMATION_MOBILE_MS : 0,
 	);
 	const isDragging = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
 	const isScrolled = usePanelScrolled(bodyRef, isMobile);
@@ -310,6 +309,10 @@ function useDelayedClose(onClose: () => void, durationMs: number) {
 			return;
 		}
 		isClosingRef.current = true;
+		if (durationRef.current === 0) {
+			onClose();
+			return;
+		}
 		setIsClosing(true);
 		closeTimerRef.current = window.setTimeout(onClose, durationRef.current);
 	}, [onClose]);
