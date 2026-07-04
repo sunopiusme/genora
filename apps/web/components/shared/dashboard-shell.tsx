@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type TransitionEvent,
+} from "react";
 import Link from "next/link";
 import { Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
@@ -53,6 +59,47 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevSidebarOpen = useRef(isSidebarOpen);
+
+  // Track every open/close transition (toggle button, Escape, backdrop
+  // click) so the header freeze applies no matter how the sidebar was
+  // toggled.
+  useEffect(() => {
+    if (prevSidebarOpen.current === isSidebarOpen) {
+      return;
+    }
+    prevSidebarOpen.current = isSidebarOpen;
+    setIsAnimating(true);
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
+    }
+    // Fallback in case the width transition never fires
+    // (e.g. prefers-reduced-motion).
+    animationTimeout.current = setTimeout(() => {
+      setIsAnimating(false);
+    }, 300);
+  }, [isSidebarOpen]);
+
+  function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget || event.propertyName !== "width") {
+      return;
+    }
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
+      animationTimeout.current = null;
+    }
+    setIsAnimating(false);
+  }
+
+  useEffect(() => {
+    return () => {
+      if (animationTimeout.current) {
+        clearTimeout(animationTimeout.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!isSidebarOpen) {
@@ -69,7 +116,14 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   return (
     <div className={cn(styles.shell, isSidebarOpen && styles.shellOpen)}>
-      <aside className={cn(styles.sidebar, isSidebarOpen && styles.sidebarOpen)}>
+      <aside
+        className={cn(
+          styles.sidebar,
+          isSidebarOpen && styles.sidebarOpen,
+          isAnimating && styles.sidebarAnimating,
+        )}
+        onTransitionEnd={handleSidebarTransitionEnd}
+      >
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarHeader}>
             <span className={styles.logo}>

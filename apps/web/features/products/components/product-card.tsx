@@ -3,6 +3,7 @@
 import {
 	useEffect,
 	useRef,
+	type CSSProperties,
 	type MouseEvent,
 	type PointerEvent,
 } from "react";
@@ -50,7 +51,16 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				onClick={handleCoverClick}
 				aria-label={`Открыть ${product.name}`}
 			>
-				<span className={styles.wordmark}>{product.provider}</span>
+				<span
+					className={styles.logo}
+					style={
+						{
+							"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+						} as CSSProperties
+					}
+					role="img"
+					aria-label={product.provider}
+				/>
 			</button>
 			<div className={styles.info}>
 				<h3 className={styles.name}>{product.name}</h3>
