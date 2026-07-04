@@ -45,21 +45,14 @@
 	box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
-.wordmark {
+.logo {
 	position: relative;
 	z-index: 1;
-	font-size: 1.25rem;
-	font-weight: var(--weight-semibold);
-	letter-spacing: -0.02em;
-	background: linear-gradient(
-		180deg,
-		var(--color-foreground) 40%,
-		var(--color-foreground-muted) 100%
-	);
-	-webkit-background-clip: text;
-	background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: var(--color-foreground);
+	width: 32%;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
 }
 
 .info {
