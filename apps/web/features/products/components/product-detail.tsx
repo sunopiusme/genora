@@ -110,7 +110,6 @@ type ProductHeroProps = {
 function ProductHero({ product }: ProductHeroProps) {
 	return (
 		<div className={styles.hero}>
-			<div className={styles.heroGrid} aria-hidden="true" />
 			<span
 				className={styles.heroLogo}
 				style={

@@ -4,14 +4,9 @@
 	z-index: 20;
 	display: flex;
 	padding: var(--space-6);
-	background:
-		radial-gradient(
-			130% 120% at 50% 38%,
-			rgb(0 0 0 / 0.68),
-			rgb(0 0 0 / 0.9) 78%
-		);
-	backdrop-filter: blur(6px);
-	-webkit-backdrop-filter: blur(6px);
+	background-color: rgb(0 0 0 / 0.6);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
 	overflow-y: auto;
 	animation: overlayIn 0.2s ease both;
 }
@@ -19,16 +14,15 @@
 .panel {
 	position: relative;
 	width: 100%;
-	max-width: 52rem;
+	max-width: 46rem;
 	max-height: calc(100dvh - 3rem);
 	margin: auto;
 	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface);
-	border: 1px solid rgb(255 255 255 / 0.14);
+	border: 1px solid rgb(255 255 255 / 0.1);
 	box-shadow:
-		inset 0 1px 0 rgb(255 255 255 / 0.06),
-		0 32px 80px -24px rgb(0 0 0 / 0.85),
-		0 12px 32px -16px rgb(0 0 0 / 0.6);
+		0 24px 64px -20px rgb(0 0 0 / 0.7),
+		0 8px 24px -12px rgb(0 0 0 / 0.5);
 	overflow: hidden;
 	outline: none;
 	animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -153,7 +147,7 @@
 	}
 
 	.hero.hero {
-		min-height: calc(12rem + var(--hero-stretch, 0px));
+		min-height: calc(14rem + var(--hero-stretch, 0px));
 		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
@@ -311,7 +305,9 @@
 .layout {
 	display: grid;
 	grid-template-columns: 1fr;
+	gap: var(--space-5);
 	width: 100%;
+	padding: var(--space-4);
 }
 
 .hero {
@@ -319,29 +315,19 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	min-height: 12rem;
+	min-height: 14rem;
 	padding: var(--space-6);
 	overflow: hidden;
+	border-radius: var(--radius-xl);
 	background:
-		radial-gradient(130% 90% at 50% 0%, var(--neutral-850), transparent 72%),
-		linear-gradient(180deg, var(--neutral-900), var(--neutral-950));
-}
-
-.heroGrid {
-	position: absolute;
-	inset: 0;
-	background-image:
-		linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
-		linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
-	background-size: 2.5rem 2.5rem;
-	-webkit-mask-image: radial-gradient(80% 70% at 50% 42%, #000, transparent 78%);
-	mask-image: radial-gradient(80% 70% at 50% 42%, #000, transparent 78%);
-	pointer-events: none;
+		radial-gradient(130% 90% at 50% 0%, var(--neutral-800), transparent 72%),
+		linear-gradient(180deg, var(--neutral-850), var(--neutral-950));
+	box-shadow: inset 0 0 0 1px var(--color-border);
 }
 
 .heroLogo {
 	position: relative;
-	width: 3.5rem;
+	width: 5rem;
 	aspect-ratio: 1;
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
@@ -351,7 +337,7 @@
 .content {
 	display: flex;
 	flex-direction: column;
-	padding: var(--space-6);
+	padding: 0 var(--space-2) var(--space-2);
 }
 
 .eyebrow {
@@ -493,17 +479,20 @@
 
 @media (min-width: 52rem) {
 	.layout {
-		grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
-		align-items: stretch;
+		grid-template-columns: minmax(0, 17rem) minmax(0, 1fr);
+		align-items: center;
+		gap: var(--space-8);
+		padding: var(--space-5);
 	}
 
 	.hero {
-		min-height: 24rem;
+		aspect-ratio: 4 / 5;
+		min-height: 0;
 		padding: var(--space-8);
 	}
 
 	.content {
-		padding: var(--space-10) var(--space-8);
+		padding: var(--space-4) var(--space-4) var(--space-4) 0;
 		justify-content: center;
 	}
 
@@ -512,7 +501,7 @@
 	}
 
 	.heroLogo {
-		width: 4.5rem;
+		width: 32%;
 	}
 
 	.amount {
