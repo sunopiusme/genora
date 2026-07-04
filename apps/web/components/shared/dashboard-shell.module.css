@@ -15,6 +15,14 @@
       var(--sidebar-icon-size) + var(--sidebar-border-width)
   );
   --sidebar-expanded-width: clamp(14.5rem, 12vw + 5.5rem, 17rem);
+  /* Inner content column of the expanded sidebar. Text blocks are
+     always laid out at this fixed width — during the width animation
+     they are merely clipped and faded, never reflowed, so the text
+     can't squish or dance. */
+  --sidebar-content-width: calc(
+    var(--sidebar-expanded-width) - var(--sidebar-inset) * 2 -
+      var(--sidebar-border-width)
+  );
   position: relative;
   font-weight: var(--weight-medium);
 }
@@ -227,7 +235,7 @@
 .navLink {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: var(--space-2);
   /* 8px vertical padding: rows stay compact, but the hover pills of
      adjacent items nearly touch — ChatGPT-style density. */
   padding: 0.5rem var(--sidebar-item-pad);
@@ -238,13 +246,12 @@
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
   text-decoration: none;
+  /* The label overflows the collapsed pill at its natural width and is
+     simply cut off here, so it never squeezes during the animation. */
+  overflow: hidden;
   transition:
     color 0.15s ease,
     background-color 0.15s ease;
-}
-
-.sidebarOpen .navLink {
-  gap: var(--space-2);
 }
 
 .navLink:hover {
@@ -271,28 +278,40 @@
   stroke-width: 1.8;
 }
 
+/* Labels are always laid out at their natural width (flex-shrink: 0),
+   so the text never reflows. They dissolve out fast on collapse and
+   fade back in once the width animation is mostly done. */
 .navLabel {
-  width: 0;
-  overflow: hidden;
+  flex-shrink: 0;
   white-space: nowrap;
   opacity: 0;
+  transition: opacity 0.1s ease;
 }
 
 .sidebarOpen .navLabel {
-  width: auto;
   opacity: 1;
-  transition: opacity 0.15s ease 0.05s;
+  transition: opacity 0.15s ease 0.08s;
 }
 
+/* The recents block is always laid out at the expanded content width,
+   so its text (titles, ellipsized chat names) never reflows while the
+   sidebar width animates — it only fades in/out and gets clipped. */
 .section {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: var(--space-1);
   margin-top: var(--space-4);
+  width: var(--sidebar-content-width);
+  flex-shrink: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
 }
 
 .sidebarOpen .section {
-  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity 0.15s ease 0.08s;
 }
 
 .sectionTitle {
@@ -302,6 +321,7 @@
   font-weight: var(--weight-semibold);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+  white-space: nowrap;
   color: var(--color-foreground-subtle);
 }
 
@@ -504,6 +524,9 @@
   font-family: inherit;
   text-align: left;
   cursor: pointer;
+  /* Clips the identity column in the collapsed rail — see
+     .profileIdentity. */
+  overflow: hidden;
   transition: background-color 0.15s ease;
 }
 
@@ -524,18 +547,21 @@
   border-radius: var(--radius-full);
 }
 
-/* Name + plan column, mirroring the popup menu's header row. Hidden
-   in the collapsed rail where only the avatar remains. */
+/* Name + plan column, mirroring the popup menu's header row. Always
+   laid out at natural width; in the collapsed rail it is invisible and
+   clipped by the button so the avatar-only pill stays intact. */
 .profileIdentity {
-  display: none;
+  display: flex;
   flex-direction: column;
   gap: var(--space-px);
-  flex: 1;
-  min-width: 0;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity 0.1s ease;
 }
 
 .sidebarOpen .profileIdentity {
-  display: flex;
+  opacity: 1;
+  transition: opacity 0.15s ease 0.08s;
 }
 
 .profileName {
@@ -757,10 +783,10 @@
   }
 
   /* Labels are always laid out on mobile — the drawer only ever
-     appears in its expanded form. */
+     appears in its expanded form, so nothing fades. */
   .navLabel {
-    width: auto;
     opacity: 1;
+    transition: none;
   }
 
   .navLink {
@@ -781,12 +807,16 @@
     min-height: var(--sidebar-touch-target);
   }
 
-  .profileName {
-    display: block;
+  .profileIdentity {
+    opacity: 1;
+    transition: none;
   }
 
   .section {
-    display: flex;
+    width: auto;
+    opacity: 1;
+    pointer-events: auto;
+    transition: none;
   }
 
   .sidebarOpen .sidebarToggle {
