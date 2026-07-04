@@ -69,7 +69,6 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 				className={panelClassName}
 				onClick={stopBackdropClose}
 			>
-				{isMobile && <div className={styles.grabber} aria-hidden="true" />}
 				<div className={styles.controls}>
 					<ShareMenu product={product} />
 					<button
