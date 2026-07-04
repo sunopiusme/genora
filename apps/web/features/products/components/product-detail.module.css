@@ -22,7 +22,7 @@
 	margin: auto;
 	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface);
-	border: 1px solid rgb(255 255 255 / 0.09);
+	border: 1px solid rgb(255 255 255 / 0.14);
 	box-shadow:
 		0 32px 80px -24px rgb(0 0 0 / 0.85),
 		0 12px 32px -16px rgb(0 0 0 / 0.6);
@@ -263,7 +263,7 @@
 	font-size: var(--text-base);
 	font-weight: var(--weight-medium);
 	line-height: var(--leading-lg);
-	color: rgb(255 255 255 / 0.85);
+	color: var(--color-foreground);
 }
 
 .divider {
