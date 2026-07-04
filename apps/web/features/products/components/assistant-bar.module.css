@@ -28,10 +28,8 @@
 	align-items: center;
 	gap: var(--space-2);
 	flex-shrink: 0;
-	max-width: 14rem;
-	padding: var(--space-1) var(--space-1) var(--space-1) var(--space-2);
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.06);
+	max-width: min(12rem, 48vw);
+	padding-left: var(--space-2);
 	animation: chipIn 0.16s ease both;
 }
 
@@ -46,22 +44,13 @@
 	}
 }
 
-.chipMonogram {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
+.chipLogo {
 	flex-shrink: 0;
-	width: 1.375rem;
-	height: 1.375rem;
-	border-radius: var(--radius-md);
-	background-image: linear-gradient(
-		160deg,
-		var(--color-warm),
-		var(--color-warm-strong)
-	);
-	color: var(--color-warm-foreground);
-	font-size: var(--text-xs);
-	font-weight: var(--weight-semibold);
+	width: 1.125rem;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
 }
 
 .chipLabel {
@@ -83,7 +72,7 @@
 	height: 1.375rem;
 	border: none;
 	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.08);
+	background: none;
 	color: var(--color-foreground-muted);
 	cursor: pointer;
 	transition:

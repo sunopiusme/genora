@@ -158,8 +158,8 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 					className={styles.secondaryAction}
 					onClick={onAskAssistant}
 				>
-					<Icon icon="solar:paperclip-linear" aria-hidden="true" />
-					Спросить ассистента
+					<Icon icon="solar:chat-round-line-linear" aria-hidden="true" />
+					Обсудить товар
 				</button>
 			</div>
 		</div>
