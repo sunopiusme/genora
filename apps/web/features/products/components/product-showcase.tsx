@@ -3,9 +3,7 @@
 import { useState } from "react";
 import { getFeaturedProducts } from "../queries/featured-products";
 import type { Product } from "../types";
-import { ProductCard, type CoverVariant } from "./product-card";
-
-const COVER_VARIANTS: CoverVariant[] = ["horizon", "backlit", "mist"];
+import { ProductCard } from "./product-card";
 import { ProductDetail } from "./product-detail";
 import styles from "./product-showcase.module.css";
 
@@ -24,11 +22,10 @@ export function ProductShowcase() {
 	return (
 		<section className={styles.showcase}>
 			<div className={styles.grid}>
-				{featuredProducts.map((product, index) => (
+				{featuredProducts.map((product) => (
 					<ProductCard
 						key={product.id}
 						product={product}
-						coverVariant={COVER_VARIANTS[index % COVER_VARIANTS.length]}
 						onOpen={() => openProductDetail(product)}
 					/>
 				))}

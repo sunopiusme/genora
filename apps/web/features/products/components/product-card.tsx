@@ -14,22 +14,13 @@ import styles from "./product-card.module.css";
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
 const DOUBLE_CLICK_GRACE_MS = 220;
 
-export type CoverVariant = "horizon" | "backlit" | "mist";
-
 type ProductCardProps = {
 	product: Product;
 	onOpen: () => void;
 	onBuy?: () => void;
-	/** Временный проп для сравнения композиций обложки */
-	coverVariant?: CoverVariant;
 };
 
-export function ProductCard({
-	product,
-	onOpen,
-	onBuy,
-	coverVariant = "horizon",
-}: ProductCardProps) {
+export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 	const openGesture = useCardOpenGesture(onOpen);
 
 	function handleCoverClick(event: MouseEvent<HTMLButtonElement>) {
@@ -56,7 +47,7 @@ export function ProductCard({
 		>
 			<button
 				type="button"
-				className={`${styles.cover} ${styles[coverVariant]}`}
+				className={styles.cover}
 				onClick={handleCoverClick}
 				aria-label={`Открыть ${product.name}`}
 				style={
