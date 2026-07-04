@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type TouchEvent,
   type TransitionEvent,
 } from "react";
 import Link from "next/link";
@@ -54,6 +55,9 @@ const PROFILE = {
 /* Must match the mobile breakpoint in dashboard-shell.module.css. */
 const MOBILE_MEDIA_QUERY = "(max-width: 47.9375rem)";
 
+/* A leftward swipe longer than this closes the sidebar. */
+const SWIPE_CLOSE_DISTANCE = 48;
+
 export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
@@ -61,6 +65,31 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const [isAnimating, setIsAnimating] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  // Swipe-to-close: a horizontal leftward swipe anywhere on the open
+  // sidebar or the backdrop dismisses the drawer, matching the native
+  // iOS gesture. Vertical swipes keep scrolling the sidebar content.
+  function handleTouchStart(event: TouchEvent<HTMLElement>) {
+    const touch = event.touches[0];
+    touchStart.current = { x: touch.clientX, y: touch.clientY };
+  }
+
+  function handleTouchEnd(event: TouchEvent<HTMLElement>) {
+    if (!touchStart.current) {
+      return;
+    }
+    const touch = event.changedTouches[0];
+    const deltaX = touch.clientX - touchStart.current.x;
+    const deltaY = touch.clientY - touchStart.current.y;
+    touchStart.current = null;
+
+    const isLeftSwipe = deltaX < -SWIPE_CLOSE_DISTANCE;
+    const isHorizontal = Math.abs(deltaX) > Math.abs(deltaY);
+    if (isLeftSwipe && isHorizontal) {
+      closeSidebar();
+    }
+  }
 
   // Track every open/close transition (toggle button, Escape, backdrop
   // click) so the header freeze applies no matter how the sidebar was
@@ -138,6 +167,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           isAnimating && styles.sidebarAnimating,
         )}
         onTransitionEnd={handleSidebarTransitionEnd}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarHeader}>
@@ -217,6 +248,8 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           type="button"
           className={styles.backdrop}
           onClick={closeSidebar}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           aria-label="Закрыть меню"
         />
       )}

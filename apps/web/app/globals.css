@@ -9,6 +9,9 @@
 html {
   color-scheme: dark;
   overflow-y: scroll;
+  /* Native-app feel on mobile: the page itself never rubber-bands or
+     shifts — scrolling happens only inside dedicated scroll areas. */
+  overscroll-behavior: none;
 }
 
 html::-webkit-scrollbar {
