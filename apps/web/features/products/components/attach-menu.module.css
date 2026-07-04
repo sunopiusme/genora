@@ -40,11 +40,6 @@
 }
 
 .menu {
-	/* Ширины двух экранов меню. Контейнер анимирует переход между
-	   ними, панели внутри трека свёрстаны в свои фиксированные
-	   ширины — текст никогда не reflow-ится во время морфа. */
-	--pane-actions: min(13.5rem, calc(100vw - var(--space-8)));
-	--pane-products: min(17.5rem, calc(100vw - var(--space-8)));
 	--morph-ease: cubic-bezier(0.32, 0.72, 0.24, 1);
 	position: absolute;
 	bottom: calc(100% + var(--space-3));
@@ -53,56 +48,46 @@
 	z-index: var(--z-overlay);
 	display: flex;
 	flex-direction: column;
-	width: var(--pane-actions);
+	/* Одна ширина для обоих экранов — меню никогда не меняет ширину,
+	   переход между экранами это чистый кроссфейд. */
+	width: min(16rem, calc(100vw - var(--space-8)));
 	padding: var(--space-2);
 	border: 1px solid var(--color-border);
 	border-radius: var(--radius-2xl);
 	background-color: var(--color-surface-elevated);
 	box-shadow: var(--shadow-lg);
-	transition: width 0.28s var(--morph-ease);
 	animation: menuIn 0.16s ease both;
 }
 
-.menu[data-view="products"] {
-	width: var(--pane-products);
-}
-
-/* Окно, в котором живут оба экрана: обрезает соседний экран и
-   плавно ведёт высоту к активному. */
+/* Окно с обоими экранами: плавно ведёт высоту к активному экрану,
+   пока сами экраны кроссфейдятся. */
 .viewport {
 	overflow: hidden;
-	transition: height 0.28s var(--morph-ease);
+	transition: height 0.24s var(--morph-ease);
 }
 
+/* Оба экрана лежат в одной ячейке грида друг над другом —
+   никакого движения, только растворение одного в другой. */
 .track {
-	display: flex;
-	align-items: flex-start;
-	transition: transform 0.28s var(--morph-ease);
-}
-
-.track[data-view="products"] {
-	transform: translateX(calc(-1 * (var(--pane-actions) - var(--space-2) * 2)));
+	display: grid;
 }
 
 .pane {
+	grid-area: 1 / 1;
 	display: flex;
 	flex-direction: column;
-	flex-shrink: 0;
-	transition: opacity 0.22s ease;
+	min-width: 0;
+	align-self: start;
+	width: 100%;
+	opacity: 1;
+	transition: opacity 0.18s ease;
 }
 
-.pane:first-child {
-	width: calc(var(--pane-actions) - var(--space-2) * 2);
-}
-
-.pane:last-child {
-	width: calc(var(--pane-products) - var(--space-2) * 2);
-}
-
-/* Неактивный экран растворяется, пока трек скользит. */
+/* Неактивный экран прозрачен и не ловит клики (inert в разметке). */
 .track[data-view="actions"] .pane:last-child,
 .track[data-view="products"] .pane:first-child {
 	opacity: 0;
+	pointer-events: none;
 }
 
 @keyframes menuIn {
