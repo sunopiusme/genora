@@ -1,4 +1,4 @@
-import { forwardRef, useId, type SVGProps } from "react";
+import { forwardRef, useId, type ReactNode, type SVGProps } from "react";
 import { cn } from "../../lib/cn";
 import styles from "./avatar.module.css";
 
@@ -9,61 +9,23 @@ export interface AvatarProps extends SVGProps<SVGSVGElement> {
   size?: string | number;
 }
 
-type Palette = {
-  /** Deep-space base, darkest point of the backdrop. */
-  space: string;
-  /** Slightly lifted tone at the edge of the backdrop. */
-  horizon: string;
-  /** Primary nebula blob. */
-  nebulaA: string;
-  /** Secondary nebula blob. */
-  nebulaB: string;
-  /** Orbit ring + star tint. */
-  accent: string;
-};
+/** Deep-space disc behind every shape. */
+const SPACE = "#0a0a0f";
 
-const PALETTES: Palette[] = [
-  // Aurora — teal & green over deep petrol
-  {
-    space: "#03080f",
-    horizon: "#0a1c26",
-    nebulaA: "#22d3ee",
-    nebulaB: "#34d399",
-    accent: "#a5f3fc",
-  },
-  // Nebula — magenta & indigo dust
-  {
-    space: "#0b0413",
-    horizon: "#1c0f2e",
-    nebulaA: "#e879f9",
-    nebulaB: "#6366f1",
-    accent: "#f5d0fe",
-  },
-  // Solar — ember orange & rose flare
-  {
-    space: "#100502",
-    horizon: "#2a0f0a",
-    nebulaA: "#fb923c",
-    nebulaB: "#f43f5e",
-    accent: "#fde68a",
-  },
-  // Ion — electric blue & soft violet
-  {
-    space: "#04060f",
-    horizon: "#0d142e",
-    nebulaA: "#60a5fa",
-    nebulaB: "#c084fc",
-    accent: "#dbeafe",
-  },
-  // Plasma — teal & gold spark
-  {
-    space: "#020d0a",
-    horizon: "#0a2019",
-    nebulaA: "#2dd4bf",
-    nebulaB: "#facc15",
-    accent: "#ccfbf1",
-  },
+/** Vivid flat accents that pop on black. */
+const COLORS = [
+  "#4ade80", // aurora green
+  "#22d3ee", // cyan
+  "#f472b6", // pink
+  "#fb923c", // orange
+  "#facc15", // yellow
+  "#60a5fa", // blue
+  "#fb7185", // coral
+  "#5eead4", // mint
 ];
+
+const SIZE = 64;
+const CENTER = SIZE / 2;
 
 /** Small deterministic hash so the same name always yields the same art. */
 function hashSeed(input: string) {
@@ -75,20 +37,102 @@ function hashSeed(input: string) {
   return hash >>> 0;
 }
 
-/** Cheap seeded PRNG (mulberry32) — stable across renders and platforms. */
-function createRandom(seed: number) {
-  let state = seed;
-  return () => {
-    state |= 0;
-    state = (state + 0x6d2b79f5) | 0;
-    let t = Math.imul(state ^ (state >>> 15), 1 | state);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
+function starPoints(
+  cx: number,
+  cy: number,
+  outer: number,
+  inner: number,
+  count: number,
+) {
+  const points: string[] = [];
+  for (let i = 0; i < count * 2; i += 1) {
+    const radius = i % 2 === 0 ? outer : inner;
+    const angle = (Math.PI / count) * i - Math.PI / 2;
+    points.push(
+      `${(cx + Math.cos(angle) * radius).toFixed(2)},${(cy + Math.sin(angle) * radius).toFixed(2)}`,
+    );
+  }
+  return points.join(" ");
 }
 
-const SIZE = 64;
-const CENTER = SIZE / 2;
+function polygonPoints(cx: number, cy: number, radius: number, sides: number) {
+  const points: string[] = [];
+  for (let i = 0; i < sides; i += 1) {
+    const angle = ((Math.PI * 2) / sides) * i - Math.PI / 2;
+    points.push(
+      `${(cx + Math.cos(angle) * radius).toFixed(2)},${(cy + Math.sin(angle) * radius).toFixed(2)}`,
+    );
+  }
+  return points.join(" ");
+}
+
+/**
+ * Flat bold shapes, one per avatar — sparkles, clovers, crescents,
+ * flowers, stars, arches. All drawn in a 64x64 box around (32, 32).
+ */
+const SHAPES: Array<(color: string) => ReactNode> = [
+  // Four-point sparkle with concave sides
+  (color) => (
+    <path
+      d="M32 8 C34.5 24 40 29.5 56 32 C40 34.5 34.5 40 32 56 C29.5 40 24 34.5 8 32 C24 29.5 29.5 24 32 8 Z"
+      fill={color}
+    />
+  ),
+  // Quatrefoil clover (four overlapping lobes)
+  (color) => (
+    <g fill={color}>
+      <circle cx={32} cy={21.5} r={10.5} />
+      <circle cx={42.5} cy={32} r={10.5} />
+      <circle cx={32} cy={42.5} r={10.5} />
+      <circle cx={21.5} cy={32} r={10.5} />
+      <rect x={24} y={24} width={16} height={16} />
+    </g>
+  ),
+  // Scalloped flower (center + eight petals)
+  (color) => (
+    <g fill={color}>
+      <circle cx={32} cy={32} r={13} />
+      {Array.from({ length: 8 }, (_, i) => {
+        const angle = ((Math.PI * 2) / 8) * i - Math.PI / 2;
+        return (
+          <circle
+            key={i}
+            cx={(32 + Math.cos(angle) * 13.5).toFixed(2)}
+            cy={(32 + Math.sin(angle) * 13.5).toFixed(2)}
+            r={7}
+          />
+        );
+      })}
+    </g>
+  ),
+  // Crescent moon
+  (color) => (
+    <path
+      d="M39 9 A23.5 23.5 0 1 0 39 55 A19 19 0 1 1 39 9 Z"
+      fill={color}
+    />
+  ),
+  // Five-point star
+  (color) => <polygon points={starPoints(32, 33.5, 24, 10, 5)} fill={color} />,
+  // Hexagon
+  (color) => <polygon points={polygonPoints(32, 32, 23, 6)} fill={color} />,
+  // Arch (doorway)
+  (color) => (
+    <path
+      d="M17 54 L17 31 A15 15 0 0 1 47 31 L47 54 Z"
+      fill={color}
+    />
+  ),
+  // Soft four-point diamond (rounded star)
+  (color) => (
+    <path
+      d="M32 9 C36 22 42 28 55 32 C42 36 36 42 32 55 C28 42 22 36 9 32 C22 28 28 22 32 9 Z"
+      fill={color}
+    />
+  ),
+  // Half circle (rising sun)
+  (color) => <path d="M10 43 A22 22 0 0 1 54 43 Z" fill={color} />,
+];
 
 export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
   { name, size = "2rem", className, ...props },
@@ -96,53 +140,22 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
 ) {
   const uid = useId().replace(/[^a-zA-Z0-9]/g, "");
   const seed = hashSeed(name.trim().toLowerCase());
-  const random = createRandom(seed);
 
-  const palette = PALETTES[seed % PALETTES.length];
+  const shape = SHAPES[seed % SHAPES.length];
+  const color = COLORS[(seed >>> 4) % COLORS.length];
 
-  // Nebula blobs — two soft radial glows drifting in opposite quadrants.
-  const angleA = random() * Math.PI * 2;
-  const angleB = angleA + Math.PI * (0.7 + random() * 0.6);
-  const radiusA = 12 + random() * 8;
-  const radiusB = 12 + random() * 8;
-  const blobA = {
-    cx: CENTER + Math.cos(angleA) * radiusA,
-    cy: CENTER + Math.sin(angleA) * radiusA,
-    r: 22 + random() * 8,
+  // Two tiny stars for the space vibe, tucked into opposite corners.
+  const starAngle = ((seed >>> 8) % 360) * (Math.PI / 180);
+  const starA = {
+    x: CENTER + Math.cos(starAngle) * 25,
+    y: CENTER + Math.sin(starAngle) * 25,
   };
-  const blobB = {
-    cx: CENTER + Math.cos(angleB) * radiusB,
-    cy: CENTER + Math.sin(angleB) * radiusB,
-    r: 18 + random() * 8,
+  const starB = {
+    x: CENTER + Math.cos(starAngle + Math.PI) * 26,
+    y: CENTER + Math.sin(starAngle + Math.PI) * 26,
   };
-
-  // Orbit ring — a thin tilted ellipse with a bright "planet" on its path.
-  const ringTilt = Math.round(random() * 180);
-  const ringRx = 22 + random() * 4;
-  const ringRy = 8 + random() * 4;
-  const planetAngle = random() * Math.PI * 2;
-  const planet = {
-    x: Math.cos(planetAngle) * ringRx,
-    y: Math.sin(planetAngle) * ringRy,
-  };
-
-  // Stars — a scatter of tiny points, sizes and brightness vary.
-  const stars = Array.from({ length: 7 }, () => {
-    const angle = random() * Math.PI * 2;
-    const distance = 6 + random() * 22;
-    return {
-      x: CENTER + Math.cos(angle) * distance,
-      y: CENTER + Math.sin(angle) * distance,
-      r: 0.5 + random() * 0.9,
-      opacity: 0.5 + random() * 0.5,
-    };
-  });
 
   const clipId = `av-clip-${uid}`;
-  const bgId = `av-bg-${uid}`;
-  const blobAId = `av-a-${uid}`;
-  const blobBId = `av-b-${uid}`;
-  const blurId = `av-blur-${uid}`;
 
   return (
     <svg
@@ -159,79 +172,13 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
         <clipPath id={clipId}>
           <circle cx={CENTER} cy={CENTER} r={CENTER} />
         </clipPath>
-        <radialGradient id={bgId} cx="35%" cy="30%" r="90%">
-          <stop offset="0%" stopColor={palette.horizon} />
-          <stop offset="100%" stopColor={palette.space} />
-        </radialGradient>
-        <radialGradient id={blobAId}>
-          <stop offset="0%" stopColor={palette.nebulaA} stopOpacity="0.95" />
-          <stop offset="55%" stopColor={palette.nebulaA} stopOpacity="0.35" />
-          <stop offset="100%" stopColor={palette.nebulaA} stopOpacity="0" />
-        </radialGradient>
-        <radialGradient id={blobBId}>
-          <stop offset="0%" stopColor={palette.nebulaB} stopOpacity="0.9" />
-          <stop offset="55%" stopColor={palette.nebulaB} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={palette.nebulaB} stopOpacity="0" />
-        </radialGradient>
-        <filter id={blurId} x="-40%" y="-40%" width="180%" height="180%">
-          <feGaussianBlur stdDeviation="3" />
-        </filter>
       </defs>
 
       <g clipPath={`url(#${clipId})`}>
-        <rect width={SIZE} height={SIZE} fill={`url(#${bgId})`} />
-
-        <circle
-          cx={blobA.cx}
-          cy={blobA.cy}
-          r={blobA.r}
-          fill={`url(#${blobAId})`}
-          filter={`url(#${blurId})`}
-        />
-        <circle
-          cx={blobB.cx}
-          cy={blobB.cy}
-          r={blobB.r}
-          fill={`url(#${blobBId})`}
-          filter={`url(#${blurId})`}
-        />
-
-        {stars.map((star, index) => (
-          <circle
-            key={index}
-            cx={star.x}
-            cy={star.y}
-            r={star.r}
-            fill={palette.accent}
-            opacity={star.opacity}
-          />
-        ))}
-
-        <g transform={`rotate(${ringTilt} ${CENTER} ${CENTER})`}>
-          <ellipse
-            cx={CENTER}
-            cy={CENTER}
-            rx={ringRx}
-            ry={ringRy}
-            fill="none"
-            stroke={palette.accent}
-            strokeWidth="0.75"
-            opacity="0.55"
-          />
-          <circle
-            cx={CENTER + planet.x}
-            cy={CENTER + planet.y}
-            r="2"
-            fill={palette.accent}
-          />
-          <circle
-            cx={CENTER + planet.x}
-            cy={CENTER + planet.y}
-            r="3.5"
-            fill={palette.accent}
-            opacity="0.25"
-          />
-        </g>
+        <rect width={SIZE} height={SIZE} fill={SPACE} />
+        {shape(color)}
+        <circle cx={starA.x} cy={starA.y} r={1.1} fill={color} opacity={0.6} />
+        <circle cx={starB.x} cy={starB.y} r={0.8} fill={color} opacity={0.4} />
       </g>
 
       {/* Hairline rim so the disc reads as a solid object on black. */}
@@ -240,8 +187,8 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
         cy={CENTER}
         r={CENTER - 0.5}
         fill="none"
-        stroke={palette.accent}
-        strokeOpacity="0.28"
+        stroke={color}
+        strokeOpacity="0.3"
         strokeWidth="1"
       />
     </svg>
