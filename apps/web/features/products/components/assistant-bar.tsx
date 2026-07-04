@@ -56,7 +56,7 @@ export function AssistantBar() {
 			) : (
 				<span className={styles.searchIcon}>
 					<Icon
-						icon="solar:chat-round-bold-stroke"
+						icon="solar:chat-bubble-bold-stroke"
 						className={styles.searchGlyph}
 						aria-hidden="true"
 					/>
