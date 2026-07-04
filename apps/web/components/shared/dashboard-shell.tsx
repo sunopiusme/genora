@@ -70,6 +70,20 @@ const RECENT_GROUPS: RecentGroup[] = [
   },
 ];
 
+/* Utility links pinned to the bottom of the sidebar, above the profile. */
+const FOOTER_ITEMS: NavItem[] = [
+  {
+    label: "Настройки",
+    href: "/dashboard",
+    icon: "solar:settings-linear",
+  },
+  {
+    label: "Помощь",
+    href: "/dashboard",
+    icon: "solar:question-circle-linear",
+  },
+];
+
 /* A leftward swipe longer than this closes the sidebar. */
 const SWIPE_CLOSE_DISTANCE = 48;
 
@@ -200,49 +214,65 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </button>
           </div>
 
-          <div className={styles.sidebarScroll}>
+          <div className={styles.scrollArea}>
+            <div className={styles.sidebarScroll}>
+              <nav className={styles.nav}>
+                {NAV_ITEMS.map((item) => (
+                  <SidebarTooltip
+                    key={item.label}
+                    label={item.label}
+                    isEnabled={!isSidebarOpen}
+                  >
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        styles.navLink,
+                        item.active && styles.navLinkActive,
+                      )}
+                    >
+                      <Icon icon={item.icon} className={styles.navIcon} />
+                      <span className={styles.navLabel}>{item.label}</span>
+                    </Link>
+                  </SidebarTooltip>
+                ))}
+              </nav>
+
+              <div className={styles.section}>
+                {RECENT_GROUPS.map((group) => (
+                  <div key={group.title} className={styles.subsection}>
+                    <p className={styles.sectionTitle}>{group.title}</p>
+                    <nav className={styles.recents}>
+                      {group.items.map((item) => (
+                        <Link
+                          key={item}
+                          href="/dashboard"
+                          className={styles.recentLink}
+                        >
+                          {item}
+                        </Link>
+                      ))}
+                    </nav>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.sidebarFooter}>
             <nav className={styles.nav}>
-              {NAV_ITEMS.map((item) => (
+              {FOOTER_ITEMS.map((item) => (
                 <SidebarTooltip
                   key={item.label}
                   label={item.label}
                   isEnabled={!isSidebarOpen}
                 >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      styles.navLink,
-                      item.active && styles.navLinkActive,
-                    )}
-                  >
+                  <Link href={item.href} className={styles.navLink}>
                     <Icon icon={item.icon} className={styles.navIcon} />
                     <span className={styles.navLabel}>{item.label}</span>
                   </Link>
                 </SidebarTooltip>
               ))}
             </nav>
-
-            <div className={styles.section}>
-              {RECENT_GROUPS.map((group) => (
-                <div key={group.title} className={styles.subsection}>
-                  <p className={styles.sectionTitle}>{group.title}</p>
-                  <nav className={styles.recents}>
-                    {group.items.map((item) => (
-                      <Link
-                        key={item}
-                        href="/dashboard"
-                        className={styles.recentLink}
-                      >
-                        {item}
-                      </Link>
-                    ))}
-                  </nav>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.sidebarFooter}>
             <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen}>
               <button type="button" className={styles.profile}>
                 <Avatar
