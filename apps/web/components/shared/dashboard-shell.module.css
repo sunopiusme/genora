@@ -6,9 +6,13 @@
   --sidebar-inset: var(--space-2);
   --sidebar-item-pad: var(--space-2);
   --sidebar-icon-size: 1.125rem;
+  --sidebar-border-width: 1px;
+  /* Insets + item paddings + icon column + right border. Including the
+     border keeps the inner content column exact, so pills never
+     overflow the rail by the border width. */
   --sidebar-rail-width: calc(
     var(--sidebar-inset) * 2 + var(--sidebar-item-pad) * 2 +
-      var(--sidebar-icon-size)
+      var(--sidebar-icon-size) + var(--sidebar-border-width)
   );
   --sidebar-expanded-width: clamp(12rem, 11vw + 4.5rem, 14.5rem);
   position: relative;
@@ -37,7 +41,7 @@
   height: 100%;
   padding: var(--sidebar-inset);
   background-color: #000000;
-  border-right: 1px solid var(--color-border);
+  border-right: var(--sidebar-border-width) solid var(--color-border);
   overflow: hidden;
 }
 
@@ -142,6 +146,12 @@
   opacity: 0;
   pointer-events: none;
   transition: none;
+}
+
+/* Prevent a scrollbar from flashing in and squeezing the content while
+   the width animates. */
+.sidebarAnimating .sidebarScroll {
+  overflow-y: hidden;
 }
 
 .nav {

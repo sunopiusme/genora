@@ -61,9 +61,16 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevSidebarOpen = useRef(isSidebarOpen);
 
-  function handleToggle() {
-    toggleSidebar();
+  // Track every open/close transition (toggle button, Escape, backdrop
+  // click) so the header freeze applies no matter how the sidebar was
+  // toggled.
+  useEffect(() => {
+    if (prevSidebarOpen.current === isSidebarOpen) {
+      return;
+    }
+    prevSidebarOpen.current = isSidebarOpen;
     setIsAnimating(true);
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
@@ -73,7 +80,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     animationTimeout.current = setTimeout(() => {
       setIsAnimating(false);
     }, 300);
-  }
+  }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
     if (event.target !== event.currentTarget || event.propertyName !== "width") {
@@ -125,7 +132,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             <button
               type="button"
               className={styles.sidebarToggle}
-              onClick={handleToggle}
+              onClick={toggleSidebar}
               aria-label="Переключить меню"
             >
               <SidebarIcon />
