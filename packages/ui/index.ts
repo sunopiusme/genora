@@ -13,3 +13,5 @@ export {
 } from "./primitives/dialog";
 export { Logo } from "./components/logo";
 export type { LogoProps } from "./components/logo";
+export { Avatar } from "./components/avatar";
+export type { AvatarProps } from "./components/avatar";
