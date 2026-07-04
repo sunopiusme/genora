@@ -151,6 +151,10 @@
 	   для пальца расширяет псевдоэлемент ниже. */
 	width: 1.375rem;
 	height: 1.375rem;
+	/* Сброс браузерного padding у <button> (~1px 6px): без него
+	   SVG-глиф как флекс-элемент ужимался по ширине и крестик
+	   выглядел узким и крошечным. */
+	padding: 0;
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
@@ -177,6 +181,7 @@
 }
 
 .tokenRemoveGlyph {
+	flex-shrink: 0;
 	width: 1.375rem;
 	height: 1.375rem;
 }
