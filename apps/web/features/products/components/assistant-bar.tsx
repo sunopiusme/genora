@@ -60,15 +60,17 @@ export function AssistantBar() {
 
 	return (
 		<form className={styles.bar} onSubmit={handleSubmit}>
-			{attachedProduct ? (
+			{/* Плюсик виден всегда — тег с вложением встаёт справа от него. */}
+			<AttachMenu />
+
+			{attachedProduct && (
 				<AttachedProductChip
 					product={attachedProduct}
 					onRemove={detachProduct}
 				/>
-			) : attachedFile ? (
+			)}
+			{!attachedProduct && attachedFile && (
 				<AttachedFileChip file={attachedFile} onRemove={detachFile} />
-			) : (
-				<AttachMenu />
 			)}
 
 			<input
