@@ -177,11 +177,26 @@
 		content: "";
 		position: absolute;
 		inset: 0 0 auto 0;
-		height: 2.75rem;
-		backdrop-filter: blur(8px);
-		-webkit-backdrop-filter: blur(8px);
-		-webkit-mask-image: linear-gradient(to bottom, #000, transparent);
-		mask-image: linear-gradient(to bottom, #000, transparent);
+		height: 4.5rem;
+		background: linear-gradient(
+			to bottom,
+			rgb(0 0 0 / 0.72),
+			rgb(0 0 0 / 0.715) 8.1%,
+			rgb(0 0 0 / 0.7) 15.5%,
+			rgb(0 0 0 / 0.676) 22.5%,
+			rgb(0 0 0 / 0.639) 29%,
+			rgb(0 0 0 / 0.592) 35.3%,
+			rgb(0 0 0 / 0.535) 41.2%,
+			rgb(0 0 0 / 0.472) 47.1%,
+			rgb(0 0 0 / 0.402) 52.9%,
+			rgb(0 0 0 / 0.328) 58.8%,
+			rgb(0 0 0 / 0.253) 64.7%,
+			rgb(0 0 0 / 0.18) 71%,
+			rgb(0 0 0 / 0.113) 77.5%,
+			rgb(0 0 0 / 0.057) 84.5%,
+			rgb(0 0 0 / 0.016) 91.9%,
+			transparent 100%
+		);
 		opacity: 0;
 		transition: opacity 0.3s ease;
 		pointer-events: none;
