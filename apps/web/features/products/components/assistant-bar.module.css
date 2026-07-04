@@ -9,6 +9,15 @@
 	box-shadow: var(--shadow-lg);
 }
 
+/* На мобильных бар компактнее: 36px-элементы + 4px отступы дают
+   стандартные 44px высоты вместо разбухших 52px. */
+@media (max-width: 40rem) {
+	.bar {
+		padding: var(--space-1);
+		gap: var(--space-1);
+	}
+}
+
 .chip {
 	display: inline-flex;
 	align-items: center;
