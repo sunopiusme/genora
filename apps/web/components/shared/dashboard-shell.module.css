@@ -400,6 +400,17 @@
   animation: profileMenuIn 0.16s ease both;
 }
 
+/* Collapsed rail: the anchored popover would be clipped by the rail's
+   overflow, so the menu breaks out with position: fixed and floats
+   next to the avatar, above all page content. (fixed is
+   viewport-relative here — the desktop sidebar has no transform.) */
+.profileMenuFloating {
+  position: fixed;
+  left: calc(var(--sidebar-rail-width) + var(--space-2));
+  bottom: calc(var(--sidebar-inset) + var(--space-1));
+  animation-name: profileMenuFloatIn;
+}
+
 @keyframes profileMenuIn {
   from {
     opacity: 0;
@@ -408,6 +419,18 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+/* The floating variant grows out sideways from the rail. */
+@keyframes profileMenuFloatIn {
+  from {
+    opacity: 0;
+    transform: translateX(-0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
   }
 }
 

@@ -367,17 +367,23 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
     };
   }, [isOpen]);
 
-  // Collapsing the sidebar hides the anchor context — close the menu.
+  // Toggling the sidebar moves the anchor mid-animation — close the
+  // menu so it never floats detached from the profile button.
   useEffect(() => {
-    if (!isSidebarOpen) {
-      setIsOpen(false);
-    }
+    setIsOpen(false);
   }, [isSidebarOpen]);
 
   return (
     <div ref={rootRef} className={styles.profileRoot}>
       {isOpen && (
-        <div id={menuId} role="menu" className={styles.profileMenu}>
+        <div
+          id={menuId}
+          role="menu"
+          className={cn(
+            styles.profileMenu,
+            !isSidebarOpen && styles.profileMenuFloating,
+          )}
+        >
           <Link
             href="/dashboard"
             role="menuitem"
