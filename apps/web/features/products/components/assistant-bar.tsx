@@ -477,7 +477,7 @@ function TokenContent({ token, onRemove }: TokenContentProps) {
 			{token.kind === "profile" ? (
 				<Avatar
 					name={token.label}
-					size="1rem"
+					size="1.125rem"
 					className={styles.tokenAvatar}
 					aria-hidden="true"
 				/>

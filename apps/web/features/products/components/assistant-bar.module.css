@@ -85,10 +85,11 @@
 .token {
 	display: inline-flex;
 	align-items: center;
+	/* Зазор небольшой: у крестика и так есть собственные «поля» —
+	   иконка 1.125rem внутри кнопки 1.75rem. */
 	gap: var(--space-1);
 	max-width: min(11rem, 44vw);
 	height: 1.75rem;
-	margin-inline: 0.0625rem;
 	vertical-align: middle;
 	border-radius: var(--radius-full);
 	white-space: nowrap;
@@ -109,7 +110,7 @@
 
 .tokenLogo {
 	flex-shrink: 0;
-	width: 1rem;
+	width: 1.125rem;
 	aspect-ratio: 1;
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
@@ -122,8 +123,8 @@
 
 .tokenFileGlyph {
 	flex-shrink: 0;
-	width: 1rem;
-	height: 1rem;
+	width: 1.125rem;
+	height: 1.125rem;
 	color: var(--color-foreground);
 }
 
@@ -142,8 +143,13 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: 1.25rem;
-	height: 1.25rem;
+	/* Тот же масштаб, что у крестика чипа раньше: заметная мишень
+	   для пальца и иконка в размер логотипа. Невидимые «поля» кнопки
+	   компенсируются отрицательным отступом, чтобы после тега не
+	   возникал лишний пробел перед текстом. */
+	width: 1.75rem;
+	height: 1.75rem;
+	margin-inline-end: calc(-1 * var(--space-1));
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
@@ -164,8 +170,8 @@
 }
 
 .tokenRemoveGlyph {
-	width: 0.875rem;
-	height: 0.875rem;
+	width: 1.125rem;
+	height: 1.125rem;
 }
 
 .submit {
