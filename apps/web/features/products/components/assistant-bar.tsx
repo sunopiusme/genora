@@ -7,11 +7,12 @@ import {
 	useState,
 	type FormEvent,
 	type KeyboardEvent,
-	type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import { Avatar } from "@genora/ui";
 import { useComposerStore, type AttachedFile } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
+import { PROFILE } from "@/lib/profile";
 import type { Product } from "../types";
 import { AttachMenu } from "./attach-menu";
 import {
@@ -36,18 +37,20 @@ type MentionDraft = {
 export function AssistantBar() {
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
-	const overlayRef = useRef<HTMLDivElement>(null);
 	const mentionMenuId = useId();
 	const [query, setQuery] = useState("");
 	const [mentionDraft, setMentionDraft] = useState<MentionDraft | null>(null);
 	const [mentionActiveIndex, setMentionActiveIndex] = useState(0);
-	/* Имена, вставленные через меню, — по ним подсвечиваются
-	   упоминания в тексте. */
-	const [mentionNames, setMentionNames] = useState<string[]>([]);
 	const attachedProduct = useComposerStore((state) => state.attachedProduct);
 	const detachProduct = useComposerStore((state) => state.detach);
 	const attachedFile = useComposerStore((state) => state.attachedFile);
 	const detachFile = useComposerStore((state) => state.detachFile);
+	const isProfileAttached = useComposerStore(
+		(state) => state.isProfileAttached,
+	);
+	const attachProduct = useComposerStore((state) => state.attach);
+	const attachProfile = useComposerStore((state) => state.attachProfile);
+	const detachProfile = useComposerStore((state) => state.detachProfile);
 	const hasQuery = query.trim().length > 0;
 	const isNarrowScreen = useIsNarrowScreen();
 
@@ -55,12 +58,6 @@ export function AssistantBar() {
 
 	const mentionItems = mentionDraft ? getMentionItems(mentionDraft.query) : [];
 	const isMentionOpen = mentionDraft !== null && mentionItems.length > 0;
-
-	function syncOverlayScroll() {
-		if (overlayRef.current && inputRef.current) {
-			overlayRef.current.scrollLeft = inputRef.current.scrollLeft;
-		}
-	}
 
 	function updateMentionDraft(value: string, caret: number | null) {
 		const draft = findMentionDraft(value, caret);
@@ -71,35 +68,37 @@ export function AssistantBar() {
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
 		setQuery(event.target.value);
 		updateMentionDraft(event.target.value, event.target.selectionStart);
-		requestAnimationFrame(syncOverlayScroll);
 	}
 
 	function handleCaretMove(event: React.SyntheticEvent<HTMLInputElement>) {
 		updateMentionDraft(query, event.currentTarget.selectionStart);
 	}
 
+	/* Выбор упоминания прикрепляет сущность тегом в бар, а «@фрагмент»
+	   убирается из текста — вопрос остаётся чистым. */
 	function handleSelectMention(item: MentionItem) {
 		if (!mentionDraft) {
 			return;
 		}
 		const caret = mentionDraft.start + 1 + mentionDraft.query.length;
-		const inserted = `@${item.label} `;
 		const nextValue =
-			query.slice(0, mentionDraft.start) + inserted + query.slice(caret);
+			query.slice(0, mentionDraft.start) + query.slice(caret);
 		setQuery(nextValue);
 		setMentionDraft(null);
-		setMentionNames((names) =>
-			names.includes(item.label) ? names : [...names, item.label],
-		);
 
-		const nextCaret = mentionDraft.start + inserted.length;
+		if (item.kind === "profile") {
+			attachProfile();
+		} else if (item.product) {
+			attachProduct(item.product);
+		}
+
+		const nextCaret = mentionDraft.start;
 		requestAnimationFrame(() => {
 			const input = inputRef.current;
 			if (input) {
 				input.focus();
 				input.setSelectionRange(nextCaret, nextCaret);
 			}
-			syncOverlayScroll();
 		});
 	}
 
@@ -149,23 +148,25 @@ export function AssistantBar() {
 			} else if (attachedFile) {
 				event.preventDefault();
 				detachFile();
+			} else if (isProfileAttached) {
+				event.preventDefault();
+				detachProfile();
 			}
 		}
 	}
 
-	const placeholder = getPlaceholder(
-		attachedProduct,
-		attachedFile,
-		isNarrowScreen,
-	);
-	const highlighted = renderWithMentions(query, mentionNames, styles.mention);
-	const hasHighlights = highlighted !== null;
+	const hasAttachment =
+		attachedProduct !== null || attachedFile !== null || isProfileAttached;
+	const placeholder = getPlaceholder(hasAttachment, isNarrowScreen);
 
 	return (
 		<form className={styles.bar} onSubmit={handleSubmit}>
-			{/* Плюсик виден всегда — тег с вложением встаёт справа от него. */}
+			{/* Плюсик виден всегда — теги с вложениями встают справа от него. */}
 			<AttachMenu />
 
+			{isProfileAttached && (
+				<AttachedProfileChip onRemove={detachProfile} />
+			)}
 			{attachedProduct && (
 				<AttachedProductChip
 					product={attachedProduct}
@@ -176,36 +177,25 @@ export function AssistantBar() {
 				<AttachedFileChip file={attachedFile} onRemove={detachFile} />
 			)}
 
-			<div className={styles.inputWrap}>
-				<input
-					ref={inputRef}
-					name="query"
-					value={query}
-					onChange={handleChange}
-					onKeyDown={handleInputKeyDown}
-					onSelect={handleCaretMove}
-					onScroll={syncOverlayScroll}
-					placeholder={placeholder}
-					autoComplete="off"
-					className={styles.input}
-					data-has-mentions={hasHighlights || undefined}
-					aria-label="Сообщение ассистенту"
-					aria-autocomplete="list"
-					aria-controls={isMentionOpen ? mentionMenuId : undefined}
-					aria-activedescendant={
-						isMentionOpen
-							? `${mentionMenuId}-option-${mentionActiveIndex}`
-							: undefined
-					}
-				/>
-				{/* Зеркало текста: инпут делает буквы прозрачными, а слой
-				    сверху рисует их же с подсветкой упоминаний. */}
-				{hasHighlights && (
-					<div ref={overlayRef} className={styles.inputOverlay} aria-hidden>
-						{highlighted}
-					</div>
-				)}
-			</div>
+			<input
+				ref={inputRef}
+				name="query"
+				value={query}
+				onChange={handleChange}
+				onKeyDown={handleInputKeyDown}
+				onSelect={handleCaretMove}
+				placeholder={placeholder}
+				autoComplete="off"
+				className={styles.input}
+				aria-label="Сообщение ассистенту"
+				aria-autocomplete="list"
+				aria-controls={isMentionOpen ? mentionMenuId : undefined}
+				aria-activedescendant={
+					isMentionOpen
+						? `${mentionMenuId}-option-${mentionActiveIndex}`
+						: undefined
+				}
+			/>
 
 			{isMentionOpen && (
 				<MentionMenu
@@ -259,54 +249,39 @@ function findMentionDraft(
 	return null;
 }
 
-/**
- * Разбивает текст на сегменты, оборачивая «@Имя» в подсвеченный
- * span. Возвращает null, если подсвечивать нечего, — тогда инпут
- * показывает обычный текст без слоя-зеркала.
- */
-function renderWithMentions(
-	text: string,
-	names: string[],
-	mentionClassName: string,
-): ReactNode[] | null {
-	if (!text || names.length === 0) {
-		return null;
-	}
-	/* Длинные имена first — чтобы «@Иван Петров» не перебивался
-	   более коротким совпадением. */
-	const sorted = [...names].sort((a, b) => b.length - a.length);
-	const pattern = new RegExp(
-		`@(?:${sorted.map(escapeRegExp).join("|")})`,
-		"g",
+type AttachedProfileChipProps = {
+	onRemove: () => void;
+};
+
+/* Тег профиля — как товарный, только вместо логотипа аватарка. */
+function AttachedProfileChip({ onRemove }: AttachedProfileChipProps) {
+	return (
+		<span
+			className={styles.chip}
+			role="status"
+			aria-label={`Прикреплён профиль: ${PROFILE.name}`}
+		>
+			<Avatar
+				name={PROFILE.name}
+				size="1.125rem"
+				className={styles.chipAvatar}
+				aria-hidden="true"
+			/>
+			<span className={styles.chipLabel}>{PROFILE.name}</span>
+			<button
+				type="button"
+				className={styles.chipRemove}
+				onClick={onRemove}
+				aria-label={`Открепить ${PROFILE.name}`}
+			>
+				<Icon
+					icon="solar:close-bold-stroke"
+					className={styles.chipRemoveGlyph}
+					aria-hidden="true"
+				/>
+			</button>
+		</span>
 	);
-
-	const segments: ReactNode[] = [];
-	let lastIndex = 0;
-	let hasMention = false;
-	for (const match of text.matchAll(pattern)) {
-		const index = match.index ?? 0;
-		if (index > lastIndex) {
-			segments.push(text.slice(lastIndex, index));
-		}
-		segments.push(
-			<span key={index} className={mentionClassName}>
-				{match[0]}
-			</span>,
-		);
-		lastIndex = index + match[0].length;
-		hasMention = true;
-	}
-	if (!hasMention) {
-		return null;
-	}
-	if (lastIndex < text.length) {
-		segments.push(text.slice(lastIndex));
-	}
-	return segments;
-}
-
-function escapeRegExp(value: string) {
-	return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 type AttachedProductChipProps = {
@@ -382,14 +357,10 @@ function AttachedFileChip({ file, onRemove }: AttachedFileChipProps) {
 	);
 }
 
-function getPlaceholder(
-	attachedProduct: Product | null,
-	attachedFile: AttachedFile | null,
-	isNarrowScreen: boolean,
-) {
-	/* Название товара или файла уже видно в теге слева — плейсхолдер
-	   его не дублирует. */
-	if (attachedProduct || attachedFile) {
+function getPlaceholder(hasAttachment: boolean, isNarrowScreen: boolean) {
+	/* Имя сущности уже видно в теге слева — плейсхолдер его
+	   не дублирует. */
+	if (hasAttachment) {
 		return "Ваш вопрос…";
 	}
 	return isNarrowScreen ? "Спросите" : "Спросите что угодно";

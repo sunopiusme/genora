@@ -61,6 +61,10 @@
 	color: var(--color-foreground);
 }
 
+.chipAvatar {
+	flex-shrink: 0;
+}
+
 .chipLabel {
 	overflow: hidden;
 	text-overflow: ellipsis;
@@ -119,17 +123,9 @@
 	height: 1.125rem;
 }
 
-.inputWrap {
-	position: relative;
-	display: flex;
-	flex: 1;
-	min-width: 0;
-}
-
 .input {
 	flex: 1;
 	min-width: 0;
-	width: 100%;
 	height: 2.25rem;
 	border: none;
 	background: none;
@@ -146,48 +142,10 @@
 	text-overflow: ellipsis;
 }
 
-/* Когда в тексте есть упоминания, буквы инпута прозрачные —
-   их рисует слой-зеркало с подсветкой. Каретка остаётся видимой. */
-.input[data-has-mentions] {
-	color: transparent;
-	caret-color: var(--color-foreground);
-}
-
-/* Зеркало повторяет метрики инпута один в один: шрифт, кегль,
-   отступы и высоту строки — иначе буквы разъедутся с кареткой. */
-.inputOverlay {
-	position: absolute;
-	inset: 0;
-	overflow: hidden;
-	padding-inline: var(--space-1) var(--space-2);
-	font-family: var(--font-sans);
-	font-size: 1rem;
-	font-weight: var(--weight-medium);
-	line-height: 2.25rem;
-	color: var(--color-foreground);
-	white-space: pre;
-	pointer-events: none;
-}
-
 @media (min-width: 48rem) {
 	.input {
 		font-size: 0.9375rem;
 	}
-
-	.inputOverlay {
-		font-size: 0.9375rem;
-	}
-}
-
-.mention {
-	/* Визуальный тег: фон-пилюля вокруг «@Имя». Горизонтальный
-	   паддинг недопустим — он сдвинул бы буквы относительно каретки
-	   в прозрачном инпуте, поэтому «поля» пилюли рисует box-shadow,
-	   не влияющий на метрики текста. */
-	border-radius: var(--radius-sm);
-	background-color: rgb(255 255 255 / 0.14);
-	box-shadow: 0 0 0 3px rgb(255 255 255 / 0.14);
-	color: var(--color-foreground);
 }
 
 .input::placeholder {

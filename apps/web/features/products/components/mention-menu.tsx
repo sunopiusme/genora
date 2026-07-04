@@ -3,17 +3,20 @@
 import { Avatar } from "@genora/ui";
 import { PROFILE } from "@/lib/profile";
 import { getFeaturedProducts } from "../queries/featured-products";
+import type { Product } from "../types";
 import styles from "./mention-menu.module.css";
 
 export type MentionItem = {
 	id: string;
-	/* Текст, который встаёт в строку после «@». */
+	/* Имя сущности — по нему идёт поиск после «@». */
 	label: string;
 	/* Подпись справа — поясняет, что это за сущность. */
 	hint: string;
 	kind: "profile" | "product";
 	/* Слаг логотипа для товаров (файл в /brands). */
 	logoSlug?: string;
+	/* Товар целиком — при выборе прикрепляется тегом в бар. */
+	product?: Product;
 };
 
 /* Профиль — ссылка на самого пользователя: его подписки, историю
@@ -32,6 +35,7 @@ function buildMentionItems(): MentionItem[] {
 		hint: "Товар",
 		kind: "product",
 		logoSlug: product.logoSlug,
+		product,
 	}));
 	return [profile, ...products];
 }
