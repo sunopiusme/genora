@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useId,
   useRef,
   useState,
   type ReactNode,
@@ -15,6 +16,7 @@ import { Icon } from "@/lib/icon";
 import { PROFILE } from "@/lib/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
+import { ProfileSheet } from "./profile-sheet";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
 import styles from "./dashboard-shell.module.css";
 
@@ -42,12 +44,71 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Заказы", href: "/dashboard", icon: "solar:bag-4-linear" },
 ];
 
-const RECENT_ITEMS = [
-  "Подписка на ChatGPT",
-  "Сравнить Claude и Gemini",
-  "Midjourney для дизайна",
-  "Доступ к GitHub Copilot",
-  "Что выбрать для кода",
+type RecentGroup = {
+  title: string;
+  items: string[];
+};
+
+/* Chats in a flat list grouped by time, ChatGPT-style. Replace with
+   real chat data (grouped by updated_at) when the backend is wired up. */
+const RECENT_GROUPS: RecentGroup[] = [
+  {
+    title: "Сегодня",
+    items: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
+  },
+  {
+    title: "Вчера",
+    items: ["Промпты для генерации изображений", "Сравнить Claude и Gemini"],
+  },
+  {
+    title: "Последние 7 дней",
+    items: [
+      "Midjourney для дизайна",
+      "Материалы для обучения модели",
+      "Доступ к GitHub Copilot",
+      "Оплата подписки не прошла",
+      "Что выбрать для кода",
+    ],
+  },
+];
+
+/* Groups of the profile popup menu (ChatGPT-style), separated by
+   dividers. The header row with avatar/name/plan is rendered apart. */
+const PROFILE_MENU_GROUPS: NavItem[][] = [
+  [
+    {
+      label: "Улучшить план",
+      href: "/dashboard",
+      icon: "solar:star-fall-minimalistic-2-linear",
+    },
+    {
+      label: "Персонализация",
+      href: "/dashboard",
+      icon: "solar:magic-stick-3-linear",
+    },
+    {
+      label: "Профиль",
+      href: "/dashboard",
+      icon: "solar:user-circle-linear",
+    },
+    {
+      label: "Настройки",
+      href: "/dashboard",
+      icon: "solar:settings-linear",
+    },
+  ],
+  [
+    {
+      label: "Помощь",
+      href: "/dashboard",
+      icon: "solar:question-circle-linear",
+    },
+    {
+      label: "Выйти",
+      href: "/dashboard",
+      icon: "solar:logout-2-linear",
+    },
+  ],
 ];
 
 /* A leftward swipe longer than this closes the sidebar. */
@@ -174,57 +235,58 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               type="button"
               className={styles.sidebarToggle}
               onClick={toggleSidebar}
-              aria-label="Переключить меню"
+              aria-label="Переключи��ь меню"
             >
               <SidebarIcon />
             </button>
           </div>
 
-          <div className={styles.sidebarScroll}>
-            <nav className={styles.nav}>
-              {NAV_ITEMS.map((item) => (
-                <SidebarTooltip
-                  key={item.label}
-                  label={item.label}
-                  isEnabled={!isSidebarOpen}
-                >
-                  <Link
-                    href={item.href}
-                    className={cn(
-                      styles.navLink,
-                      item.active && styles.navLinkActive,
-                    )}
+          <div className={styles.scrollArea}>
+            <div className={styles.sidebarScroll}>
+              <nav className={styles.nav}>
+                {NAV_ITEMS.map((item) => (
+                  <SidebarTooltip
+                    key={item.label}
+                    label={item.label}
+                    isEnabled={!isSidebarOpen}
                   >
-                    <Icon icon={item.icon} className={styles.navIcon} />
-                    <span className={styles.navLabel}>{item.label}</span>
-                  </Link>
-                </SidebarTooltip>
-              ))}
-            </nav>
-
-            <div className={styles.section}>
-              <p className={styles.sectionTitle}>Недавние</p>
-              <nav className={styles.recents}>
-                {RECENT_ITEMS.map((item) => (
-                  <Link key={item} href="/dashboard" className={styles.recentLink}>
-                    {item}
-                  </Link>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        styles.navLink,
+                        item.active && styles.navLinkActive,
+                      )}
+                    >
+                      <Icon icon={item.icon} className={styles.navIcon} />
+                      <span className={styles.navLabel}>{item.label}</span>
+                    </Link>
+                  </SidebarTooltip>
                 ))}
               </nav>
+
+              <div className={styles.section}>
+                {RECENT_GROUPS.map((group) => (
+                  <div key={group.title} className={styles.subsection}>
+                    <p className={styles.sectionTitle}>{group.title}</p>
+                    <nav className={styles.recents}>
+                      {group.items.map((item) => (
+                        <Link
+                          key={item}
+                          href="/dashboard"
+                          className={styles.recentLink}
+                        >
+                          {item}
+                        </Link>
+                      ))}
+                    </nav>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
           <div className={styles.sidebarFooter}>
-            <SidebarTooltip label={PROFILE.name} isEnabled={!isSidebarOpen}>
-              <button type="button" className={styles.profile}>
-                <Avatar
-                  name={PROFILE.name}
-                  size="1.625rem"
-                  className={styles.profileAvatar}
-                />
-                <span className={styles.profileName}>{PROFILE.name}</span>
-              </button>
-            </SidebarTooltip>
+            <ProfileMenu isSidebarOpen={isSidebarOpen} />
           </div>
         </div>
       </aside>
@@ -259,6 +321,134 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Кнопка профиля с выпадающим меню, раскрывающимся вверх от самой
+ * кнопки — тот же паттерн, что у меню плюсика в чат-инпуте.
+ */
+function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
+  const menuId = useId();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // On mobile the profile opens a full-screen sheet instead of the
+  // anchored popover — the popover doesn't fit the drawer width.
+  function handleProfileClick() {
+    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+      setIsSheetOpen(true);
+      return;
+    }
+    setIsOpen((open) => !open);
+  }
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+    function handlePointerDown(event: PointerEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  // Collapsing the sidebar hides the anchor context — close the menu.
+  useEffect(() => {
+    if (!isSidebarOpen) {
+      setIsOpen(false);
+    }
+  }, [isSidebarOpen]);
+
+  return (
+    <div ref={rootRef} className={styles.profileRoot}>
+      {isOpen && (
+        <div id={menuId} role="menu" className={styles.profileMenu}>
+          <Link
+            href="/dashboard"
+            role="menuitem"
+            className={styles.profileMenuHeader}
+            onClick={() => setIsOpen(false)}
+          >
+            <Avatar
+              name={PROFILE.name}
+              size="2rem"
+              className={styles.profileMenuAvatar}
+            />
+            <span className={styles.profileMenuIdentity}>
+              <span className={styles.profileMenuName}>{PROFILE.name}</span>
+              <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
+            </span>
+            <Icon
+              icon="solar:alt-arrow-right-linear"
+              className={styles.profileMenuChevron}
+              aria-hidden="true"
+            />
+          </Link>
+          {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
+            <div key={groupIndex} className={styles.profileMenuGroup}>
+              {group.map((item) => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  role="menuitem"
+                  className={styles.profileMenuItem}
+                  onClick={() => setIsOpen(false)}
+                >
+                  <Icon
+                    icon={item.icon}
+                    className={styles.profileMenuGlyph}
+                    aria-hidden="true"
+                  />
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+      <SidebarTooltip
+        label={PROFILE.username}
+        isEnabled={!isSidebarOpen && !isOpen}
+      >
+        <button
+          type="button"
+          className={styles.profile}
+          data-open={isOpen || undefined}
+          onClick={handleProfileClick}
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-controls={isOpen ? menuId : undefined}
+        >
+          <Avatar
+            name={PROFILE.name}
+            size="1.625rem"
+            className={styles.profileAvatar}
+          />
+          <span className={styles.profileIdentity}>
+            <span className={styles.profileName}>{PROFILE.username}</span>
+            <span className={styles.profilePlan}>{PROFILE.plan}</span>
+          </span>
+        </button>
+      </SidebarTooltip>
+      <ProfileSheet
+        isOpen={isSheetOpen}
+        onClose={() => setIsSheetOpen(false)}
+      />
     </div>
   );
 }
