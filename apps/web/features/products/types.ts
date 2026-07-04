@@ -4,6 +4,7 @@ export type Product = {
   provider: string;
   logoSlug: string;
   brandColor: string;
+  brandGlow: string;
   priceLabel: string;
   periodLabel: string;
   description: string;

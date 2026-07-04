@@ -127,6 +127,7 @@ function ProductHero({ product }: ProductHeroProps) {
 				{
 					"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
 					"--brand": product.brandColor,
+					"--brand-glow": product.brandGlow,
 				} as React.CSSProperties
 			}
 		>
