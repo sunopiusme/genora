@@ -23,6 +23,8 @@ const SOLAR_ICONS: Record<string, string> = {
   /* Утолщённые (stroke 2) варианты для строки ассистента. */
   "magnifer-bold-stroke":
     '<g fill="none" stroke="currentColor" stroke-width="2"><circle cx="11.5" cy="11.5" r="9"/><path stroke-linecap="round" d="M18.5 18.5L22 22"/></g>',
+  "chat-round-bold-stroke":
+    '<g fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01"/></g>',
   "arrow-up-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20V4m0 0l6 6m-6-6l-6 6"/>',
   "close-bold-stroke":
