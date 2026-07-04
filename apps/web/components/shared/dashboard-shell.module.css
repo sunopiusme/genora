@@ -458,7 +458,8 @@
     display: inline-flex;
   }
 
-  .shellOpen .mobileFab {
+  .shellOpen .mobileFab,
+  .shell:has(main[data-detail-open]) .mobileFab {
     opacity: 0;
     transform: scale(0.8);
     pointer-events: none;
