@@ -1,0 +1,116 @@
+/* Список упоминаний растянут на всю ширину бара — якорь
+   позиционирования задаёт сам .bar (position: relative). */
+.menu {
+	position: absolute;
+	bottom: calc(100% + var(--space-3));
+	left: 0;
+	right: 0;
+	z-index: var(--z-overlay);
+	display: flex;
+	flex-direction: column;
+	padding: var(--space-2);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-2xl);
+	background-color: var(--color-surface-elevated);
+	box-shadow: var(--shadow-lg);
+	animation: menuIn 0.16s ease both;
+}
+
+.list {
+	display: flex;
+	flex-direction: column;
+	max-height: 15rem;
+	overflow-y: auto;
+}
+
+@keyframes menuIn {
+	from {
+		opacity: 0;
+		transform: translateY(0.375rem) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+.item {
+	display: flex;
+	align-items: center;
+	gap: var(--space-3);
+	width: 100%;
+	padding: var(--space-2) var(--space-3);
+	border: none;
+	border-radius: var(--radius-lg);
+	background: none;
+	font-family: var(--font-sans);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	line-height: var(--leading-sm);
+	color: var(--color-foreground);
+	text-align: left;
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+}
+
+/* Подсветка управляется активным индексом (клавиатура и ховер
+   синхронизированы через data-active). */
+.item[data-active] {
+	background-color: rgb(255 255 255 / 0.08);
+}
+
+.item:focus-visible {
+	outline: none;
+}
+
+.itemAvatar {
+	flex-shrink: 0;
+}
+
+/* Логотип товара выровнен по габаритам аватарки, чтобы текст
+   в строках списка стоял по одной вертикали. */
+.itemLogoWrap {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+.itemLogo {
+	width: 1.125rem;
+	aspect-ratio: 1;
+	background-color: var(--color-foreground);
+	-webkit-mask: var(--logo-url) no-repeat center / contain;
+	mask: var(--logo-url) no-repeat center / contain;
+}
+
+.itemLabel {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.itemHint {
+	margin-left: auto;
+	padding-left: var(--space-2);
+	flex-shrink: 0;
+	font-size: var(--text-xs);
+	font-weight: var(--weight-regular);
+	color: var(--color-foreground-subtle);
+}
+
+.emptyState {
+	margin: 0;
+	padding: var(--space-3);
+	font-size: var(--text-sm);
+	color: var(--color-foreground-subtle);
+	text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.menu {
+		animation: none;
+	}
+}
