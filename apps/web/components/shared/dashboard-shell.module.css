@@ -57,6 +57,8 @@
 
 .logo {
   display: inline-flex;
+  opacity: 1;
+  transition: opacity 0.15s ease;
 }
 
 .sidebarToggle {
@@ -74,7 +76,10 @@
   color: var(--color-foreground);
   cursor: pointer;
   opacity: 0;
-  transition: color 0.15s ease;
+  pointer-events: none;
+  transition:
+    color 0.15s ease,
+    opacity 0.15s ease;
 }
 
 .sidebarToggle svg {
@@ -87,35 +92,40 @@
 }
 
 .sidebarHeader:hover .logo {
-  visibility: hidden;
+  opacity: 0;
 }
 
 .sidebarHeader:hover .sidebarToggle {
   opacity: 1;
+  pointer-events: auto;
 }
 
 .sidebarOpen .sidebarToggle {
   left: auto;
   right: var(--space-2);
   opacity: 1;
+  pointer-events: auto;
 }
 
 .sidebarOpen .sidebarHeader:hover .logo {
-  visibility: visible;
+  opacity: 1;
 }
 
-/* While the width animation runs, freeze the header: keep the toggle
-   pinned at the collapsed position and the logo hidden, regardless of
-   hover, so nothing flips mid-transition. */
+/* While the width animation runs, keep the header empty: the toggle
+   vanishes instantly on click and the logo stays hidden, regardless of
+   hover. Once the animation ends the class is removed and the logo
+   fades back in via its opacity transition. */
 .sidebarAnimating .sidebarHeader .logo,
 .sidebarAnimating .sidebarHeader:hover .logo {
-  visibility: hidden;
+  opacity: 0;
+  transition: none;
 }
 
-.sidebarAnimating .sidebarHeader .sidebarToggle {
-  left: var(--space-2);
-  right: auto;
-  opacity: 1;
+.sidebarAnimating .sidebarHeader .sidebarToggle,
+.sidebarAnimating .sidebarHeader:hover .sidebarToggle {
+  opacity: 0;
+  pointer-events: none;
+  transition: none;
 }
 
 .nav {

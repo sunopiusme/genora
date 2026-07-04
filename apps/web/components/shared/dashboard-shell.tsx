@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+  type TransitionEvent,
+} from "react";
 import Link from "next/link";
 import { Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
@@ -62,9 +68,22 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
+    // Fallback in case the width transition never fires
+    // (e.g. prefers-reduced-motion).
     animationTimeout.current = setTimeout(() => {
       setIsAnimating(false);
-    }, 250);
+    }, 300);
+  }
+
+  function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    if (event.target !== event.currentTarget || event.propertyName !== "width") {
+      return;
+    }
+    if (animationTimeout.current) {
+      clearTimeout(animationTimeout.current);
+      animationTimeout.current = null;
+    }
+    setIsAnimating(false);
   }
 
   useEffect(() => {
@@ -96,6 +115,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           isSidebarOpen && styles.sidebarOpen,
           isAnimating && styles.sidebarAnimating,
         )}
+        onTransitionEnd={handleSidebarTransitionEnd}
       >
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarHeader}>
