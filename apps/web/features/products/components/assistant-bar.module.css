@@ -27,8 +27,8 @@
 }
 
 .searchGlyph {
-	width: 1rem;
-	height: 1rem;
+	width: 1.25rem;
+	height: 1.25rem;
 }
 
 .chip {
@@ -164,8 +164,8 @@
 }
 
 .submitGlyph {
-	width: 1rem;
-	height: 1rem;
+	width: 1.25rem;
+	height: 1.25rem;
 }
 
 @media (prefers-reduced-motion: reduce) {
