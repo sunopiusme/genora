@@ -160,7 +160,7 @@
 .nav {
   display: flex;
   flex-direction: column;
-  gap: var(--space-px);
+  gap: 2px;
 }
 
 /* Horizontal padding is identical in both states, so the icon column
@@ -170,9 +170,9 @@
   display: flex;
   align-items: center;
   gap: 0;
-  /* 6px vertical padding: rows stay compact, but the hover pills of
-     adjacent items nearly touch (1px gap) — ChatGPT-style density. */
-  padding: 0.375rem var(--sidebar-item-pad);
+  /* 7px vertical padding: rows stay compact, but the hover pills of
+     adjacent items nearly touch — ChatGPT-style density. */
+  padding: 0.4375rem var(--sidebar-item-pad);
   border-radius: var(--radius-lg);
   /* Label text sits a step below the icon size so the icons read as
      the dominant element while text stays on the same baseline axis. */
@@ -275,11 +275,11 @@
 .recents {
   display: flex;
   flex-direction: column;
-  gap: var(--space-px);
+  gap: 2px;
 }
 
 .recentLink {
-  padding: 0.375rem var(--sidebar-item-pad);
+  padding: 0.4375rem var(--sidebar-item-pad);
   padding-left: calc(var(--sidebar-item-pad) + 0.875rem + var(--space-2));
   border-radius: var(--radius-lg);
   font-size: var(--text-xs);
