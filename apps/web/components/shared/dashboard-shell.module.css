@@ -364,7 +364,14 @@
   z-index: var(--z-overlay, 40);
   display: flex;
   flex-direction: column;
-  min-width: 15rem;
+  /* The menu always spans the expanded sidebar's content column, so
+     it tracks the sidebar's adaptive clamp() width and looks identical
+     in every viewport instead of over/under-shooting the rail. */
+  width: calc(
+    var(--sidebar-expanded-width) - var(--sidebar-inset) * 2 -
+      var(--sidebar-border-width)
+  );
+  max-width: calc(100vw - var(--space-8));
   padding: var(--space-2);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-2xl);
