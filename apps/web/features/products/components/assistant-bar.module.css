@@ -16,11 +16,10 @@
 	flex-shrink: 0;
 	max-width: min(12rem, 48vw);
 	/* Высота совпадает с инпутом и кнопкой отправки, чтобы чип
-	   стоял ровно по вертикальной оси бара. */
+	   стоял ровно по вертикальной оси бара. Без собственного фона —
+	   он сливается с баром и выглядит легче. */
 	height: 2.25rem;
-	padding-inline: var(--space-3) var(--space-2);
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.08);
+	padding-inline: var(--space-2) 0;
 	animation: chipIn 0.16s ease both;
 }
 
@@ -66,8 +65,8 @@
 	align-items: center;
 	justify-content: center;
 	flex-shrink: 0;
-	width: 1.375rem;
-	height: 1.375rem;
+	width: 1.75rem;
+	height: 1.75rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background: none;
@@ -88,8 +87,8 @@
 }
 
 .chipRemoveGlyph {
-	width: 0.85rem;
-	height: 0.85rem;
+	width: 1.125rem;
+	height: 1.125rem;
 }
 
 .input {
