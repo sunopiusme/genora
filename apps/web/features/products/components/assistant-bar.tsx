@@ -8,9 +8,10 @@ import {
 	type KeyboardEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import { useComposerStore } from "@/stores/composer-store";
+import { useComposerStore, type AttachedFile } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
 import type { Product } from "../types";
+import { AttachMenu } from "./attach-menu";
 import styles from "./assistant-bar.module.css";
 
 /* Below this width the full placeholder does not fit — a shorter
@@ -24,10 +25,19 @@ export function AssistantBar() {
 	const [query, setQuery] = useState("");
 	const attachedProduct = useComposerStore((state) => state.attachedProduct);
 	const detachProduct = useComposerStore((state) => state.detach);
+	const attachedFile = useComposerStore((state) => state.attachedFile);
+	const detachFile = useComposerStore((state) => state.detachFile);
 	const hasQuery = query.trim().length > 0;
 	const isNarrowScreen = useIsNarrowScreen();
 
 	useFocusInputOnAttach(inputRef, attachedProduct);
+
+	function handlePrefill(text: string) {
+		setQuery(text);
+		requestAnimationFrame(() => {
+			inputRef.current?.focus();
+		});
+	}
 
 	function handleSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault();
@@ -38,13 +48,22 @@ export function AssistantBar() {
 	}
 
 	function handleInputKeyDown(event: KeyboardEvent<HTMLInputElement>) {
-		if (event.key === "Backspace" && query.length === 0 && attachedProduct) {
-			event.preventDefault();
-			detachProduct();
+		if (event.key === "Backspace" && query.length === 0) {
+			if (attachedProduct) {
+				event.preventDefault();
+				detachProduct();
+			} else if (attachedFile) {
+				event.preventDefault();
+				detachFile();
+			}
 		}
 	}
 
-	const placeholder = getPlaceholder(attachedProduct, isNarrowScreen);
+	const placeholder = getPlaceholder(
+		attachedProduct,
+		attachedFile,
+		isNarrowScreen,
+	);
 
 	return (
 		<form className={styles.bar} onSubmit={handleSubmit}>
@@ -53,14 +72,10 @@ export function AssistantBar() {
 					product={attachedProduct}
 					onRemove={detachProduct}
 				/>
+			) : attachedFile ? (
+				<AttachedFileChip file={attachedFile} onRemove={detachFile} />
 			) : (
-				<span className={styles.searchIcon}>
-					<Icon
-						icon="solar:plus-bold-stroke"
-						className={styles.searchGlyph}
-						aria-hidden="true"
-					/>
-				</span>
+				<AttachMenu onPrefill={handlePrefill} />
 			)}
 
 			<input
@@ -128,13 +143,49 @@ function AttachedProductChip({ product, onRemove }: AttachedProductChipProps) {
 	);
 }
 
+type AttachedFileChipProps = {
+	file: AttachedFile;
+	onRemove: () => void;
+};
+
+function AttachedFileChip({ file, onRemove }: AttachedFileChipProps) {
+	const icon =
+		file.kind === "image"
+			? "solar:gallery-linear"
+			: "solar:document-text-linear";
+
+	return (
+		<span
+			className={styles.chip}
+			role="status"
+			aria-label={`Прикреплён файл: ${file.name}`}
+		>
+			<Icon icon={icon} className={styles.chipFileGlyph} aria-hidden="true" />
+			<span className={styles.chipLabel}>{file.name}</span>
+			<button
+				type="button"
+				className={styles.chipRemove}
+				onClick={onRemove}
+				aria-label={`Открепить ${file.name}`}
+			>
+				<Icon
+					icon="solar:close-bold-stroke"
+					className={styles.chipRemoveGlyph}
+					aria-hidden="true"
+				/>
+			</button>
+		</span>
+	);
+}
+
 function getPlaceholder(
 	attachedProduct: Product | null,
+	attachedFile: AttachedFile | null,
 	isNarrowScreen: boolean,
 ) {
-	/* Название товара уже видно в теге слева — плейсхолдер его
-	   не дублирует. */
-	if (attachedProduct) {
+	/* Название товара или файла уже видно в теге слева — плейсхолдер
+	   его не дублирует. */
+	if (attachedProduct || attachedFile) {
 		return "Ваш вопрос…";
 	}
 	return isNarrowScreen ? "Спросите" : "Спросите что угодно";

@@ -9,28 +9,6 @@
 	box-shadow: var(--shadow-lg);
 }
 
-.searchIcon {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: 2.25rem;
-	height: 2.25rem;
-	border-radius: var(--radius-full);
-	background-color: transparent;
-	color: var(--color-foreground);
-	transition: background-color 0.15s ease;
-}
-
-.searchIcon:hover {
-	background-color: rgb(255 255 255 / 0.08);
-}
-
-.searchGlyph {
-	width: 1.25rem;
-	height: 1.25rem;
-}
-
 .chip {
 	display: inline-flex;
 	align-items: center;
@@ -58,6 +36,13 @@
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
 	mask: var(--logo-url) no-repeat center / contain;
+}
+
+.chipFileGlyph {
+	flex-shrink: 0;
+	width: 1.125rem;
+	height: 1.125rem;
+	color: var(--color-foreground);
 }
 
 .chipLabel {
