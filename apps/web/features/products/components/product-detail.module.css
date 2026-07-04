@@ -54,6 +54,70 @@
 	}
 }
 
+@keyframes sheetIn {
+	from {
+		transform: translateY(100%);
+	}
+	to {
+		transform: translateY(0);
+	}
+}
+
+.grabber {
+	position: absolute;
+	top: var(--space-2);
+	left: 50%;
+	transform: translateX(-50%);
+	width: 2.25rem;
+	height: 0.3125rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.25);
+	z-index: 3;
+	pointer-events: none;
+}
+
+.panelDragging {
+	composes: panel;
+	animation: none;
+	transition: none;
+}
+
+@media (max-width: 47.9375rem) {
+	.overlay {
+		padding: 0;
+		align-items: flex-end;
+		overflow: hidden;
+	}
+
+	.panel {
+		margin: auto 0 0;
+		max-width: none;
+		max-height: calc(100dvh - 3rem);
+		border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+		border-bottom: none;
+		padding-bottom: env(safe-area-inset-bottom);
+		overflow-y: auto;
+		touch-action: pan-y;
+		animation: sheetIn 0.32s cubic-bezier(0.32, 0.72, 0, 1) both;
+		transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+	}
+
+	.panelDragging {
+		animation: none;
+		transition: none;
+	}
+
+	.controls {
+		top: var(--space-4);
+	}
+}
+
+@media (min-width: 48rem) {
+	.grabber {
+		display: none;
+	}
+}
+
 .controls {
 	position: absolute;
 	top: var(--space-3);
@@ -417,5 +481,6 @@
 
 	.panel {
 		transform: none;
+		transition: none;
 	}
 }

@@ -6,9 +6,13 @@ import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
+import { useMobileViewport } from "./use-mobile-viewport";
 
 const SURFACE_ELEMENT_ID = "dashboardSurface";
 const COPIED_RESET_DELAY_MS = 1500;
+const SWIPE_START_THRESHOLD_PX = 8;
+const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
+const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -36,6 +40,8 @@ type ProductDetailModalProps = {
 function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	const panelRef = useRef<HTMLDivElement>(null);
 	const attachProduct = useComposerStore((state) => state.attach);
+	const isMobile = useMobileViewport();
+	const isDragging = useSwipeToDismiss(panelRef, onClose, isMobile);
 
 	useEscapeKey(onClose);
 	useInitialFocus(panelRef);
@@ -50,6 +56,8 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 		event.stopPropagation();
 	}
 
+	const panelClassName = isDragging ? styles.panelDragging : styles.panel;
+
 	return (
 		<div className={styles.overlay} onClick={onClose}>
 			<div
@@ -58,9 +66,10 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 				aria-modal="true"
 				aria-labelledby="product-detail-title"
 				tabIndex={-1}
-				className={styles.panel}
+				className={panelClassName}
 				onClick={stopBackdropClose}
 			>
+				{isMobile && <div className={styles.grabber} aria-hidden="true" />}
 				<div className={styles.controls}>
 					<ShareMenu product={product} />
 					<button
@@ -155,6 +164,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 	const [isCopied, setIsCopied] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 	const copiedResetTimerRef = useRef<number | undefined>(undefined);
+	const isMobile = useMobileViewport();
 
 	useClickOutside(menuRef, isOpen, closeMenu);
 
@@ -168,6 +178,14 @@ function ShareMenu({ product }: ShareMenuProps) {
 
 	function toggleMenu() {
 		setIsOpen((prev) => !prev);
+	}
+
+	function handleShareButtonClick() {
+		if (isMobile && canUseSystemShare()) {
+			void openSystemShare(product);
+			return;
+		}
+		toggleMenu();
 	}
 
 	async function handleCopyLink() {
@@ -197,7 +215,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 			<button
 				type="button"
 				className={shareButtonClassName}
-				onClick={toggleMenu}
+				onClick={handleShareButtonClick}
 				aria-label="Поделиться"
 				title="Поделиться"
 				aria-haspopup="true"
@@ -251,6 +269,119 @@ function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
 			<span className={styles.shareItemLabel}>{label}</span>
 		</>
 	);
+}
+
+function useSwipeToDismiss(
+	panelRef: React.RefObject<HTMLDivElement | null>,
+	onDismiss: () => void,
+	isEnabled: boolean,
+) {
+	const [isDragging, setIsDragging] = useState(false);
+
+	useEffect(() => {
+		if (!isEnabled) {
+			return;
+		}
+		const panelElement = panelRef.current;
+		if (!panelElement) {
+			return;
+		}
+		const panel: HTMLDivElement = panelElement;
+
+		let activePointerId: number | null = null;
+		let startY = 0;
+		let lastY = 0;
+		let lastTime = 0;
+		let velocity = 0;
+		let dragOffset = 0;
+
+		function handlePointerDown(event: PointerEvent) {
+			if (activePointerId !== null || panel.scrollTop > 0) {
+				return;
+			}
+			activePointerId = event.pointerId;
+			startY = event.clientY;
+			lastY = event.clientY;
+			lastTime = event.timeStamp;
+			velocity = 0;
+			dragOffset = 0;
+		}
+
+		function handlePointerMove(event: PointerEvent) {
+			if (event.pointerId !== activePointerId) {
+				return;
+			}
+			const elapsed = event.timeStamp - lastTime;
+			if (elapsed > 0) {
+				velocity = (event.clientY - lastY) / elapsed;
+			}
+			lastY = event.clientY;
+			lastTime = event.timeStamp;
+
+			const deltaY = event.clientY - startY;
+			if (dragOffset === 0 && deltaY < SWIPE_START_THRESHOLD_PX) {
+				return;
+			}
+			if (dragOffset === 0 && panel.scrollTop > 0) {
+				activePointerId = null;
+				return;
+			}
+			dragOffset = Math.max(deltaY, 0);
+			if (!panel.hasPointerCapture(event.pointerId)) {
+				capturePointerSafely(panel, event.pointerId);
+				setIsDragging(true);
+			}
+			panel.style.transform = `translateY(${dragOffset}px)`;
+		}
+
+		function handlePointerEnd(event: PointerEvent) {
+			if (event.pointerId !== activePointerId) {
+				return;
+			}
+			const shouldDismiss =
+				dragOffset > panel.offsetHeight * SWIPE_DISMISS_DISTANCE_RATIO ||
+				(dragOffset > 0 && velocity > SWIPE_DISMISS_VELOCITY_PX_PER_MS);
+			activePointerId = null;
+			dragOffset = 0;
+			setIsDragging(false);
+			if (shouldDismiss) {
+				onDismiss();
+				return;
+			}
+			panel.style.transform = "";
+		}
+
+		function handleTouchMove(event: TouchEvent) {
+			if (dragOffset > 0) {
+				event.preventDefault();
+			}
+		}
+
+		panel.addEventListener("pointerdown", handlePointerDown);
+		panel.addEventListener("pointermove", handlePointerMove);
+		panel.addEventListener("pointerup", handlePointerEnd);
+		panel.addEventListener("pointercancel", handlePointerEnd);
+		panel.addEventListener("touchmove", handleTouchMove, { passive: false });
+
+		return () => {
+			panel.removeEventListener("pointerdown", handlePointerDown);
+			panel.removeEventListener("pointermove", handlePointerMove);
+			panel.removeEventListener("pointerup", handlePointerEnd);
+			panel.removeEventListener("pointercancel", handlePointerEnd);
+			panel.removeEventListener("touchmove", handleTouchMove);
+			panel.style.transform = "";
+		};
+	}, [isEnabled, onDismiss, panelRef]);
+
+	return isDragging;
+}
+
+function capturePointerSafely(element: HTMLElement, pointerId: number) {
+	try {
+		element.setPointerCapture(pointerId);
+	} catch {
+		return;
+	}
 }
 
 function useSurfaceFocus(elementId: string) {
@@ -316,6 +447,29 @@ function useClickOutside(
 	}, [containerRef, isActive, onOutsideClick]);
 }
 
+function canUseSystemShare() {
+	return (
+		typeof navigator !== "undefined" &&
+		typeof navigator.share === "function"
+	);
+}
+
+async function openSystemShare(product: Product) {
+	try {
+		await navigator.share({
+			title: product.name,
+			text: buildShareText(product),
+			url: buildProductShareUrl(product.id),
+		});
+	} catch {
+		return;
+	}
+}
+
+function buildShareText(product: Product) {
+	return `${product.name} — ${product.priceLabel}/${product.periodLabel}`;
+}
+
 function buildProductShareUrl(productId: Product["id"]) {
 	if (typeof window === "undefined") {
 		return "";
@@ -325,7 +479,7 @@ function buildProductShareUrl(productId: Product["id"]) {
 
 function buildTelegramShareUrl(product: Product) {
 	const shareUrl = buildProductShareUrl(product.id);
-	const shareText = `${product.name} — ${product.priceLabel}/${product.periodLabel}`;
+	const shareText = buildShareText(product);
 	const encodedUrl = encodeURIComponent(shareUrl);
 	const encodedText = encodeURIComponent(shareText);
 	const telegramShareBaseUrl = "https://t.me/share/url";
