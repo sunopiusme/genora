@@ -378,8 +378,8 @@
   right: 0;
   z-index: 10;
   flex-shrink: 0;
-  padding-block: var(--space-5)
-    calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
+  padding-block: var(--space-2)
+    calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
   padding-inline: calc(var(--space-4) + env(safe-area-inset-left, 0px))
     calc(var(--space-4) + env(safe-area-inset-right, 0px));
   background: linear-gradient(
