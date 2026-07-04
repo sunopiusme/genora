@@ -1,4 +1,5 @@
 import { ProductShowcase } from "@features/products";
+import { PageScrollArea } from "@/components/shared/page-scroll-area";
 import styles from "./page.module.css";
 
 export default function DashboardPage() {
@@ -10,11 +11,11 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <div className={styles.scroll}>
+      <PageScrollArea className={styles.scroll}>
         <div className={styles.scrollInner}>
           <ProductShowcase />
         </div>
-      </div>
+      </PageScrollArea>
     </main>
   );
 }

@@ -15,7 +15,6 @@
 	align-items: center;
 	flex-shrink: 0;
 	padding-left: var(--space-2);
-	padding-right: var(--space-1);
 	color: var(--color-foreground-muted);
 }
 
@@ -112,11 +111,23 @@
 	height: 2.25rem;
 	border: none;
 	background: none;
-	padding-inline: var(--space-2);
+	padding-inline: var(--space-1) var(--space-2);
 	font-family: var(--font-sans);
-	font-size: 0.9375rem;
+	/* 16px minimum: iOS Safari force-zooms the page when focusing an
+	   input with a smaller font, which shifts the layout off-screen. */
+	font-size: 1rem;
 	font-weight: var(--weight-medium);
 	color: var(--color-foreground);
+	/* On narrow screens the placeholder may not fit — trim it with an
+	   ellipsis instead of a hard mid-letter cut. Browsers apply the
+	   input's own text-overflow to its placeholder. */
+	text-overflow: ellipsis;
+}
+
+@media (min-width: 48rem) {
+	.input {
+		font-size: 0.9375rem;
+	}
 }
 
 .input::placeholder {
