@@ -56,7 +56,7 @@ export function AssistantBar() {
 			) : (
 				<span className={styles.searchIcon}>
 					<Icon
-						icon="solar:magnifer-linear"
+						icon="solar:magnifer-bold-stroke"
 						className={styles.searchGlyph}
 						aria-hidden="true"
 					/>
@@ -81,7 +81,10 @@ export function AssistantBar() {
 				disabled={!hasQuery}
 				aria-label="Отправить"
 			>
-				<Icon icon="solar:arrow-up-linear" className={styles.submitGlyph} />
+				<Icon
+					icon="solar:arrow-up-bold-stroke"
+					className={styles.submitGlyph}
+				/>
 			</button>
 		</form>
 	);
@@ -116,7 +119,7 @@ function AttachedProductChip({ product, onRemove }: AttachedProductChipProps) {
 				aria-label={`Открепить ${product.name}`}
 			>
 				<Icon
-					icon="solar:close-linear"
+					icon="solar:close-bold-stroke"
 					className={styles.chipRemoveGlyph}
 					aria-hidden="true"
 				/>
