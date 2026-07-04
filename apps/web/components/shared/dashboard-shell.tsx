@@ -14,6 +14,7 @@ import { useUiStore } from "@/stores/ui-store";
 import { Icon } from "@/lib/icon";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
+import { MOBILE_MEDIA_QUERY } from "./breakpoints";
 import styles from "./dashboard-shell.module.css";
 
 type NavItem = {
@@ -51,9 +52,6 @@ const RECENT_ITEMS = [
 const PROFILE = {
   name: "Иван Петров",
 };
-
-/* Must match the mobile breakpoint in dashboard-shell.module.css. */
-const MOBILE_MEDIA_QUERY = "(max-width: 47.9375rem)";
 
 /* A leftward swipe longer than this closes the sidebar. */
 const SWIPE_CLOSE_DISTANCE = 48;
