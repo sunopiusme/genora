@@ -3,6 +3,7 @@
 	flex-direction: column;
 	gap: 0.75rem;
 	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .cover {
@@ -24,6 +25,8 @@
 	font: inherit;
 	color: inherit;
 	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+	transition: transform 0.25s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .cover::before {
@@ -100,9 +103,43 @@
 	font-size: 0.8125rem;
 	font-weight: var(--weight-medium);
 	user-select: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 47.9375rem) {
+	.name {
+		font-size: 0.8125rem;
+	}
+
+	.action.action {
+		height: 2.375rem;
+	}
+}
+
+@media (hover: none) {
+	.cover:active {
+		transform: scale(0.97);
+	}
+
+	.cover:active::before {
+		opacity: 1;
+	}
+
+	.info {
+		cursor: default;
+		user-select: none;
+	}
 }
 
 @media (prefers-reduced-motion: reduce) {
+	.cover {
+		transition: none;
+	}
+
+	.cover:active {
+		transform: none;
+	}
+
 	.cover::before {
 		transition: none;
 	}
