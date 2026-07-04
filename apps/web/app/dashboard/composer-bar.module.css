@@ -1,7 +1,8 @@
 .bar {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2);
   width: 100%;
 }
 
@@ -10,4 +11,13 @@
   max-width: 44rem;
   min-width: 0;
   margin-inline: auto;
+}
+
+.disclaimer {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  text-align: center;
+  text-wrap: balance;
+  color: var(--color-foreground-subtle);
 }
