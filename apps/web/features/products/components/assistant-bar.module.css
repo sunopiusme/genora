@@ -17,8 +17,13 @@
 	width: 2.25rem;
 	height: 2.25rem;
 	border-radius: var(--radius-full);
+	background-color: transparent;
+	color: var(--color-foreground);
+	transition: background-color 0.15s ease;
+}
+
+.searchIcon:hover {
 	background-color: rgb(255 255 255 / 0.08);
-	color: var(--color-foreground-muted);
 }
 
 .searchGlyph {
