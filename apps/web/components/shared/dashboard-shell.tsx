@@ -44,37 +44,27 @@ const NAV_ITEMS: NavItem[] = [
 
 type RecentGroup = {
   title: string;
-  icon: string;
   items: string[];
 };
 
+/* Chats in a flat list grouped by time, ChatGPT-style. Replace with
+   real chat data (grouped by updated_at) when the backend is wired up. */
 const RECENT_GROUPS: RecentGroup[] = [
   {
-    title: "Проблемы",
-    icon: "solar:shield-warning-linear",
-    items: [
-      "Не приходит код подтверждения",
-      "Оплата подписки не прошла",
-      "Восстановить доступ к аккаунту",
-    ],
+    title: "Сегодня",
+    items: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
   },
   {
-    title: "Запросы",
-    icon: "solar:chat-round-dots-linear",
-    items: [
-      "Материалы для обучения модели",
-      "Промпты для генерации изображений",
-      "Подборка датасетов для анализа",
-    ],
+    title: "Вчера",
+    items: ["Промпты для генерации изображений", "Сравнить Claude и Gemini"],
   },
   {
-    title: "Темы",
-    icon: "solar:folder-2-linear",
+    title: "Последние 7 дней",
     items: [
-      "Подписка на ChatGPT",
-      "Сравнить Claude и Gemini",
       "Midjourney для дизайна",
+      "Материалы для обучения модели",
       "Доступ к GitHub Copilot",
+      "Оплата подписки не прошла",
       "Что выбрать для кода",
     ],
   },
@@ -233,13 +223,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
             </nav>
 
             <div className={styles.section}>
-              <p className={styles.sectionTitle}>Недавние</p>
               {RECENT_GROUPS.map((group) => (
                 <div key={group.title} className={styles.subsection}>
-                  <p className={styles.subsectionTitle}>
-                    <Icon icon={group.icon} className={styles.subsectionIcon} />
-                    {group.title}
-                  </p>
+                  <p className={styles.sectionTitle}>{group.title}</p>
                   <nav className={styles.recents}>
                     {group.items.map((item) => (
                       <Link
