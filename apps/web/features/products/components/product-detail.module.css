@@ -371,6 +371,7 @@
 	background:
 		radial-gradient(130% 90% at 50% 0%, var(--neutral-800), transparent 72%),
 		linear-gradient(180deg, var(--neutral-850), var(--neutral-950));
+	box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
 }
 
 .hero::before {
@@ -378,21 +379,31 @@
 	position: absolute;
 	top: 50%;
 	left: 50%;
-	width: 70%;
+	width: 78%;
 	aspect-ratio: 1;
 	transform: translate(-50%, -50%);
 	border-radius: var(--radius-full);
-	background: radial-gradient(circle, rgb(255 255 255 / 0.1), transparent 68%);
+	background: radial-gradient(circle, rgb(255 255 255 / 0.12), transparent 66%);
+	pointer-events: none;
+}
+
+.hero::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(180deg, transparent 62%, rgb(0 0 0 / 0.28));
 	pointer-events: none;
 }
 
 .heroLogo {
 	position: relative;
+	z-index: 1;
 	width: 5rem;
 	aspect-ratio: 1;
 	background-color: var(--color-foreground);
 	-webkit-mask: var(--logo-url) no-repeat center / contain;
 	mask: var(--logo-url) no-repeat center / contain;
+	filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.45));
 }
 
 .content {
@@ -423,16 +434,21 @@
 	margin: 0;
 	max-width: 30rem;
 	font-size: var(--text-base);
-	font-weight: var(--weight-medium);
+	font-weight: var(--weight-normal);
 	line-height: var(--leading-lg);
 	text-wrap: pretty;
-	color: var(--color-foreground);
+	color: var(--color-foreground-muted);
 }
 
 .divider {
 	height: 1px;
 	margin: var(--space-5) 0;
-	background: linear-gradient(90deg, var(--color-border) 55%, transparent);
+	background: linear-gradient(
+		90deg,
+		var(--color-border-strong),
+		var(--color-border) 45%,
+		transparent
+	);
 }
 
 .priceRow {
@@ -482,13 +498,16 @@
 	font-size: var(--text-sm);
 	font-weight: var(--weight-semibold);
 	cursor: pointer;
+	box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
 	transition:
 		background-color 0.15s ease,
+		box-shadow 0.2s ease,
 		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .primaryAction:hover {
 	background-color: var(--neutral-200);
+	box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
 }
 
 .primaryAction:active {
@@ -547,6 +566,11 @@
 	.hero {
 		min-height: 24rem;
 		padding: var(--space-8);
+		box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.07);
+	}
+
+	.hero::after {
+		background: linear-gradient(180deg, transparent 66%, rgb(0 0 0 / 0.24));
 	}
 
 	.content {
