@@ -10,7 +10,6 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Avatar } from "@genora/ui";
 import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
 import { PROFILE } from "@/lib/profile";
@@ -578,44 +577,12 @@ type TokenContentProps = {
 	token: Token;
 };
 
-/* Упоминание в стиле Slack/Telegram: подсвеченный акцентом текст
-   с маленькой иконкой, без крестика в потоке. Удаляется целиком
-   одним Backspace — host не редактируется, браузер стирает его
-   как один символ. */
+/* Упоминание — просто синий текст в потоке фразы, чуть жирнее
+   основного. Без подложек, иконок и крестиков: ничего не выбивается
+   из строки. Удаляется целиком одним Backspace — host не
+   редактируется, браузер стирает его как один символ. */
 function TokenContent({ token }: TokenContentProps) {
-	return (
-		<span className={styles.tokenInner}>
-			{token.kind === "profile" ? (
-				<Avatar
-					name={token.label}
-					size="1rem"
-					className={styles.tokenAvatar}
-					aria-hidden="true"
-				/>
-			) : token.kind === "product" ? (
-				<span
-					className={styles.tokenLogo}
-					style={
-						{
-							"--logo-url": `url(/brands/${token.logoSlug}.svg)`,
-						} as React.CSSProperties
-					}
-					aria-hidden="true"
-				/>
-			) : (
-				<Icon
-					icon={
-						token.fileKind === "image"
-							? "solar:gallery-linear"
-							: "solar:document-text-linear"
-					}
-					className={styles.tokenFileGlyph}
-					aria-hidden="true"
-				/>
-			)}
-			<span className={styles.tokenLabel}>{token.label}</span>
-		</span>
-	);
+	return <span className={styles.tokenLabel}>{token.label}</span>;
 }
 
 function getPlaceholder(hasTokens: boolean, isNarrowScreen: boolean) {

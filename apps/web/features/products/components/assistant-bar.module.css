@@ -87,80 +87,32 @@
 	}
 }
 
-/* Упоминание в стиле Slack/Telegram: спокойная акцентная подсветка
-   текста с маленькой иконкой. Никаких крестиков и «таблеток» —
-   тег читается как часть фразы и стирается Backspace-ом целиком. */
+/* Упоминание — просто синий текст в потоке фразы. Тот же размер и
+   та же строка, что у основного текста: ничего не меняется, кроме
+   цвета и чуть большей жирности. Backspace стирает тег целиком. */
 .token {
-	display: inline-flex;
-	align-items: center;
-	max-width: min(11rem, 44vw);
-	/* Тег естественной высоты, центрированный по строке через
-	   vertical-align: middle. Раньше тег растягивался на всю строку
-	   (2.25rem), и когда курсор оказывался рядом, браузер раздувал
-	   каретку до высоты соседнего inline-элемента — каретка резко
-	   «прыгала». С естественной высотой каретка остаётся ровной. */
-	vertical-align: middle;
-	/* Небольшой воздух между тегом и окружающим текстом. */
-	margin-inline: 0.125rem;
-	white-space: nowrap;
+	display: inline;
+	white-space: pre;
 	user-select: none;
 	animation: tokenIn 0.16s ease both;
-}
-
-/* Видимая часть упоминания: невысокая мягкая подсветка вокруг
-   иконки и имени, по вертикали центрируется внутри строки. */
-.tokenInner {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.25rem;
-	min-width: 0;
-	padding: 0.125rem 0.375rem;
-	border-radius: var(--radius-sm);
-	/* Голубой акцент из палитры: на чёрном фоне упоминание читается
-	   как ссылка-сущность, а не как обычное слово. */
-	background-color: color-mix(in srgb, var(--blue-400) 16%, transparent);
-	color: var(--blue-400);
 }
 
 @keyframes tokenIn {
 	from {
 		opacity: 0;
-		transform: scale(0.96);
 	}
 	to {
 		opacity: 1;
-		transform: scale(1);
 	}
 }
 
-.tokenLogo {
-	flex-shrink: 0;
-	width: 1rem;
-	aspect-ratio: 1;
-	background-color: currentColor;
-	-webkit-mask: var(--logo-url) no-repeat center / contain;
-	mask: var(--logo-url) no-repeat center / contain;
-}
-
-.tokenAvatar {
-	flex-shrink: 0;
-}
-
-.tokenFileGlyph {
-	flex-shrink: 0;
-	width: 1rem;
-	height: 1rem;
-	color: currentColor;
-}
-
 .tokenLabel {
-	overflow: hidden;
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	line-height: 1.25;
-	font-size: var(--text-sm);
-	font-weight: var(--weight-medium);
-	color: inherit;
+	/* Наследует размер и line box редактора — тег никак не влияет
+	   на высоту строки и каретку. */
+	font-size: inherit;
+	line-height: inherit;
+	font-weight: var(--weight-semibold);
+	color: var(--blue-400);
 }
 
 .submit {
