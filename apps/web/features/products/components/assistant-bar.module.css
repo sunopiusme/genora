@@ -99,7 +99,7 @@
 .input {
 	flex: 1;
 	min-width: 0;
-	height: 2.75rem;
+	height: 2.25rem;
 	border: none;
 	background: none;
 	padding-inline: var(--space-1) var(--space-2);
