@@ -8,6 +8,11 @@ import { getBrandInitial } from "../brand";
 import type { Product } from "../types";
 import styles from "./assistant-bar.module.css";
 
+/* Below this width the full placeholder does not fit — a shorter
+   one is shown instead. iPhone screens are wider and keep the full
+   text. */
+const NARROW_MEDIA_QUERY = "(max-width: 22.5rem)";
+
 export function AssistantBar() {
 	const router = useRouter();
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -15,6 +20,7 @@ export function AssistantBar() {
 	const attachedProduct = useComposerStore((state) => state.attachedProduct);
 	const detachProduct = useComposerStore((state) => state.detach);
 	const hasQuery = query.trim().length > 0;
+	const isNarrowScreen = useIsNarrowScreen();
 
 	useFocusInputOnAttach(inputRef, attachedProduct);
 
@@ -26,9 +32,7 @@ export function AssistantBar() {
 		router.push(`/products?q=${encodeURIComponent(query.trim())}`);
 	}
 
-	const placeholder = attachedProduct
-		? `Спросите про ${attachedProduct.name}…`
-		: "Спросите что угодно";
+	const placeholder = getPlaceholder(attachedProduct, isNarrowScreen);
 
 	return (
 		<form className={styles.bar} onSubmit={handleSubmit}>
@@ -100,6 +104,33 @@ function AttachedProductChip({ product, onRemove }: AttachedProductChipProps) {
 			</button>
 		</span>
 	);
+}
+
+function getPlaceholder(
+	attachedProduct: Product | null,
+	isNarrowScreen: boolean,
+) {
+	if (attachedProduct) {
+		return `Спросите про ${attachedProduct.name}…`;
+	}
+	return isNarrowScreen ? "Спросите" : "Спросите что угодно";
+}
+
+function useIsNarrowScreen() {
+	const [isNarrow, setIsNarrow] = useState(false);
+
+	useEffect(() => {
+		const mediaQuery = window.matchMedia(NARROW_MEDIA_QUERY);
+		setIsNarrow(mediaQuery.matches);
+
+		function handleChange(event: MediaQueryListEvent) {
+			setIsNarrow(event.matches);
+		}
+		mediaQuery.addEventListener("change", handleChange);
+		return () => mediaQuery.removeEventListener("change", handleChange);
+	}, []);
+
+	return isNarrow;
 }
 
 function useFocusInputOnAttach(
