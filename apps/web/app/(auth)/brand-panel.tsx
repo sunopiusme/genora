@@ -4,8 +4,8 @@ import styles from "./brand-panel.module.css";
 
 const BENEFITS = [
   "ChatGPT, Claude, Midjourney и другие модели",
-  "Один аккаунт — тексты, код и изображения",
-  "Без VPN и зарубежной карты",
+  "Тексты, код и изображения в одном аккаунте",
+  "Работает без VPN и зарубежной карты",
 ];
 
 export function BrandPanel() {
@@ -16,8 +16,7 @@ export function BrandPanel() {
       <div className={styles.brandBottom}>
         <h1 className={styles.headline}>Верните себе лучшие нейросети</h1>
         <p className={styles.tagline}>
-          Один аккаунт для доступа к ведущим ИИ&#8209;моделям — без лишних
-          подписок и ограничений.
+          Единый доступ к ведущим нейросетям без лишних подписок и ограничений.
         </p>
 
         <ul className={styles.benefits}>
