@@ -45,7 +45,6 @@ export function TierSelector({
 	   viewport-координату центра триггера в момент открытия и держим
 	   меню на ней, пересчитывая смещение при каждой смене тира. */
 	const anchorViewportX = useRef(0);
-	const [menuLeft, setMenuLeft] = useState<number | null>(null);
 
 	function toggleOpen() {
 		setIsOpen((prev) => !prev);
@@ -56,7 +55,8 @@ export function TierSelector({
 			return;
 		}
 		const container = containerRef.current;
-		if (!container) {
+		const menu = menuRef.current;
+		if (!container || !menu) {
 			return;
 		}
 		/* Якорь захватывается ЗДЕСЬ, а не в обработчике клика: layout
@@ -67,17 +67,20 @@ export function TierSelector({
 			const rect = container.getBoundingClientRect();
 			anchorViewportX.current = rect.left + rect.width / 2;
 		}
-		/* Ширина триггера теперь меняется ПЛАВНО (тикер имени тира
-		   анимирует width), поэтому одноразового пересчёта на смену
-		   тира мало — ResizeObserver ведёт меню за контейнером каждый
-		   кадр анимации, удерживая его на viewport-точке открытия. */
+		/* Позиция пишется в DOM напрямую, минуя setState: обновление
+		   через состояние приходило на кадр позже движения контейнера
+		   (rAF-задержка против петли обсервера), и меню осциллировало
+		   на ±2px всю анимацию ширины триггера. Прямая запись left не
+		   меняет размеров наблюдаемого элемента — петля ResizeObserver
+		   невозможна, а колбэк выполняется до отрисовки кадра, так что
+		   меню визуально пригвождено к точке открытия. */
 		const updateMenuLeft = () => {
 			const rect = container.getBoundingClientRect();
 			/* Кламп по вьюпорту: меню центрировано translateX(-50%), и на
 			   мобильном у триггера в правой части экрана половина меню
 			   уходила бы за край и срезалась. Центр смещается ровно
 			   настолько, чтобы оба края меню остались в безопасной зоне. */
-			const menuWidth = menuRef.current?.offsetWidth ?? 0;
+			const menuWidth = menu.offsetWidth;
 			const viewportWidth = document.documentElement.clientWidth;
 			const edgeGap = 12;
 			const halfWidth = menuWidth / 2;
@@ -85,29 +88,14 @@ export function TierSelector({
 				Math.max(anchorViewportX.current, edgeGap + halfWidth),
 				viewportWidth - edgeGap - halfWidth,
 			);
-			const nextLeft = Math.round(clampedCenterX - rect.left);
-			/* Порог в 1px против дрожи: первый «холостой» замер обсервера
-			   приходит уже ПОСЛЕ первого кадра входной анимации, и
-			   субпиксельная разница getBoundingClientRect сдвигала left
-			   на доли пикселя — меню зримо вздрагивало при появлении. */
-			setMenuLeft((prev) =>
-				prev !== null && Math.abs(prev - nextLeft) < 1 ? prev : nextLeft,
-			);
+			menu.style.left = `${clampedCenterX - rect.left}px`;
 		};
 		updateMenuLeft();
-		/* Пересчёт из колбэка обсервера уходит в следующий кадр: setState
-		   синхронно меняет layout и зацикливает ResizeObserver в том же
-		   кадре («ResizeObserver loop completed…» в консоли). */
-		let frameId = 0;
-		const observer = new ResizeObserver(() => {
-			cancelAnimationFrame(frameId);
-			frameId = requestAnimationFrame(updateMenuLeft);
-		});
+		/* Ширина триггера меняется ПЛАВНО (тикер имени тира анимирует
+		   width) — обсервер ведёт меню за контейнером каждый кадр. */
+		const observer = new ResizeObserver(updateMenuLeft);
 		observer.observe(container);
-		return () => {
-			cancelAnimationFrame(frameId);
-			observer.disconnect();
-		};
+		return () => observer.disconnect();
 	}, [isOpen]);
 
 	const close = useCallback(() => setIsOpen(false), []);
@@ -192,11 +180,7 @@ export function TierSelector({
 				</button>
 			)}
 			{isOpen && (
-				<div
-					ref={menuRef}
-					className={menuClassName}
-					style={menuLeft !== null ? { left: `${menuLeft}px` } : undefined}
-				>
+				<div ref={menuRef} className={menuClassName}>
 					<TierSlider
 						product={product}
 						tierIndex={tierIndex}
