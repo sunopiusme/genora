@@ -220,10 +220,10 @@ type TierSliderProps = {
 };
 
 /* Дискретный слайдер уровня подписки в духе слайдера Effort из
-   Claude Code: прямоугольный трек, вертикальная ручка-плашка, на
-   максимальном уровне хвост заливки рассыпается «пиксельным» дизерингом.
-   Визуальный трек — обычные div'ы, а жест обслуживает невидимый нативный
-   input[type=range] поверх — на iOS перетаскивание полностью нативное. */
+   Claude Code: прямоугольный трек с нейтральной серой заливкой, ручка
+   целиком внутри трека, а на максимальном уровне от правого края трека
+   «прорастают» пиксели ступенчатой анимацией. Визуальный трек — div'ы,
+   жест обслуживает невидимый нативный input[type=range] поверх. */
 function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const maxIndex = product.tiers.length - 1;
 	const fillRatio = maxIndex > 0 ? tierIndex / maxIndex : 0;
@@ -238,13 +238,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 		<div
 			className={styles.tierSlider}
 			data-sheet-drag-ignore="true"
-			style={
-				{
-					"--brand": product.brandColor,
-					"--brand-glow": product.brandGlow,
-					"--fill": `${fillRatio * 100}%`,
-				} as React.CSSProperties
-			}
+			style={{ "--fill": `${fillRatio * 100}%` } as React.CSSProperties}
 		>
 			<div className={styles.tierEdges} aria-hidden="true">
 				<span>Базовый</span>
@@ -252,11 +246,8 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 			</div>
 			<div className={styles.tierTrackWrap}>
 				<div className={styles.tierTrack} aria-hidden="true">
-					<div
-						className={isMaxed ? styles.tierFillMaxed : styles.tierFill}
-					>
-						<span className={styles.tierDither} />
-					</div>
+					<div className={styles.tierFill} />
+					{isMaxed && <span className={styles.tierDither} />}
 					<span className={styles.tierThumb} />
 				</div>
 				<input
