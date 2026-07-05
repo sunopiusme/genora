@@ -217,11 +217,19 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			frameId = requestAnimationFrame(loop);
 		}
 
+		/* Ресайз-колбэк уходит в следующий кадр: синхронная работа с
+		   canvas внутри ResizeObserver (заливка меняет ширину каждый
+		   кадр transition'а) зацикливает его в том же кадре —
+		   «ResizeObserver loop completed…» в консоли. */
+		let resizeFrameId = 0;
 		const resizeObserver = new ResizeObserver(() => {
-			syncCanvasSize();
-			if (!active || reducedMotion.matches) {
-				drawFrame(REVEAL_MS);
-			}
+			cancelAnimationFrame(resizeFrameId);
+			resizeFrameId = requestAnimationFrame(() => {
+				syncCanvasSize();
+				if (!active || reducedMotion.matches) {
+					drawFrame(REVEAL_MS);
+				}
+			});
 		});
 		resizeObserver.observe(canvas);
 		syncCanvasSize();

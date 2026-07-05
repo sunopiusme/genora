@@ -11,6 +11,7 @@ import { Icon } from "@/lib/icon";
 import type { Product } from "../types";
 import styles from "./tier-selector.module.css";
 import { TierSlider } from "./tier-slider";
+import { TierValueTransition } from "./tier-value-transition";
 
 type TierSelectorProps = {
 	product: Product;
@@ -58,14 +59,36 @@ export function TierSelector({
 	}
 
 	useLayoutEffect(() => {
-		if (!isOpen || !containerRef.current) {
+		if (!isOpen) {
 			return;
 		}
-		/* Тир сменился — контейнер мог сдвинуться/поменять ширину.
-		   Держим меню на исходной viewport-точке открытия. */
-		const rect = containerRef.current.getBoundingClientRect();
-		setMenuLeft(anchorViewportX.current - rect.left);
-	}, [isOpen, tierIndex]);
+		const container = containerRef.current;
+		if (!container) {
+			return;
+		}
+		/* Ширина триггера теперь меняется ПЛАВНО (тикер имени тира
+		   анимирует width), поэтому одноразового пересчёта на смену
+		   тира мало — ResizeObserver ведёт меню за контейнером каждый
+		   кадр анимации, удерживая его на viewport-точке открытия. */
+		const updateMenuLeft = () => {
+			const rect = container.getBoundingClientRect();
+			setMenuLeft(anchorViewportX.current - rect.left);
+		};
+		updateMenuLeft();
+		/* Пересчёт из колбэка обсервера уходит в следующий кадр: setState
+		   синхронно меняет layout и зацикливает ResizeObserver в том же
+		   кадре («ResizeObserver loop completed…» в консоли). */
+		let frameId = 0;
+		const observer = new ResizeObserver(() => {
+			cancelAnimationFrame(frameId);
+			frameId = requestAnimationFrame(updateMenuLeft);
+		});
+		observer.observe(container);
+		return () => {
+			cancelAnimationFrame(frameId);
+			observer.disconnect();
+		};
+	}, [isOpen]);
 
 	const close = useCallback(() => setIsOpen(false), []);
 	useClickOutside(containerRef, isOpen, close);
@@ -109,7 +132,7 @@ export function TierSelector({
 					aria-expanded={isOpen}
 					aria-label={`Уровень подписки: ${tier?.name}`}
 				>
-					{tier?.name}
+					<TierValueTransition text={tier?.name ?? ""} order={tierIndex} />
 					<Icon
 						icon={
 							isOpen
@@ -130,7 +153,7 @@ export function TierSelector({
 				>
 					<span className={styles.tierTriggerCaption}>Уровень</span>
 					<span className={styles.tierTriggerValue}>
-						{tier?.name}
+						<TierValueTransition text={tier?.name ?? ""} order={tierIndex} />
 						<Icon
 							icon={
 								isOpen

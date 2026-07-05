@@ -1,0 +1,107 @@
+/* Направленный «тикер» сменных значений тира: контейнер плавно
+   перетекает к ширине нового текста, старое значение уезжает и
+   гаснет, новое приезжает с противоположной стороны. Дистанция
+   прокрутки в em — масштабируется вместе с кеглем (цена в модалке
+   крупнее, чем подпись в триггере). */
+
+.root {
+	position: relative;
+	display: inline-block;
+	white-space: nowrap;
+	vertical-align: baseline;
+	/* Ширина задаётся в px из useLayoutEffect; transition делает
+	   перетекание соседей (период, шеврон) плавным, а не рывком. */
+	transition: width 0.3s cubic-bezier(0.3, 0.9, 0.35, 1);
+}
+
+/* Текущее значение задаёт высоту и baseline контейнера. */
+.valueStatic {
+	display: inline-block;
+}
+
+.value {
+	composes: valueStatic;
+	animation: enterFromBelow 0.3s cubic-bezier(0.2, 0.7, 0.25, 1) both;
+}
+
+.root[data-direction="down"] .value {
+	animation-name: enterFromAbove;
+}
+
+/* Уходящее значение снимается с потока: не влияет на ширину и baseline,
+   быстро гаснет — короткое перекрытие читается как кроссфейд. */
+.valueExiting {
+	position: absolute;
+	top: 0;
+	left: 0;
+	display: inline-block;
+	pointer-events: none;
+	animation: exitUpward 0.24s cubic-bezier(0.4, 0, 0.7, 0.4) both;
+}
+
+.root[data-direction="down"] .valueExiting {
+	animation-name: exitDownward;
+}
+
+/* Рост уровня: значения прокручиваются вверх, как барабан счётчика. */
+@keyframes enterFromBelow {
+	from {
+		opacity: 0;
+		transform: translateY(0.55em);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes exitUpward {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-0.55em);
+	}
+}
+
+/* Снижение уровня: барабан крутится в обратную сторону. */
+@keyframes enterFromAbove {
+	from {
+		opacity: 0;
+		transform: translateY(-0.55em);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes exitDownward {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(0.55em);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.root {
+		transition: none;
+	}
+
+	.value {
+		animation: none;
+	}
+
+	/* Уходящее значение убирается мгновенно: без animationend прячем
+	   нулевой длительностью, чтобы onAnimationEnd всё же сработал. */
+	.valueExiting {
+		animation-duration: 0.01s;
+		opacity: 0;
+	}
+}

@@ -7,6 +7,7 @@ import { useComposerStore } from "@/stores/composer-store";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
 import { TierSelector } from "./tier-selector";
+import { TierValueTransition } from "./tier-value-transition";
 import { useMobileViewport } from "./use-mobile-viewport";
 
 const SURFACE_ELEMENT_ID = "dashboardSurface";
@@ -172,7 +173,12 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 				<p className={styles.eyebrow}>{product.provider}</p>
 				<h2 id="product-detail-title" className={styles.name}>
 					{product.name}
-					{tier ? ` ${tier.name}` : ""}
+					{tier && (
+						<>
+							{" "}
+							<TierValueTransition text={tier.name} order={tierIndex} />
+						</>
+					)}
 				</h2>
 			</div>
 
@@ -190,7 +196,10 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 				<span className={styles.priceCaption}>Подписка</span>
 				<p className={styles.priceRow}>
 					<span className={styles.amount}>
-						{tier?.priceLabel ?? product.priceLabel}
+						<TierValueTransition
+							text={tier?.priceLabel ?? product.priceLabel}
+							order={tierIndex}
+						/>
 					</span>
 					<span className={styles.period}>{product.periodLabel}</span>
 				</p>
