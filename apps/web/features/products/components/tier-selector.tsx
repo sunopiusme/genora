@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useRef,
+	useState,
+} from "react";
 import { Icon } from "@/lib/icon";
 import type { Product } from "../types";
 import styles from "./tier-selector.module.css";
@@ -31,6 +37,35 @@ export function TierSelector({
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
 	const tier = product.tiers[tierIndex];
+
+	/* Фиксация якоря меню: триггер меняет ширину при смене имени тира
+	   («Plus» → «Максимум»), и центр контейнера уезжает. Запоминаем
+	   viewport-координату центра триггера в момент открытия и держим
+	   меню на ней, пересчитывая смещение при каждой смене тира. */
+	const anchorViewportX = useRef(0);
+	const [menuLeft, setMenuLeft] = useState<number | null>(null);
+
+	function toggleOpen() {
+		setIsOpen((prev) => {
+			const next = !prev;
+			if (next && containerRef.current) {
+				const rect = containerRef.current.getBoundingClientRect();
+				anchorViewportX.current = rect.left + rect.width / 2;
+				setMenuLeft(rect.width / 2);
+			}
+			return next;
+		});
+	}
+
+	useLayoutEffect(() => {
+		if (!isOpen || !containerRef.current) {
+			return;
+		}
+		/* Тир сменился — контейнер мог сдвинуться/поменять ширину.
+		   Держим меню на исходной viewport-точке открытия. */
+		const rect = containerRef.current.getBoundingClientRect();
+		setMenuLeft(anchorViewportX.current - rect.left);
+	}, [isOpen, tierIndex]);
 
 	const close = useCallback(() => setIsOpen(false), []);
 	useClickOutside(containerRef, isOpen, close);
@@ -69,7 +104,7 @@ export function TierSelector({
 					className={
 						isOpen ? styles.tierInlineTriggerOpen : styles.tierInlineTrigger
 					}
-					onClick={() => setIsOpen((prev) => !prev)}
+					onClick={toggleOpen}
 					aria-haspopup="true"
 					aria-expanded={isOpen}
 					aria-label={`Уровень подписки: ${tier?.name}`}
@@ -89,7 +124,7 @@ export function TierSelector({
 				<button
 					type="button"
 					className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
-					onClick={() => setIsOpen((prev) => !prev)}
+					onClick={toggleOpen}
 					aria-haspopup="true"
 					aria-expanded={isOpen}
 				>
@@ -109,7 +144,10 @@ export function TierSelector({
 				</button>
 			)}
 			{isOpen && (
-				<div className={menuClassName}>
+				<div
+					className={menuClassName}
+					style={menuLeft !== null ? { left: `${menuLeft}px` } : undefined}
+				>
 					<TierSlider
 						product={product}
 						tierIndex={tierIndex}
