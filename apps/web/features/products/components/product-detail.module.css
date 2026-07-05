@@ -683,24 +683,17 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «Максимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М��ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
 }
 
-/* Обёртка визуального трека: нативный range леж��т поверх невидимым
-   слоем и обслуживает жест, вся графика — на div'ах ниже. */
-.tierTrackWrap {
-	position: relative;
-	height: 2.25rem;
-	display: flex;
-	align-items: center;
-}
-
 /* Трек как в референсе Claude Code: в обычных состояниях почти
    невидимый — только точки-остановки; на максимуме превращается в
-   светлую пилюлю с брендовым градиентом и пиксельной текстурой. */
+   светлую пилюлю с брендовым градиентом и пиксельной текстурой.
+   Сам трек — интерактивный slider (Pointer Events из компонента);
+   touch-action: none отдаёт жест слайдеру, а не скроллу/шиту. */
 .tierTrack {
 	position: relative;
 	width: 100%;
@@ -709,6 +702,14 @@
 	background-color: rgb(255 255 255 / 0.03);
 	overflow: hidden;
 	transition: background-color 0.3s ease;
+	touch-action: none;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierTrack:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.35);
 }
 
 /* Точки-остановки на позициях уровней; последняя — брендовая. */
@@ -816,53 +817,11 @@
 	background-color: #ffffff;
 }
 
-/* Невидимый нативный range поверх — обслуживает жест (iOS drag). */
-.tierRange {
-	appearance: none;
-	-webkit-appearance: none;
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	margin: 0;
-	background: transparent;
-	opacity: 0;
-	cursor: pointer;
-	/* Не даём вертикальному свайпу по слайдеру утаскивать шит вниз. */
-	touch-action: none;
-}
-
-.tierRange::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	width: 2.75rem;
-	height: 2.25rem;
-}
-
-.tierRange::-moz-range-thumb {
-	width: 2.75rem;
-	height: 2.25rem;
-	border: none;
-	background: transparent;
-}
-
-.tierRange:focus-visible {
-	outline: none;
-}
-
-.tierRange:focus-visible ~ * {
-	outline: none;
-}
-
-.tierTrackWrap:has(.tierRange:focus-visible) .tierThumb {
-	box-shadow:
-		0 1px 4px rgb(0 0 0 / 0.4),
-		0 0 0 2px rgb(255 255 255 / 0.4);
-}
-
 /* При активном перетаскивании отключаем transition ТОЛЬКО у позиции
-   ручки — она следует за пальцем мгновенно. Цветовые кроссфейды
-   (заливка, пиксели, точки) всегда остаются плавными, чтобы состояние
-   максимума не «вспыхивало» при пересечении порога во время drag. */
+   ручки — она следует за пальцем мгновенно (позиция пишется прямой
+   записью CSS-переменной из rAF-цикла). Цветовые кроссфейды (заливка,
+   пиксели, точки) всегда остаются плавными, чтобы состояние максимума
+   не «вспыхивало» при пересечении порога во время drag. */
 .tierSlider[data-dragging] .tierThumb {
 	transition: background-color 0.3s ease;
 }
@@ -903,7 +862,7 @@
 	color: color-mix(in srgb, var(--brand) 45%, white);
 }
 
-/* Скруглённая карточка цены вместо линии-разделителя: спокойная
+/* Скруглённая карточка цены вме��то линии-разделителя: спокойная
    плашка в общем языке скруглений шита. */
 .priceCard {
 	display: flex;

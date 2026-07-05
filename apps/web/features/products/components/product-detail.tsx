@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
@@ -283,102 +283,205 @@ type TierSliderProps = {
 	onTierChange: (index: number) => void;
 };
 
-/* Мелкий шаг нативного range: ручка непрерывно следует за пальцем,
-   а к ближайшему уровню примагничивается только при отпускании. */
-const TIER_RANGE_RESOLUTION = 1000;
+/* Дискретный слайдер уровня подписки (по мотивам Effort-слайдера
+   Claude Code), построенный по канону производительных drag-жестов:
 
-/* Дискретный слайдер уровня подписки в духе слайдера Effort из
-   Claude Code: прямоугольный трек с нейтральной серой заливкой, ручка
-   целиком внутри трека, на максимуме — деликатная брендовая подсветка.
-   Визуальный трек — div'ы, жест обслуживает невидимый нативный
-   input[type=range] поверх. */
+   - Pointer Events + setPointerCapture: один код-путь для мыши, пальца
+     и стилуса; жест не теряется при выходе за границы трека.
+   - Геометрия трека кэшируется один раз на pointerdown — ноль forced
+     reflow в per-move обработчике.
+   - pointermove пишет позицию в ref и коалесцируется через
+     requestAnimationFrame: DOM обновляется максимум раз за кадр
+     прямой записью CSS-переменной, без setState и без ре-рендеров.
+   - React state (уровень подписки) коммитится только когда дискретный
+     индекс реально изменился — пара раз за весь жест.
+   - touch-action: none на треке отдаёт жест слайдеру, а не скроллу. */
 function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const maxIndex = product.tiers.length - 1;
-	/* Пока палец на слайдере — живое непрерывное значение (0..1000),
-	   после отпускания — null, и ручка примагничивается к уровню. */
-	const [dragValue, setDragValue] = useState<number | null>(null);
-	const rangeValue =
-		dragValue ?? (maxIndex > 0 ? (tierIndex / maxIndex) * TIER_RANGE_RESOLUTION : 0);
-	const fillRatio = rangeValue / TIER_RANGE_RESOLUTION;
 	const isMaxed = tierIndex === maxIndex;
 	const currentTier = product.tiers[tierIndex];
 
-	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		const next = Number(event.target.value);
-		setDragValue(next);
-		/* Уровень (заголовок, цена) обновляется живьём по ближайшему тиру. */
-		onTierChange(Math.round((next / TIER_RANGE_RESOLUTION) * maxIndex));
-	}
+	const rootRef = useRef<HTMLDivElement>(null);
+	const trackRef = useRef<HTMLDivElement>(null);
+	/* Живая геометрия жеста — вне React, чтобы не рендерить на каждый
+	   pointermove (60–120 событий/с). */
+	const gestureRef = useRef({
+		rect: null as DOMRect | null,
+		ratio: 0,
+		rafId: 0,
+		dragging: false,
+	});
+	/* Последний закоммиченный индекс — коммитим setState только при
+	   реальной смене уровня. */
+	const committedIndexRef = useRef(tierIndex);
+	committedIndexRef.current = tierIndex;
 
-	function handleRelease() {
-		setDragValue(null);
-	}
+	/* Единственная точка записи позиции в DOM: CSS-переменная --fill
+	   на корне слайдера. Транзишены управляются data-dragging. */
+	const applyFill = useCallback((ratio: number) => {
+		rootRef.current?.style.setProperty("--fill", `${ratio * 100}%`);
+	}, []);
 
-	function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
-		/* Клавиатура шагает по уровням, а не по тысячным долям трека. */
-		const step =
-			event.key === "ArrowRight" || event.key === "ArrowUp"
-				? 1
-				: event.key === "ArrowLeft" || event.key === "ArrowDown"
-					? -1
-					: 0;
-		if (step === 0) {
+	/* Синхронизация с внешним состоянием (клик по метке, клавиатура,
+	   снап после отпускания): вне активного жеста позиция ручки всегда
+	   следует за tierIndex. --fill НЕ входит в JSX-стиль, иначе React
+	   при ре-рендере затирал бы прямые записи во время жеста.
+	   useLayoutEffect — чтобы первая отрисовка была уже с позицией. */
+	useLayoutEffect(() => {
+		if (!gestureRef.current.dragging) {
+			applyFill(maxIndex > 0 ? tierIndex / maxIndex : 0);
+		}
+	}, [tierIndex, maxIndex, applyFill]);
+
+	/* Отмена запланированного кадра при размонтировании. */
+	useEffect(() => {
+		return () => cancelAnimationFrame(gestureRef.current.rafId);
+	}, []);
+
+	const commitNearestTier = useCallback(
+		(ratio: number) => {
+			const nearest = Math.round(ratio * maxIndex);
+			if (nearest !== committedIndexRef.current) {
+				onTierChange(nearest);
+			}
+		},
+		[maxIndex, onTierChange],
+	);
+
+	/* Кадр отрисовки: одна запись в DOM за кадр, сколько бы событий
+	   pointermove ни пришло между кадрами. */
+	const renderFrame = useCallback(() => {
+		const gesture = gestureRef.current;
+		gesture.rafId = 0;
+		applyFill(gesture.ratio);
+		commitNearestTier(gesture.ratio);
+	}, [applyFill, commitNearestTier]);
+
+	const ratioFromClientX = useCallback((clientX: number) => {
+		const rect = gestureRef.current.rect;
+		if (!rect || rect.width === 0) {
+			return 0;
+		}
+		const ratio = (clientX - rect.left) / rect.width;
+		return Math.min(1, Math.max(0, ratio));
+	}, []);
+
+	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+		const track = trackRef.current;
+		if (!track) {
 			return;
 		}
+		/* Геометрия читается ровно один раз за жест. */
+		const gesture = gestureRef.current;
+		gesture.rect = track.getBoundingClientRect();
+		gesture.dragging = true;
+		gesture.ratio = ratioFromClientX(event.clientX);
+		track.setPointerCapture(event.pointerId);
+		/* Атрибут ставится напрямую — отключает транзишены позиции без
+		   участия React. */
+		rootRef.current?.setAttribute("data-dragging", "true");
+		applyFill(gesture.ratio);
+		commitNearestTier(gesture.ratio);
+	}
+
+	function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+		const gesture = gestureRef.current;
+		if (!gesture.dragging) {
+			return;
+		}
+		gesture.ratio = ratioFromClientX(event.clientX);
+		if (gesture.rafId === 0) {
+			gesture.rafId = requestAnimationFrame(renderFrame);
+		}
+	}
+
+	function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+		const gesture = gestureRef.current;
+		if (!gesture.dragging) {
+			return;
+		}
+		gesture.dragging = false;
+		cancelAnimationFrame(gesture.rafId);
+		gesture.rafId = 0;
+		trackRef.current?.releasePointerCapture(event.pointerId);
+		/* Возвращаем транзишены и примагничиваем ручку к уровню. */
+		rootRef.current?.removeAttribute("data-dragging");
+		const nearest = Math.round(gesture.ratio * maxIndex);
+		applyFill(maxIndex > 0 ? nearest / maxIndex : 0);
+		if (nearest !== committedIndexRef.current) {
+			onTierChange(nearest);
+		}
+	}
+
+	function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+		let next = tierIndex;
+		switch (event.key) {
+			case "ArrowRight":
+			case "ArrowUp":
+				next = Math.min(maxIndex, tierIndex + 1);
+				break;
+			case "ArrowLeft":
+			case "ArrowDown":
+				next = Math.max(0, tierIndex - 1);
+				break;
+			case "Home":
+				next = 0;
+				break;
+			case "End":
+				next = maxIndex;
+				break;
+			default:
+				return;
+		}
 		event.preventDefault();
-		setDragValue(null);
-		onTierChange(Math.min(maxIndex, Math.max(0, tierIndex + step)));
+		if (next !== tierIndex) {
+			onTierChange(next);
+		}
 	}
 
 	return (
 		<div
+			ref={rootRef}
 			className={styles.tierSlider}
 			data-sheet-drag-ignore="true"
 			data-maxed={isMaxed || undefined}
-			data-dragging={dragValue !== null || undefined}
-			style={
-				{
-					"--fill": `${fillRatio * 100}%`,
-					"--brand": product.brandColor,
-				} as React.CSSProperties
-			}
+			style={{ "--brand": product.brandColor } as React.CSSProperties}
 		>
 			<div className={styles.tierEdges} aria-hidden="true">
 				<span>Базовый</span>
 				<span className={styles.tierEdgeMax}>Максимум</span>
 			</div>
-			<div className={styles.tierTrackWrap}>
-				<div className={styles.tierTrack} aria-hidden="true">
-					<div className={styles.tierFill} />
-					<span className={styles.tierDither} />
-					{product.tiers.map((productTier, index) => (
-						<span
-							key={productTier.id}
-							className={styles.tierDot}
-							style={
-								{
-									"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
-								} as React.CSSProperties
-							}
-						/>
-					))}
-					<span className={styles.tierThumb} />
-				</div>
-				<input
-					type="range"
-					className={styles.tierRange}
-					min={0}
-					max={TIER_RANGE_RESOLUTION}
-					step={1}
-					value={rangeValue}
-					onChange={handleChange}
-					onPointerUp={handleRelease}
-					onPointerCancel={handleRelease}
-					onBlur={handleRelease}
-					onKeyDown={handleKeyDown}
-					aria-label="Уровень подписки"
-					aria-valuetext={currentTier?.name}
-				/>
+			<div
+				ref={trackRef}
+				className={styles.tierTrack}
+				role="slider"
+				tabIndex={0}
+				aria-label="Уровень подписки"
+				aria-valuemin={0}
+				aria-valuemax={maxIndex}
+				aria-valuenow={tierIndex}
+				aria-valuetext={currentTier?.name}
+				aria-orientation="horizontal"
+				onPointerDown={handlePointerDown}
+				onPointerMove={handlePointerMove}
+				onPointerUp={handlePointerEnd}
+				onPointerCancel={handlePointerEnd}
+				onKeyDown={handleKeyDown}
+			>
+				<div className={styles.tierFill} />
+				<span className={styles.tierDither} />
+				{product.tiers.map((productTier, index) => (
+					<span
+						key={productTier.id}
+						className={styles.tierDot}
+						style={
+							{
+								"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
+							} as React.CSSProperties
+						}
+					/>
+				))}
+				<span className={styles.tierThumb} />
 			</div>
 			<div className={styles.tierStops} aria-hidden="true">
 				{product.tiers.map((productTier, index) => (
