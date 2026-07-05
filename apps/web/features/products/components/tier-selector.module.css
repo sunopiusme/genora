@@ -54,12 +54,25 @@
 
 .tierTriggerChevron {
 	/* flex-центрирование глифа: иконка-шрифт имеет собственный baseline
-	   и в inline-потоке съезжает на пиксель вниз относительно текста. */
+	   и в inline-потоке съезжает на пиксель вниз относительно текста.
+	   Фиксированный бокс 1em×1em — глиф Iconify грузится асинхронно,
+	   и без резерва места триггер прыгал бы по ширине. */
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
 	font-size: 0.875rem;
 	color: var(--color-foreground-subtle);
+	transition: transform 0.16s ease;
+}
+
+/* Открытое состояние: тот же глиф, повёрнутый на 180° — подмена
+   иконки на «стрелку вверх» дёргала ширину триггера при загрузке. */
+.tierTriggerChevronOpen {
+	composes: tierTriggerChevron;
+	transform: rotate(180deg);
 }
 
 /* Компактный триггер карточки: тихая текстовая ссылка в строке цены —
@@ -99,11 +112,22 @@
 
 .tierInlineChevron {
 	/* flex-центрирование глифа: иконка-шрифт со своим baseline съезжает
-	   на пиксель вниз относительно текста в inline-потоке. */
+	   на пиксель вниз относительно текста в inline-потоке.
+	   Фиксированный бокс 1em×1em — резерв места под асинхронно
+	   загружаемый глиф Iconify, иначе триггер прыгает по ширине. */
 	display: inline-flex;
 	align-items: center;
+	justify-content: center;
 	flex-shrink: 0;
+	width: 1em;
+	height: 1em;
 	font-size: 0.8125rem;
+	transition: transform 0.16s ease;
+}
+
+.tierInlineChevronOpen {
+	composes: tierInlineChevron;
+	transform: rotate(180deg);
 }
 
 /* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
@@ -169,5 +193,10 @@
 	.tierMenu,
 	.tierMenuUp {
 		animation: none;
+	}
+
+	.tierTriggerChevron,
+	.tierInlineChevron {
+		transition: none;
 	}
 }

@@ -48,15 +48,7 @@ export function TierSelector({
 	const [menuLeft, setMenuLeft] = useState<number | null>(null);
 
 	function toggleOpen() {
-		setIsOpen((prev) => {
-			const next = !prev;
-			if (next && containerRef.current) {
-				const rect = containerRef.current.getBoundingClientRect();
-				anchorViewportX.current = rect.left + rect.width / 2;
-				setMenuLeft(rect.width / 2);
-			}
-			return next;
-		});
+		setIsOpen((prev) => !prev);
 	}
 
 	useLayoutEffect(() => {
@@ -66,6 +58,14 @@ export function TierSelector({
 		const container = containerRef.current;
 		if (!container) {
 			return;
+		}
+		/* Якорь захватывается ЗДЕСЬ, а не в обработчике клика: layout
+		   effect выполняется после рендера открытого состояния, но до
+		   отрисовки — геометрия триггера уже финальная. Захват в момент
+		   клика давал устаревший центр, и меню прыгало первым кадром. */
+		{
+			const rect = container.getBoundingClientRect();
+			anchorViewportX.current = rect.left + rect.width / 2;
 		}
 		/* Ширина триггера теперь меняется ПЛАВНО (тикер имени тира
 		   анимирует width), поэтому одноразового пересчёта на смену
@@ -85,7 +85,14 @@ export function TierSelector({
 				Math.max(anchorViewportX.current, edgeGap + halfWidth),
 				viewportWidth - edgeGap - halfWidth,
 			);
-			setMenuLeft(clampedCenterX - rect.left);
+			const nextLeft = Math.round(clampedCenterX - rect.left);
+			/* Порог в 1px против дрожи: первый «холостой» замер обсервера
+			   приходит уже ПОСЛЕ первого кадра входной анимации, и
+			   субпиксельная разница getBoundingClientRect сдвигала left
+			   на доли пикселя — меню зримо вздрагивало при появлении. */
+			setMenuLeft((prev) =>
+				prev !== null && Math.abs(prev - nextLeft) < 1 ? prev : nextLeft,
+			);
 		};
 		updateMenuLeft();
 		/* Пересчёт из колбэка обсервера уходит в следующий кадр: setState
@@ -147,13 +154,15 @@ export function TierSelector({
 					aria-label={`Уровень подписки: ${tier?.name}`}
 				>
 					<TierValueTransition text={tier?.name ?? ""} order={tierIndex} />
+					{/* Один глиф с CSS-поворотом вместо подмены иконки:
+					    другой глиф Iconify грузится асинхронно, и триггер
+					    прыгал по ширине в момент открытия — якорь меню
+					    захватывался до прыжка, меню дёргалось. */}
 					<Icon
-						icon={
-							isOpen
-								? "solar:alt-arrow-up-linear"
-								: "solar:alt-arrow-down-linear"
+						icon="solar:alt-arrow-down-linear"
+						className={
+							isOpen ? styles.tierInlineChevronOpen : styles.tierInlineChevron
 						}
-						className={styles.tierInlineChevron}
 						aria-hidden="true"
 					/>
 				</button>
@@ -168,13 +177,15 @@ export function TierSelector({
 					<span className={styles.tierTriggerCaption}>Уровень</span>
 					<span className={styles.tierTriggerValue}>
 						<TierValueTransition text={tier?.name ?? ""} order={tierIndex} />
+						{/* Один глиф с поворотом — см. комментарий у
+						    компактного триггера выше. */}
 						<Icon
-							icon={
+							icon="solar:alt-arrow-down-linear"
+							className={
 								isOpen
-									? "solar:alt-arrow-up-linear"
-									: "solar:alt-arrow-down-linear"
+									? styles.tierTriggerChevronOpen
+									: styles.tierTriggerChevron
 							}
-							className={styles.tierTriggerChevron}
 							aria-hidden="true"
 						/>
 					</span>
