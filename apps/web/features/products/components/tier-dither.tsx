@@ -36,9 +36,11 @@ const WAVE_FRONT_CELLS = 9;
 /** Доля брендового цвета в точке (остальное — белый). */
 const BRAND_MIX = 0.38;
 /** Длительность нарастания пикселей справа налево при включении, мс. */
-const REVEAL_MS = 620;
+const REVEAL_MS = 950;
 /** Рваность фронта нарастания в ячейках — пиксели прорастают вразнобой. */
 const REVEAL_JITTER_CELLS = 6;
+/** Ширина яркого «пера» на фронте рисования, в ячейках. */
+const REVEAL_PEN_CELLS = 5;
 /** Шаг дискретизации волны, мс — фронт перещёлкивается по ячейкам. */
 const WAVE_STEP_MS = 84;
 
@@ -96,8 +98,11 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			   свой джиттер, поэтому текстура растёт вразнобой, попиксельно,
 			   а не ровной шторкой. */
 			const revealProgress = Math.min(1, timeMs / REVEAL_MS);
-			const eased = 1 - (1 - revealProgress) ** 3;
+			/* Почти линейный ход с лёгким замедлением в конце: рисование
+			   видно на всём протяжении, а не проскакивает в первые кадры. */
+			const eased = 1 - (1 - revealProgress) ** 1.6;
 			const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
+			const revealing = revealProgress < 1;
 
 			/* Фронт волны: время квантовано шагами WAVE_STEP_MS — фронт
 			   перещёлкивается по ячейкам дискретно. Волна стартует после
@@ -152,7 +157,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					   личный жребий прошёл через силу фронта. Ближе к центру
 					   фронта шанс выше, на краях — единичные пиксели. */
 					let waveBoost = 0;
-					if (distance < WAVE_FRONT_CELLS) {
+					if (!revealing && distance < WAVE_FRONT_CELLS) {
 						const frontStrength = (1 - distance / WAVE_FRONT_CELLS) ** 2;
 						const lottery = cellHash(col * 19 + 3, row * 23 + 13);
 						if (lottery < frontStrength) {
@@ -160,7 +165,19 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 						}
 					}
 
-					const energy = density + (waveBoost + twinkle) * presence;
+					/* «Перо» рисования: пиксели у самого фронта прорастания
+					   вспыхивают ярче — видно, как их прямо сейчас «рисуют»,
+					   а за пером они гаснут до своей обычной яркости. */
+					let penBoost = 0;
+					if (revealing) {
+						const penDistance =
+							col - revealJitter - revealFrontCol;
+						if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
+							penBoost = (1 - penDistance / REVEAL_PEN_CELLS) * 0.6;
+						}
+					}
+
+					const energy = density + (waveBoost + penBoost + twinkle) * presence;
 					if (energy <= threshold) {
 						continue;
 					}
