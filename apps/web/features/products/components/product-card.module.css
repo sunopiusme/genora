@@ -158,6 +158,16 @@
 	white-space: nowrap;
 }
 
+/* Точка-разделитель между ценой и селектором уровня. */
+.priceDivider {
+	width: 0.1875rem;
+	height: 0.1875rem;
+	border-radius: 50%;
+	background-color: var(--color-foreground-subtle);
+	align-self: center;
+	flex-shrink: 0;
+}
+
 .amount {
 	font-size: 1rem;
 	font-weight: var(--weight-semibold);
@@ -172,28 +182,21 @@
 	color: var(--color-foreground-muted);
 }
 
-/* Нижний ряд карточки: компактный селектор уровня слева, кнопка
-   «Купить» справа — слайдер не занимает места в карточке и
-   раскрывается в дропдауне по нажатию, как в детальном просмотре. */
-.footer {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-}
-
-/* Зона селектора: обычный курсор вместо карточного pointer — это
-   самостоятельный контрол, а не часть кликабельной обложки. */
+/* Зона селектора уровня в строке цены: обычный курсор вместо
+   карточного pointer — это самостоятельный контрол, а не часть
+   кликабельной обложки. */
 .tierArea {
 	cursor: default;
 	flex-shrink: 0;
+	align-self: center;
 }
 
 /* «Тихая» кнопка в духе App Store «Get»: полупрозрачная плашка вместо
-   сплошной белой — обложка и цена остаются главными в иерархии. */
+   сплошной белой — обложка и цена остаются главными в иерархии.
+   Кнопка одна во всю ширину — единственная цель для покупки. */
 .action.action {
 	height: 2.25rem;
-	flex: 1;
-	min-width: 0;
+	width: 100%;
 	border-radius: 9999px;
 	border: none;
 	background-color: rgb(255 255 255 / 0.1);

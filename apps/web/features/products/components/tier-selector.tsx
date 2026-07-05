@@ -61,23 +61,27 @@ export function TierSelector({
 	return (
 		<div className={styles.tierSelector} ref={containerRef}>
 			{compact ? (
-				/* Карточка витрины: фиксированная круглая кнопка-иконка —
-				   ширина не зависит от названия тира, кнопка «Купить» рядом
-				   всегда одинаковая. Текущий уровень озвучивается aria-label. */
+				/* Карточка витрины: тихий текстовый триггер в строке цены —
+				   имя тира + шеврон. Не занимает отдельного места и не
+				   конкурирует с кнопкой «Купить». */
 				<button
 					type="button"
 					className={
-						isOpen ? styles.tierIconTriggerOpen : styles.tierIconTrigger
+						isOpen ? styles.tierInlineTriggerOpen : styles.tierInlineTrigger
 					}
 					onClick={() => setIsOpen((prev) => !prev)}
 					aria-haspopup="true"
 					aria-expanded={isOpen}
 					aria-label={`Уровень подписки: ${tier?.name}`}
-					title={`Уровень: ${tier?.name}`}
 				>
+					{tier?.name}
 					<Icon
-						icon="solar:tuning-2-linear"
-						className={styles.tierIconTriggerGlyph}
+						icon={
+							isOpen
+								? "solar:alt-arrow-up-linear"
+								: "solar:alt-arrow-down-linear"
+						}
+						className={styles.tierInlineChevron}
 						aria-hidden="true"
 					/>
 				</button>

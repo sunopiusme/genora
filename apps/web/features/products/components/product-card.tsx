@@ -84,39 +84,38 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 			</button>
 			<div className={styles.info}>
 				<h3 className={styles.name}>{product.name}</h3>
-				<p className={styles.price}>
+				<div className={styles.price}>
 					<span className={styles.amount}>
 						{selectedTier?.priceLabel ?? product.priceLabel}
 					</span>
 					<span className={styles.period}>в {product.periodLabel}</span>
-				</p>
-			</div>
-			<div className={styles.footer}>
-				{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка
-				    только гасит всплытие к кликабельной карточке; интерактивность
-				    и клавиатура — у триггера и слайдера внутри селектора. */}
-				<div
-					className={styles.tierArea}
-					onPointerDown={stopCardGesture}
-					onClick={stopCardGesture}
-				>
-					<TierSelector
-						product={product}
-						tierIndex={tierIndex}
-						onTierChange={setTierIndex}
-						compact
-						placement="up"
-					/>
+					<span className={styles.priceDivider} aria-hidden="true" />
+					{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка
+					    только гасит всплытие к кликабельной карточке; интерактивность
+					    и клавиатура — у триггера и слайдера внутри селектора. */}
+					<span
+						className={styles.tierArea}
+						onPointerDown={stopCardGesture}
+						onClick={stopCardGesture}
+					>
+						<TierSelector
+							product={product}
+							tierIndex={tierIndex}
+							onTierChange={setTierIndex}
+							compact
+							placement="up"
+						/>
+					</span>
 				</div>
-				<Button
-					variant="primary"
-					size="lg"
-					className={styles.action}
-					onClick={handleBuyClick}
-				>
-					Купить
-				</Button>
 			</div>
+			<Button
+				variant="primary"
+				size="lg"
+				className={styles.action}
+				onClick={handleBuyClick}
+			>
+				Купить
+			</Button>
 		</article>
 	);
 }

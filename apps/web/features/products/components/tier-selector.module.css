@@ -62,45 +62,48 @@
 	color: var(--color-foreground-subtle);
 }
 
-/* Компактный триггер карточки: фиксированный круг в размер кнопки
-   «Купить» (2.25rem) — ширина не зависит от названия тира, футер
-   карточки всегда одинаковой геометрии. */
-.tierIconTrigger {
+/* Компактный триггер карточки: тихая текстовая ссылка в строке цены —
+   имя тира + шеврон, в ритме подписи «в месяц» рядом. Ничего не
+   отнимает у кнопки «Купить» и не ломает геометрию футера. */
+.tierInlineTrigger {
 	display: inline-flex;
 	align-items: center;
-	justify-content: center;
-	width: 2.25rem;
-	height: 2.25rem;
+	gap: 0.125rem;
 	padding: 0;
 	border: none;
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.1);
+	background: none;
+	font-family: var(--font-sans);
+	font-size: 0.8125rem;
+	font-weight: var(--weight-medium);
 	color: var(--color-foreground-muted);
 	cursor: pointer;
-	transition:
-		background-color 0.15s ease,
-		color 0.15s ease;
+	transition: color 0.15s ease;
 	-webkit-tap-highlight-color: transparent;
 }
 
-.tierIconTrigger:hover {
-	background-color: rgb(255 255 255 / 0.16);
+.tierInlineTrigger:hover {
 	color: var(--color-foreground);
 }
 
-.tierIconTrigger:focus-visible {
+.tierInlineTrigger:focus-visible {
 	outline: none;
-	box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+	color: var(--color-foreground);
+	text-decoration: underline;
+	text-underline-offset: 0.1875rem;
 }
 
-.tierIconTriggerOpen {
-	composes: tierIconTrigger;
-	background-color: rgb(255 255 255 / 0.16);
+.tierInlineTriggerOpen {
+	composes: tierInlineTrigger;
 	color: var(--color-foreground);
 }
 
-.tierIconTriggerGlyph {
-	font-size: 1.125rem;
+.tierInlineChevron {
+	/* flex-центрирование глифа: иконка-шрифт со своим baseline съезжает
+	   на пиксель вниз относительно текста в inline-потоке. */
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	font-size: 0.8125rem;
 }
 
 /* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
@@ -128,10 +131,10 @@
 	animation: tierMenuInUp 0.16s ease both;
 }
 
-/* Компактный модификатор меню для карточек витрины: заметно уже —
-   соразмерно карточке, а не модалке. */
+/* Компактный модификатор меню для карточек витрины: уже модального,
+   но с воздухом для слайдера. */
 .tierMenuCompact {
-	width: min(13.5rem, calc(100vw - var(--space-8) * 2));
+	width: min(15rem, calc(100vw - var(--space-8) * 2));
 	border-radius: var(--radius-xl);
 }
 
