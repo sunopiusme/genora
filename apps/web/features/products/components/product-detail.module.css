@@ -129,13 +129,12 @@
 	}
 
 	/* Открытие — чистая animation без transition (как у profile-sheet):
-	   постоянный transition на transform/max-height конфликтовал с
-	   sheetIn и любым изменением --hero-stretch или подгрузкой ассетов —
-	   на iOS шит дёргался при открытии. */
+	   постоянный transition на transform конфликтовал с sheetIn и
+	   подгрузкой ассетов — на iOS шит дёргался при открытии. */
 	.panel {
 		margin: auto 0 0;
 		max-width: none;
-		max-height: min(100dvh, calc(100dvh - 3rem + var(--hero-stretch, 0px)));
+		max-height: calc(100dvh - 3rem);
 		display: flex;
 		flex-direction: column;
 		border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
@@ -154,9 +153,7 @@
 	   на эту короткую фазу, когда entry-анимация уже давно завершена. */
 	.panelSettling {
 		animation: none;
-		transition:
-			transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
-			max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+		transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	.overlayClosing.overlayClosing {
@@ -230,15 +227,6 @@
 		transform-origin: top left;
 	}
 
-	/* min-height без постоянного transition: анимируем возврат hero
-	   только в фазе settling, чтобы не мешать открытию шита. */
-	.hero.hero {
-		min-height: calc(14rem + var(--hero-stretch, 0px));
-	}
-
-	.panelSettling .hero.hero {
-		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
-	}
 }
 
 .controls {

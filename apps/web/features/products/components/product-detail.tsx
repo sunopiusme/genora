@@ -13,8 +13,6 @@ const COPIED_RESET_DELAY_MS = 1500;
 const SWIPE_START_THRESHOLD_PX = 8;
 const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
-const HERO_STRETCH_RANGE_PX = 96;
-const HERO_STRETCH_DAMPING = 0.6;
 const CLOSE_ANIMATION_MOBILE_MS = 280;
 const SETTLE_DURATION_MS = 380;
 
@@ -410,12 +408,9 @@ function useSwipeToDismiss(
 				capturePointerSafely(panel, event.pointerId);
 				setIsDragging(true);
 			}
-			const stretch =
-				Math.min(dragOffset, HERO_STRETCH_RANGE_PX) * HERO_STRETCH_DAMPING;
-			const translate = Math.max(dragOffset - HERO_STRETCH_RANGE_PX, 0);
-			panel.style.setProperty("--hero-stretch", `${stretch}px`);
+			/* Панель просто следует за пальцем — без растягивания обложки. */
 			panel.style.transform =
-				translate > 0 ? `translateY(${translate}px)` : "";
+				dragOffset > 0 ? `translateY(${dragOffset}px)` : "";
 		}
 
 		function handlePointerEnd(event: PointerEvent) {
@@ -439,7 +434,6 @@ function useSwipeToDismiss(
 			/* Плавный возврат: включаем transition на один такт settling,
 			   сбрасываем смещение и выключаем его по завершении. */
 			setIsSettling(true);
-			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
 			window.clearTimeout(settleTimerRef.current);
 			settleTimerRef.current = window.setTimeout(() => {
@@ -465,7 +459,6 @@ function useSwipeToDismiss(
 			panel.removeEventListener("pointerup", handlePointerEnd);
 			panel.removeEventListener("pointercancel", handlePointerEnd);
 			panel.removeEventListener("touchmove", handleTouchMove);
-			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
 		};
 	}, [isEnabled, onDismiss, panelRef, bodyRef]);
