@@ -3,6 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
+import { getBrandLogoCssUrl } from "../brand-logos";
 import { getFeaturedProducts } from "../queries/featured-products";
 import type { Product } from "../types";
 import styles from "./attach-menu.module.css";
@@ -262,7 +263,7 @@ function ProductPickerView({
 								className={styles.productLogo}
 								style={
 									{
-										"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+										"--logo-url": getBrandLogoCssUrl(product.logoSlug),
 									} as React.CSSProperties
 								}
 								aria-hidden="true"

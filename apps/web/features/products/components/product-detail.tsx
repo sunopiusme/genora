@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
+import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
 import { TierSelector } from "./tier-selector";
@@ -139,7 +140,7 @@ function ProductHero({ product }: ProductHeroProps) {
 			className={styles.hero}
 			style={
 				{
-					"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+					"--logo-url": getBrandLogoCssUrl(product.logoSlug),
 					"--brand": product.brandColor,
 					"--brand-glow": product.brandGlow,
 				} as React.CSSProperties

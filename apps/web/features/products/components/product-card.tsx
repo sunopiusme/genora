@@ -9,6 +9,7 @@ import {
 	type PointerEvent,
 } from "react";
 import { Button } from "@genora/ui";
+import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";
 import styles from "./product-card.module.css";
 import { TierSelector } from "./tier-selector";
@@ -68,7 +69,7 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				aria-label={`Открыть ${product.name}`}
 				style={
 					{
-						"--logo-url": `url(/brands/${product.logoSlug}.svg)`,
+						"--logo-url": getBrandLogoCssUrl(product.logoSlug),
 						"--brand": product.brandColor,
 						"--brand-glow": product.brandGlow,
 					} as CSSProperties
