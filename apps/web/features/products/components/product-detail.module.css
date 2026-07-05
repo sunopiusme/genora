@@ -600,84 +600,135 @@
 	color: var(--color-foreground-subtle);
 }
 
+/* Обёртка визуального трека: нативный range лежит поверх невидимым
+   слоем и обслуживает жест, вся графика — на div'ах ниже. */
+.tierTrackWrap {
+	position: relative;
+	height: 2.25rem;
+	display: flex;
+	align-items: center;
+}
+
+.tierTrack {
+	position: relative;
+	width: 100%;
+	height: 1.5rem;
+	border-radius: 0.5rem;
+	background-color: rgb(255 255 255 / 0.08);
+	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+	overflow: visible;
+}
+
+/* Заливка до текущего уровня; клип по радиусу трека. */
+.tierFill {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--fill);
+	min-width: 0.75rem;
+	border-radius: 0.5rem;
+	background: linear-gradient(
+		90deg,
+		color-mix(in srgb, var(--brand) 45%, transparent),
+		var(--brand)
+	);
+	overflow: hidden;
+	transition: width 0.25s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tierFillMaxed {
+	composes: tierFill;
+}
+
+/* «Пиксельный» дизеринг: шахматные квадратики, проявляющиеся в хвосте
+   заливки на максимальном уровне — инженерный визуал из Claude Code. */
+.tierDither {
+	position: absolute;
+	inset: 0 0 0 auto;
+	width: 45%;
+	background:
+		conic-gradient(
+				var(--brand-glow, rgb(255 255 255 / 0.5)) 25%,
+				transparent 0 50%,
+				var(--brand-glow, rgb(255 255 255 / 0.5)) 0 75%,
+				transparent 0
+			)
+			0 0 / 0.375rem 0.375rem;
+	-webkit-mask-image: linear-gradient(90deg, transparent, black 70%);
+	mask-image: linear-gradient(90deg, transparent, black 70%);
+	opacity: 0;
+	transition: opacity 0.3s ease;
+}
+
+.tierFillMaxed .tierDither {
+	opacity: 1;
+}
+
+/* Вертикальная ручка-плашка, выступающая над треком. */
+.tierThumb {
+	position: absolute;
+	top: 50%;
+	left: var(--fill);
+	transform: translate(-50%, -50%);
+	width: 0.875rem;
+	height: 2rem;
+	border-radius: 0.4375rem;
+	background-color: #ffffff;
+	box-shadow:
+		0 2px 8px rgb(0 0 0 / 0.5),
+		0 0 0 1px rgb(0 0 0 / 0.1);
+	transition: left 0.25s cubic-bezier(0.2, 0, 0, 1);
+	pointer-events: none;
+}
+
+/* Невидимый нативный range поверх — обслуживает жест (iOS drag). */
 .tierRange {
 	appearance: none;
 	-webkit-appearance: none;
+	position: absolute;
+	inset: 0;
 	width: 100%;
-	height: 1.75rem;
+	height: 100%;
 	margin: 0;
 	background: transparent;
+	opacity: 0;
 	cursor: pointer;
 	/* Не даём вертикальному свайпу по слайдеру утаскивать шит вниз. */
 	touch-action: none;
+}
+
+.tierRange::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 2.75rem;
+	height: 2.25rem;
+}
+
+.tierRange::-moz-range-thumb {
+	width: 2.75rem;
+	height: 2.25rem;
+	border: none;
+	background: transparent;
 }
 
 .tierRange:focus-visible {
 	outline: none;
 }
 
-.tierRange::-webkit-slider-runnable-track {
-	height: 0.625rem;
-	border-radius: var(--radius-full);
-	background:
-		linear-gradient(
-				90deg,
-				color-mix(in srgb, var(--brand) 55%, transparent),
-				var(--brand) var(--fill),
-				rgb(255 255 255 / 0.1) var(--fill)
-			)
-			no-repeat;
+.tierRange:focus-visible ~ * {
+	outline: none;
 }
 
-.tierRange::-webkit-slider-thumb {
-	-webkit-appearance: none;
-	width: 1.375rem;
-	height: 1.375rem;
-	margin-top: -0.375rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background-color: #ffffff;
+.tierTrackWrap:has(.tierRange:focus-visible) .tierThumb {
 	box-shadow:
-		0 1px 4px rgb(0 0 0 / 0.45),
-		0 0 0 1px rgb(0 0 0 / 0.08);
-	transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.tierRange:active::-webkit-slider-thumb {
-	transform: scale(1.1);
-}
-
-.tierRange::-moz-range-track {
-	height: 0.625rem;
-	border-radius: var(--radius-full);
-	background: rgb(255 255 255 / 0.1);
-}
-
-.tierRange::-moz-range-progress {
-	height: 0.625rem;
-	border-radius: var(--radius-full);
-	background: linear-gradient(
-		90deg,
-		color-mix(in srgb, var(--brand) 55%, transparent),
-		var(--brand)
-	);
-}
-
-.tierRange::-moz-range-thumb {
-	width: 1.375rem;
-	height: 1.375rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background-color: #ffffff;
-	box-shadow:
-		0 1px 4px rgb(0 0 0 / 0.45),
-		0 0 0 1px rgb(0 0 0 / 0.08);
-}
-
-.tierRange:focus-visible::-webkit-slider-thumb {
-	box-shadow:
-		0 1px 4px rgb(0 0 0 / 0.45),
+		0 2px 8px rgb(0 0 0 / 0.5),
 		0 0 0 2px var(--brand);
+}
+
+/* При активном перетаскивании убираем transition — ручка следует
+   за пальцем мгновенно, без "догоняющей" анимации. */
+.tierTrackWrap:has(.tierRange:active) .tierThumb,
+.tierTrackWrap:has(.tierRange:active) .tierFill,
+.tierTrackWrap:has(.tierRange:active) .tierFillMaxed {
+	transition: none;
 }
 
 /* Названия тиров под треком — кликабельные остановки. */

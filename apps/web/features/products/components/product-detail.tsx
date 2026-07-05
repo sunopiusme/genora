@@ -220,11 +220,14 @@ type TierSliderProps = {
 };
 
 /* Дискретный слайдер уровня подписки в духе слайдера Effort из
-   Claude Code: подписи по краям, градиентный трек в брендовом цвете,
-   выбранный уровень отражается в заголовке товара. */
+   Claude Code: прямоугольный трек, вертикальная ручка-плашка, на
+   максимальном уровне хвост заливки рассыпается «пиксельным» дизерингом.
+   Визуальный трек — обычные div'ы, а жест обслуживает невидимый нативный
+   input[type=range] поверх — на iOS перетаскивание полностью нативное. */
 function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const maxIndex = product.tiers.length - 1;
 	const fillRatio = maxIndex > 0 ? tierIndex / maxIndex : 0;
+	const isMaxed = tierIndex === maxIndex;
 	const currentTier = product.tiers[tierIndex];
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -234,6 +237,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	return (
 		<div
 			className={styles.tierSlider}
+			data-sheet-drag-ignore="true"
 			style={
 				{
 					"--brand": product.brandColor,
@@ -246,17 +250,27 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 				<span>Базовый</span>
 				<span>Максимум</span>
 			</div>
-			<input
-				type="range"
-				className={styles.tierRange}
-				min={0}
-				max={maxIndex}
-				step={1}
-				value={tierIndex}
-				onChange={handleChange}
-				aria-label="Уровень подписки"
-				aria-valuetext={currentTier?.name}
-			/>
+			<div className={styles.tierTrackWrap}>
+				<div className={styles.tierTrack} aria-hidden="true">
+					<div
+						className={isMaxed ? styles.tierFillMaxed : styles.tierFill}
+					>
+						<span className={styles.tierDither} />
+					</div>
+					<span className={styles.tierThumb} />
+				</div>
+				<input
+					type="range"
+					className={styles.tierRange}
+					min={0}
+					max={maxIndex}
+					step={1}
+					value={tierIndex}
+					onChange={handleChange}
+					aria-label="Уровень подписки"
+					aria-valuetext={currentTier?.name}
+				/>
+			</div>
 			<div className={styles.tierStops} aria-hidden="true">
 				{product.tiers.map((productTier, index) => (
 					<button
@@ -461,6 +475,12 @@ function useSwipeToDismiss(
 
 		function handlePointerDown(event: PointerEvent) {
 			if (activePointerId !== null || getScrollTop() > 0) {
+				return;
+			}
+			/* Жесты внутри слайдера тиров принадлежат слайдеру: шит не
+			   должен ехать вниз, пока пользователь двигает ручку. */
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-sheet-drag-ignore]")) {
 				return;
 			}
 			activePointerId = event.pointerId;
