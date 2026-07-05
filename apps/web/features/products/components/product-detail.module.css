@@ -680,14 +680,13 @@
 }
 
 .tierEdgeMax {
-	transition: color 0.25s ease;
+	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «Максимум» подхватывает брендовый оттенок,
-   осветлённый для стабильного контраста на тёмном фоне. */
+/* На максимуме подпись «Максимум» подхватывает брендовый оттенок.
+   Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
-	font-weight: var(--weight-semibold);
 }
 
 /* Обёртка визуального трека: нативный range леж��т поверх невидимым
@@ -875,6 +874,8 @@
 	justify-content: space-between;
 }
 
+/* Единый вес шрифта во всех состояниях: активность передаётся только
+   цветом и фоном — метки не «толстеют» и не сдвигаются при движении. */
 .tierStop {
 	padding: 0.125rem 0.5rem;
 	border: none;
@@ -886,15 +887,14 @@
 	color: var(--color-foreground-subtle);
 	cursor: pointer;
 	transition:
-		color 0.15s ease,
-		background-color 0.15s ease;
+		color 0.3s ease,
+		background-color 0.3s ease;
 }
 
 .tierStopActive {
 	composes: tierStop;
 	background-color: rgb(255 255 255 / 0.1);
 	color: var(--color-foreground);
-	font-weight: var(--weight-semibold);
 }
 
 /* На максимуме активная метка тира деликатно тонируется брендом. */
