@@ -172,22 +172,35 @@
 	color: var(--color-foreground-muted);
 }
 
+/* «Тихая» кнопка в духе App Store «Get»: полупрозрачная плашка вместо
+   сплошной белой — обложка и цена остаются главными в иерархии. */
 .action.action {
-	height: 2.5rem;
+	height: 2.25rem;
 	border-radius: 9999px;
+	border: none;
+	background-color: rgb(255 255 255 / 0.1);
+	color: var(--color-foreground);
 	font-size: 0.8125rem;
-	font-weight: var(--weight-medium);
+	font-weight: var(--weight-semibold);
 	user-select: none;
 	-webkit-tap-highlight-color: transparent;
 }
 
+.action.action:hover {
+	background-color: rgb(255 255 255 / 0.16);
+}
+
+.action.action:active {
+	background-color: rgb(255 255 255 / 0.2);
+}
+
 @media (max-width: 47.9375rem) {
-	.name {
-		font-size: 0.8125rem;
+	.card {
+		gap: 0.625rem;
 	}
 
-	.action.action {
-		height: 2.375rem;
+	.name {
+		font-size: 0.8125rem;
 	}
 }
 
