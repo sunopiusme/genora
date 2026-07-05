@@ -683,7 +683,7 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М��������������ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М����������������ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
@@ -753,8 +753,11 @@
 	inset: 0 auto 0 0;
 	width: var(--fill);
 	/* Правый торец плоский: он всегда спрятан под ручкой, скруглённый
-	   край не выглядывает из-под неё сверху и снизу. */
+	   край не выглядывает из-под неё сверху и снизу. Пиксельная
+	   текстура лежит ВНУТРИ заливки и клиппится ей — едет вместе с
+	   полоской, когда та дотягивается до края. */
 	border-radius: var(--radius-full) 0 0 var(--radius-full);
+	overflow: hidden;
 	background-color: rgb(255 255 255 / 0.13);
 	transition:
 		width 0.16s cubic-bezier(0.4, 0, 0.2, 1),
@@ -766,18 +769,19 @@
 	background-color: color-mix(in srgb, var(--brand) 12%, rgb(255 255 255 / 0.15));
 }
 
-/* Пиксельная (дизеринг) текстура: две шахматные решётки — основная и
-   комплементарная (сдвинута на клетку, лежит в ::after). Их яркость
-   качается в противофазе, отчего точки поочерёдно «переливаются», как
-   грани диско-шара, — движения нет, только свет. */
+/* Пиксельная (дизеринг) текстура внутри заливки, как в Ultracode:
+   базовая решётка точек — постоянный чуть светлый слой (без
+   пульсации), а поверх неё в ::after — те же точки ярче, видимые
+   только сквозь дрейфующую маску. Получаются отдельные пиксели,
+   «загорающиеся» волной, а не дышащая всей плоскостью текстура. */
 .tierDither {
 	position: absolute;
 	inset: 0;
 	--px: 0.1875rem;
 	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 55%, rgb(255 255 255 / 0.6)) 25%,
+			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 25%,
 			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 55%, rgb(255 255 255 / 0.6)) 0 75%,
+			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 0 75%,
 			transparent 0
 		)
 		center / var(--px) var(--px);
@@ -796,87 +800,78 @@
 		rgb(0 0 0 / 0.55) 97%
 	);
 	opacity: 0;
-	transition: opacity 0.3s ease;
+	transition: opacity 0.25s ease;
 	pointer-events: none;
 }
 
-/* Комплементарная решётка: те же клетки со сдвигом на полклетки —
-   заполняет промежутки основной. Собственный цикл мерцания в
-   противофазе создаёт перелив. */
+/* Яркий слой тех же пикселей: виден только сквозь наклонные полосы
+   маски, которые медленно дрейфуют слева направо, — светлая полоска
+   пикселей проходит по пилюле, как на референсе. */
 .tierDither::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 40%, rgb(255 255 255 / 0.45)) 25%,
+			color-mix(in srgb, var(--brand) 35%, rgb(255 255 255 / 0.85)) 25%,
 			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 40%, rgb(255 255 255 / 0.45)) 0 75%,
+			color-mix(in srgb, var(--brand) 35%, rgb(255 255 255 / 0.85)) 0 75%,
 			transparent 0
 		)
 		center / var(--px) var(--px);
-	background-position: calc(50% + var(--px) / 2) 50%;
+	-webkit-mask-image: repeating-linear-gradient(
+		105deg,
+		transparent 0,
+		rgb(0 0 0 / 0.9) 1.25rem,
+		transparent 2.5rem 4.5rem
+	);
+	mask-image: repeating-linear-gradient(
+		105deg,
+		transparent 0,
+		rgb(0 0 0 / 0.9) 1.25rem,
+		transparent 2.5rem 4.5rem
+	);
+	-webkit-mask-size: 200% 100%;
+	mask-size: 200% 100%;
+	-webkit-mask-position: 0% 0;
+	mask-position: 0% 0;
 	opacity: 0;
 }
 
-/* Включение максимума: сначала ручка доезжает до края (0.16s — та же
-   длительность, что и её transition), и только по прибытии текстура
-   «прорастает» от ручки влево плитка за плиткой (clip-path квантован
-   steps, кратным колонкам сетки), после чего решётки непрерывно
-   переливаются в противофазе. */
+/* Включение максимума: ручка с заливкой доезжают до края (0.16s), и
+   пиксели проявляются вместе с полоской — они клиппятся заливкой.
+   По прибытии стартует дрейф светлой полосы пикселей. */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
-	animation:
-		ditherReveal 0.55s steps(48, end) 0.16s both,
-		ditherTwinkleA 2.4s ease-in-out 0.71s infinite;
+	transition-delay: 0.1s;
 }
 
 .tierSlider[data-maxed] .tierDither::after {
-	animation: ditherTwinkleB 2.4s ease-in-out 0.71s infinite;
+	opacity: 1;
+	animation: ditherSweep 3.2s linear 0.26s infinite;
 }
 
-/* inset(0 0 0 X): левая кромка видимой области едет от 100% (виден
-   только правый край у ручки) к 0 — пиксели распространяются от
-   максимума влево, колонка за колонкой. */
-@keyframes ditherReveal {
+/* Дрейф маски: полосы света едут по пикселям слева направо.
+   Смещение на 100% mask-size за цикл даёт бесшовный повтор. */
+@keyframes ditherSweep {
 	from {
-		clip-path: inset(0 0 0 100%);
+		-webkit-mask-position: 0% 0;
+		mask-position: 0% 0;
 	}
 	to {
-		clip-path: inset(0 0 0 0);
-	}
-}
-
-/* Противофазное качание яркости двух решёток: сумма света постоянна,
-   поэтому пилюля не пульсирует — переливаются только сами точки. */
-@keyframes ditherTwinkleA {
-	0%,
-	100% {
-		filter: brightness(1);
-	}
-	50% {
-		filter: brightness(0.72);
-	}
-}
-
-@keyframes ditherTwinkleB {
-	0%,
-	100% {
-		opacity: 0.15;
-	}
-	50% {
-		opacity: 0.85;
+		-webkit-mask-position: -100% 0;
+		mask-position: -100% 0;
 	}
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.tierSlider[data-maxed] .tierDither,
 	.tierSlider[data-maxed] .tierDither::after {
 		animation: none;
+		opacity: 0.4;
 	}
 }
 
 /* Ручка в размерах полоски, но на 1px «выше» неё с каждой стороны —
-   полностью перекрывает торец серой заливки, ничего не выглядывает. */
+   полностью перекрывает торец серой заливки, ��ичего не выглядывает. */
 .tierThumb {
 	position: absolute;
 	top: -1px;

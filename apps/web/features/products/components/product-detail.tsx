@@ -316,7 +316,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const committedIndexRef = useRef(tierIndex);
 	committedIndexRef.current = tierIndex;
 
-	/* Единственная точка записи позиции в DOM: CSS-переменная --fill
+	/* Единст��енная точка записи позиции в DOM: CSS-переменная --fill
 	   на корне слайдера. Транзишены управляются data-dragging. */
 	const applyFill = useCallback((ratio: number) => {
 		rootRef.current?.style.setProperty("--fill", `${ratio * 100}%`);
@@ -481,8 +481,9 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 				onKeyDown={handleKeyDown}
 			>
 				<div className={styles.tierTrackInner}>
-					<div className={styles.tierFill} />
-					<span className={styles.tierDither} />
+					<div className={styles.tierFill}>
+						<span className={styles.tierDither} />
+					</div>
 					{product.tiers.map((productTier, index) => (
 						<span
 							key={productTier.id}
