@@ -188,7 +188,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					}
 
 					/* Квантованная яркость: чем сильнее ячейка «пробила» свой
-					   порог, тем выше её дискретный уровень. */
+					   порог, т��м выше её дискретный уровень. */
 					const overshoot = Math.min(1, (energy - threshold) / 0.6);
 					const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
 					const alpha = 0.16 + (level / BRIGHTNESS_LEVELS) * 0.72;
@@ -217,25 +217,41 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			frameId = requestAnimationFrame(loop);
 		}
 
+		/* Ресайз-колбэк уходит в следующий кадр: синхронная работа с
+		   canvas внутри ResizeObserver (заливка меняет ширину каждый
+		   кадр transition'а) зацикливает его в том же кадре —
+		   «ResizeObserver loop completed…» в консоли. */
+		let resizeFrameId = 0;
 		const resizeObserver = new ResizeObserver(() => {
-			syncCanvasSize();
-			if (!active || reducedMotion.matches) {
-				drawFrame(REVEAL_MS);
-			}
+			cancelAnimationFrame(resizeFrameId);
+			resizeFrameId = requestAnimationFrame(() => {
+				syncCanvasSize();
+				if (active && reducedMotion.matches) {
+					drawFrame(REVEAL_MS);
+				}
+			});
 		});
 		resizeObserver.observe(canvas);
 		syncCanvasSize();
 
-		if (active && !reducedMotion.matches) {
-			frameId = requestAnimationFrame(loop);
+		if (active) {
+			if (reducedMotion.matches) {
+				/* Статичный кадр: нарастание уже завершено, текстура видна
+				   полностью, движения нет. */
+				drawFrame(REVEAL_MS);
+			} else {
+				frameId = requestAnimationFrame(loop);
+			}
 		} else {
-			/* Статичный кадр: нарастание уже завершено, текстура видна
-			   полностью, движения нет. */
-			drawFrame(REVEAL_MS);
+			/* Не максимум — пиксели не рисуются вовсе. Холст очищается,
+			   иначе на промежуточных тирах (Plus, Pro) сквозь заливку
+			   проглядывала бы статичная текстура максимума. */
+			context.clearRect(0, 0, cssWidth, cssHeight);
 		}
 
 		return () => {
 			cancelAnimationFrame(frameId);
+			cancelAnimationFrame(resizeFrameId);
 			resizeObserver.disconnect();
 		};
 	}, [active, brandColor]);

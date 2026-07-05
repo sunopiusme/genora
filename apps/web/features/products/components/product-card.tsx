@@ -12,6 +12,7 @@ import { Button } from "@genora/ui";
 import type { Product } from "../types";
 import styles from "./product-card.module.css";
 import { TierSelector } from "./tier-selector";
+import { TierValueTransition } from "./tier-value-transition";
 
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
 const DOUBLE_CLICK_GRACE_MS = 220;
@@ -104,7 +105,10 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				</div>
 				<p className={styles.price}>
 					<span className={styles.amount}>
-						{selectedTier?.priceLabel ?? product.priceLabel}
+						<TierValueTransition
+							text={selectedTier?.priceLabel ?? product.priceLabel}
+							order={tierIndex}
+						/>
 					</span>
 					<span className={styles.period}>в {product.periodLabel}</span>
 				</p>
