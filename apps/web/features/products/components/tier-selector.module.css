@@ -107,12 +107,15 @@
 }
 
 /* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
-   на «плюсике» чат-инпута) — высота макета не меняется. Фиксированная
-   компактная ширина от левого края триггера. */
+   на «плюсике» чат-инпута) — высота макета не меняется. Центрирована
+   по триггеру: имя тира в триггере меняет его ширину («Plus» / «Про»),
+   и якорь от левого края заставлял бы меню съезжать — центр держит
+   его ровно там, где его вызвали. */
 .tierMenu {
 	position: absolute;
 	top: calc(100% + var(--space-2));
-	left: 0;
+	left: 50%;
+	transform: translateX(-50%);
 	width: min(17.5rem, calc(100vw - var(--space-8) * 2));
 	z-index: var(--z-overlay, 30);
 	border: 1px solid var(--color-border);
@@ -138,25 +141,27 @@
 	border-radius: var(--radius-xl);
 }
 
+/* Keyframes включают translateX(-50%) — базовый transform центрирования
+   перезаписывается анимацией, иначе меню прыгнет к левому краю. */
 @keyframes tierMenuIn {
 	from {
 		opacity: 0;
-		transform: translateY(0.375rem) scale(0.98);
+		transform: translateX(-50%) translateY(0.375rem) scale(0.98);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0) scale(1);
+		transform: translateX(-50%) translateY(0) scale(1);
 	}
 }
 
 @keyframes tierMenuInUp {
 	from {
 		opacity: 0;
-		transform: translateY(-0.375rem) scale(0.98);
+		transform: translateX(-50%) translateY(-0.375rem) scale(0.98);
 	}
 	to {
 		opacity: 1;
-		transform: translateY(0) scale(1);
+		transform: translateX(-50%) translateY(0) scale(1);
 	}
 }
 
