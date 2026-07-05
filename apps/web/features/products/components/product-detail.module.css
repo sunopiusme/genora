@@ -568,16 +568,6 @@
 	color: var(--color-foreground);
 }
 
-.description {
-	margin: 0;
-	max-width: 30rem;
-	font-size: var(--text-sm);
-	font-weight: var(--weight-normal);
-	line-height: var(--leading-lg);
-	text-wrap: pretty;
-	color: var(--color-foreground-muted);
-}
-
 /* Слайдер уровня подписки (по мотивам Effort-слайдера Claude Code):
    нейтральный серый трек, ручка внутри, пиксельный эффект на максимуме. */
 .tierSlider {
@@ -637,12 +627,13 @@
 		0 0 16px -4px color-mix(in srgb, var(--brand) 45%, transparent);
 }
 
-/* Нейтральная серая заливка до текущего уровня — без брендового цвета. */
+/* Нейтральная серая заливка до текущего уровня — без брендового цвета.
+   Без min-width: на базовом уровне заливки не видно вовсе — только
+   чистый трек с ручкой у левого края. */
 .tierFill {
 	position: absolute;
 	inset: 0 auto 0 0;
 	width: var(--fill);
-	min-width: 1.5rem;
 	background-color: rgb(255 255 255 / 0.12);
 	transition:
 		width 0.25s cubic-bezier(0.2, 0, 0, 1),
@@ -658,25 +649,34 @@
 	);
 }
 
-/* «Пиксели» на максимуме: один шахматный слой в брендовом цвете,
-   растворяющийся к левому краю. Появление — спокойный короткий fade,
-   без мерцания и ступенчатых эффектов. */
+/* «Пиксельное пламя» на максимуме: два шахматных слоя в брендовом
+   цвете непрерывно струятся влево с разной скоростью (параллакс),
+   растворяясь к левому краю — как языки пламени из пикселей. */
 .tierDither {
 	position: absolute;
 	inset: 0 0 0 auto;
-	width: 40%;
+	width: 45%;
 	--px: 0.4375rem;
 	background:
 		conic-gradient(
-				color-mix(in srgb, var(--brand) 75%, white) 25%,
+				color-mix(in srgb, var(--brand) 80%, white) 25%,
 				transparent 0 50%,
-				color-mix(in srgb, var(--brand) 75%, white) 0 75%,
+				color-mix(in srgb, var(--brand) 80%, white) 0 75%,
 				transparent 0
 			)
-			right center / var(--px) var(--px);
-	-webkit-mask-image: linear-gradient(90deg, transparent, black 85%);
-	mask-image: linear-gradient(90deg, transparent, black 85%);
-	animation: ditherIn 0.35s ease-out both;
+			right center / var(--px) var(--px),
+		conic-gradient(
+				transparent 25%,
+				color-mix(in srgb, var(--brand) 40%, transparent) 0 50%,
+				transparent 0 75%,
+				color-mix(in srgb, var(--brand) 40%, transparent) 0
+			)
+			right center / calc(var(--px) * 2) calc(var(--px) * 2);
+	-webkit-mask-image: linear-gradient(90deg, transparent, black 88%);
+	mask-image: linear-gradient(90deg, transparent, black 88%);
+	animation:
+		ditherIn 0.35s ease-out both,
+		ditherFlow 1.4s steps(8, end) infinite;
 	pointer-events: none;
 }
 
@@ -686,6 +686,27 @@
 	}
 	to {
 		opacity: 1;
+	}
+}
+
+/* Струение влево: позиция паттерна уменьшается кратно клетке, слои
+   движутся с разной скоростью — пиксели «текут» влево с параллаксом. */
+@keyframes ditherFlow {
+	from {
+		background-position:
+			right center,
+			right center;
+	}
+	to {
+		background-position:
+			calc(100% - var(--px) * 2) center,
+			calc(100% - var(--px) * 4) center;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierDither {
+		animation: ditherIn 0.35s ease-out both;
 	}
 }
 

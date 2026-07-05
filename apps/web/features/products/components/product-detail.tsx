@@ -174,9 +174,6 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 					{tier ? ` ${tier.name}` : ""}
 				</h2>
 			</div>
-			<p className={styles.description}>
-				{tier?.description ?? product.description}
-			</p>
 
 			{hasTiers && tier && (
 				<TierSlider
