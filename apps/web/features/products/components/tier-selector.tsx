@@ -37,6 +37,7 @@ export function TierSelector({
 }: TierSelectorProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const containerRef = useRef<HTMLDivElement>(null);
+	const menuRef = useRef<HTMLDivElement>(null);
 	const tier = product.tiers[tierIndex];
 
 	/* Фиксация якоря меню: триггер меняет ширину при смене имени тира
@@ -72,7 +73,19 @@ export function TierSelector({
 		   кадр анимации, удерживая его на viewport-точке открытия. */
 		const updateMenuLeft = () => {
 			const rect = container.getBoundingClientRect();
-			setMenuLeft(anchorViewportX.current - rect.left);
+			/* Кламп по вьюпорту: меню центрировано translateX(-50%), и на
+			   мобильном у триггера в правой части экрана половина меню
+			   уходила бы за край и срезалась. Центр смещается ровно
+			   настолько, чтобы оба края меню остались в безопасной зоне. */
+			const menuWidth = menuRef.current?.offsetWidth ?? 0;
+			const viewportWidth = document.documentElement.clientWidth;
+			const edgeGap = 12;
+			const halfWidth = menuWidth / 2;
+			const clampedCenterX = Math.min(
+				Math.max(anchorViewportX.current, edgeGap + halfWidth),
+				viewportWidth - edgeGap - halfWidth,
+			);
+			setMenuLeft(clampedCenterX - rect.left);
 		};
 		updateMenuLeft();
 		/* Пересчёт из колбэка обсервера уходит в следующий кадр: setState
@@ -168,6 +181,7 @@ export function TierSelector({
 			)}
 			{isOpen && (
 				<div
+					ref={menuRef}
 					className={menuClassName}
 					style={menuLeft !== null ? { left: `${menuLeft}px` } : undefined}
 				>

@@ -226,7 +226,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			cancelAnimationFrame(resizeFrameId);
 			resizeFrameId = requestAnimationFrame(() => {
 				syncCanvasSize();
-				if (!active || reducedMotion.matches) {
+				if (active && reducedMotion.matches) {
 					drawFrame(REVEAL_MS);
 				}
 			});
@@ -234,12 +234,19 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 		resizeObserver.observe(canvas);
 		syncCanvasSize();
 
-		if (active && !reducedMotion.matches) {
-			frameId = requestAnimationFrame(loop);
+		if (active) {
+			if (reducedMotion.matches) {
+				/* Статичный кадр: нарастание уже завершено, текстура видна
+				   полностью, движения нет. */
+				drawFrame(REVEAL_MS);
+			} else {
+				frameId = requestAnimationFrame(loop);
+			}
 		} else {
-			/* Статичный кадр: нарастание уже завершено, текстура видна
-			   полностью, движения нет. */
-			drawFrame(REVEAL_MS);
+			/* Не максимум — пиксели не рисуются вовсе. Холст очищается,
+			   иначе на промежуточных тирах (Plus, Pro) сквозь заливку
+			   проглядывала бы статичная текстура максимума. */
+			context.clearRect(0, 0, cssWidth, cssHeight);
 		}
 
 		return () => {
