@@ -19,10 +19,14 @@ type TierDitherProps = {
 	brandColor: string;
 };
 
-/** Шаг сетки в CSS-пикселях (расстояние между центрами точек). */
-const CELL_PITCH = 4;
-/** Размер самой точки в CSS-пикселях. */
-const DOT_SIZE = 2;
+/** Горизонтальный шаг сетки в CSS-пикселях — точки сжаты по бокам. */
+const CELL_PITCH_X = 3;
+/** Вертикальный шаг сетки в CSS-пикселях. */
+const CELL_PITCH_Y = 4;
+/** Размер самой точки в CSS-пикселях (чуть жирнее). */
+const DOT_SIZE = 2.25;
+/** Левая доля трека без пикселей — уходит в чистый серый фон. */
+const QUIET_LEFT_RATIO = 0.25;
 /** Дискретные уровни яркости — пиксель «перещёлкивается», а не плывёт. */
 const BRIGHTNESS_LEVELS = 4;
 /** Длительность полного прохода волны, мс. */
@@ -73,8 +77,8 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			}
 			context.clearRect(0, 0, cssWidth, cssHeight);
 
-			const columns = Math.ceil(cssWidth / CELL_PITCH);
-			const rows = Math.ceil(cssHeight / CELL_PITCH);
+			const columns = Math.ceil(cssWidth / CELL_PITCH_X);
+			const rows = Math.ceil(cssHeight / CELL_PITCH_Y);
 
 			/* Фронт волны в координатах колонок: едет от ручки (справа)
 			   влево, шагами ровно по одной колонке — квантование сохраняет
@@ -91,6 +95,14 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 				   у самой ручки гаснут — там сплошная светлая заливка. */
 				const xRatio = col / Math.max(1, columns - 1);
 				const density = densityProfile(xRatio);
+				if (density <= 0) {
+					/* Чистая левая зона: ни волна, ни мерцание сюда не заходят —
+					   трек уходит в сплошной серый фон. */
+					continue;
+				}
+				/* Мягкое «крыло» у границы чистой зоны: волна и мерцание
+				   ослабевают вместе с плотностью, без резкого обрыва. */
+				const presence = Math.min(1, density / 0.12);
 
 				/* Вклад волны: мягкий импульс вокруг фронта. */
 				const distance = Math.abs(col - waveFrontCol);
@@ -112,7 +124,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 								twinklePhase * Math.PI * 2,
 						);
 
-					const energy = density + waveBoost + twinkle;
+					const energy = density + (waveBoost + twinkle) * presence;
 					if (energy <= threshold) {
 						continue;
 					}
@@ -125,8 +137,8 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 
 					context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
 					context.fillRect(
-						col * CELL_PITCH + (CELL_PITCH - DOT_SIZE) / 2,
-						row * CELL_PITCH + (CELL_PITCH - DOT_SIZE) / 2,
+						col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2,
+						row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2,
 						DOT_SIZE,
 						DOT_SIZE,
 					);
@@ -134,8 +146,16 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			}
 		}
 
+		/* Каждый раз, когда ручка «стукается» о максимум, эффект
+		   перезапускается (active в зависимостях) — отсчёт времени идёт
+		   от первого кадра, и волна всегда стартует заново от ручки. */
+		let startTimeMs = -1;
+
 		function loop(timeMs: number) {
-			drawFrame(timeMs);
+			if (startTimeMs < 0) {
+				startTimeMs = timeMs;
+			}
+			drawFrame(timeMs - startTimeMs);
 			frameId = requestAnimationFrame(loop);
 		}
 
@@ -166,15 +186,21 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 	);
 }
 
-/** Профиль плотности вдоль трека — повторяет прежний градиент маски. */
+/** Профиль плотности вдоль трека: левая четверть — чистый фон без
+    пикселей, дальше плавный набор до пика у ~72% и спад к ручке. */
 function densityProfile(xRatio: number): number {
-	if (xRatio < 0.4) {
-		/* 0 → 0.4: от 0.1 до 0.34 */
-		return 0.1 + (xRatio / 0.4) * 0.24;
+	if (xRatio < QUIET_LEFT_RATIO) {
+		/* Левая четверть — сплошной серый фон, точки не рисуются. */
+		return 0;
+	}
+	if (xRatio < 0.45) {
+		/* 0.25 → 0.45: мягкое проявление из пустоты до 0.3 */
+		const t = (xRatio - QUIET_LEFT_RATIO) / (0.45 - QUIET_LEFT_RATIO);
+		return t * t * 0.3;
 	}
 	if (xRatio < 0.72) {
-		/* 0.4 → 0.72: до пика 0.62 */
-		return 0.34 + ((xRatio - 0.4) / 0.32) * 0.28;
+		/* 0.45 → 0.72: до пика 0.62 */
+		return 0.3 + ((xRatio - 0.45) / 0.27) * 0.32;
 	}
 	if (xRatio < 0.92) {
 		/* 0.72 → 0.92: спад до 0.22 */
