@@ -3,6 +3,7 @@
 import {
 	useEffect,
 	useRef,
+	useState,
 	type CSSProperties,
 	type MouseEvent,
 	type PointerEvent,
@@ -10,6 +11,7 @@ import {
 import { Button } from "@genora/ui";
 import type { Product } from "../types";
 import styles from "./product-card.module.css";
+import { TierSlider } from "./tier-slider";
 
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
 const DOUBLE_CLICK_GRACE_MS = 220;
@@ -17,11 +19,24 @@ const DOUBLE_CLICK_GRACE_MS = 220;
 type ProductCardProps = {
 	product: Product;
 	onOpen: () => void;
-	onBuy?: () => void;
+	onBuy?: (tierIndex: number) => void;
 };
 
 export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 	const openGesture = useCardOpenGesture(onOpen);
+	/* Уровень подписки выбирается прямо на карточке — покупка доступна
+	   без захода в детальный просмотр. */
+	const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
+	const selectedTier = product.tiers[tierIndex];
+
+	/* Слайдер — интерактивная зона внутри кликабельной карточки: гасим
+	   всплытие, чтобы drag и клики по меткам не открывали детальный
+	   просмотр и не запускали жест открытия. */
+	function stopCardGesture(event: MouseEvent | PointerEvent) {
+		event.stopPropagation();
+		openGesture.clearPressStart();
+		openGesture.cancelPendingOpen();
+	}
 
 	function handleCoverClick(event: MouseEvent<HTMLButtonElement>) {
 		event.stopPropagation();
@@ -34,7 +49,7 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 		openGesture.clearPressStart();
 		openGesture.cancelPendingOpen();
 		if (onBuy) {
-			onBuy();
+			onBuy(tierIndex);
 		}
 	}
 
@@ -70,9 +85,26 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 			<div className={styles.info}>
 				<h3 className={styles.name}>{product.name}</h3>
 				<p className={styles.price}>
-					<span className={styles.amount}>{product.priceLabel}</span>
+					<span className={styles.amount}>
+						{selectedTier?.priceLabel ?? product.priceLabel}
+					</span>
 					<span className={styles.period}>в {product.periodLabel}</span>
 				</p>
+			</div>
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка только
+			    гасит всплытие к кликабельной карточке; интерактивность и
+			    клавиатурный доступ — у самого слайдера (role="slider"). */}
+			<div
+				className={styles.tierArea}
+				onPointerDown={stopCardGesture}
+				onClick={stopCardGesture}
+			>
+				<TierSlider
+					product={product}
+					tierIndex={tierIndex}
+					onTierChange={setTierIndex}
+					compact
+				/>
 			</div>
 			<Button
 				variant="primary"
