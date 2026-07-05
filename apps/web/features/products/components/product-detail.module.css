@@ -683,7 +683,7 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М������������������ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М��������������������ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
@@ -778,107 +778,35 @@
 	);
 }
 
-/* Пиксельная (дизеринг) текстура внутри заливки, как в Ultracode:
-   базовая решётка точек — постоянный чуть светлый слой (без
-   пульсации), а поверх неё в ::after — те же точки ярче, видимые
-   только сквозь дрейфующую маску. Получаются отдельные пиксели,
-   «загорающиеся» волной, а не дышащая всей плоскостью текстура. */
+/* Пиксельный шиммер (референс — Ultracode): холст на всю заливку.
+   Каждый пиксель рисуется индивидуально в canvas (tier-dither.tsx):
+   у каждой ячейки свой порог включения, фаза и скорость мерцания,
+   волна энергии идёт от ручки влево — пиксели «прощёлкиваются» в
+   порядке своих порогов, а не колоннами-полосами. CSS здесь отвечает
+   только за позиционирование и плавное проявление слоя. */
 .tierDither {
 	position: absolute;
 	inset: 0;
-	--px: 0.1875rem;
-	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 25%,
-			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 0 75%,
-			transparent 0
-		)
-		center / var(--px) var(--px);
-	/* Плотность как в референсе: слева пиксели редкие, к середине-
-	   правому краю плотнее, а у самой ручки гаснут — там сплошной
-	   светлый цвет заливки. */
-	-webkit-mask-image: linear-gradient(
-		90deg,
-		rgb(0 0 0 / 0.2) 0%,
-		rgb(0 0 0 / 0.5) 40%,
-		rgb(0 0 0 / 0.95) 72%,
-		rgb(0 0 0 / 0.35) 92%,
-		transparent 100%
-	);
-	mask-image: linear-gradient(
-		90deg,
-		rgb(0 0 0 / 0.2) 0%,
-		rgb(0 0 0 / 0.5) 40%,
-		rgb(0 0 0 / 0.95) 72%,
-		rgb(0 0 0 / 0.35) 92%,
-		transparent 100%
-	);
+	width: 100%;
+	height: 100%;
+	display: block;
 	opacity: 0;
 	transition: opacity 0.25s ease;
 	pointer-events: none;
 }
 
-/* Яркий слой тех же пикселей: волна света идёт от ручки ВЛЕВО
-   дискретными шагами по сетке — mask-position квантован steps()
-   ровно по колонкам пикселей, блоки «перещёлкиваются», а не плывут. */
-.tierDither::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 25%,
-			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 0 75%,
-			transparent 0
-		)
-		center / var(--px) var(--px);
-	/* Период полосы 4.5rem = 24 колонки пикселей по 0.1875rem. */
-	-webkit-mask-image: repeating-linear-gradient(
-		90deg,
-		transparent 0,
-		rgb(0 0 0 / 0.85) 1.5rem,
-		transparent 3rem 4.5rem
-	);
-	mask-image: repeating-linear-gradient(
-		90deg,
-		transparent 0,
-		rgb(0 0 0 / 0.85) 1.5rem,
-		transparent 3rem 4.5rem
-	);
-	opacity: 0;
-}
-
 /* Включение максимума: ручка с заливкой доезжают до края (0.16s), и
-   пиксели проявляются вместе с полоской — они клиппятся заливкой.
-   По прибытии блоки начинают перещёлкиваться влево. */
+   пиксели проявляются вместе с полоской — они клиппятся заливкой. */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
 	transition-delay: 0.1s;
 }
 
-.tierSlider[data-maxed] .tierDither::after {
-	opacity: 1;
-	animation: ditherSweep 2.8s steps(24, end) 0.26s infinite;
-}
-
-/* Сдвиг маски влево ровно на один период (4.5rem) за цикл, 24 шага —
-   по одной колонке пикселей за шаг: бесшовный блочный ход от ручки
-   к началу трека. */
-@keyframes ditherSweep {
-	from {
-		-webkit-mask-position: 0 0;
-		mask-position: 0 0;
-	}
-	to {
-		-webkit-mask-position: -4.5rem 0;
-		mask-position: -4.5rem 0;
-	}
-}
-
+/* При reduce-motion canvas сам рисует статичный кадр (без rAF);
+   приглушаем слой, чтобы неподвижная текстура не спорила с заливкой. */
 @media (prefers-reduced-motion: reduce) {
-	.tierSlider[data-maxed] .tierDither::after {
-		animation: none;
-		opacity: 0.4;
+	.tierSlider[data-maxed] .tierDither {
+		opacity: 0.5;
 	}
 }
 

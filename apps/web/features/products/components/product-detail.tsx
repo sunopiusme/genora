@@ -6,6 +6,7 @@ import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
+import { TierDither } from "./tier-dither";
 import { useMobileViewport } from "./use-mobile-viewport";
 
 const SURFACE_ELEMENT_ID = "dashboardSurface";
@@ -316,7 +317,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const committedIndexRef = useRef(tierIndex);
 	committedIndexRef.current = tierIndex;
 
-	/* Единст��енная точка записи позиции в DOM: CSS-переменная --fill
+	/* Единст��енная точка записи позиции в DOM: CSS-переменна�� --fill
 	   на корне слайдера. Транзишены управляются data-dragging. */
 	const applyFill = useCallback((ratio: number) => {
 		rootRef.current?.style.setProperty("--fill", `${ratio * 100}%`);
@@ -481,9 +482,9 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 				onKeyDown={handleKeyDown}
 			>
 				<div className={styles.tierTrackInner}>
-					<div className={styles.tierFill}>
-						<span className={styles.tierDither} />
-					</div>
+						<div className={styles.tierFill}>
+							<TierDither active={isMaxed} brandColor={product.brandColor} />
+						</div>
 					{product.tiers.map((productTier, index) => (
 						<span
 							key={productTier.id}
