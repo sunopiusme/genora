@@ -468,19 +468,21 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 				onPointerCancel={handlePointerEnd}
 				onKeyDown={handleKeyDown}
 			>
-				<div className={styles.tierFill} />
-				<span className={styles.tierDither} />
-				{product.tiers.map((productTier, index) => (
-					<span
-						key={productTier.id}
-						className={styles.tierDot}
-						style={
-							{
-								"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
-							} as React.CSSProperties
-						}
-					/>
-				))}
+				<div className={styles.tierTrackInner}>
+					<div className={styles.tierFill} />
+					<span className={styles.tierDither} />
+					{product.tiers.map((productTier, index) => (
+						<span
+							key={productTier.id}
+							className={styles.tierDot}
+							style={
+								{
+									"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
+								} as React.CSSProperties
+							}
+						/>
+					))}
+				</div>
 				<span className={styles.tierThumb} />
 			</div>
 			<div className={styles.tierStops} aria-hidden="true">

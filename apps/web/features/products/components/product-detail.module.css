@@ -683,25 +683,24 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М��������ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М����������ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
 }
 
-/* Трек как в референсе Claude Code: отчётливо видимая тёмно-серая
-   пилюля во всех состояниях (не «невидимый» фон), внутри — точки-
-   остановки и ручка заподлицо. На максимуме пилюля светлеет и
-   заполняется пиксельной текстурой. Сам трек — интерактивный slider
-   (Pointer Events из компонента); touch-action: none отдаёт жест
-   слайдеру, а не скроллу/шиту. */
+/* Трек один в один как в референсе Claude Code: утопленная ТЁМНАЯ
+   полоса, темнее фона поповера (выемка, а не светлая плашка). Ручка —
+   прямой ребёнок трека и ВЫСТУПАЕТ за его края сверху и снизу, поэтому
+   overflow здесь visible; клиппинг заливки — во внутреннем слое.
+   Сам трек — интерактивный slider (Pointer Events из компонента);
+   touch-action: none отдаёт жест слайдеру, а не скроллу/шиту. */
 .tierTrack {
 	position: relative;
 	width: 100%;
-	height: 1.75rem;
+	height: 1.375rem;
 	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.07);
-	overflow: hidden;
+	background-color: rgb(0 0 0 / 0.35);
 	transition: background-color 0.3s ease;
 	touch-action: none;
 	cursor: pointer;
@@ -713,11 +712,21 @@
 	box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.35);
 }
 
+/* Внутренний клиппинг-слой: обрезает заливку и пиксельную текстуру
+   по пилюле, не мешая ручке выступать за трек. */
+.tierTrackInner {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--radius-full);
+	overflow: hidden;
+	pointer-events: none;
+}
+
 /* Точки-остановки на позициях уровней; последняя — брендовая. */
 .tierDot {
 	position: absolute;
 	top: 50%;
-	left: clamp(0.875rem, var(--pos), calc(100% - 0.875rem));
+	left: clamp(0.625rem, var(--pos), calc(100% - 0.625rem));
 	transform: translate(-50%, -50%);
 	width: 0.1875rem;
 	height: 0.1875rem;
@@ -862,19 +871,18 @@
 	}
 }
 
-/* Ручка заподлицо с пилюлей, как в референсе: заполняет всю высоту
-   трека с волосяным зазором 2px, скругление повторяет пилюлю —
-   читается как единый механический узел, а не плавающий элемент. */
+/* Ручка как в референсе: серая скруглённая плашка ВЫШЕ трека —
+   выступает за его края сверху и снизу на 3px. */
 .tierThumb {
 	position: absolute;
-	top: 2px;
-	bottom: 2px;
-	/* clamp держит ручку внутри пилюли на обоих краях. */
-	left: clamp(0.8125rem, var(--fill), calc(100% - 0.8125rem));
+	top: -3px;
+	bottom: -3px;
+	/* clamp держит ручку в пределах трека по горизонтали. */
+	left: clamp(0.625rem, var(--fill), calc(100% - 0.625rem));
 	transform: translateX(-50%);
-	width: 1.375rem;
-	border-radius: calc(0.875rem - 2px);
-	background-color: rgb(178 178 182);
+	width: 1.25rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(152 152 158);
 	/* Примагничивание при отпускании: короткий равномерный доезд —
 	   механика, а не пружина. Цвет — той же длительностью, что и
 	   остальные кроссфейды. */
