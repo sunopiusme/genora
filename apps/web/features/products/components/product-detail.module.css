@@ -578,6 +578,137 @@
 	color: var(--color-foreground-muted);
 }
 
+/* Слайдер уровня подписки (по мотивам Effort-слайдера Claude Code):
+   градиентный трек в брендовом цвете товара, дискретные остановки-тиры. */
+.tierSlider {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	margin-top: var(--space-5);
+	padding: var(--space-4) var(--space-5);
+	border-radius: var(--radius-xl);
+	background-color: rgb(255 255 255 / 0.04);
+	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+
+.tierEdges {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+}
+
+.tierRange {
+	appearance: none;
+	-webkit-appearance: none;
+	width: 100%;
+	height: 1.75rem;
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+	/* Не даём вертикальному свайпу по слайдеру утаскивать шит вниз. */
+	touch-action: none;
+}
+
+.tierRange:focus-visible {
+	outline: none;
+}
+
+.tierRange::-webkit-slider-runnable-track {
+	height: 0.625rem;
+	border-radius: var(--radius-full);
+	background:
+		linear-gradient(
+				90deg,
+				color-mix(in srgb, var(--brand) 55%, transparent),
+				var(--brand) var(--fill),
+				rgb(255 255 255 / 0.1) var(--fill)
+			)
+			no-repeat;
+}
+
+.tierRange::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	width: 1.375rem;
+	height: 1.375rem;
+	margin-top: -0.375rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: #ffffff;
+	box-shadow:
+		0 1px 4px rgb(0 0 0 / 0.45),
+		0 0 0 1px rgb(0 0 0 / 0.08);
+	transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tierRange:active::-webkit-slider-thumb {
+	transform: scale(1.1);
+}
+
+.tierRange::-moz-range-track {
+	height: 0.625rem;
+	border-radius: var(--radius-full);
+	background: rgb(255 255 255 / 0.1);
+}
+
+.tierRange::-moz-range-progress {
+	height: 0.625rem;
+	border-radius: var(--radius-full);
+	background: linear-gradient(
+		90deg,
+		color-mix(in srgb, var(--brand) 55%, transparent),
+		var(--brand)
+	);
+}
+
+.tierRange::-moz-range-thumb {
+	width: 1.375rem;
+	height: 1.375rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: #ffffff;
+	box-shadow:
+		0 1px 4px rgb(0 0 0 / 0.45),
+		0 0 0 1px rgb(0 0 0 / 0.08);
+}
+
+.tierRange:focus-visible::-webkit-slider-thumb {
+	box-shadow:
+		0 1px 4px rgb(0 0 0 / 0.45),
+		0 0 0 2px var(--brand);
+}
+
+/* Названия тиров под треком — кликабельные остановки. */
+.tierStops {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.tierStop {
+	padding: 0.125rem 0.5rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background: transparent;
+	font-family: var(--font-sans);
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+	cursor: pointer;
+	transition:
+		color 0.15s ease,
+		background-color 0.15s ease;
+}
+
+.tierStopActive {
+	composes: tierStop;
+	background-color: rgb(255 255 255 / 0.1);
+	color: var(--color-foreground);
+	font-weight: var(--weight-semibold);
+}
+
 /* Скруглённая карточка цены вместо линии-разделителя: спокойная
    плашка в общем языке скруглений шита. */
 .priceCard {
@@ -585,7 +716,7 @@
 	align-items: center;
 	justify-content: space-between;
 	gap: var(--space-3);
-	margin-top: var(--space-5);
+	margin-top: var(--space-2);
 	padding: var(--space-4) var(--space-5);
 	border-radius: var(--radius-xl);
 	background-color: rgb(255 255 255 / 0.04);

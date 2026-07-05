@@ -161,20 +161,37 @@ type ProductPanelProps = {
 };
 
 function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
+	const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
+	const tier = product.tiers[tierIndex] ?? product.tiers[0];
+	const hasTiers = product.tiers.length > 1;
+
 	return (
 		<div className={styles.content}>
 			<div className={styles.heading}>
 				<p className={styles.eyebrow}>{product.provider}</p>
 				<h2 id="product-detail-title" className={styles.name}>
 					{product.name}
+					{tier ? ` ${tier.name}` : ""}
 				</h2>
 			</div>
-			<p className={styles.description}>{product.description}</p>
+			<p className={styles.description}>
+				{tier?.description ?? product.description}
+			</p>
+
+			{hasTiers && tier && (
+				<TierSlider
+					product={product}
+					tierIndex={tierIndex}
+					onTierChange={setTierIndex}
+				/>
+			)}
 
 			<div className={styles.priceCard}>
 				<span className={styles.priceCaption}>Подписка</span>
 				<p className={styles.priceRow}>
-					<span className={styles.amount}>{product.priceLabel}</span>
+					<span className={styles.amount}>
+						{tier?.priceLabel ?? product.priceLabel}
+					</span>
 					<span className={styles.period}>{product.periodLabel}</span>
 				</p>
 			</div>
@@ -191,6 +208,69 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 					<Icon icon="solar:chat-round-line-linear" aria-hidden="true" />
 					Обсудить товар
 				</button>
+			</div>
+		</div>
+	);
+}
+
+type TierSliderProps = {
+	product: Product;
+	tierIndex: number;
+	onTierChange: (index: number) => void;
+};
+
+/* Дискретный слайдер уровня подписки в духе слайдера Effort из
+   Claude Code: подписи по краям, градиентный трек в брендовом цвете,
+   выбранный уровень отражается в заголовке товара. */
+function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
+	const maxIndex = product.tiers.length - 1;
+	const fillRatio = maxIndex > 0 ? tierIndex / maxIndex : 0;
+	const currentTier = product.tiers[tierIndex];
+
+	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+		onTierChange(Number(event.target.value));
+	}
+
+	return (
+		<div
+			className={styles.tierSlider}
+			style={
+				{
+					"--brand": product.brandColor,
+					"--brand-glow": product.brandGlow,
+					"--fill": `${fillRatio * 100}%`,
+				} as React.CSSProperties
+			}
+		>
+			<div className={styles.tierEdges} aria-hidden="true">
+				<span>Базовый</span>
+				<span>Максимум</span>
+			</div>
+			<input
+				type="range"
+				className={styles.tierRange}
+				min={0}
+				max={maxIndex}
+				step={1}
+				value={tierIndex}
+				onChange={handleChange}
+				aria-label="Уровень подписки"
+				aria-valuetext={currentTier?.name}
+			/>
+			<div className={styles.tierStops} aria-hidden="true">
+				{product.tiers.map((productTier, index) => (
+					<button
+						key={productTier.id}
+						type="button"
+						tabIndex={-1}
+						className={
+							index === tierIndex ? styles.tierStopActive : styles.tierStop
+						}
+						onClick={() => onTierChange(index)}
+					>
+						{productTier.name}
+					</button>
+				))}
 			</div>
 		</div>
 	);
@@ -257,7 +337,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 				type="button"
 				className={shareButtonClassName}
 				onClick={handleShareButtonClick}
-				aria-label="Поделиться"
+				aria-label="Под��литься"
 				title="Поделиться"
 				aria-haspopup="true"
 				aria-expanded={isOpen}
@@ -518,7 +598,7 @@ function useSurfaceFocus(elementId: string) {
 	}, [elementId]);
 }
 
-/* Блокируем прокрутку страницы за шитом, пока он открыт. */
+/* Блокируем прокрутку страницы за шитом, пока он от��рыт. */
 function useBodyScrollLock() {
 	useEffect(() => {
 		const previousOverflow = document.body.style.overflow;
