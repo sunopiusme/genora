@@ -8,7 +8,6 @@ export default function LoginPage() {
   return (
     <main className={styles.main}>
       <section className={styles.brand}>
-        <div className={styles.brandGrid} aria-hidden="true" />
         <Logo className={styles.logo} />
 
         <div className={styles.brandBottom}>

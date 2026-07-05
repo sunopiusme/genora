@@ -26,10 +26,6 @@
   pointer-events: none;
 }
 
-.brandGrid {
-  display: none;
-}
-
 .logo {
   position: relative;
   align-self: center;
@@ -84,9 +80,14 @@
     text-align: left;
     border-right: 1px solid var(--color-border);
     background: radial-gradient(
-        90% 75% at 14% 10%,
-        rgb(255 255 255 / 0.06),
-        transparent 52%
+        80% 65% at 16% 8%,
+        rgb(255 255 255 / 0.1),
+        transparent 55%
+      ),
+      radial-gradient(
+        70% 60% at 82% 88%,
+        rgb(255 255 255 / 0.04),
+        transparent 60%
       ),
       radial-gradient(
         120% 120% at 90% 100%,
@@ -99,25 +100,6 @@
         var(--neutral-950) 46%,
         var(--neutral-1000) 100%
       );
-  }
-
-  .brandGrid {
-    display: block;
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-        rgb(255 255 255 / 0.03) 1px,
-        transparent 1px
-      ),
-      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
-    background-size: 3rem 3rem;
-    -webkit-mask-image: radial-gradient(
-      78% 72% at 16% 12%,
-      #000,
-      transparent 78%
-    );
-    mask-image: radial-gradient(78% 72% at 16% 12%, #000, transparent 78%);
-    pointer-events: none;
   }
 
   .logo {
