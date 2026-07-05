@@ -2,6 +2,7 @@
 
 import { Avatar } from "@genora/ui";
 import { PROFILE } from "@/lib/profile";
+import { getBrandLogoCssUrl } from "../brand-logos";
 import { getFeaturedProducts } from "../queries/featured-products";
 import type { Product } from "../types";
 import styles from "./mention-menu.module.css";
@@ -108,7 +109,7 @@ export function MentionMenu({
 										className={styles.itemLogo}
 										style={
 											{
-												"--logo-url": `url(/brands/${item.logoSlug}.svg)`,
+												"--logo-url": getBrandLogoCssUrl(item.logoSlug ?? ""),
 											} as React.CSSProperties
 										}
 									/>
