@@ -1,4 +1,4 @@
-import type { Product } from "../types";
+import type { Product } from "./types";
 
 const FEATURED_PRODUCTS: Product[] = [
   {

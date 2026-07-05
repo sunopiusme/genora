@@ -2,7 +2,7 @@ import { forwardRef, type SVGProps } from "react";
 import { cn } from "../../lib/cn";
 import styles from "./logo.module.css";
 
-export interface LogoProps extends SVGProps<SVGSVGElement> {}
+export type LogoProps = SVGProps<SVGSVGElement>;
 
 export const Logo = forwardRef<SVGSVGElement, LogoProps>(function Logo(
   { className, width = "2rem", height = "2rem", ...props },

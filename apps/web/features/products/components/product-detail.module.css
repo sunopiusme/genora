@@ -1,749 +1,725 @@
 .overlay {
-	/* fixed на body (как у профиля): шит живёт в собственном слое и не
-	   зависит от трансформаций/скролла поверхности дашборда. */
-	position: fixed;
-	inset: 0;
-	z-index: 60;
-	display: flex;
-	padding: var(--space-6);
-	background-color: rgb(0 0 0 / 0.72);
-	backdrop-filter: blur(10px);
-	-webkit-backdrop-filter: blur(10px);
-	overflow-y: auto;
-	animation: overlayIn 0.2s ease both;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  padding: var(--space-6);
+  background-color: rgb(0 0 0 / 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow-y: auto;
+  animation: overlayIn 0.2s ease both;
 }
 
 .panel {
-	position: relative;
-	width: 100%;
-	max-width: 46rem;
-	max-height: calc(100dvh - 3rem);
-	margin: auto;
-	border-radius: var(--radius-3xl);
-	background-color: var(--color-surface);
-	border: 1px solid rgb(255 255 255 / 0.12);
-	box-shadow:
-		inset 0 1px 0 rgb(255 255 255 / 0.06),
-		0 24px 64px -20px rgb(0 0 0 / 0.8),
-		0 8px 24px -12px rgb(0 0 0 / 0.55);
-	overflow: hidden;
-	outline: none;
-	animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+  position: relative;
+  width: 100%;
+  max-width: 46rem;
+  max-height: calc(100dvh - 3rem);
+  margin: auto;
+  border-radius: var(--radius-3xl);
+  background-color: var(--color-surface);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.06),
+    0 24px 64px -20px rgb(0 0 0 / 0.8),
+    0 8px 24px -12px rgb(0 0 0 / 0.55);
+  overflow: hidden;
+  outline: none;
+  animation: panelIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 @keyframes overlayIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes panelIn {
-	from {
-		opacity: 0;
-		transform: scale(0.97) translateY(0.625rem);
-	}
-	to {
-		opacity: 1;
-		transform: scale(1) translateY(0);
-	}
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(0.625rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 @keyframes sheetIn {
-	from {
-		transform: translateY(100%);
-	}
-	to {
-		transform: translateY(0);
-	}
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 .panelDragging {
-	composes: panel;
-	animation: none;
-	transition: none;
+  composes: panel;
+  animation: none;
+  transition: none;
 }
 
 .panelSettling {
-	composes: panel;
-	animation: none;
+  composes: panel;
+  animation: none;
 }
 
-/* «Спокойное» состояние после первого перетаскивания: без entry-анимации,
-   иначе возврат к .panel заново проигрывал бы sheetIn/panelIn. */
 .panelRested {
-	composes: panel;
-	animation: none;
+  composes: panel;
+  animation: none;
 }
 
 @keyframes overlayOut {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes panelOut {
-	from {
-		opacity: 1;
-		transform: scale(1);
-	}
-	to {
-		opacity: 0;
-		transform: scale(0.98);
-	}
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
 }
 
 @keyframes sheetOut {
-	to {
-		transform: translateY(100%);
-	}
+  to {
+    transform: translateY(100%);
+  }
 }
 
 .overlayClosing {
-	animation: overlayOut 0.14s ease-out both;
-	pointer-events: none;
+  animation: overlayOut 0.14s ease-out both;
+  pointer-events: none;
 }
 
 .panelClosing {
-	composes: panel;
-	animation: panelOut 0.12s ease-out both;
-	transition: none;
+  composes: panel;
+  animation: panelOut 0.12s ease-out both;
+  transition: none;
 }
 
 @media (max-width: 47.9375rem) {
-	.overlay {
-		padding: 0;
-		align-items: flex-end;
-		overflow: hidden;
-		background: none;
-		backdrop-filter: none;
-		-webkit-backdrop-filter: none;
-		animation: none;
-	}
+  .overlay {
+    padding: 0;
+    align-items: flex-end;
+    overflow: hidden;
+    background: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    animation: none;
+  }
 
-	.overlay::before {
-		content: "";
-		position: absolute;
-		inset: 0;
-		background-color: rgb(0 0 0 / 0.55);
-		animation: overlayIn 0.45s ease-out both;
-		pointer-events: none;
-	}
+  .overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-color: rgb(0 0 0 / 0.55);
+    animation: overlayIn 0.45s ease-out both;
+    pointer-events: none;
+  }
 
-	/* Открытие — чистая animation без transition (как у profile-sheet):
-	   постоянный transition на transform конфликтовал с sheetIn и
-	   подгрузкой ассетов — на iOS шит дёргался при открытии. */
-	.panel {
-		margin: auto 0 0;
-		max-width: none;
-		max-height: calc(100dvh - 3rem);
-		display: flex;
-		flex-direction: column;
-		border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
-		border-bottom: none;
-		overflow: hidden;
-		will-change: transform;
-		animation: sheetIn 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
-	}
+  .panel {
+    margin: auto 0 0;
+    max-width: none;
+    max-height: calc(100dvh - 3rem);
+    display: flex;
+    flex-direction: column;
+    border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+    border-bottom: none;
+    overflow: hidden;
+    will-change: transform;
+    animation: sheetIn 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
+  }
 
-	.panelDragging {
-		animation: none;
-		transition: none;
-	}
+  .panelDragging {
+    animation: none;
+    transition: none;
+  }
 
-	/* Возврат после незавершённого свайпа: transition включается только
-	   на эту короткую фазу, когда entry-анимация уже давно завершена. */
-	.panelSettling {
-		animation: none;
-		transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
-	}
+  .panelSettling {
+    animation: none;
+    transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+  }
 
-	/* После взаимодействия шит стоит на месте — никаких анимаций. */
-	.panelRested {
-		animation: none;
-	}
+  .panelRested {
+    animation: none;
+  }
 
-	.overlayClosing.overlayClosing {
-		animation: none;
-		opacity: 1;
-	}
+  .overlayClosing.overlayClosing {
+    animation: none;
+    opacity: 1;
+  }
 
-	.overlayClosing::before {
-		animation: overlayOut 0.28s ease both;
-	}
+  .overlayClosing::before {
+    animation: overlayOut 0.28s ease both;
+  }
 
-	.panelClosing.panelClosing {
-		animation: sheetOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
-		transition: none;
-	}
+  .panelClosing.panelClosing {
+    animation: sheetOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
+    transition: none;
+  }
 
-	.body {
-		overflow-y: auto;
-		overscroll-behavior: contain;
-		touch-action: pan-y;
-		padding-bottom: env(safe-area-inset-bottom);
-		min-height: 0;
-	}
+  .body {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+    padding-bottom: env(safe-area-inset-bottom);
+    min-height: 0;
+  }
 
-	.grabber {
-		display: block;
-	}
+  .grabber {
+    display: block;
+  }
 
-	.controls.controls {
-		right: auto;
-		left: 0;
-		width: 100%;
-		justify-content: space-between;
-		padding: var(--space-3);
-		top: 0;
-	}
+  .controls.controls {
+    right: auto;
+    left: 0;
+    width: 100%;
+    justify-content: space-between;
+    padding: var(--space-3);
+    top: 0;
+  }
 
-	/* На мобильном кнопки того же размера, что круглая кнопка хедера. */
-	.iconButton {
-		width: 2.75rem;
-		height: 2.75rem;
-		font-size: 1.25rem;
-	}
+  .iconButton {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.25rem;
+  }
 
-	.controls::before {
-		content: "";
-		position: absolute;
-		inset: 0 0 auto 0;
-		height: 4.5rem;
-		background: linear-gradient(
-			to bottom,
-			rgb(0 0 0 / 0.72),
-			rgb(0 0 0 / 0.715) 8.1%,
-			rgb(0 0 0 / 0.7) 15.5%,
-			rgb(0 0 0 / 0.676) 22.5%,
-			rgb(0 0 0 / 0.639) 29%,
-			rgb(0 0 0 / 0.592) 35.3%,
-			rgb(0 0 0 / 0.535) 41.2%,
-			rgb(0 0 0 / 0.472) 47.1%,
-			rgb(0 0 0 / 0.402) 52.9%,
-			rgb(0 0 0 / 0.328) 58.8%,
-			rgb(0 0 0 / 0.253) 64.7%,
-			rgb(0 0 0 / 0.18) 71%,
-			rgb(0 0 0 / 0.113) 77.5%,
-			rgb(0 0 0 / 0.057) 84.5%,
-			rgb(0 0 0 / 0.016) 91.9%,
-			transparent 100%
-		);
-		opacity: 0;
-		transition: opacity 0.3s ease;
-		pointer-events: none;
-		z-index: -1;
-	}
+  .controls::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 4.5rem;
+    background: linear-gradient(
+      to bottom,
+      rgb(0 0 0 / 0.72),
+      rgb(0 0 0 / 0.715) 8.1%,
+      rgb(0 0 0 / 0.7) 15.5%,
+      rgb(0 0 0 / 0.676) 22.5%,
+      rgb(0 0 0 / 0.639) 29%,
+      rgb(0 0 0 / 0.592) 35.3%,
+      rgb(0 0 0 / 0.535) 41.2%,
+      rgb(0 0 0 / 0.472) 47.1%,
+      rgb(0 0 0 / 0.402) 52.9%,
+      rgb(0 0 0 / 0.328) 58.8%,
+      rgb(0 0 0 / 0.253) 64.7%,
+      rgb(0 0 0 / 0.18) 71%,
+      rgb(0 0 0 / 0.113) 77.5%,
+      rgb(0 0 0 / 0.057) 84.5%,
+      rgb(0 0 0 / 0.016) 91.9%,
+      transparent 100%
+    );
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
 
-	.controlsScrolled::before {
-		opacity: 1;
-	}
+  .controlsScrolled::before {
+    opacity: 1;
+  }
 
-	.shareMenu {
-		right: auto;
-		left: 0;
-		transform-origin: top left;
-	}
-
+  .shareMenu {
+    right: auto;
+    left: 0;
+    transform-origin: top left;
+  }
 }
 
-/* Ручка-грабер как у системных iOS-шитов; на десктопе скрыта. */
 .grabber {
-	display: none;
-	position: absolute;
-	top: 0.5rem;
-	left: 50%;
-	transform: translateX(-50%);
-	width: 2.25rem;
-	height: 0.3125rem;
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.28);
-	z-index: 4;
-	pointer-events: none;
+  display: none;
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2.25rem;
+  height: 0.3125rem;
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.28);
+  z-index: 4;
+  pointer-events: none;
 }
 
 .controls {
-	position: absolute;
-	top: var(--space-3);
-	right: var(--space-3);
-	display: flex;
-	align-items: center;
-	gap: var(--space-2);
-	z-index: 3;
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  z-index: 3;
 }
 
 .actionGroup {
-	position: relative;
-	display: inline-flex;
+  position: relative;
+  display: inline-flex;
 }
 
-/* Круглые кнопки в стиле кнопки хедера (mobileFab): бордер, surface-фон,
-   мягкая тень — единый язык управляющих элементов приложения. */
 .iconButton {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	width: 2.5rem;
-	height: 2.5rem;
-	padding: 0;
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-full);
-	background-color: var(--color-surface);
-	color: var(--color-foreground);
-	cursor: pointer;
-	font-size: 1.125rem;
-	box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
-	transition:
-		color 0.15s ease,
-		background-color 0.15s ease,
-		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface);
+  color: var(--color-foreground);
+  cursor: pointer;
+  font-size: 1.125rem;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .iconButton svg * {
-	stroke-width: 1.8;
+  stroke-width: 1.8;
 }
 
 .iconButton:active {
-	transform: scale(0.96);
+  transform: scale(0.96);
 }
 
 .iconButton:hover {
-	background-color: var(--color-surface-elevated);
+  background-color: var(--color-surface-elevated);
 }
 
 .iconButton:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 2px var(--color-border-strong);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .iconButtonActive {
-	composes: iconButton;
-	background-color: var(--color-surface-elevated);
+  composes: iconButton;
+  background-color: var(--color-surface-elevated);
 }
 
 .shareMenu {
-	position: absolute;
-	top: calc(100% + 0.5rem);
-	right: 0;
-	display: flex;
-	align-items: center;
-	gap: 0.25rem;
-	padding: 0.25rem;
-	border-radius: var(--radius-full);
-	background-color: rgb(32 32 36 / 0.98);
-	box-shadow:
-		0 0 0 1px rgb(255 255 255 / 0.08),
-		0 24px 48px -16px rgb(0 0 0 / 0.6),
-		0 4px 12px -6px rgb(0 0 0 / 0.45);
-	white-space: nowrap;
-	z-index: 4;
-	animation: menuIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-	transform-origin: top right;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-full);
+  background-color: rgb(32 32 36 / 0.98);
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 24px 48px -16px rgb(0 0 0 / 0.6),
+    0 4px 12px -6px rgb(0 0 0 / 0.45);
+  white-space: nowrap;
+  z-index: 4;
+  animation: menuIn 0.22s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  transform-origin: top right;
 }
 
 @keyframes menuIn {
-	from {
-		opacity: 0;
-		transform: scale(0.85) translateY(-0.25rem);
-	}
-	to {
-		opacity: 1;
-		transform: scale(1) translateY(0);
-	}
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(-0.25rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .shareItem {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	height: 2rem;
-	padding: 0 0.75rem 0 0.625rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background: none;
-	font-family: var(--font-sans);
-	text-align: left;
-	color: var(--color-foreground);
-	cursor: pointer;
-	transition: background-color 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: 2rem;
+  padding: 0 0.75rem 0 0.625rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  font-family: var(--font-sans);
+  text-align: left;
+  color: var(--color-foreground);
+  cursor: pointer;
+  transition: background-color 0.12s ease;
 }
 
 .shareItem:hover {
-	background-color: rgb(255 255 255 / 0.08);
+  background-color: rgb(255 255 255 / 0.08);
 }
 
 .shareItem:active {
-	background-color: rgb(255 255 255 / 0.12);
+  background-color: rgb(255 255 255 / 0.12);
 }
 
 .shareItem:focus-visible {
-	outline: none;
-	background-color: rgb(255 255 255 / 0.08);
+  outline: none;
+  background-color: rgb(255 255 255 / 0.08);
 }
 
 .shareItemLabel {
-	font-size: var(--text-sm);
-	font-weight: var(--weight-medium);
-	line-height: 1.2;
-	color: var(--color-foreground);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: 1.2;
+  color: var(--color-foreground);
 }
 
 .shareItemGlyph {
-	display: inline-flex;
-	flex-shrink: 0;
-	color: var(--color-foreground);
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--color-foreground);
 }
 
 .shareItemGlyph svg {
-	width: 1rem;
-	height: 1rem;
+  width: 1rem;
+  height: 1rem;
 }
 
 .shareItemGlyph svg * {
-	stroke-width: 1.8;
+  stroke-width: 1.8;
 }
 
 .shareItemGlyphSuccess {
-	composes: shareItemGlyph;
-	color: var(--color-success);
+  composes: shareItemGlyph;
+  color: var(--color-success);
 }
 
 .body {
-	min-height: 0;
+  min-height: 0;
 }
 
 .layout {
-	display: grid;
-	grid-template-columns: 1fr;
-	width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
 }
 
 .hero {
-	position: relative;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-height: 14rem;
-	padding: var(--space-6);
-	overflow: hidden;
-	background:
-		radial-gradient(
-			95% 46% at 30% 108%,
-			color-mix(in srgb, var(--brand) 42%, transparent),
-			transparent 72%
-		),
-		radial-gradient(
-			90% 52% at 74% 112%,
-			color-mix(in srgb, var(--brand-glow) 34%, transparent),
-			transparent 74%
-		),
-		radial-gradient(
-			140% 60% at 50% 118%,
-			color-mix(in srgb, var(--brand-glow) 14%, transparent),
-			transparent 80%
-		),
-		#060607;
-	box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 14rem;
+  padding: var(--space-6);
+  overflow: hidden;
+  background: radial-gradient(
+      95% 46% at 30% 108%,
+      color-mix(in srgb, var(--brand) 42%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(
+      90% 52% at 74% 112%,
+      color-mix(in srgb, var(--brand-glow) 34%, transparent),
+      transparent 74%
+    ),
+    radial-gradient(
+      140% 60% at 50% 118%,
+      color-mix(in srgb, var(--brand-glow) 14%, transparent),
+      transparent 80%
+    ),
+    #060607;
+  box-shadow: inset 0 -1px 0 rgb(255 255 255 / 0.07);
 }
 
 .hero::before {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-	opacity: 0.05;
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  pointer-events: none;
 }
 
 .hero::after {
-	content: "";
-	position: absolute;
-	inset: 0;
-	background: radial-gradient(
-		110% 105% at 50% 40%,
-		transparent 50%,
-		rgb(0 0 0 / 0.48)
-	);
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    110% 105% at 50% 40%,
+    transparent 50%,
+    rgb(0 0 0 / 0.48)
+  );
+  pointer-events: none;
 }
 
 .heroLogoTile {
-	position: relative;
-	z-index: 1;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 6.75rem;
-	aspect-ratio: 1;
-	transform: translateY(-16%);
-	border-radius: 27.5%;
-	background: linear-gradient(
-		180deg,
-		rgb(255 255 255 / 0.1),
-		rgb(255 255 255 / 0.02)
-	);
-	box-shadow:
-		inset 0 1px 0 rgb(255 255 255 / 0.16),
-		inset 0 0 0 1px rgb(255 255 255 / 0.07),
-		0 28px 60px -14px
-			color-mix(
-				in srgb,
-				color-mix(in srgb, var(--brand) 55%, var(--brand-glow)) 48%,
-				rgb(0 0 0 / 0.5)
-			),
-		0 4px 12px -6px rgb(0 0 0 / 0.5);
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 6.75rem;
+  aspect-ratio: 1;
+  transform: translateY(-16%);
+  border-radius: 27.5%;
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.1),
+    rgb(255 255 255 / 0.02)
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.16),
+    inset 0 0 0 1px rgb(255 255 255 / 0.07),
+    0 28px 60px -14px
+      color-mix(
+        in srgb,
+        color-mix(in srgb, var(--brand) 55%, var(--brand-glow)) 48%,
+        rgb(0 0 0 / 0.5)
+      ),
+    0 4px 12px -6px rgb(0 0 0 / 0.5);
 }
 
 .heroLogo {
-	width: 54%;
-	aspect-ratio: 1;
-	background-color: var(--color-foreground);
-	-webkit-mask: var(--logo-url) no-repeat center / contain;
-	mask: var(--logo-url) no-repeat center / contain;
+  width: 54%;
+  aspect-ratio: 1;
+  background-color: var(--color-foreground);
+  -webkit-mask: var(--logo-url) no-repeat center / contain;
+  mask: var(--logo-url) no-repeat center / contain;
 }
 
-/* Mirrored copy of the tile on the "glossy floor" below it */
 .heroReflection {
-	position: absolute;
-	top: calc(100% + 5%);
-	left: 0;
-	width: 100%;
-	height: 100%;
-	border-radius: 27.5%;
-	transform: scaleY(-1);
-	background: linear-gradient(
-		180deg,
-		rgb(255 255 255 / 0.1),
-		rgb(255 255 255 / 0.02)
-	);
-	opacity: 0.3;
-	filter: blur(2px);
-	-webkit-mask-image: linear-gradient(to top, #000 4%, transparent 62%);
-	mask-image: linear-gradient(to top, #000 4%, transparent 62%);
-	pointer-events: none;
+  position: absolute;
+  top: calc(100% + 5%);
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 27.5%;
+  transform: scaleY(-1);
+  background: linear-gradient(
+    180deg,
+    rgb(255 255 255 / 0.1),
+    rgb(255 255 255 / 0.02)
+  );
+  opacity: 0.3;
+  filter: blur(2px);
+  -webkit-mask-image: linear-gradient(to top, #000 4%, transparent 62%);
+  mask-image: linear-gradient(to top, #000 4%, transparent 62%);
+  pointer-events: none;
 }
 
 .heroReflection::after {
-	content: "";
-	position: absolute;
-	inset: 23%;
-	background-color: var(--color-foreground);
-	-webkit-mask: var(--logo-url) no-repeat center / contain;
-	mask: var(--logo-url) no-repeat center / contain;
+  content: "";
+  position: absolute;
+  inset: 23%;
+  background-color: var(--color-foreground);
+  -webkit-mask: var(--logo-url) no-repeat center / contain;
+  mask: var(--logo-url) no-repeat center / contain;
 }
 
 .content {
-	display: flex;
-	flex-direction: column;
-	padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-6);
 }
 
 .heading {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-1);
-	margin-bottom: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
 }
 
 .eyebrow {
-	margin: 0;
-	font-size: var(--text-xs);
-	font-weight: var(--weight-semibold);
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--color-foreground-subtle);
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-foreground-subtle);
 }
 
 .name {
-	margin: 0;
-	font-size: var(--text-2xl);
-	font-weight: var(--weight-semibold);
-	line-height: var(--leading-lg);
-	letter-spacing: -0.02em;
-	color: var(--color-foreground);
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-lg);
+  letter-spacing: -0.02em;
+  color: var(--color-foreground);
 }
 
-/* Слот селектора уровня: сам селектор (триггер + меню со слайдером)
-   теперь общий компонент tier-selector.tsx; здесь только отступ в
-   ритме модалки. */
 .tierSelectorSlot {
-	margin-top: var(--space-5);
+  margin-top: var(--space-5);
 }
 
-/* Скруглённая карточка цены вместо линии-разделителя: спокойная
-   плашка в общем языке скруглений шита. */
 .priceCard {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	gap: var(--space-3);
-	margin-top: var(--space-2);
-	padding: var(--space-4) var(--space-5);
-	border-radius: var(--radius-xl);
-	background-color: rgb(255 255 255 / 0.04);
-	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-xl);
+  background-color: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
 }
 
 .priceCaption {
-	font-size: var(--text-sm);
-	font-weight: var(--weight-medium);
-	color: var(--color-foreground-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-muted);
 }
 
 .priceRow {
-	margin: 0;
-	display: flex;
-	align-items: baseline;
-	gap: var(--space-1);
-	white-space: nowrap;
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  white-space: nowrap;
 }
 
 .amount {
-	font-size: var(--text-xl);
-	font-weight: var(--weight-semibold);
-	letter-spacing: -0.01em;
-	font-variant-numeric: tabular-nums;
-	color: var(--color-foreground);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-foreground);
 }
 
 .period {
-	font-size: var(--text-sm);
-	color: var(--color-foreground-subtle);
+  font-size: var(--text-sm);
+  color: var(--color-foreground-subtle);
 }
 
 .actions {
-	display: flex;
-	flex-direction: column;
-	gap: var(--space-2);
-	margin-top: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
 }
 
 .primaryAction {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-2);
-	height: 3rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background-color: var(--color-primary);
-	color: var(--color-primary-foreground);
-	font-family: var(--font-sans);
-	font-size: var(--text-sm);
-	font-weight: var(--weight-semibold);
-	cursor: pointer;
-	box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
-	transition:
-		background-color 0.15s ease,
-		box-shadow 0.2s ease,
-		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 3rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .primaryAction:hover {
-	background-color: var(--neutral-200);
-	box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
+  background-color: var(--neutral-200);
+  box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
 }
 
 .primaryAction:active {
-	transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .primaryAction:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 2px var(--color-border-strong);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
-/* «Тихая» вторичная кнопка в том же языке, что кнопка «Купить» на
-   карточках витрины: полупрозрачная плашка без бордера. */
 .secondaryAction {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--space-2);
-	height: 3rem;
-	border: none;
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.08);
-	color: var(--color-foreground);
-	font-family: var(--font-sans);
-	font-size: var(--text-sm);
-	font-weight: var(--weight-semibold);
-	cursor: pointer;
-	transition:
-		background-color 0.15s ease,
-		transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 3rem;
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.08);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .secondaryAction:hover {
-	background-color: rgb(255 255 255 / 0.1);
+  background-color: rgb(255 255 255 / 0.1);
 }
 
 .secondaryAction:active {
-	transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 .secondaryAction:focus-visible {
-	outline: none;
-	box-shadow: 0 0 0 2px var(--color-border-strong);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .secondaryAction svg {
-	width: 1.05rem;
-	height: 1.05rem;
+  width: 1.05rem;
+  height: 1.05rem;
 }
 
 @media (min-width: 52rem) {
-	.layout {
-		grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
-		align-items: stretch;
-	}
+  .layout {
+    grid-template-columns: minmax(0, 19rem) minmax(0, 1fr);
+    align-items: stretch;
+  }
 
-	.hero {
-		min-height: 24rem;
-		padding: var(--space-8);
-		box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.07);
-	}
+  .hero {
+    min-height: 24rem;
+    padding: var(--space-8);
+    box-shadow: inset -1px 0 0 rgb(255 255 255 / 0.07);
+  }
 
-	.heroLogoTile {
-		width: 8.25rem;
-	}
+  .heroLogoTile {
+    width: 8.25rem;
+  }
 
-	.content {
-		padding: var(--space-10) var(--space-8);
-		justify-content: center;
-	}
+  .content {
+    padding: var(--space-10) var(--space-8);
+    justify-content: center;
+  }
 
-	.amount {
-		font-size: var(--text-2xl);
-	}
+  .amount {
+    font-size: var(--text-2xl);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.overlay,
-	.overlay::before,
-	.panel,
-	.shareMenu {
-		animation: none;
-	}
+  .overlay,
+  .overlay::before,
+  .panel,
+  .shareMenu {
+    animation: none;
+  }
 
-	.panel {
-		transform: none;
-		transition: none;
-	}
+  .panel {
+    transform: none;
+    transition: none;
+  }
 
-	.overlayClosing,
-	.overlayClosing::before {
-		animation: none;
-		opacity: 0;
-	}
+  .overlayClosing,
+  .overlayClosing::before {
+    animation: none;
+    opacity: 0;
+  }
 
-	.panelClosing.panelClosing {
-		animation: none;
-		opacity: 0;
-	}
+  .panelClosing.panelClosing {
+    animation: none;
+    opacity: 0;
+  }
 }

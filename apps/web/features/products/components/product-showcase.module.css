@@ -1,19 +1,17 @@
 .showcase {
-	width: 100%;
+  width: 100%;
 }
 
 .grid {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	/* Плотная мобильная сетка: узкий межколоночный зазор, ряды
-	   разделены умеренно — карточки читаются как единый каталог. */
-	gap: var(--space-4) var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4) var(--space-2);
 }
 
 @media (min-width: 48rem) {
-	.grid {
-		grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
-		column-gap: var(--space-6);
-		row-gap: var(--space-10);
-	}
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    column-gap: var(--space-6);
+    row-gap: var(--space-10);
+  }
 }

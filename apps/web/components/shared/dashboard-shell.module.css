@@ -1,24 +1,13 @@
 .shell {
-  /* Single source of truth for horizontal alignment. Every element in
-     the sidebar (logo, toggle, nav icons, avatar) is centered on the
-     same vertical axis derived from these tokens:
-     inset + item-pad + icon/2 = 8 + 8 + 9 = 25px from the left edge. */
   --sidebar-inset: var(--space-2);
   --sidebar-item-pad: var(--space-2);
   --sidebar-icon-size: 1.0625rem;
   --sidebar-border-width: 1px;
-  /* Insets + item paddings + icon column + right border. Including the
-     border keeps the inner content column exact, so pills never
-     overflow the rail by the border width. */
   --sidebar-rail-width: calc(
     var(--sidebar-inset) * 2 + var(--sidebar-item-pad) * 2 +
       var(--sidebar-icon-size) + var(--sidebar-border-width)
   );
   --sidebar-expanded-width: clamp(14.5rem, 12vw + 5.5rem, 17rem);
-  /* Inner content column of the expanded sidebar. Text blocks are
-     always laid out at this fixed width — during the width animation
-     they are merely clipped and faded, never reflowed, so the text
-     can't squish or dance. */
   --sidebar-content-width: calc(
     var(--sidebar-expanded-width) - var(--sidebar-inset) * 2 -
       var(--sidebar-border-width)
@@ -33,9 +22,6 @@
   left: 0;
   z-index: 30;
   width: var(--sidebar-rail-width);
-  /* svh, not dvh: dvh changes when the iOS Safari toolbar collapses
-     while scrolling, which resizes the layout and makes content drift.
-     svh stays constant, so the shell never shifts. */
   height: 100svh;
   transition: width 0.2s ease;
 }
@@ -56,9 +42,6 @@
   overflow: hidden;
 }
 
-/* Wrapper around the scrolling column: hosts the top/bottom scrim
-   fades, which must stay pinned while the content scrolls under them
-   (a pseudo-element on the scroller itself would scroll away). */
 .scrollArea {
   position: relative;
   display: flex;
@@ -77,10 +60,6 @@
   pointer-events: none;
 }
 
-/* Same eased dissolve as the composer scrim, scaled down: content
-   fades into the sidebar's black background at both scroll edges.
-   The top fade is deliberately short — just enough to melt a row
-   into the header without dimming the visible list. */
 .scrollArea::before {
   top: 0;
   height: 1rem;
@@ -120,8 +99,6 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Breathing room so the first/last rows can scroll clear of the
-     scrim fades. */
   padding-block: var(--space-2);
 }
 
@@ -138,9 +115,6 @@
   flex-shrink: 0;
 }
 
-/* The logo mark (1.25rem) is slightly wider than the nav icons
-   (1.125rem); constraining it to the icon column keeps its center on
-   the shared axis. */
 .logo {
   display: inline-flex;
   align-items: center;
@@ -201,9 +175,6 @@
   opacity: 1;
 }
 
-/* While the width animation runs the toggle vanishes instantly and the
-   logo stays fully visible in place, regardless of hover, so nothing
-   fades or collides mid-transition. */
 .sidebarAnimating .sidebarHeader .logo,
 .sidebarAnimating .sidebarHeader:hover .logo {
   opacity: 1;
@@ -217,8 +188,6 @@
   transition: none;
 }
 
-/* Prevent a scrollbar from flashing in and squeezing the content while
-   the width animates. */
 .sidebarAnimating .sidebarScroll {
   overflow-y: hidden;
 }
@@ -229,25 +198,16 @@
   gap: 2px;
 }
 
-/* Horizontal padding is identical in both states, so the icon column
-   never moves. The pill (pad + icon + pad) exactly fills the collapsed
-   rail column, so the icon is perfectly centered in the hover pill. */
 .navLink {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  /* 8px vertical padding: rows stay compact, but the hover pills of
-     adjacent items nearly touch — ChatGPT-style density. */
   padding: 0.5rem var(--sidebar-item-pad);
   border-radius: var(--radius-lg);
-  /* Label text sits a step below the icon size so the icons read as
-     the dominant element while text stays on the same baseline axis. */
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
   text-decoration: none;
-  /* The label overflows the collapsed pill at its natural width and is
-     simply cut off here, so it never squeezes during the animation. */
   overflow: hidden;
   transition:
     color 0.15s ease,
@@ -278,9 +238,6 @@
   stroke-width: 1.8;
 }
 
-/* Labels are always laid out at their natural width (flex-shrink: 0),
-   so the text never reflows. They dissolve out fast on collapse and
-   fade back in once the width animation is mostly done. */
 .navLabel {
   flex-shrink: 0;
   white-space: nowrap;
@@ -293,9 +250,6 @@
   transition: opacity 0.15s ease 0.08s;
 }
 
-/* The recents block is always laid out at the expanded content width,
-   so its text (titles, ellipsized chat names) never reflows while the
-   sidebar width animates — it only fades in/out and gets clipped. */
 .section {
   display: flex;
   flex-direction: column;
@@ -325,7 +279,6 @@
   color: var(--color-foreground-subtle);
 }
 
-/* Time buckets ("Сегодня", "Вчера", …) inside the recents list. */
 .subsection {
   display: flex;
   flex-direction: column;
@@ -371,8 +324,6 @@
   padding-top: var(--space-1);
 }
 
-/* Anchor for the profile popup: the menu opens upward from the
-   profile button, mirroring the composer's attach menu. */
 .profileRoot {
   position: relative;
 }
@@ -384,9 +335,6 @@
   z-index: var(--z-overlay, 40);
   display: flex;
   flex-direction: column;
-  /* The menu always spans the expanded sidebar's content column, so
-     it tracks the sidebar's adaptive clamp() width and looks identical
-     in every viewport instead of over/under-shooting the rail. */
   width: calc(
     var(--sidebar-expanded-width) - var(--sidebar-inset) * 2 -
       var(--sidebar-border-width)
@@ -411,7 +359,6 @@
   }
 }
 
-/* Account row at the top of the menu: avatar, name + plan, chevron. */
 .profileMenuHeader {
   display: flex;
   align-items: center;
@@ -461,7 +408,6 @@
   color: var(--color-foreground-subtle);
 }
 
-/* Groups separated by hairline dividers, like the reference menu. */
 .profileMenuGroup {
   display: flex;
   flex-direction: column;
@@ -506,9 +452,6 @@
   color: var(--color-foreground-muted);
 }
 
-/* The avatar (1.625rem) is wider than the icon column, so its side
-   padding is reduced by half the difference — this puts the avatar
-   center on the exact same axis as the logo and nav icons. */
 .profile {
   --profile-pad: calc(
     var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
@@ -524,8 +467,6 @@
   font-family: inherit;
   text-align: left;
   cursor: pointer;
-  /* Clips the identity column in the collapsed rail — see
-     .profileIdentity. */
   overflow: hidden;
   transition: background-color 0.15s ease;
 }
@@ -547,9 +488,6 @@
   border-radius: var(--radius-full);
 }
 
-/* Name + plan column, mirroring the popup menu's header row. Always
-   laid out at natural width; in the collapsed rail it is invisible and
-   clipped by the button so the avatar-only pill stays intact. */
 .profileIdentity {
   display: flex;
   flex-direction: column;
@@ -592,8 +530,6 @@
   background-color: rgb(0 0 0 / 0.5);
   cursor: pointer;
   animation: backdropIn 0.2s ease both;
-  /* The page behind the open sidebar must not scroll or shift while
-     swiping over the backdrop — swipes are handled in JS instead. */
   touch-action: none;
   overscroll-behavior: contain;
 }
@@ -611,8 +547,6 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  /* svh, not dvh — see .sidebar: keeps the layout height constant
-     while the iOS Safari toolbar shows and hides. */
   height: 100svh;
   overflow: hidden;
   padding-left: var(--sidebar-rail-width);
@@ -640,8 +574,6 @@
     calc(var(--space-4) + env(safe-area-inset-right, 0px));
 }
 
-/* Progressive blur: strongest at the very bottom, dissolving upward.
-   The scrim itself follows an eased curve — no visible gradient bands. */
 .composer::before {
   content: "";
   position: absolute;
@@ -654,32 +586,30 @@
 }
 
 .composer::after {
-	content: "";
-	position: absolute;
-	/* Скрим выходит выше композера — растворение начинается раньше
-	   и получается длиннее и мягче. */
-	inset: -3.5rem 0 0;
-	background: linear-gradient(
-		to top,
-		rgb(0 0 0 / 1),
-		rgb(0 0 0 / 0.998) 10%,
-		rgb(0 0 0 / 0.989) 18%,
-		rgb(0 0 0 / 0.972) 25.5%,
-		rgb(0 0 0 / 0.943) 32.5%,
-		rgb(0 0 0 / 0.902) 39%,
-		rgb(0 0 0 / 0.846) 45.1%,
-		rgb(0 0 0 / 0.774) 51%,
-		rgb(0 0 0 / 0.687) 56.7%,
-		rgb(0 0 0 / 0.586) 62.3%,
-		rgb(0 0 0 / 0.476) 67.8%,
-		rgb(0 0 0 / 0.362) 73.3%,
-		rgb(0 0 0 / 0.25) 78.8%,
-		rgb(0 0 0 / 0.15) 84.3%,
-		rgb(0 0 0 / 0.071) 89.8%,
-		rgb(0 0 0 / 0.019) 95.2%,
-		transparent 100%
-	);
-	pointer-events: none;
+  content: "";
+  position: absolute;
+  inset: -3.5rem 0 0;
+  background: linear-gradient(
+    to top,
+    rgb(0 0 0 / 1),
+    rgb(0 0 0 / 0.998) 10%,
+    rgb(0 0 0 / 0.989) 18%,
+    rgb(0 0 0 / 0.972) 25.5%,
+    rgb(0 0 0 / 0.943) 32.5%,
+    rgb(0 0 0 / 0.902) 39%,
+    rgb(0 0 0 / 0.846) 45.1%,
+    rgb(0 0 0 / 0.774) 51%,
+    rgb(0 0 0 / 0.687) 56.7%,
+    rgb(0 0 0 / 0.586) 62.3%,
+    rgb(0 0 0 / 0.476) 67.8%,
+    rgb(0 0 0 / 0.362) 73.3%,
+    rgb(0 0 0 / 0.25) 78.8%,
+    rgb(0 0 0 / 0.15) 84.3%,
+    rgb(0 0 0 / 0.071) 89.8%,
+    rgb(0 0 0 / 0.019) 95.2%,
+    transparent 100%
+  );
+  pointer-events: none;
 }
 
 .composerInner {
@@ -698,8 +628,6 @@
   filter: blur(12px);
 }
 
-/* Mobile: не анимируем blur композера при открытии шита — дорогой
-   фильтр конкурирует с transform-анимацией и вызывает рывки на iOS. */
 @media (max-width: 47.9375rem) {
   .composer {
     transition: none;
@@ -710,7 +638,6 @@
   }
 }
 
-/* Floating circular sidebar trigger — mobile only. */
 .mobileFab {
   position: fixed;
   top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
@@ -738,21 +665,10 @@
   height: var(--sidebar-icon-size);
 }
 
-/* Mobile: hide the rail entirely, show the floating circle instead.
-   Opening the sidebar pushes the page to the right (native iOS-style
-   push drawer) — the sidebar occupies roughly half of an iPhone
-   screen while the page slides over. */
 @media (max-width: 47.9375rem) {
   .shell {
-    /* Native iPhone drawer: ~80% of the screen, capped at 300px —
-       the width used by native iOS side menus. Also drives the
-       distance the page is pushed right when the drawer opens. */
     --sidebar-expanded-width: min(80vw, 18.75rem);
-    /* Match the FAB inset so the drawer header lands exactly where
-       the floating circle sits. */
     --sidebar-inset: var(--space-3);
-    /* Apple HIG minimum touch target: 44px (2.75rem) — the same size
-       as the floating circle. */
     --sidebar-touch-target: 2.75rem;
   }
 
@@ -771,8 +687,6 @@
     width: var(--sidebar-expanded-width);
     transform: translateX(-100%);
     transition: transform 0.25s ease;
-    /* Only vertical panning scrolls the sidebar content; horizontal
-       movement is reserved for the JS swipe-to-close gesture. */
     touch-action: pan-y;
   }
 
@@ -788,14 +702,10 @@
     );
   }
 
-  /* The header row is exactly as tall as the floating circle and sits
-     at the same inset, so the logo lines up with the FAB position. */
   .sidebarHeader {
     min-height: var(--sidebar-touch-target);
   }
 
-  /* Labels are always laid out on mobile — the drawer only ever
-     appears in its expanded form, so nothing fades. */
   .navLabel {
     opacity: 1;
     transition: none;

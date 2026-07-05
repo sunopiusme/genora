@@ -92,8 +92,7 @@
     gap: 0;
     padding: var(--space-12);
     border-right: 1px solid var(--color-border);
-    background:
-      radial-gradient(
+    background: radial-gradient(
         90% 75% at 14% 10%,
         rgb(255 255 255 / 0.06),
         transparent 52%
@@ -115,11 +114,17 @@
     display: block;
     position: absolute;
     inset: 0;
-    background-image:
-      linear-gradient(rgb(255 255 255 / 0.03) 1px, transparent 1px),
+    background-image: linear-gradient(
+        rgb(255 255 255 / 0.03) 1px,
+        transparent 1px
+      ),
       linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
     background-size: 3rem 3rem;
-    -webkit-mask-image: radial-gradient(78% 72% at 16% 12%, #000, transparent 78%);
+    -webkit-mask-image: radial-gradient(
+      78% 72% at 16% 12%,
+      #000,
+      transparent 78%
+    );
     mask-image: radial-gradient(78% 72% at 16% 12%, #000, transparent 78%);
     pointer-events: none;
   }

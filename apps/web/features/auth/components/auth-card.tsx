@@ -13,14 +13,11 @@ type FieldErrors = {
   password?: string;
 };
 
-function getEmailError(email: string): string | undefined {
-  const result = loginSchema.shape.email.safeParse(email);
-  if (result.success) return undefined;
-  return result.error.issues[0]?.message;
-}
-
-function getPasswordError(password: string): string | undefined {
-  const result = loginSchema.shape.password.safeParse(password);
+function getFieldError(
+  field: keyof FieldErrors,
+  value: string,
+): string | undefined {
+  const result = loginSchema.shape[field].safeParse(value);
   if (result.success) return undefined;
   return result.error.issues[0]?.message;
 }
@@ -48,17 +45,16 @@ export function AuthCard() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const emailError = getEmailError(email);
+    const emailError = getFieldError("email", email);
     if (emailError) {
       setErrors({ email: emailError });
       emailRef.current?.focus();
       return;
     }
 
-    const passwordError = getPasswordError(password);
+    const passwordError = getFieldError("password", password);
     if (passwordError) {
-      const isPasswordFocused = document.activeElement === passwordRef.current;
-      setErrors(isPasswordFocused ? { password: passwordError } : {});
+      setErrors({ password: passwordError });
       passwordRef.current?.focus();
       return;
     }
