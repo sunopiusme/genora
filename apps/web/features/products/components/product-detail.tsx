@@ -470,7 +470,6 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 			>
 				<div className={styles.tierFill} />
 				<span className={styles.tierDither} />
-				<span className={styles.tierScan} />
 				{product.tiers.map((productTier, index) => (
 					<span
 						key={productTier.id}
