@@ -683,7 +683,7 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М��ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М����ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
@@ -786,10 +786,79 @@
 	pointer-events: none;
 }
 
-/* Пиксели проявляются тем же спокойным кроссфейдом, что и заливка —
-   одна длительность, один изинг, ноль лишнего движения. */
+/* При включении максимума пиксели проявляются посегментно слева
+   направо (12 квантованных шагов — «роботический» отклик), затем
+   короткая HDR-вспышка яркости мягко гаснет до рабочего уровня.
+   Габариты не меняются — анимируются только clip-path и filter. */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
+	animation:
+		ditherReveal 0.5s steps(12, end) both,
+		ditherHdr 0.45s ease-out 0.5s both;
+}
+
+@keyframes ditherReveal {
+	from {
+		clip-path: inset(0 100% 0 0);
+	}
+	to {
+		clip-path: inset(0 0 0 0);
+	}
+}
+
+@keyframes ditherHdr {
+	from {
+		filter: brightness(1.6);
+	}
+	to {
+		filter: brightness(1);
+	}
+}
+
+/* Сканирующий блик: узкая вертикальная полоса света проходит по
+   пилюле теми же 12 сегментами, что и проявление пикселей, — фронт
+   «включения» подсвечен, как луч сканера. Ширина полосы 12% трека;
+   путь в translateX задан в собственных ширинах (100%/12% ≈ 833%). */
+.tierScan {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: 12%;
+	background: linear-gradient(
+		90deg,
+		transparent,
+		color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)),
+		transparent
+	);
+	opacity: 0;
+	pointer-events: none;
+}
+
+.tierSlider[data-maxed] .tierScan {
+	animation: scanSweep 0.5s steps(12, end) both;
+}
+
+@keyframes scanSweep {
+	from {
+		transform: translateX(-100%);
+		opacity: 1;
+	}
+	90% {
+		opacity: 1;
+	}
+	to {
+		transform: translateX(833%);
+		opacity: 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierSlider[data-maxed] .tierDither {
+		animation: none;
+	}
+
+	.tierSlider[data-maxed] .tierScan {
+		animation: none;
+	}
 }
 
 /* Скруглённая ручка внутри трека: серая в обычных состояниях,
