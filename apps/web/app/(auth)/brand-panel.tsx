@@ -8,12 +8,10 @@ export function BrandPanel() {
       <Logo className={styles.logo} />
 
       <div className={styles.brandBottom}>
-        <h1 className={styles.headline}>
-          Подписки на ChatGPT, Claude и Midjourney
-        </h1>
+        <h1 className={styles.headline}>ChatGPT, Claude и Midjourney в рублях</h1>
         <p className={styles.tagline}>
-          Оплачивайте российской картой и получайте доступ на свой аккаунт за
-          несколько минут.
+          Оплата картой российского банка. Подписка работает на вашем личном
+          аккаунте.
         </p>
       </div>
     </section>
