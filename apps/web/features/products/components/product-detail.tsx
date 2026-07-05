@@ -176,7 +176,7 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 			</div>
 
 			{hasTiers && tier && (
-				<TierSlider
+				<TierSelector
 					product={product}
 					tierIndex={tierIndex}
 					onTierChange={setTierIndex}
@@ -210,6 +210,73 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 	);
 }
 
+type TierSelectorProps = {
+	product: Product;
+	tierIndex: number;
+	onTierChange: (index: number) => void;
+};
+
+/* Селектор уровня подписки: компактная строка со значением, по нажатию
+   раскрывается меню со слайдером. Слайдер не занимает место в модалке
+   постоянно и появляется только когда пользователь выбирает уровень. */
+function TierSelector({ product, tierIndex, onTierChange }: TierSelectorProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const tier = product.tiers[tierIndex];
+
+	const close = useCallback(() => setIsOpen(false), []);
+	useClickOutside(containerRef, isOpen, close);
+
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === "Escape") {
+				/* Гасим Escape локально, чтобы не закрылась вся модалка. */
+				event.stopPropagation();
+				close();
+			}
+		}
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () =>
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [isOpen, close]);
+
+	return (
+		<div className={styles.tierSelector} ref={containerRef}>
+			<button
+				type="button"
+				className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
+				onClick={() => setIsOpen((prev) => !prev)}
+				aria-haspopup="true"
+				aria-expanded={isOpen}
+			>
+				<span className={styles.tierTriggerCaption}>Уровень</span>
+				<span className={styles.tierTriggerValue}>
+					{tier?.name}
+					<Icon
+						icon={
+							isOpen ? "solar:alt-arrow-up-linear" : "solar:alt-arrow-down-linear"
+						}
+						className={styles.tierTriggerChevron}
+						aria-hidden="true"
+					/>
+				</span>
+			</button>
+			{isOpen && (
+				<div className={styles.tierMenu}>
+					<TierSlider
+						product={product}
+						tierIndex={tierIndex}
+						onTierChange={onTierChange}
+					/>
+				</div>
+			)}
+		</div>
+	);
+}
+
 type TierSliderProps = {
 	product: Product;
 	tierIndex: number;
@@ -222,7 +289,7 @@ const TIER_RANGE_RESOLUTION = 1000;
 
 /* Дискретный слайдер уровня подписки в духе слайдера Effort из
    Claude Code: прямоугольный трек с нейтральной серой заливкой, ручка
-   целиком внутри трека, на максимуме — брендовая подсветка и пиксели.
+   целиком внутри трека, на максимуме — деликатная брендовая подсветка.
    Визуальный трек — div'ы, жест обслуживает невидимый нативный
    input[type=range] поверх. */
 function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
@@ -282,7 +349,6 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 			<div className={styles.tierTrackWrap}>
 				<div className={styles.tierTrack} aria-hidden="true">
 					<div className={styles.tierFill} />
-					{isMaxed && <span className={styles.tierDither} />}
 					<span className={styles.tierThumb} />
 				</div>
 				<input

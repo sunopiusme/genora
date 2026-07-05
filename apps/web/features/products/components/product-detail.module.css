@@ -282,7 +282,7 @@
 	display: inline-flex;
 }
 
-/* Круглые кнопки в стиле кнопки хедера (mobileFab): бордер, surface-фон,
+/* ��руглые кнопки в стиле кнопки хедера (mobileFab): бордер, surface-фон,
    мягкая тень — единый язык управляющих элементов приложения. */
 .iconButton {
 	display: inline-flex;
@@ -568,17 +568,100 @@
 	color: var(--color-foreground);
 }
 
+/* Селектор уровня подписки: компактная строка-триггер в языке
+   priceCard; слайдер раскрывается по нажатию в отдельной менюшке. */
+.tierSelector {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	margin-top: var(--space-5);
+}
+
+.tierTrigger {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	padding: var(--space-4) var(--space-5);
+	border: none;
+	border-radius: var(--radius-xl);
+	background-color: rgb(255 255 255 / 0.04);
+	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+	font-family: var(--font-sans);
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierTrigger:hover {
+	background-color: rgb(255 255 255 / 0.06);
+}
+
+.tierTrigger:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+
+.tierTriggerOpen {
+	composes: tierTrigger;
+	background-color: rgb(255 255 255 / 0.06);
+}
+
+.tierTriggerCaption {
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-muted);
+}
+
+.tierTriggerValue {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--color-foreground);
+}
+
+.tierTriggerChevron {
+	font-size: 1rem;
+	color: var(--color-foreground-subtle);
+}
+
+/* Менюшка со слайдером: раскрывается под триггером с мягким появлением. */
+.tierMenu {
+	margin-top: var(--space-2);
+	animation: tierMenuIn 0.2s cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes tierMenuIn {
+	from {
+		opacity: 0;
+		transform: translateY(-0.25rem);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierMenu {
+		animation: none;
+	}
+}
+
 /* Слайдер уровня подписки (по мотивам Effort-слайдера Claude Code):
-   нейтральный серый трек, ручка внутри, пиксельный эффект на максимуме. */
+   нейтральный серый трек, ручка целиком внутри. */
 .tierSlider {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
-	margin-top: var(--space-5);
 	padding: var(--space-4) var(--space-5);
 	border-radius: var(--radius-xl);
-	background-color: rgb(255 255 255 / 0.04);
-	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+	background-color: var(--color-surface-elevated, rgb(255 255 255 / 0.05));
+	box-shadow:
+		inset 0 0 0 1px rgb(255 255 255 / 0.08),
+		0 8px 24px -8px rgb(0 0 0 / 0.5);
 }
 
 .tierEdges {
@@ -647,70 +730,6 @@
 		color-mix(in srgb, var(--brand) 10%, rgb(255 255 255 / 0.05)),
 		color-mix(in srgb, var(--brand) 34%, transparent)
 	);
-}
-
-/* Полутоновый (halftone) край заливки на максимуме: мелкая шахматная
-   сетка в брендовом цвете, растворяющая правую часть заливки — как в
-   Effort-слайдере Claude Code. Дрейф влево медленный и линейный. */
-.tierDither {
-	position: absolute;
-	inset: 0 0 0 auto;
-	width: 42%;
-	--px: 0.25rem;
-	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 55%, rgb(255 255 255 / 0.35)) 25%,
-			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 55%, rgb(255 255 255 / 0.35)) 0 75%,
-			transparent 0
-		)
-		right center / var(--px) var(--px);
-	/* Двойная маска: плавное растворение к левому краю и лёгкое
-	   затухание к самому правому торцу, чтобы текстура не упиралась
-	   в ободок трека. */
-	-webkit-mask-image: linear-gradient(
-		90deg,
-		transparent,
-		black 55%,
-		black 92%,
-		rgb(0 0 0 / 0.55)
-	);
-	mask-image: linear-gradient(
-		90deg,
-		transparent,
-		black 55%,
-		black 92%,
-		rgb(0 0 0 / 0.55)
-	);
-	animation:
-		ditherIn 0.4s ease-out both,
-		ditherDrift 6s linear infinite;
-	pointer-events: none;
-}
-
-@keyframes ditherIn {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
-}
-
-/* Медленный ровный дрейф текстуры влево — едва заметное «живое»
-   движение без рывков; период кратен клетке, цикл бесшовный. */
-@keyframes ditherDrift {
-	from {
-		background-position: right center;
-	}
-	to {
-		background-position: calc(100% - var(--px) * 4) center;
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.tierDither {
-		animation: ditherIn 0.4s ease-out both;
-	}
 }
 
 /* Вертикальная ручка-плашка целиком внутри трека. */
