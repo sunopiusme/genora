@@ -3,13 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
-import { useComposerStore } from "@/stores/composer-store";
+import { useComposerStore } from "../stores/composer-store";
+import { useMobileViewport } from "../hooks/use-mobile-viewport";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
 import { TierSelector } from "./tier-selector";
 import { TierValueTransition } from "./tier-value-transition";
-import { useMobileViewport } from "./use-mobile-viewport";
 
 const SURFACE_ELEMENT_ID = "dashboardSurface";
 const COPIED_RESET_DELAY_MS = 1500;
@@ -25,9 +25,6 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product, onClose }: ProductDetailProps) {
-	/* Portal to document.body (как у ProfileSheet): шит анимируется в
-	   fixed-слое поверх всего, а не внутри трансформируемой поверхности —
-	   на iOS это убирает дёрганое открытие. */
 	const [isMounted, setIsMounted] = useState(false);
 
 	useEffect(() => {
@@ -284,7 +281,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 				type="button"
 				className={shareButtonClassName}
 				onClick={handleShareButtonClick}
-				aria-label="Под��литься"
+				aria-label="Поделиться"
 				title="Поделиться"
 				aria-haspopup="true"
 				aria-expanded={isOpen}
@@ -373,14 +370,7 @@ function useSwipeToDismiss(
 	isEnabled: boolean,
 ) {
 	const [isDragging, setIsDragging] = useState(false);
-	/* Фаза «settling» — короткое окно после отпущенного незавершённого
-	   свайпа, когда включается transition для плавного возврата шита.
-	   Вне этого окна transition отсутствует, чтобы не конфликтовать
-	   с entry-анимацией открытия (источник рывков на iOS). */
 	const [isSettling, setIsSettling] = useState(false);
-	/* После первого перетаскивания панель навсегда переходит в «спокойное»
-	   состояние (isRested): возврат к базовому классу .panel заново
-	   проигрывал бы entry-анимацию sheetIn — шит повторно «выезжал» снизу. */
 	const [isRested, setIsRested] = useState(false);
 	const settleTimerRef = useRef<number | undefined>(undefined);
 
@@ -410,8 +400,6 @@ function useSwipeToDismiss(
 			if (activePointerId !== null || getScrollTop() > 0) {
 				return;
 			}
-			/* Жесты внутри слайдера тиров принадлежат слайдеру: шит не
-			   должен ехать вниз, пока пользователь двигает ручку. */
 			const target = event.target as HTMLElement | null;
 			if (target?.closest("[data-sheet-drag-ignore]")) {
 				return;
@@ -449,7 +437,6 @@ function useSwipeToDismiss(
 				setIsDragging(true);
 				setIsRested(true);
 			}
-			/* Панель просто следует за пальцем — без растягивания обложки. */
 			panel.style.transform =
 				dragOffset > 0 ? `translateY(${dragOffset}px)` : "";
 		}
@@ -472,8 +459,6 @@ function useSwipeToDismiss(
 			if (!wasDragged) {
 				return;
 			}
-			/* Плавный возврат: включаем transition на один такт settling,
-			   сбрасываем смещение и выключаем его по завершении. */
 			setIsSettling(true);
 			panel.style.transform = "";
 			window.clearTimeout(settleTimerRef.current);
@@ -551,7 +536,6 @@ function useSurfaceFocus(elementId: string) {
 	}, [elementId]);
 }
 
-/* Блокируем прокрутку страницы за шитом, пока он от��рыт. */
 function useBodyScrollLock() {
 	useEffect(() => {
 		const previousOverflow = document.body.style.overflow;
@@ -578,8 +562,6 @@ function useEscapeKey(onEscape: () => void) {
 function useInitialFocus(targetRef: React.RefObject<HTMLElement | null>) {
 	useEffect(() => {
 		const frameId = requestAnimationFrame(() => {
-			/* preventScroll: без него iOS Safari скроллит панель в зону
-			   видимости прямо во время entry-анимации — визуальный рывок. */
 			targetRef.current?.focus({ preventScroll: true });
 		});
 		return () => cancelAnimationFrame(frameId);

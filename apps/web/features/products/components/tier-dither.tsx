@@ -3,47 +3,23 @@
 import { useEffect, useRef } from "react";
 import styles from "./product-detail.module.css";
 
-/**
- * Пиксельный шиммер трека (референс — Effort-слайдер Ultracode).
- *
- * Вместо CSS-маски-полосы каждый пиксель считается индивидуально:
- * у каждой ячейки сетки свой детерминированный хеш → свой порог
- * включения, своя фаза и скорость мерцания. Волна энергии идёт от
- * ручки влево, и пиксели «прощёлкиваются» в порядке своих порогов
- * (упорядоченный дизеринг), а не колоннами. Яркость квантована на
- * дискретные уровни — ретро-пиксельный характер сохраняется.
- */
-
 type TierDitherProps = {
 	active: boolean;
 	brandColor: string;
 };
 
-/** Горизонтальный шаг сетки в CSS-пикселях — точки сжаты по бокам. */
 const CELL_PITCH_X = 3;
-/** Вертикальный шаг сетки в CSS-пикселях. */
 const CELL_PITCH_Y = 4;
-/** Размер самой точки в CSS-пикселях (чуть жирнее). */
 const DOT_SIZE = 2.25;
-/** Левая доля трека без пикселей — уходит в чистый серый фон. */
 const QUIET_LEFT_RATIO = 0.25;
-/** Дискретные уровни яркости — пиксель «перещёлкивается», а не плывёт. */
 const BRIGHTNESS_LEVELS = 4;
-/** Длительность полного прохода волны, мс. */
 const WAVE_PERIOD_MS = 3600;
-/** Ширина фронта волны в ячейках. */
 const WAVE_FRONT_CELLS = 9;
-/** Доля брендового цвета в точке (остальное — белый). */
 const BRAND_MIX = 0.38;
-/** Длительность нарастания пикселей справа налево при включении, мс. */
 const REVEAL_MS = 1200;
-/** Рваность фронта нарастания в ячейках — пиксели прорастают вразнобой. */
 const REVEAL_JITTER_CELLS = 8;
-/** Ширина яркого «пера» на фронте рисования, в ячейках. */
 const REVEAL_PEN_CELLS = 6;
-/** Шаг дискретизации волны, мс — фронт перещёлкивается по ячейкам. */
 const WAVE_STEP_MS = 96;
-/** Пауза между окончанием рисования и стартом волны, мс. */
 const WAVE_DELAY_MS = 400;
 
 export function TierDither({ active, brandColor }: TierDitherProps) {
@@ -87,30 +63,16 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			}
 			context.clearRect(0, 0, cssWidth, cssHeight);
 
-			/* Ровная сетка: целое число колонок и рядов, остаток ширины и
-			   высоты распределяется по краям — узор центрирован по треку
-			   и выровнен с текстом, без обрезанных краевых точек. */
 			const columns = Math.max(1, Math.floor(cssWidth / CELL_PITCH_X));
 			const rows = Math.max(1, Math.floor(cssHeight / CELL_PITCH_Y));
 			const offsetX = (cssWidth - columns * CELL_PITCH_X) / 2;
 			const offsetY = (cssHeight - rows * CELL_PITCH_Y) / 2;
 
-			/* Фаза нарастания: при каждом включении максимума фронт
-			   прорастания идёт от ручки (справа) влево. У каждого пикселя —
-			   свой джиттер, поэтому текстура растёт вразнобой, попиксельно,
-			   а не ровной шторкой. */
 			const revealProgress = Math.min(1, timeMs / REVEAL_MS);
-			/* Ease-out: рисование начинается сразу в момент «стука» —
-			   первые пиксели у ручки появляются без ощутимой паузы, а к
-			   левому краю фронт спокойно замедляется. Мягкая степень 2.2
-			   сохраняет профессиональную неторопливость середины хода. */
 			const eased = 1 - (1 - revealProgress) ** 2.2;
 			const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
 			const revealing = revealProgress < 1;
 
-			/* Фронт волны: время квантовано шагами WAVE_STEP_MS — фронт
-			   перещёлкивается по ячейкам дискретно. Волна стартует после
-			   рисования с короткой паузой, чтобы эффекты не сливались. */
 			const waveTimeMs = Math.max(0, timeMs - REVEAL_MS - WAVE_DELAY_MS);
 			const steppedTime =
 				Math.floor(waveTimeMs / WAVE_STEP_MS) * WAVE_STEP_MS;
@@ -121,23 +83,15 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			);
 
 			for (let col = 0; col < columns; col++) {
-				/* Базовая плотность: слева чистая зона, к ~72% ширины
-				   плотнее всего, у самой ручки пиксели гаснут. */
 				const xRatio = col / Math.max(1, columns - 1);
 				const density = densityProfile(xRatio);
 				if (density <= 0) {
-					/* Чистая левая зона: ни волна, ни мерцание сюда не заходят —
-					   трек уходит в сплошной серый фон. */
 					continue;
 				}
-				/* Мягкое «крыло» у границы чистой зоны: волна и мерцание
-				   ослабевают вместе с плотностью, без резкого обрыва. */
 				const presence = Math.min(1, density / 0.12);
 				const distance = Math.abs(col - waveFrontCol);
 
 				for (let row = 0; row < rows; row++) {
-					/* Прорастание: пиксель появляется, только когда рваный
-					   фронт (свой джиттер у каждой ячейки) прошёл его колонку. */
 					const revealJitter =
 						cellHash(col * 13 + 7, row * 17 + 11) * REVEAL_JITTER_CELLS;
 					if (col < revealFrontCol + revealJitter) {
@@ -145,8 +99,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					}
 
 					const threshold = cellHash(col, row);
-					/* Индивидуальное мерцание: у каждой ячейки своя фаза и
-					   скорость — пиксели живут несинхронно даже вне фронта. */
 					const twinklePhase = cellHash(col * 3 + 1, row * 7 + 3);
 					const twinkleSpeed = 0.5 + cellHash(col * 5 + 2, row * 11 + 5) * 0.8;
 					const twinkle =
@@ -156,10 +108,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 								twinklePhase * Math.PI * 2,
 						);
 
-					/* Попиксельная волна: вместо сплошной полосы каждая ячейка
-					   внутри фронта решает сама — загорается, только если её
-					   личный жребий прошёл через силу фронта. Ближе к центру
-					   фронта шанс выше, на краях — единичные пиксели. */
 					let waveBoost = 0;
 					if (!revealing && distance < WAVE_FRONT_CELLS) {
 						const frontStrength = (1 - distance / WAVE_FRONT_CELLS) ** 2;
@@ -169,14 +117,9 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 						}
 					}
 
-					/* «Перо» рисования: пиксели у самого фронта прорастания
-					   подсвечиваются деликатно — видно, что их прямо сейчас
-					   «рисуют», но без дерзкой вспышки; за пером они мягко
-					   оседают до своей обычной яркости. */
 					let penBoost = 0;
 					if (revealing) {
-						const penDistance =
-							col - revealJitter - revealFrontCol;
+						const penDistance = col - revealJitter - revealFrontCol;
 						if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
 							penBoost = (1 - penDistance / REVEAL_PEN_CELLS) ** 2 * 0.3;
 						}
@@ -187,8 +130,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 						continue;
 					}
 
-					/* Квантованная яркость: чем сильнее ячейка «пробила» свой
-					   порог, т��м выше её дискретный уровень. */
 					const overshoot = Math.min(1, (energy - threshold) / 0.6);
 					const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
 					const alpha = 0.16 + (level / BRIGHTNESS_LEVELS) * 0.72;
@@ -204,9 +145,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			}
 		}
 
-		/* Каждый раз, когда ручка «стукается» о максимум, эффект
-		   перезапускается (active в зависимостях) — отсчёт времени идёт
-		   от первого кадра, и волна всегда стартует заново от ручки. */
 		let startTimeMs = -1;
 
 		function loop(timeMs: number) {
@@ -217,10 +155,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			frameId = requestAnimationFrame(loop);
 		}
 
-		/* Ресайз-колбэк уходит в следующий кадр: синхронная работа с
-		   canvas внутри ResizeObserver (заливка меняет ширину каждый
-		   кадр transition'а) зацикливает его в том же кадре —
-		   «ResizeObserver loop completed…» в консоли. */
 		let resizeFrameId = 0;
 		const resizeObserver = new ResizeObserver(() => {
 			cancelAnimationFrame(resizeFrameId);
@@ -236,16 +170,11 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 
 		if (active) {
 			if (reducedMotion.matches) {
-				/* Статичный кадр: нарастание уже завершено, текстура видна
-				   полностью, движения нет. */
 				drawFrame(REVEAL_MS);
 			} else {
 				frameId = requestAnimationFrame(loop);
 			}
 		} else {
-			/* Не максимум — пиксели не рисуются вовсе. Холст очищается,
-			   иначе на промежуточных тирах (Plus, Pro) сквозь заливку
-			   проглядывала бы статичная текстура максимума. */
 			context.clearRect(0, 0, cssWidth, cssHeight);
 		}
 
@@ -261,32 +190,23 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 	);
 }
 
-/** Профиль плотности вдоль трека: левая четверть — чистый фон без
-    пикселей, дальше плавный набор до пика у ~72% и спад к ручке. */
 function densityProfile(xRatio: number): number {
 	if (xRatio < QUIET_LEFT_RATIO) {
-		/* Левая четверть — сплошной серый фон, точки не рисуются. */
 		return 0;
 	}
 	if (xRatio < 0.45) {
-		/* 0.25 → 0.45: мягкое проявление из пустоты до 0.3 */
 		const t = (xRatio - QUIET_LEFT_RATIO) / (0.45 - QUIET_LEFT_RATIO);
 		return t * t * 0.3;
 	}
 	if (xRatio < 0.72) {
-		/* 0.45 → 0.72: до пика 0.62 */
 		return 0.3 + ((xRatio - 0.45) / 0.27) * 0.32;
 	}
 	if (xRatio < 0.92) {
-		/* 0.72 → 0.92: спад до 0.22 */
 		return 0.62 - ((xRatio - 0.72) / 0.2) * 0.4;
 	}
-	/* У ручки гаснем в ноль. */
 	return 0.22 * (1 - (xRatio - 0.92) / 0.08);
 }
 
-/** Детерминированный хеш ячейки → [0, 1). Один и тот же пиксель всегда
-    получает один и тот же порог — узор стабилен между кадрами. */
 function cellHash(col: number, row: number): number {
 	const value = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
 	return value - Math.floor(value);
@@ -298,9 +218,9 @@ function parseHexColor(hex: string): Rgb {
 	const normalized = hex.trim().replace("#", "");
 	if (normalized.length === 3) {
 		return {
-			r: Number.parseInt(normalized[0] + normalized[0], 16),
-			g: Number.parseInt(normalized[1] + normalized[1], 16),
-			b: Number.parseInt(normalized[2] + normalized[2], 16),
+			r: Number.parseInt(normalized.charAt(0).repeat(2), 16),
+			g: Number.parseInt(normalized.charAt(1).repeat(2), 16),
+			b: Number.parseInt(normalized.charAt(2).repeat(2), 16),
 		};
 	}
 	if (normalized.length === 6) {

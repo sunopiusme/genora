@@ -10,19 +10,27 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 import { Button, cn } from "@genora/ui";
+
+import {
+  VERIFICATION_CODE_LENGTH,
+  verificationSchema,
+} from "../schemas/verification-schema";
 import styles from "./verify-card.module.css";
 
-const LENGTH = 6;
 const RESEND_SECONDS = 30;
+
+function createEmptyDigits() {
+  return Array<string>(VERIFICATION_CODE_LENGTH).fill("");
+}
 
 export function VerifyCard() {
   const router = useRouter();
-  const [digits, setDigits] = useState<string[]>(Array(LENGTH).fill(""));
-  const [error, setError] = useState(false);
-  const [resent, setResent] = useState(false);
+  const [digits, setDigits] = useState<string[]>(createEmptyDigits);
+  const [hasError, setHasError] = useState(false);
+  const [wasResent, setWasResent] = useState(false);
   const [seconds, setSeconds] = useState(RESEND_SECONDS);
-  const [submitting, setSubmitting] = useState(false);
-  const refs = useRef<Array<HTMLInputElement | null>>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const cellRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   useEffect(() => {
     if (seconds <= 0) return;
@@ -31,54 +39,62 @@ export function VerifyCard() {
   }, [seconds]);
 
   const code = digits.join("");
-  const complete = code.length === LENGTH;
+  const isComplete = verificationSchema.safeParse({ code }).success;
 
   function submitCode() {
-    if (submitting) return;
-    setSubmitting(true);
-    setError(false);
-    setResent(false);
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    setHasError(false);
+    setWasResent(false);
     setTimeout(() => router.push("/dashboard"), 300);
   }
 
-  function setDigit(index: number, raw: string) {
-    if (submitting) return;
-    const value = raw.replace(/\D/g, "").slice(-1);
-    const next = [...digits];
-    next[index] = value;
-    setDigits(next);
-    setError(false);
-    setResent(false);
-    if (value && index < LENGTH - 1) refs.current[index + 1]?.focus();
-    if (next.every((entry) => entry !== "")) submitCode();
+  function setDigit(index: number, rawValue: string) {
+    if (isSubmitting) return;
+    const digit = rawValue.replace(/\D/g, "").slice(-1);
+    const nextDigits = [...digits];
+    nextDigits[index] = digit;
+    setDigits(nextDigits);
+    setHasError(false);
+    setWasResent(false);
+    if (digit && index < VERIFICATION_CODE_LENGTH - 1) {
+      cellRefs.current[index + 1]?.focus();
+    }
+    if (nextDigits.every((entry) => entry !== "")) submitCode();
   }
 
   function handleKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Backspace" && !digits[index] && index > 0) {
-      refs.current[index - 1]?.focus();
+      cellRefs.current[index - 1]?.focus();
     }
   }
 
   function handlePaste(event: ClipboardEvent<HTMLInputElement>) {
-    const text = event.clipboardData
+    const pastedDigits = event.clipboardData
       .getData("text")
       .replace(/\D/g, "")
-      .slice(0, LENGTH);
-    if (!text) return;
+      .slice(0, VERIFICATION_CODE_LENGTH);
+    if (!pastedDigits) return;
     event.preventDefault();
-    const next = Array(LENGTH).fill("");
-    for (let i = 0; i < text.length; i += 1) next[i] = text[i];
-    setDigits(next);
-    setError(false);
-    setResent(false);
-    refs.current[Math.min(text.length, LENGTH - 1)]?.focus();
-    if (next.every((entry) => entry !== "")) submitCode();
+    const nextDigits = createEmptyDigits();
+    for (let index = 0; index < pastedDigits.length; index += 1) {
+      nextDigits[index] = pastedDigits.charAt(index);
+    }
+    setDigits(nextDigits);
+    setHasError(false);
+    setWasResent(false);
+    const lastFilledIndex = Math.min(
+      pastedDigits.length,
+      VERIFICATION_CODE_LENGTH - 1,
+    );
+    cellRefs.current[lastFilledIndex]?.focus();
+    if (nextDigits.every((entry) => entry !== "")) submitCode();
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (code.length < LENGTH) {
-      setError(true);
+    if (!isComplete) {
+      setHasError(true);
       return;
     }
     submitCode();
@@ -87,10 +103,10 @@ export function VerifyCard() {
   function handleResend() {
     if (seconds > 0) return;
     setSeconds(RESEND_SECONDS);
-    setDigits(Array(LENGTH).fill(""));
-    setError(false);
-    setResent(true);
-    refs.current[0]?.focus();
+    setDigits(createEmptyDigits());
+    setHasError(false);
+    setWasResent(true);
+    cellRefs.current[0]?.focus();
   }
 
   return (
@@ -100,7 +116,7 @@ export function VerifyCard() {
           <input
             key={index}
             ref={(element) => {
-              refs.current[index] = element;
+              cellRefs.current[index] = element;
             }}
             value={digit}
             onChange={(event) => setDigit(index, event.target.value)}
@@ -108,13 +124,13 @@ export function VerifyCard() {
             inputMode="numeric"
             autoComplete={index === 0 ? "one-time-code" : "off"}
             maxLength={1}
-            disabled={submitting}
+            disabled={isSubmitting}
             aria-label={`Цифра ${index + 1}`}
-            aria-invalid={error}
+            aria-invalid={hasError}
             className={cn(
               styles.cell,
-              error && styles.cellError,
-              !error && complete && styles.cellComplete,
+              hasError && styles.cellError,
+              !hasError && isComplete && styles.cellComplete,
             )}
           />
         ))}
@@ -123,14 +139,14 @@ export function VerifyCard() {
       <p
         className={cn(
           styles.message,
-          error && styles.messageError,
-          !error && resent && styles.messageSuccess,
+          hasError && styles.messageError,
+          !hasError && wasResent && styles.messageSuccess,
         )}
         role="alert"
       >
-        {error
+        {hasError
           ? "Введите 6‑значный код из письма"
-          : resent
+          : wasResent
             ? "Новый код отправлен"
             : ""}
       </p>
@@ -139,7 +155,7 @@ export function VerifyCard() {
         type="submit"
         variant="primary"
         size="lg"
-        disabled={submitting}
+        disabled={isSubmitting}
         className={styles.submit}
       >
         Подтвердить

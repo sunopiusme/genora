@@ -9,25 +9,9 @@ type TierSliderProps = {
 	product: Product;
 	tierIndex: number;
 	onTierChange: (index: number) => void;
-	/* Компактный режим для карточек в витрине: без строки
-	   «Базовый/Максимум» и без внутренних отступов — геометрию задаёт
-	   родитель. */
 	compact?: boolean;
 };
 
-/* Дискретный слайдер уровня подписки (по мотивам Effort-слайдера
-   Claude Code), построенный по канону производительных drag-жестов:
-
-   - Pointer Events + setPointerCapture: один код-путь для мыши, пальца
-     и стилуса; жест не теряется при выходе за границы трека.
-   - Геометрия трека кэшируется один раз на pointerdown — ноль forced
-     reflow в per-move обработчике.
-   - pointermove пишет позицию в ref и коалесцируется через
-     requestAnimationFrame: DOM обновляется максимум раз за кадр
-     прямой записью CSS-переменной, без setState и без ре-рендеров.
-   - React state (уровень подписки) коммитится только когда дискретный
-     индекс реально изменился — пара раз за весь жест.
-   - touch-action: none на треке отдаёт жест слайдеру, а не скроллу. */
 export function TierSlider({
 	product,
 	tierIndex,
@@ -40,37 +24,25 @@ export function TierSlider({
 
 	const rootRef = useRef<HTMLDivElement>(null);
 	const trackRef = useRef<HTMLDivElement>(null);
-	/* Живая геометрия жеста — вне React, чтобы не рендерить на каждый
-	   pointermove (60–120 событий/с). */
 	const gestureRef = useRef({
 		rect: null as DOMRect | null,
 		ratio: 0,
 		rafId: 0,
 		dragging: false,
 	});
-	/* Последний закоммиченный индекс — коммитим setState только при
-	   реальной смене уровня. */
 	const committedIndexRef = useRef(tierIndex);
 	committedIndexRef.current = tierIndex;
 
-	/* Единственная точка записи позиции в DOM: CSS-переменная --fill
-	   на корне слайдера. Транзишены управляются data-dragging. */
 	const applyFill = useCallback((ratio: number) => {
 		rootRef.current?.style.setProperty("--fill", `${ratio * 100}%`);
 	}, []);
 
-	/* Синхронизация с внешним состоянием (клик по метке, клавиатура,
-	   снап после отпускания): вне активного жеста позиция ручки всегда
-	   следует за tierIndex. --fill НЕ входит в JSX-стиль, иначе React
-	   при ре-рендере затирал бы прямые записи во время жеста.
-	   useLayoutEffect — чтобы первая отрисовка была уже с позицией. */
 	useLayoutEffect(() => {
 		if (!gestureRef.current.dragging) {
 			applyFill(maxIndex > 0 ? tierIndex / maxIndex : 0);
 		}
 	}, [tierIndex, maxIndex, applyFill]);
 
-	/* Отмена запланированного кадра при размонтировании. */
 	useEffect(() => {
 		return () => cancelAnimationFrame(gestureRef.current.rafId);
 	}, []);
@@ -78,11 +50,6 @@ export function TierSlider({
 	const commitNearestTier = useCallback(
 		(ratio: number) => {
 			let nearest = Math.round(ratio * maxIndex);
-			/* Максимум во время жеста включается только когда ползунок
-			   ФИЗИЧЕСКИ стукнулся о правый край (>= 98.5% трека) — до
-			   этого держим предыдущий уровень. Заранее ничего не
-			   вспыхивает; при отпускании рядом с краем ручка магнитно
-			   дотягивается сама, и эффект стартует по прибытии. */
 			if (
 				gestureRef.current.dragging &&
 				nearest === maxIndex &&
@@ -97,8 +64,6 @@ export function TierSlider({
 		[maxIndex, onTierChange],
 	);
 
-	/* Кадр отрисовки: одна запись в DOM за кадр, сколько бы событий
-	   pointermove ни пришло между кадрами. */
 	const renderFrame = useCallback(() => {
 		const gesture = gestureRef.current;
 		gesture.rafId = 0;
@@ -120,14 +85,11 @@ export function TierSlider({
 		if (!track) {
 			return;
 		}
-		/* Геометрия читается ровно один раз за жест. */
 		const gesture = gestureRef.current;
 		gesture.rect = track.getBoundingClientRect();
 		gesture.dragging = true;
 		gesture.ratio = ratioFromClientX(event.clientX);
 		track.setPointerCapture(event.pointerId);
-		/* Атрибут ставится напрямую — отключает транзишены позиции без
-		   участия React. */
 		rootRef.current?.setAttribute("data-dragging", "true");
 		applyFill(gesture.ratio);
 		commitNearestTier(gesture.ratio);
@@ -138,10 +100,6 @@ export function TierSlider({
 		if (!gesture.dragging) {
 			return;
 		}
-		/* Страховка от «прилипания»: если pointerup потерялся (кнопка
-		   отпущена вне окна, alt-tab, потеря capture), у мыши уже нет
-		   зажатых кнопок — завершаем жест, иначе ручка ездит за
-		   курсором без нажатия. */
 		if (event.pointerType === "mouse" && event.buttons === 0) {
 			handlePointerEnd(event);
 			return;
@@ -160,13 +118,10 @@ export function TierSlider({
 		gesture.dragging = false;
 		cancelAnimationFrame(gesture.rafId);
 		gesture.rafId = 0;
-		/* releasePointerCapture бросает исключение, если capture уже
-		   потерян (lostpointercapture) — проверяем перед снятием. */
 		const track = trackRef.current;
 		if (track?.hasPointerCapture(event.pointerId)) {
 			track.releasePointerCapture(event.pointerId);
 		}
-		/* Возвращаем транзишены и примагничиваем ручку к уровню. */
 		rootRef.current?.removeAttribute("data-dragging");
 		const nearest = Math.round(gesture.ratio * maxIndex);
 		applyFill(maxIndex > 0 ? nearest / maxIndex : 0);

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Product } from "@/features/products/types";
+import type { Product } from "../types";
 
 export type AttachedFile = {
   name: string;
@@ -9,7 +9,6 @@ export type AttachedFile = {
 type ComposerStore = {
   attachedProduct: Product | null;
   attachedFile: AttachedFile | null;
-  /* Профиль пользователя, прикреплённый к вопросу через «@». */
   isProfileAttached: boolean;
   attach: (product: Product) => void;
   attachFile: (file: AttachedFile) => void;

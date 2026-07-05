@@ -1,6 +1,6 @@
 import { Logo } from "@genora/ui";
+import { VerifyCard } from "@features/auth";
 
-import { VerifyCard } from "./verify-card";
 import { SupportLink } from "../support-link";
 import styles from "./page.module.css";
 
