@@ -1,7 +1,7 @@
 "use client";
 
 import { Avatar } from "@genora/ui";
-import { PROFILE } from "@/lib/profile";
+import { PROFILE } from "@features/profile";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import { getFeaturedProducts } from "../queries/featured-products";
 import type { Product } from "../types";
@@ -9,20 +9,13 @@ import styles from "./mention-menu.module.css";
 
 export type MentionItem = {
 	id: string;
-	/* Имя сущности — по нему идёт поиск после «@». */
 	label: string;
-	/* Подпись справа — поясняет, что это за сущность. */
 	hint: string;
 	kind: "profile" | "product";
-	/* Слаг логотипа для товаров (файл в /brands). */
 	logoSlug?: string;
-	/* Товар целиком — при выборе прикрепляется тегом в бар. */
 	product?: Product;
 };
 
-/* Профиль — ссылка на самого пользователя: его подписки, историю
-   и настройки. Дальше список пополняется товарами каталога, чтобы
-   на них можно было ссылаться прямо в тексте вопроса. */
 function buildMentionItems(): MentionItem[] {
 	const profile: MentionItem = {
 		id: "self",
@@ -41,7 +34,6 @@ function buildMentionItems(): MentionItem[] {
 	return [profile, ...products];
 }
 
-/** Пункты, подходящие под введённый после «@» фрагмент. */
 export function getMentionItems(query: string): MentionItem[] {
 	const items = buildMentionItems();
 	const normalized = query.trim().toLowerCase();
@@ -63,11 +55,6 @@ type MentionMenuProps = {
 	onHover: (index: number) => void;
 };
 
-/**
- * Всплывающий список упоминаний над строкой ассистента.
- * Занимает всю ширину бара; открывается при вводе «@» и
- * управляется с клавиатуры из инпута, поэтому фокус не забирает.
- */
 export function MentionMenu({
 	id,
 	items,
@@ -90,8 +77,6 @@ export function MentionMenu({
 							aria-selected={index === activeIndex}
 							className={styles.item}
 							data-active={index === activeIndex || undefined}
-							/* pointerdown раньше blur инпута — предотвращаем потерю
-							   фокуса, чтобы каретка осталась на месте. */
 							onPointerDown={(event) => event.preventDefault()}
 							onClick={() => onSelect(item)}
 							onPointerEnter={() => onHover(index)}

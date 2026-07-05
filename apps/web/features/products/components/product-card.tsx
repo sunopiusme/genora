@@ -26,14 +26,9 @@ type ProductCardProps = {
 
 export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 	const openGesture = useCardOpenGesture(onOpen);
-	/* Уровень подписки выбирается прямо на карточке — покупка доступна
-	   без захода в детальный просмотр. */
 	const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
 	const selectedTier = product.tiers[tierIndex];
 
-	/* Слайдер — интерактивная зона внутри кликабельной карточки: гасим
-	   всплытие, чтобы drag и клики по меткам не открывали детальный
-	   просмотр и не запускали жест открытия. */
 	function stopCardGesture(event: MouseEvent | PointerEvent) {
 		event.stopPropagation();
 		openGesture.clearPressStart();

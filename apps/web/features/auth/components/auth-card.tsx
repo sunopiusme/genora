@@ -3,20 +3,31 @@
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, cn } from "@genora/ui";
-import styles from "./auth-card.module.css";
 
-type Mode = "register" | "login";
+import { loginSchema } from "../schemas/login-schema";
+import type { AuthMode } from "../types";
+import styles from "./auth-card.module.css";
 
 type FieldErrors = {
   email?: string;
   password?: string;
 };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+function getEmailError(email: string): string | undefined {
+  const result = loginSchema.shape.email.safeParse(email);
+  if (result.success) return undefined;
+  return result.error.issues[0]?.message;
+}
+
+function getPasswordError(password: string): string | undefined {
+  const result = loginSchema.shape.password.safeParse(password);
+  if (result.success) return undefined;
+  return result.error.issues[0]?.message;
+}
 
 export function AuthCard() {
   const router = useRouter();
-  const [mode, setMode] = useState<Mode>("register");
+  const [mode, setMode] = useState<AuthMode>("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -25,7 +36,7 @@ export function AuthCard() {
   const passwordRef = useRef<HTMLInputElement>(null);
   const isRegister = mode === "register";
 
-  function switchMode(next: Mode) {
+  function switchMode(next: AuthMode) {
     setMode(next);
     setErrors({});
   }
@@ -37,16 +48,17 @@ export function AuthCard() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!EMAIL_RE.test(email.trim())) {
-      setErrors({ email: "Введите корректный email" });
+    const emailError = getEmailError(email);
+    if (emailError) {
+      setErrors({ email: emailError });
       emailRef.current?.focus();
       return;
     }
 
-    if (!password) {
-      const passwordWasFocused =
-        document.activeElement === passwordRef.current;
-      setErrors(passwordWasFocused ? { password: "Введите пароль" } : {});
+    const passwordError = getPasswordError(password);
+    if (passwordError) {
+      const isPasswordFocused = document.activeElement === passwordRef.current;
+      setErrors(isPasswordFocused ? { password: passwordError } : {});
       passwordRef.current?.focus();
       return;
     }

@@ -1,6 +1,6 @@
 import { Logo } from "@genora/ui";
+import { AuthCard } from "@features/auth";
 
-import { AuthCard } from "./auth-card";
 import { SupportLink } from "../support-link";
 import styles from "./page.module.css";
 

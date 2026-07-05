@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { useComposerStore } from "@/stores/composer-store";
 import { Icon } from "@/lib/icon";
+import { useComposerStore } from "../stores/composer-store";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import { getFeaturedProducts } from "../queries/featured-products";
 import type { Product } from "../types";
@@ -10,13 +10,6 @@ import styles from "./attach-menu.module.css";
 
 type MenuView = "actions" | "products";
 
-/**
- * Выпадающее меню на «плюсике» строки ассистента.
- *
- * Два экрана: список действий (товар, изображение, файл)
- * и встроенный выбор товара из каталога — выбранный продукт
- * прикрепляется к запросу чипом, без перехода на другую страницу.
- */
 export function AttachMenu() {
 	const menuId = useId();
 	const rootRef = useRef<HTMLDivElement>(null);
@@ -47,7 +40,6 @@ export function AttachMenu() {
 
 	function openProductPicker() {
 		setView("products");
-		/* Фокус на поиск после отрисовки списка. */
 		requestAnimationFrame(() => {
 			searchInputRef.current?.focus();
 		});
@@ -74,8 +66,6 @@ export function AttachMenu() {
 		if (file) {
 			attachFile({ name: file.name, kind });
 		}
-		/* Сбрасываем value, чтобы повторный выбор того же файла
-		   снова вызвал change. */
 		event.target.value = "";
 		close();
 	}

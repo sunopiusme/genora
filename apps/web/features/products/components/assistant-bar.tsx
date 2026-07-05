@@ -10,9 +10,9 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { useComposerStore } from "@/stores/composer-store";
+import { PROFILE } from "@features/profile";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@/lib/profile";
+import { useComposerStore } from "../stores/composer-store";
 import { AttachMenu } from "./attach-menu";
 import {
 	MentionMenu,
@@ -21,13 +21,10 @@ import {
 } from "./mention-menu";
 import styles from "./assistant-bar.module.css";
 
-/* Below this width the full placeholder does not fit — a shorter
-   one is shown instead. iPhone screens are wider and keep the full
-   text. */
 const NARROW_MEDIA_QUERY = "(max-width: 22.5rem)";
+const ZERO_WIDTH_SPACE = "\u200B";
+const NON_BREAKING_SPACE = "\u00A0";
 
-/* Инлайн-тег в потоке текста. host — DOM-узел внутри
-   contenteditable, содержимое рисует React через портал. */
 type Token = {
 	id: string;
 	kind: "profile" | "product" | "file";
@@ -37,21 +34,12 @@ type Token = {
 	host: HTMLElement;
 };
 
-/* Активное упоминание: текстовый узел с «@», позиция и фрагмент
-   до каретки. */
 type MentionDraft = {
 	node: Text;
 	start: number;
 	query: string;
 };
 
-/**
- * Не даёт каретке стоять «голой» в DIV редактора вплотную к тегу.
- * В этой позиции Chrome рисует каретку по высоте соседнего
- * inline-flex элемента — она резко вырастает. Каретка пересаживается
- * в соседний текстовый узел, а если его нет — создаётся узел с
- * нулевой шириной (\u200B), невидимый и вычищаемый при serialize.
- */
 function normalizeCaret(editor: HTMLElement) {
 	const selection = window.getSelection();
 	if (
@@ -68,20 +56,18 @@ function normalizeCaret(editor: HTMLElement) {
 	}
 
 	const offset = range.startOffset;
-	const prev = editor.childNodes[offset - 1] ?? null;
-	const next = editor.childNodes[offset] ?? null;
+	const previousNode = editor.childNodes[offset - 1] ?? null;
+	const nextNode = editor.childNodes[offset] ?? null;
 	const caret = document.createRange();
 
-	if (prev && prev.nodeType === Node.TEXT_NODE) {
-		caret.setStart(prev, (prev as Text).length);
-	} else if (next && next.nodeType === Node.TEXT_NODE) {
-		caret.setStart(next, 0);
-	} else if (prev || next) {
-		/* Каретка зажата между тегами или тегом и краем поля —
-		   подкладываем невидимый текстовый узел. */
-		const filler = document.createTextNode("\u200B");
-		if (prev) {
-			prev.after(filler);
+	if (previousNode && previousNode.nodeType === Node.TEXT_NODE) {
+		caret.setStart(previousNode, (previousNode as Text).length);
+	} else if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+		caret.setStart(nextNode, 0);
+	} else if (previousNode || nextNode) {
+		const filler = document.createTextNode(ZERO_WIDTH_SPACE);
+		if (previousNode) {
+			previousNode.after(filler);
 		} else {
 			editor.prepend(filler);
 		}
@@ -106,9 +92,6 @@ export function AssistantBar() {
 	const [hasContent, setHasContent] = useState(false);
 	const [mentionDraft, setMentionDraft] = useState<MentionDraft | null>(null);
 	const [mentionActiveIndex, setMentionActiveIndex] = useState(0);
-	/* Последняя позиция каретки внутри редактора. Клик по меню
-	   плюсика уводит фокус — без неё вставка попадала бы в начало
-	   текста, а не туда, где пользователь остановился. */
 	const lastRangeRef = useRef<Range | null>(null);
 	const isNarrowScreen = useIsNarrowScreen();
 
@@ -124,16 +107,15 @@ export function AssistantBar() {
 	const mentionItems = mentionDraft ? getMentionItems(mentionDraft.query) : [];
 	const isMentionOpen = mentionDraft !== null && mentionItems.length > 0;
 
-	/* Синхронизирует производное состояние после любой правки DOM:
-	   выкидывает теги, чьи узлы стёрты Backspace-ом, и пересчитывает
-	   «есть ли что отправлять». */
 	function refreshEditorState() {
 		const editor = editorRef.current;
 		if (!editor) {
 			return;
 		}
 		normalizeCaret(editor);
-		setTokens((prev) => prev.filter((token) => token.host.isConnected));
+		setTokens((previous) =>
+			previous.filter((token) => token.host.isConnected),
+		);
 		const text = (editor.textContent ?? "")
 			.replace(/[\u00A0\u200B]/g, " ")
 			.trim();
@@ -141,24 +123,18 @@ export function AssistantBar() {
 		setHasContent(text.length > 0 || hasToken);
 	}
 
-	/**
-	 * Вставляет тег в позицию каретки. Если фокус вне редактора
-	 * (например, выбор из меню плюсика) — тег встаёт в конец текста,
-	 * сохраняя последовательность фразы.
-	 */
 	function insertToken(data: Omit<Token, "id" | "host">) {
 		const editor = editorRef.current;
 		if (!editor) {
 			return;
 		}
 
-		/* Профиль в тексте достаточно упомянуть один раз. */
-		if (
+		const isProfileAlreadyInserted =
 			data.kind === "profile" &&
 			tokensRef.current.some(
 				(token) => token.kind === "profile" && token.host.isConnected,
-			)
-		) {
+			);
+		if (isProfileAlreadyInserted) {
 			editor.focus();
 			return;
 		}
@@ -170,24 +146,23 @@ export function AssistantBar() {
 		host.dataset.tokenId = id;
 		host.dataset.label = data.label;
 
-		/* Порядок выбора места вставки: живая каретка в редакторе →
-		   сохранённая позиция до ухода фокуса → конец текста. */
 		const selection = window.getSelection();
 		let range: Range;
-		if (
+		const hasLiveCaretInEditor =
 			selection &&
 			selection.rangeCount > 0 &&
 			editor.contains(selection.anchorNode) &&
-			document.activeElement === editor
-		) {
-			range = selection.getRangeAt(0);
-			range.deleteContents();
-		} else if (
+			document.activeElement === editor;
+		const hasSavedRangeInEditor =
 			lastRangeRef.current &&
 			lastRangeRef.current.startContainer.isConnected &&
-			editor.contains(lastRangeRef.current.startContainer)
-		) {
-			range = lastRangeRef.current;
+			editor.contains(lastRangeRef.current.startContainer);
+
+		if (hasLiveCaretInEditor) {
+			range = selection.getRangeAt(0);
+			range.deleteContents();
+		} else if (hasSavedRangeInEditor) {
+			range = lastRangeRef.current as Range;
 			range.deleteContents();
 		} else {
 			range = document.createRange();
@@ -197,28 +172,24 @@ export function AssistantBar() {
 		editor.focus();
 		range.insertNode(host);
 
-		/* Пробел после тега, чтобы продолжить фразу сразу. */
-		const space = document.createTextNode("\u00A0");
-		host.after(space);
+		const trailingSpace = document.createTextNode(NON_BREAKING_SPACE);
+		host.after(trailingSpace);
 		if (selection) {
 			const caret = document.createRange();
-			caret.setStart(space, 1);
+			caret.setStart(trailingSpace, 1);
 			caret.collapse(true);
 			selection.removeAllRanges();
 			selection.addRange(caret);
 			lastRangeRef.current = caret.cloneRange();
 		}
 
-		setTokens((prev) => [
-			...prev.filter((token) => token.host.isConnected),
+		setTokens((previous) => [
+			...previous.filter((token) => token.host.isConnected),
 			{ ...data, id, host },
 		]);
 		setHasContent(true);
 	}
 
-	/* Заявки из меню плюсика и карточек товара: стор используется
-	   как «почтовый ящик» — тег вставляется в текст, заявка
-	   сбрасывается. */
 	useEffect(() => {
 		if (!attachedProduct) {
 			return;
@@ -254,8 +225,6 @@ export function AssistantBar() {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [isProfileAttached, detachProfile]);
 
-	/* Каретка двигается и без ввода (клики, стрелки) — упоминание
-	   отслеживается через selectionchange. */
 	const updateMentionDraftRef = useRef(updateMentionDraft);
 	updateMentionDraftRef.current = updateMentionDraft;
 	useEffect(() => {
@@ -269,23 +238,19 @@ export function AssistantBar() {
 
 	function updateMentionDraft() {
 		const editor = editorRef.current;
-		/* Стрелки и клики тоже могут поставить каретку вплотную
-		   к тегу — выравниваем при каждом движении. */
 		if (editor && document.activeElement === editor) {
 			normalizeCaret(editor);
 		}
 		const selection = window.getSelection();
 
-		/* Пока каретка в редакторе — запоминаем её позицию для
-		   вставок из внешних меню. */
-		if (
+		const hasCaretInEditor =
 			editor &&
 			selection &&
 			selection.rangeCount > 0 &&
 			selection.anchorNode &&
 			editor.contains(selection.anchorNode) &&
-			document.activeElement === editor
-		) {
+			document.activeElement === editor;
+		if (hasCaretInEditor) {
 			lastRangeRef.current = selection.getRangeAt(0).cloneRange();
 		}
 
@@ -306,20 +271,26 @@ export function AssistantBar() {
 		const text = node.textContent ?? "";
 		const caret = selection.anchorOffset;
 
-		for (let i = caret - 1; i >= 0; i -= 1) {
-			const char = text[i];
+		for (let index = caret - 1; index >= 0; index -= 1) {
+			const char = text[index];
 			if (char === "@") {
-				const before = i === 0 ? "" : text[i - 1];
-				if (before === "" || /[\s\u00A0\u200B]/.test(before)) {
-					setMentionDraft((prev) => {
-						const next = { node, start: i, query: text.slice(i + 1, caret) };
-						if (
-							prev &&
-							prev.node === next.node &&
-							prev.start === next.start &&
-							prev.query === next.query
-						) {
-							return prev;
+				const charBefore = index === 0 ? "" : text[index - 1];
+				const isMentionStart =
+					charBefore === "" || /[\s\u00A0\u200B]/.test(charBefore);
+				if (isMentionStart) {
+					setMentionDraft((previous) => {
+						const next = {
+							node,
+							start: index,
+							query: text.slice(index + 1, caret),
+						};
+						const isSameDraft =
+							previous &&
+							previous.node === next.node &&
+							previous.start === next.start &&
+							previous.query === next.query;
+						if (isSameDraft) {
+							return previous;
 						}
 						setMentionActiveIndex(0);
 						return next;
@@ -335,8 +306,6 @@ export function AssistantBar() {
 		setMentionDraft(null);
 	}
 
-	/* Выбор упоминания: «@фрагмент» заменяется тегом ровно в том же
-	   месте текста. */
 	function handleSelectMention(item: MentionItem) {
 		const draft = mentionDraft;
 		if (!draft || !draft.node.isConnected) {
@@ -400,8 +369,6 @@ export function AssistantBar() {
 	}
 
 	function handleEditorKeyDown(event: KeyboardEvent<HTMLDivElement>) {
-		/* Enter может завершать композицию CJK-раскладок — в этот
-		   момент ничего не перехватываем. */
 		const isComposing =
 			event.nativeEvent.isComposing || event.keyCode === 229;
 		if (isComposing) {
@@ -433,17 +400,12 @@ export function AssistantBar() {
 			}
 		}
 
-		/* Однострочный редактор: Enter отправляет, а не переносит. */
 		if (event.key === "Enter") {
 			event.preventDefault();
 			formRef.current?.requestSubmit();
 			return;
 		}
 
-		/* Backspace вплотную к тегу удаляет сам тег. Без этого
-		   Backspace стирал бы невидимую подложку (\u200B), которую
-		   normalizeCaret тут же создавал бы заново — и тег стал бы
-		   неудаляемым. */
 		if (event.key === "Backspace") {
 			const editor = editorRef.current;
 			const selection = window.getSelection();
@@ -460,29 +422,31 @@ export function AssistantBar() {
 
 			let tokenBefore: Element | null = null;
 			if (startContainer === editor) {
-				const prev = editor.childNodes[startOffset - 1];
-				if (prev instanceof Element && prev.hasAttribute("data-token-id")) {
-					tokenBefore = prev;
+				const previousNode = editor.childNodes[startOffset - 1];
+				if (
+					previousNode instanceof Element &&
+					previousNode.hasAttribute("data-token-id")
+				) {
+					tokenBefore = previousNode;
 				}
 			} else if (startContainer.nodeType === Node.TEXT_NODE) {
 				const text = startContainer.textContent ?? "";
-				/* До каретки только невидимые символы — фактически
-				   каретка стоит сразу за тегом. */
-				if (/^[\u200B]*$/.test(text.slice(0, startOffset))) {
-					const prev = startContainer.previousSibling;
+				const isCaretRightAfterToken = /^[\u200B]*$/.test(
+					text.slice(0, startOffset),
+				);
+				if (isCaretRightAfterToken) {
+					const previousNode = startContainer.previousSibling;
 					if (
-						prev instanceof Element &&
-						prev.hasAttribute("data-token-id")
+						previousNode instanceof Element &&
+						previousNode.hasAttribute("data-token-id")
 					) {
-						tokenBefore = prev;
+						tokenBefore = previousNode;
 					}
 				}
 			}
 
 			if (tokenBefore) {
 				event.preventDefault();
-				/* Вместе с тегом убираем невидимую подложку перед
-				   кареткой, чтобы она не копилась. */
 				if (
 					startContainer.nodeType === Node.TEXT_NODE &&
 					startOffset > 0
@@ -496,7 +460,6 @@ export function AssistantBar() {
 	}
 
 	function handlePaste(event: React.ClipboardEvent<HTMLDivElement>) {
-		/* Только плоский текст — без стилей и переносов строк. */
 		event.preventDefault();
 		const text = event.clipboardData
 			.getData("text/plain")
@@ -559,7 +522,6 @@ export function AssistantBar() {
 				/>
 			</button>
 
-			{/* Содержимое тегов рисует React внутри DOM-узлов редактора. */}
 			{tokens.map((token) =>
 				token.host.isConnected
 					? createPortal(
@@ -577,10 +539,6 @@ type TokenContentProps = {
 	token: Token;
 };
 
-/* Упоминание — просто синий текст в потоке фразы, чуть жирнее
-   основного. Без подложек, иконок и крестиков: ничего не выбивается
-   из строки. Удаляется целиком одним Backspace — host не
-   редактируется, браузер стирает его как один символ. */
 function TokenContent({ token }: TokenContentProps) {
 	return <span className={styles.tokenLabel}>{token.label}</span>;
 }
