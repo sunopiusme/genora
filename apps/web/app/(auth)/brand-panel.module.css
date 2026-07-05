@@ -3,8 +3,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-5);
-  padding: var(--space-10) var(--space-6) var(--space-6);
+  flex-shrink: 0;
+  padding: calc(var(--space-4) + env(safe-area-inset-top)) var(--space-6)
+    var(--space-2);
   overflow: hidden;
   text-align: center;
 }
@@ -21,11 +22,12 @@
 .logo {
   position: relative;
   align-self: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.25rem;
+  height: 2.25rem;
 }
 
 .brandBottom {
+  display: none;
   position: relative;
   max-width: 30rem;
   margin-inline: auto;
@@ -53,7 +55,7 @@
   .brand {
     align-items: flex-start;
     justify-content: space-between;
-    gap: 0;
+    flex-shrink: 1;
     padding: var(--space-12);
     text-align: left;
     border-right: 1px solid var(--color-border);
@@ -82,6 +84,7 @@
   }
 
   .brandBottom {
+    display: block;
     margin-inline: 0;
   }
 

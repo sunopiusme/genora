@@ -253,6 +253,26 @@
   border-radius: var(--radius-md);
 }
 
+@media (max-width: 1023px) {
+  .header {
+    margin-bottom: var(--space-4);
+  }
+
+  .divider {
+    margin-block: var(--space-3);
+  }
+
+  .socialButton.socialButton,
+  .submit.submit,
+  .inputRow > input {
+    height: 2.75rem;
+  }
+
+  .footer {
+    margin-top: var(--space-4);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .root {
     animation: none;
