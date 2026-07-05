@@ -238,11 +238,17 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 		<div
 			className={styles.tierSlider}
 			data-sheet-drag-ignore="true"
-			style={{ "--fill": `${fillRatio * 100}%` } as React.CSSProperties}
+			data-maxed={isMaxed || undefined}
+			style={
+				{
+					"--fill": `${fillRatio * 100}%`,
+					"--brand": product.brandColor,
+				} as React.CSSProperties
+			}
 		>
 			<div className={styles.tierEdges} aria-hidden="true">
 				<span>Базовый</span>
-				<span>Максимум</span>
+				<span className={styles.tierEdgeMax}>Максимум</span>
 			</div>
 			<div className={styles.tierTrackWrap}>
 				<div className={styles.tierTrack} aria-hidden="true">

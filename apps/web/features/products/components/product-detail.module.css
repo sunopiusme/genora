@@ -600,6 +600,16 @@
 	color: var(--color-foreground-subtle);
 }
 
+.tierEdgeMax {
+	transition: color 0.25s ease;
+}
+
+/* На максимуме подпись «Максимум» подхватывает брендовый цвет. */
+.tierSlider[data-maxed] .tierEdgeMax {
+	color: var(--brand);
+	font-weight: var(--weight-semibold);
+}
+
 /* Обёртка визуального трека: нативный range лежит поверх невидимым
    слоем и обслуживает жест, вся графика — на div'ах ниже. */
 .tierTrackWrap {
@@ -617,6 +627,14 @@
 	background-color: rgb(255 255 255 / 0.06);
 	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
 	overflow: hidden;
+	transition: box-shadow 0.3s ease;
+}
+
+/* На максимуме трек получает брендовый ободок и мягкое свечение. */
+.tierSlider[data-maxed] .tierTrack {
+	box-shadow:
+		inset 0 0 0 1px color-mix(in srgb, var(--brand) 55%, transparent),
+		0 0 16px -4px color-mix(in srgb, var(--brand) 45%, transparent);
 }
 
 /* Нейтральная серая заливка до текущего уровня — без брендового цвета. */
@@ -626,35 +644,70 @@
 	width: var(--fill);
 	min-width: 1.5rem;
 	background-color: rgb(255 255 255 / 0.12);
-	transition: width 0.25s cubic-bezier(0.2, 0, 0, 1);
+	transition:
+		width 0.25s cubic-bezier(0.2, 0, 0, 1),
+		background 0.3s ease;
 }
 
-/* «Пиксели» на максимуме: шахматные квадратики, прорастающие от правого
-   края трека влево ступенчатой (пиксельной) анимацией. */
+/* На максимуме заливка тонируется брендовым цветом с усилением к ручке. */
+.tierSlider[data-maxed] .tierFill {
+	background: linear-gradient(
+		90deg,
+		color-mix(in srgb, var(--brand) 14%, rgb(255 255 255 / 0.06)),
+		color-mix(in srgb, var(--brand) 42%, transparent)
+	);
+}
+
+/* «Пиксели» на максимуме: два шахматных слоя в брендовом цвете.
+   Появление — цифровой «дизолв» (ступенчатое проявление слоёв со
+   сдвигом на полклетки), затем непрерывное мягкое мерцание. */
 .tierDither {
 	position: absolute;
 	inset: 0 0 0 auto;
-	width: 38%;
+	width: 40%;
+	--px: 0.4375rem;
 	background:
 		conic-gradient(
-				rgb(255 255 255 / 0.22) 25%,
+				color-mix(in srgb, var(--brand) 85%, white) 25%,
 				transparent 0 50%,
-				rgb(255 255 255 / 0.22) 0 75%,
+				color-mix(in srgb, var(--brand) 85%, white) 0 75%,
 				transparent 0
 			)
-			right center / 0.4375rem 0.4375rem;
-	-webkit-mask-image: linear-gradient(90deg, transparent, black 85%);
-	mask-image: linear-gradient(90deg, transparent, black 85%);
-	animation: ditherGrow 0.45s steps(7, end) both;
+			right center / var(--px) var(--px),
+		conic-gradient(
+				transparent 25%,
+				color-mix(in srgb, var(--brand) 45%, transparent) 0 50%,
+				transparent 0 75%,
+				color-mix(in srgb, var(--brand) 45%, transparent) 0
+			)
+			calc(100% - var(--px) / 2) center / var(--px) var(--px);
+	-webkit-mask-image: linear-gradient(90deg, transparent, black 80%);
+	mask-image: linear-gradient(90deg, transparent, black 80%);
+	animation:
+		ditherIn 0.4s steps(4, end) both,
+		ditherShimmer 1.6s steps(2, end) 0.4s infinite;
 	pointer-events: none;
 }
 
-@keyframes ditherGrow {
+/* Цифровое проявление: пиксели «материализуются» ступенями яркости
+   на месте, без выползания сбоку. */
+@keyframes ditherIn {
 	from {
-		clip-path: inset(0 0 0 100%);
+		opacity: 0;
 	}
 	to {
-		clip-path: inset(0 0 0 0);
+		opacity: 1;
+	}
+}
+
+/* Лёгкое дыхание пикселей — живой инженерный шум, ступенчато. */
+@keyframes ditherShimmer {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.72;
 	}
 }
 
@@ -755,6 +808,12 @@
 	background-color: rgb(255 255 255 / 0.1);
 	color: var(--color-foreground);
 	font-weight: var(--weight-semibold);
+}
+
+/* На максимуме активная метка тира тонируется брендовым цветом. */
+.tierSlider[data-maxed] .tierStopActive {
+	background-color: color-mix(in srgb, var(--brand) 22%, transparent);
+	color: color-mix(in srgb, var(--brand) 60%, white);
 }
 
 /* Скруглённая карточка цены вместо линии-разделителя: спокойная
