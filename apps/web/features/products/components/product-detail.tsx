@@ -349,6 +349,18 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 			<div className={styles.tierTrackWrap}>
 				<div className={styles.tierTrack} aria-hidden="true">
 					<div className={styles.tierFill} />
+					<span className={styles.tierDither} />
+					{product.tiers.map((productTier, index) => (
+						<span
+							key={productTier.id}
+							className={styles.tierDot}
+							style={
+								{
+									"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
+								} as React.CSSProperties
+							}
+						/>
+					))}
 					<span className={styles.tierThumb} />
 				</div>
 				<input
