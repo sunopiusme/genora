@@ -30,19 +30,21 @@ const QUIET_LEFT_RATIO = 0.25;
 /** Дискретные уровни яркости — пиксель «перещёлкивается», а не плывёт. */
 const BRIGHTNESS_LEVELS = 4;
 /** Длительность полного прохода волны, мс. */
-const WAVE_PERIOD_MS = 2600;
+const WAVE_PERIOD_MS = 3600;
 /** Ширина фронта волны в ячейках. */
 const WAVE_FRONT_CELLS = 9;
 /** Доля брендового цвета в точке (остальное — белый). */
 const BRAND_MIX = 0.38;
 /** Длительность нарастания пикселей справа налево при включении, мс. */
-const REVEAL_MS = 950;
+const REVEAL_MS = 1500;
 /** Рваность фронта нарастания в ячейках — пиксели прорастают вразнобой. */
-const REVEAL_JITTER_CELLS = 6;
+const REVEAL_JITTER_CELLS = 8;
 /** Ширина яркого «пера» на фронте рисования, в ячейках. */
-const REVEAL_PEN_CELLS = 5;
+const REVEAL_PEN_CELLS = 6;
 /** Шаг дискретизации волны, мс — фронт перещёлкивается по ячейкам. */
-const WAVE_STEP_MS = 84;
+const WAVE_STEP_MS = 96;
+/** Пауза между окончанием рисования и стартом волны, мс. */
+const WAVE_DELAY_MS = 400;
 
 export function TierDither({ active, brandColor }: TierDitherProps) {
 	const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -98,16 +100,20 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			   свой джиттер, поэтому текстура растёт вразнобой, попиксельно,
 			   а не ровной шторкой. */
 			const revealProgress = Math.min(1, timeMs / REVEAL_MS);
-			/* Почти линейный ход с лёгким замедлением в конце: рисование
-			   видно на всём протяжении, а не проскакивает в первые кадры. */
-			const eased = 1 - (1 - revealProgress) ** 1.6;
+			/* Спокойный ease-in-out: рисование мягко разгоняется от ручки,
+			   ровно идёт по треку и плавно затухает к левому краю — без
+			   резкого рывка на старте. */
+			const eased =
+				revealProgress < 0.5
+					? 2 * revealProgress * revealProgress
+					: 1 - (-2 * revealProgress + 2) ** 2 / 2;
 			const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
 			const revealing = revealProgress < 1;
 
 			/* Фронт волны: время квантовано шагами WAVE_STEP_MS — фронт
 			   перещёлкивается по ячейкам дискретно. Волна стартует после
-			   завершения нарастания. */
-			const waveTimeMs = Math.max(0, timeMs - REVEAL_MS);
+			   рисования с короткой паузой, чтобы эффекты не сливались. */
+			const waveTimeMs = Math.max(0, timeMs - REVEAL_MS - WAVE_DELAY_MS);
 			const steppedTime =
 				Math.floor(waveTimeMs / WAVE_STEP_MS) * WAVE_STEP_MS;
 			const travelCells = columns + WAVE_FRONT_CELLS * 2;
@@ -144,9 +150,9 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					/* Индивидуальное мерцание: у каждой ячейки своя фаза и
 					   скорость — пиксели живут несинхронно даже вне фронта. */
 					const twinklePhase = cellHash(col * 3 + 1, row * 7 + 3);
-					const twinkleSpeed = 0.6 + cellHash(col * 5 + 2, row * 11 + 5);
+					const twinkleSpeed = 0.5 + cellHash(col * 5 + 2, row * 11 + 5) * 0.8;
 					const twinkle =
-						0.14 *
+						0.11 *
 						Math.sin(
 							(timeMs / 1000) * twinkleSpeed * Math.PI * 2 +
 								twinklePhase * Math.PI * 2,
@@ -166,14 +172,15 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					}
 
 					/* «Перо» рисования: пиксели у самого фронта прорастания
-					   вспыхивают ярче — видно, как их прямо сейчас «рисуют»,
-					   а за пером они гаснут до своей обычной яркости. */
+					   подсвечиваются деликатно — видно, что их прямо сейчас
+					   «рисуют», но без дерзкой вспышки; за пером они мягко
+					   оседают до своей обычной яркости. */
 					let penBoost = 0;
 					if (revealing) {
 						const penDistance =
 							col - revealJitter - revealFrontCol;
 						if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
-							penBoost = (1 - penDistance / REVEAL_PEN_CELLS) * 0.6;
+							penBoost = (1 - penDistance / REVEAL_PEN_CELLS) ** 2 * 0.3;
 						}
 					}
 
