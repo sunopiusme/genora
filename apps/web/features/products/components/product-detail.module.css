@@ -1,7 +1,9 @@
 .overlay {
-	position: absolute;
+	/* fixed на body (как у профиля): шит живёт в собственном слое и не
+	   зависит от трансформаций/скролла поверхности дашборда. */
+	position: fixed;
 	inset: 0;
-	z-index: 20;
+	z-index: 60;
 	display: flex;
 	padding: var(--space-6);
 	background-color: rgb(0 0 0 / 0.72);
@@ -17,7 +19,7 @@
 	max-width: 46rem;
 	max-height: calc(100dvh - 3rem);
 	margin: auto;
-	border-radius: var(--radius-2xl);
+	border-radius: var(--radius-3xl);
 	background-color: var(--color-surface);
 	border: 1px solid rgb(255 255 255 / 0.12);
 	box-shadow:
@@ -62,6 +64,18 @@
 	composes: panel;
 	animation: none;
 	transition: none;
+}
+
+.panelSettling {
+	composes: panel;
+	animation: none;
+}
+
+/* «Спокойное» состояние после первого перетаскивания: без entry-анимации,
+   иначе возврат к .panel заново проигрывал бы sheetIn/panelIn. */
+.panelRested {
+	composes: panel;
+	animation: none;
 }
 
 @keyframes overlayOut {
@@ -121,25 +135,37 @@
 		pointer-events: none;
 	}
 
+	/* Открытие — чистая animation без transition (как у profile-sheet):
+	   постоянный transition на transform конфликтовал с sheetIn и
+	   подгрузкой ассетов — на iOS шит дёргался при открытии. */
 	.panel {
 		margin: auto 0 0;
 		max-width: none;
-		max-height: min(100dvh, calc(100dvh - 3rem + var(--hero-stretch, 0px)));
+		max-height: calc(100dvh - 3rem);
 		display: flex;
 		flex-direction: column;
-		border-radius: var(--radius-2xl) var(--radius-2xl) 0 0;
+		border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
 		border-bottom: none;
 		overflow: hidden;
 		will-change: transform;
 		animation: sheetIn 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
-		transition:
-			transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
-			max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	.panelDragging {
 		animation: none;
 		transition: none;
+	}
+
+	/* Возврат после незавершённого свайпа: transition включается только
+	   на эту короткую фазу, когда entry-анимация уже давно завершена. */
+	.panelSettling {
+		animation: none;
+		transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+	}
+
+	/* После взаимодействия шит стоит на месте — никаких анимаций. */
+	.panelRested {
+		animation: none;
 	}
 
 	.overlayClosing.overlayClosing {
@@ -164,6 +190,10 @@
 		min-height: 0;
 	}
 
+	.grabber {
+		display: block;
+	}
+
 	.controls.controls {
 		right: auto;
 		left: 0;
@@ -171,6 +201,13 @@
 		justify-content: space-between;
 		padding: var(--space-3);
 		top: 0;
+	}
+
+	/* На мобильном кнопки того же размера, что круглая кнопка хедера. */
+	.iconButton {
+		width: 2.75rem;
+		height: 2.75rem;
+		font-size: 1.25rem;
 	}
 
 	.controls::before {
@@ -213,14 +250,21 @@
 		transform-origin: top left;
 	}
 
-	.hero.hero {
-		min-height: calc(14rem + var(--hero-stretch, 0px));
-		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
-	}
+}
 
-	.panelDragging .hero.hero {
-		transition: none;
-	}
+/* Ручка-грабер как у системных iOS-шитов; на десктопе скрыта. */
+.grabber {
+	display: none;
+	position: absolute;
+	top: 0.5rem;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 2.25rem;
+	height: 0.3125rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.28);
+	z-index: 4;
+	pointer-events: none;
 }
 
 .controls {
@@ -238,18 +282,22 @@
 	display: inline-flex;
 }
 
+/* ��руглые кнопки в стиле кнопки хедера (mobileFab): бордер, surface-фон,
+   мягкая тень — единый язык управляющих элементов приложения. */
 .iconButton {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 2.125rem;
-	height: 2.125rem;
-	border: none;
+	width: 2.5rem;
+	height: 2.5rem;
+	padding: 0;
+	border: 1px solid var(--color-border);
 	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.08);
+	background-color: var(--color-surface);
 	color: var(--color-foreground);
 	cursor: pointer;
-	font-size: 1rem;
+	font-size: 1.125rem;
+	box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
 	transition:
 		color 0.15s ease,
 		background-color 0.15s ease,
@@ -261,11 +309,11 @@
 }
 
 .iconButton:active {
-	transform: scale(0.97);
+	transform: scale(0.96);
 }
 
 .iconButton:hover {
-	background-color: rgb(255 255 255 / 0.14);
+	background-color: var(--color-surface-elevated);
 }
 
 .iconButton:focus-visible {
@@ -275,7 +323,7 @@
 
 .iconButtonActive {
 	composes: iconButton;
-	background-color: rgb(255 255 255 / 0.14);
+	background-color: var(--color-surface-elevated);
 }
 
 .shareMenu {
@@ -495,8 +543,15 @@
 	padding: var(--space-6);
 }
 
+.heading {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-1);
+	margin-bottom: var(--space-3);
+}
+
 .eyebrow {
-	margin: 0 0 var(--space-2);
+	margin: 0;
 	font-size: var(--text-xs);
 	font-weight: var(--weight-semibold);
 	letter-spacing: 0.08em;
@@ -505,33 +560,420 @@
 }
 
 .name {
-	margin: 0 0 var(--space-3);
-	font-size: var(--text-xl);
+	margin: 0;
+	font-size: var(--text-2xl);
 	font-weight: var(--weight-semibold);
 	line-height: var(--leading-lg);
 	letter-spacing: -0.02em;
 	color: var(--color-foreground);
 }
 
-.description {
-	margin: 0;
-	max-width: 30rem;
-	font-size: var(--text-base);
-	font-weight: var(--weight-normal);
-	line-height: var(--leading-lg);
-	text-wrap: pretty;
+/* Селектор уровня подписки: компактный чип-триггер по ширине контента;
+   слайдер раскрывается по нажатию в отдельной менюшке. */
+.tierSelector {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	margin-top: var(--space-5);
+}
+
+.tierTrigger {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-2);
+	padding: var(--space-2) var(--space-3);
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.04);
+	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+	font-family: var(--font-sans);
+	cursor: pointer;
+	transition: background-color 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierTrigger:hover {
+	background-color: rgb(255 255 255 / 0.06);
+}
+
+.tierTrigger:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+
+.tierTriggerOpen {
+	composes: tierTrigger;
+	background-color: rgb(255 255 255 / 0.06);
+}
+
+.tierTriggerCaption {
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
 	color: var(--color-foreground-muted);
 }
 
-.divider {
-	height: 1px;
-	margin: var(--space-5) 0;
-	background: linear-gradient(
+.tierTriggerValue {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--space-1);
+	font-size: var(--text-sm);
+	font-weight: var(--weight-semibold);
+	color: var(--color-foreground);
+}
+
+.tierTriggerChevron {
+	font-size: 1rem;
+	color: var(--color-foreground-subtle);
+}
+
+/* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
+   на «плюсике» чат-инпута) — высота модалки не меняется. Фиксированная
+   компактная ширина от левого края триггера. */
+.tierMenu {
+	position: absolute;
+	top: calc(100% + var(--space-2));
+	left: 0;
+	width: min(17.5rem, calc(100vw - var(--space-8) * 2));
+	z-index: var(--z-overlay, 30);
+	border: 1px solid var(--color-border);
+	border-radius: var(--radius-2xl);
+	background-color: var(--color-surface-elevated);
+	box-shadow: var(--shadow-lg);
+	animation: tierMenuIn 0.16s ease both;
+}
+
+@keyframes tierMenuIn {
+	from {
+		opacity: 0;
+		transform: translateY(0.375rem) scale(0.98);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierMenu {
+		animation: none;
+	}
+}
+
+/* Слайдер уровня подписки (по мотивам Effort-слайдера Claude Code):
+   нейтральный серый трек, ручка целиком внутри. Фон и тень даёт
+   дропдаун .tierMenu — сам слайдер прозрачный. */
+.tierSlider {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-3) var(--space-4);
+}
+
+.tierEdges {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+}
+
+.tierEdgeMax {
+	transition: color 0.3s ease;
+}
+
+/* На максимуме подпись «М������������������ксимум» подхватывает брендовый оттенок.
+   Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
+.tierSlider[data-maxed] .tierEdgeMax {
+	color: color-mix(in srgb, var(--brand) 65%, white);
+}
+
+/* Трек один в один как в референсе Claude Code: утопленная ТЁМНАЯ
+   полоса, темнее фона поповера (выемка, а не светлая плашка). Ручка —
+   прямой ребёнок трека и ВЫСТУПАЕТ за его края сверху и снизу, поэтому
+   overflow здесь visible; клиппинг заливки — во внутреннем слое.
+   Сам трек — интерактивный slider (Pointer Events из компонента);
+   touch-action: none отдаёт жест слайдеру, а не скроллу/шиту. */
+.tierTrack {
+	position: relative;
+	width: 100%;
+	height: 1.375rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(0 0 0 / 0.35);
+	transition: background-color 0.3s ease;
+	touch-action: none;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierTrack:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.35);
+}
+
+/* Внутренний клиппинг-слой: обрезает заливку и пиксельную текстуру
+   по пилюле, не мешая ручке выступать за трек. */
+.tierTrackInner {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--radius-full);
+	overflow: hidden;
+	pointer-events: none;
+}
+
+/* Точки-остановки на позициях уровней; последняя — брендовая. */
+.tierDot {
+	position: absolute;
+	top: 50%;
+	left: clamp(0.625rem, var(--pos), calc(100% - 0.625rem));
+	transform: translate(-50%, -50%);
+	width: 0.1875rem;
+	height: 0.1875rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.3);
+	transition: opacity 0.3s ease;
+}
+
+.tierDot:last-of-type {
+	background-color: color-mix(in srgb, var(--brand) 80%, white);
+}
+
+/* На максимуме точки скрываются — их накрывает светлая заливка. */
+.tierSlider[data-maxed] .tierDot {
+	opacity: 0;
+}
+
+/* Серая заливка тянется за ручкой ВСЕГДА: от левого края до текущей
+   позиции. На максимуме она достигает 100% и покрывает всю пилюлю —
+   именно от неё стартует шиммер. Ширина едет той же кривой и
+   длительностью, что и ручка, — движутся как один узел. */
+.tierFill {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--fill);
+	/* Правый торец плоский: он всегда спрятан под ручкой, скруглённый
+	   край не выглядывает из-под неё сверху и снизу. Пиксельная
+	   текстура лежит ВНУТРИ заливки и клиппится ей — едет вместе с
+	   полоской, когда та дотягивается до края. */
+	border-radius: var(--radius-full) 0 0 var(--radius-full);
+	overflow: hidden;
+	background-color: rgb(255 255 255 / 0.13);
+	transition:
+		width 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s ease;
+}
+
+/* На максимуме заливка — градиент как в референсе: у ручки самая
+   светлая, почти сливается с её серым, и темнеет влево — сплошной
+   цвет «растворяется» в пиксельные блоки. */
+.tierSlider[data-maxed] .tierFill {
+	background-color: rgb(255 255 255 / 0.11);
+	background-image: linear-gradient(
 		90deg,
-		var(--color-border-strong),
-		var(--color-border) 45%,
-		transparent
+		transparent 0%,
+		color-mix(in srgb, var(--brand) 8%, rgb(255 255 255 / 0.07)) 55%,
+		color-mix(in srgb, var(--brand) 12%, rgb(255 255 255 / 0.2)) 88%,
+		rgb(255 255 255 / 0.3) 100%
 	);
+}
+
+/* Пиксельная (дизеринг) текстура внутри заливки, как в Ultracode:
+   базовая решётка точек — постоянный чуть светлый слой (без
+   пульсации), а поверх неё в ::after — те же точки ярче, видимые
+   только сквозь дрейфующую маску. Получаются отдельные пиксели,
+   «загорающиеся» волной, а не дышащая всей плоскостью текстура. */
+.tierDither {
+	position: absolute;
+	inset: 0;
+	--px: 0.1875rem;
+	background: conic-gradient(
+			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 25%,
+			transparent 0 50%,
+			color-mix(in srgb, var(--brand) 45%, rgb(255 255 255 / 0.5)) 0 75%,
+			transparent 0
+		)
+		center / var(--px) var(--px);
+	/* Плотность как в референсе: слева пиксели редкие, к середине-
+	   правому краю плотнее, а у самой ручки гаснут — там сплошной
+	   светлый цвет заливки. */
+	-webkit-mask-image: linear-gradient(
+		90deg,
+		rgb(0 0 0 / 0.2) 0%,
+		rgb(0 0 0 / 0.5) 40%,
+		rgb(0 0 0 / 0.95) 72%,
+		rgb(0 0 0 / 0.35) 92%,
+		transparent 100%
+	);
+	mask-image: linear-gradient(
+		90deg,
+		rgb(0 0 0 / 0.2) 0%,
+		rgb(0 0 0 / 0.5) 40%,
+		rgb(0 0 0 / 0.95) 72%,
+		rgb(0 0 0 / 0.35) 92%,
+		transparent 100%
+	);
+	opacity: 0;
+	transition: opacity 0.25s ease;
+	pointer-events: none;
+}
+
+/* Яркий слой тех же пикселей: волна света идёт от ручки ВЛЕВО
+   дискретными шагами по сетке — mask-position квантован steps()
+   ровно по колонкам пикселей, блоки «перещёлкиваются», а не плывут. */
+.tierDither::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: conic-gradient(
+			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 25%,
+			transparent 0 50%,
+			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 0 75%,
+			transparent 0
+		)
+		center / var(--px) var(--px);
+	/* Период полосы 4.5rem = 24 колонки пикселей по 0.1875rem. */
+	-webkit-mask-image: repeating-linear-gradient(
+		90deg,
+		transparent 0,
+		rgb(0 0 0 / 0.85) 1.5rem,
+		transparent 3rem 4.5rem
+	);
+	mask-image: repeating-linear-gradient(
+		90deg,
+		transparent 0,
+		rgb(0 0 0 / 0.85) 1.5rem,
+		transparent 3rem 4.5rem
+	);
+	opacity: 0;
+}
+
+/* Включение максимума: ручка с заливкой доезжают до края (0.16s), и
+   пиксели проявляются вместе с полоской — они клиппятся заливкой.
+   По прибытии блоки начинают перещёлкиваться влево. */
+.tierSlider[data-maxed] .tierDither {
+	opacity: 1;
+	transition-delay: 0.1s;
+}
+
+.tierSlider[data-maxed] .tierDither::after {
+	opacity: 1;
+	animation: ditherSweep 2.8s steps(24, end) 0.26s infinite;
+}
+
+/* Сдвиг маски влево ровно на один период (4.5rem) за цикл, 24 шага —
+   по одной колонке пикселей за шаг: бесшовный блочный ход от ручки
+   к началу трека. */
+@keyframes ditherSweep {
+	from {
+		-webkit-mask-position: 0 0;
+		mask-position: 0 0;
+	}
+	to {
+		-webkit-mask-position: -4.5rem 0;
+		mask-position: -4.5rem 0;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierSlider[data-maxed] .tierDither::after {
+		animation: none;
+		opacity: 0.4;
+	}
+}
+
+/* Ручка в размерах полоски, но на 1px «выше» неё с каждой стороны —
+   полностью перекрывает торец серой заливки, ��ичего не выглядывает. */
+.tierThumb {
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	/* clamp держит ручку в пределах трека по горизонтали. */
+	left: clamp(0.6875rem, var(--fill), calc(100% - 0.6875rem));
+	transform: translateX(-50%);
+	width: 1.375rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(152 152 158);
+	/* Примагничивание при отпускании: короткий равномерный доезд —
+	   механика, а не пружина. Цвет — той же длительностью, что и
+	   остальные кроссфейды. */
+	transition:
+		left 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s ease;
+	pointer-events: none;
+}
+
+.tierSlider[data-maxed] .tierThumb {
+	background-color: #ffffff;
+}
+
+/* При активном перетаскивании отключаем transition у позиции ручки
+   И у ширины заливки — они следуют за пальцем мгновенно как один узел
+   (позиция пишется прямой записью CSS-переменной из rAF-цикла).
+   Цветовые кроссфейды всегда остаются плавными, чтобы состояние
+   максимума не «вспыхивало» при пересечении порога во время drag. */
+.tierSlider[data-dragging] .tierThumb {
+	transition: background-color 0.3s ease;
+}
+
+.tierSlider[data-dragging] .tierFill {
+	transition: background-color 0.3s ease;
+}
+
+/* Названия тиров под треком — кликабельные остановки. */
+.tierStops {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* Единый вес шрифта во всех состояниях: активность передаётся т��лько
+   цветом и фоном — метки не «толстеют» и не сдвигаются при движении. */
+.tierStop {
+	padding: 0.125rem 0.5rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background: transparent;
+	font-family: var(--font-sans);
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+	cursor: pointer;
+	transition:
+		color 0.3s ease,
+		background-color 0.3s ease;
+}
+
+.tierStopActive {
+	composes: tierStop;
+	background-color: rgb(255 255 255 / 0.1);
+	color: var(--color-foreground);
+}
+
+/* На максимуме активная метка тира деликатно тонируется брендом. */
+.tierSlider[data-maxed] .tierStopActive {
+	background-color: color-mix(in srgb, var(--brand) 16%, transparent);
+	color: color-mix(in srgb, var(--brand) 45%, white);
+}
+
+/* Скруглённая карточка цены вме��то линии-разделителя: спокойная
+   плашка в общем языке скруглений шита. */
+.priceCard {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: var(--space-3);
+	margin-top: var(--space-2);
+	padding: var(--space-4) var(--space-5);
+	border-radius: var(--radius-xl);
+	background-color: rgb(255 255 255 / 0.04);
+	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+}
+
+.priceCaption {
+	font-size: var(--text-sm);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-muted);
 }
 
 .priceRow {
@@ -543,28 +985,23 @@
 }
 
 .amount {
-	font-size: var(--text-2xl);
+	font-size: var(--text-xl);
 	font-weight: var(--weight-semibold);
 	letter-spacing: -0.01em;
 	font-variant-numeric: tabular-nums;
 	color: var(--color-foreground);
 }
 
-.separator {
-	font-size: var(--text-sm);
-	color: var(--color-foreground-subtle);
-}
-
 .period {
 	font-size: var(--text-sm);
-	color: var(--color-foreground-muted);
+	color: var(--color-foreground-subtle);
 }
 
 .actions {
 	display: flex;
 	flex-direction: column;
 	gap: var(--space-2);
-	margin-top: var(--space-5);
+	margin-top: var(--space-4);
 }
 
 .primaryAction {
@@ -572,7 +1009,7 @@
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-2);
-	height: 2.75rem;
+	height: 3rem;
 	border: none;
 	border-radius: var(--radius-full);
 	background-color: var(--color-primary);
@@ -602,16 +1039,17 @@
 	box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
+/* «Тихая» вторичная кнопка в том же языке, что кнопка «Купить» на
+   карточках витрины: полупрозрачная плашка без бордера. */
 .secondaryAction {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	gap: var(--space-2);
-	height: 2.75rem;
+	height: 3rem;
 	border: none;
 	border-radius: var(--radius-full);
-	background-color: var(--color-surface-elevated);
-	box-shadow: inset 0 0 0 1px var(--color-border);
+	background-color: rgb(255 255 255 / 0.08);
 	color: var(--color-foreground);
 	font-family: var(--font-sans);
 	font-size: var(--text-sm);
@@ -661,12 +1099,8 @@
 		justify-content: center;
 	}
 
-	.name {
-		font-size: var(--text-2xl);
-	}
-
 	.amount {
-		font-size: var(--text-3xl);
+		font-size: var(--text-2xl);
 	}
 }
 

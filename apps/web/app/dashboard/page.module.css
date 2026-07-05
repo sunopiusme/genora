@@ -18,6 +18,16 @@
   padding-block: var(--space-24) var(--space-32);
 }
 
+/* Mobile: the grid spans the exact same column as the chat input —
+   identical side insets (см. .composer в dashboard-shell), so the
+   cards' edges line up with the composer pill. */
+@media (max-width: 47.9375rem) {
+  .scrollInner {
+    padding-inline: calc(var(--space-4) + env(safe-area-inset-left, 0px))
+      calc(var(--space-4) + env(safe-area-inset-right, 0px));
+  }
+}
+
 .header {
   position: absolute;
   top: 0;
@@ -90,5 +100,20 @@
 .page[data-detail-open] .header,
 .page[data-detail-open] .scroll {
   filter: blur(12px);
+}
+
+/* Mobile: анимируемый blur больших слоёв за шитом роняет кадры на
+   iPhone и делает открытие дёрганым — шит и так накрывает экран,
+   достаточно затемнения самого оверлея. */
+@media (max-width: 47.9375rem) {
+  .header,
+  .scroll {
+    transition: none;
+  }
+
+  .page[data-detail-open] .header,
+  .page[data-detail-open] .scroll {
+    filter: none;
+  }
 }
 

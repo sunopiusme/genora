@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
@@ -13,9 +13,8 @@ const COPIED_RESET_DELAY_MS = 1500;
 const SWIPE_START_THRESHOLD_PX = 8;
 const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
-const HERO_STRETCH_RANGE_PX = 96;
-const HERO_STRETCH_DAMPING = 0.6;
 const CLOSE_ANIMATION_MOBILE_MS = 280;
+const SETTLE_DURATION_MS = 380;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -23,15 +22,22 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product, onClose }: ProductDetailProps) {
-	const surface = usePortalSurface(SURFACE_ELEMENT_ID);
+	/* Portal to document.body (как у ProfileSheet): шит анимируется в
+	   fixed-слое поверх всего, а не внутри трансформируемой поверхности —
+	   на iOS это убирает дёрганое открытие. */
+	const [isMounted, setIsMounted] = useState(false);
 
-	if (!product || !surface) {
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	if (!product || !isMounted) {
 		return null;
 	}
 
 	return createPortal(
 		<ProductDetailModal product={product} onClose={onClose} />,
-		surface,
+		document.body,
 	);
 }
 
@@ -49,12 +55,13 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 		onClose,
 		isMobile ? CLOSE_ANIMATION_MOBILE_MS : 0,
 	);
-	const isDragging = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
+	const swipe = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
 	const isScrolled = usePanelScrolled(bodyRef, isMobile);
 
 	useEscapeKey(requestClose.begin);
 	useInitialFocus(panelRef);
 	useSurfaceFocus(SURFACE_ELEMENT_ID);
+	useBodyScrollLock();
 
 	function handleAskAssistant() {
 		attachProduct(product);
@@ -70,9 +77,13 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 		: styles.overlay;
 	const panelClassName = requestClose.isClosing
 		? styles.panelClosing
-		: isDragging
+		: swipe.isDragging
 			? styles.panelDragging
-			: styles.panel;
+			: swipe.isSettling
+				? styles.panelSettling
+				: swipe.isRested
+					? styles.panelRested
+					: styles.panel;
 	const controlsClassName = isScrolled
 		? `${styles.controls} ${styles.controlsScrolled}`
 		: styles.controls;
@@ -88,6 +99,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 				className={panelClassName}
 				onClick={stopBackdropClose}
 			>
+				<span className={styles.grabber} aria-hidden="true" />
 				<div className={controlsClassName}>
 					<ShareMenu product={product} />
 					<button
@@ -149,23 +161,37 @@ type ProductPanelProps = {
 };
 
 function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
+	const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
+	const tier = product.tiers[tierIndex] ?? product.tiers[0];
+	const hasTiers = product.tiers.length > 1;
+
 	return (
 		<div className={styles.content}>
-			<p className={styles.eyebrow}>{product.provider}</p>
-			<h2 id="product-detail-title" className={styles.name}>
-				{product.name}
-			</h2>
-			<p className={styles.description}>{product.description}</p>
+			<div className={styles.heading}>
+				<p className={styles.eyebrow}>{product.provider}</p>
+				<h2 id="product-detail-title" className={styles.name}>
+					{product.name}
+					{tier ? ` ${tier.name}` : ""}
+				</h2>
+			</div>
 
-			<div className={styles.divider} />
+			{hasTiers && tier && (
+				<TierSelector
+					product={product}
+					tierIndex={tierIndex}
+					onTierChange={setTierIndex}
+				/>
+			)}
 
-			<p className={styles.priceRow}>
-				<span className={styles.amount}>{product.priceLabel}</span>
-				<span className={styles.separator} aria-hidden="true">
-					/
-				</span>
-				<span className={styles.period}>{product.periodLabel}</span>
-			</p>
+			<div className={styles.priceCard}>
+				<span className={styles.priceCaption}>Подписка</span>
+				<p className={styles.priceRow}>
+					<span className={styles.amount}>
+						{tier?.priceLabel ?? product.priceLabel}
+					</span>
+					<span className={styles.period}>{product.periodLabel}</span>
+				</p>
+			</div>
 
 			<div className={styles.actions}>
 				<button type="button" className={styles.primaryAction}>
@@ -179,6 +205,313 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 					<Icon icon="solar:chat-round-line-linear" aria-hidden="true" />
 					Обсудить товар
 				</button>
+			</div>
+		</div>
+	);
+}
+
+type TierSelectorProps = {
+	product: Product;
+	tierIndex: number;
+	onTierChange: (index: number) => void;
+};
+
+/* Селектор уровня подписки: компактная строка со значением, по нажатию
+   раскрывается меню со слайдером. Слайдер не занимает место в модалке
+   постоянно и появляется только когда пользователь выбирает уровень. */
+function TierSelector({ product, tierIndex, onTierChange }: TierSelectorProps) {
+	const [isOpen, setIsOpen] = useState(false);
+	const containerRef = useRef<HTMLDivElement>(null);
+	const tier = product.tiers[tierIndex];
+
+	const close = useCallback(() => setIsOpen(false), []);
+	useClickOutside(containerRef, isOpen, close);
+
+	useEffect(() => {
+		if (!isOpen) {
+			return;
+		}
+		function handleKeyDown(event: KeyboardEvent) {
+			if (event.key === "Escape") {
+				/* Гасим Escape локально, чтобы не закрылась вся модалка. */
+				event.stopPropagation();
+				close();
+			}
+		}
+		window.addEventListener("keydown", handleKeyDown, { capture: true });
+		return () =>
+			window.removeEventListener("keydown", handleKeyDown, { capture: true });
+	}, [isOpen, close]);
+
+	return (
+		<div className={styles.tierSelector} ref={containerRef}>
+			<button
+				type="button"
+				className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
+				onClick={() => setIsOpen((prev) => !prev)}
+				aria-haspopup="true"
+				aria-expanded={isOpen}
+			>
+				<span className={styles.tierTriggerCaption}>Уровень</span>
+				<span className={styles.tierTriggerValue}>
+					{tier?.name}
+					<Icon
+						icon={
+							isOpen ? "solar:alt-arrow-up-linear" : "solar:alt-arrow-down-linear"
+						}
+						className={styles.tierTriggerChevron}
+						aria-hidden="true"
+					/>
+				</span>
+			</button>
+			{isOpen && (
+				<div className={styles.tierMenu}>
+					<TierSlider
+						product={product}
+						tierIndex={tierIndex}
+						onTierChange={onTierChange}
+					/>
+				</div>
+			)}
+		</div>
+	);
+}
+
+type TierSliderProps = {
+	product: Product;
+	tierIndex: number;
+	onTierChange: (index: number) => void;
+};
+
+/* Дискретный слайдер уровня подписки (по мотивам Effort-слайдера
+   Claude Code), построенный по канону производительных drag-жестов:
+
+   - Pointer Events + setPointerCapture: один код-путь для мыши, пальца
+     и стилуса; жест не теряется при выходе за границы трека.
+   - Геометрия трека кэшируется один раз на pointerdown — ноль forced
+     reflow в per-move обработчике.
+   - pointermove пишет позицию в ref и коалесцируется через
+     requestAnimationFrame: DOM обновляется максимум раз за кадр
+     прямой записью CSS-переменной, без setState и без ре-рендеров.
+   - React state (уровень подписки) коммитится только когда дискретный
+     индекс реально изменился — пара раз за весь жест.
+   - touch-action: none на треке отдаёт жест слайдеру, а не скроллу. */
+function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
+	const maxIndex = product.tiers.length - 1;
+	const isMaxed = tierIndex === maxIndex;
+	const currentTier = product.tiers[tierIndex];
+
+	const rootRef = useRef<HTMLDivElement>(null);
+	const trackRef = useRef<HTMLDivElement>(null);
+	/* Живая геометрия жеста — вне React, чтобы не рендерить на каждый
+	   pointermove (60–120 событий/с). */
+	const gestureRef = useRef({
+		rect: null as DOMRect | null,
+		ratio: 0,
+		rafId: 0,
+		dragging: false,
+	});
+	/* Последний закоммиченный индекс — коммитим setState только при
+	   реальной смене уровня. */
+	const committedIndexRef = useRef(tierIndex);
+	committedIndexRef.current = tierIndex;
+
+	/* Единст��енная точка записи позиции в DOM: CSS-переменная --fill
+	   на корне слайдера. Транзишены управляются data-dragging. */
+	const applyFill = useCallback((ratio: number) => {
+		rootRef.current?.style.setProperty("--fill", `${ratio * 100}%`);
+	}, []);
+
+	/* Синхронизация с внешним состоянием (клик по метке, клавиатура,
+	   снап после отпускания): вне активного жеста позиция ручки всегда
+	   следует за tierIndex. --fill НЕ входит в JSX-стиль, иначе React
+	   при ре-рендере затирал бы прямые записи во время жеста.
+	   useLayoutEffect — чтобы первая отрисовка была уже с позицией. */
+	useLayoutEffect(() => {
+		if (!gestureRef.current.dragging) {
+			applyFill(maxIndex > 0 ? tierIndex / maxIndex : 0);
+		}
+	}, [tierIndex, maxIndex, applyFill]);
+
+	/* Отмена запланированного кадра при размонтировании. */
+	useEffect(() => {
+		return () => cancelAnimationFrame(gestureRef.current.rafId);
+	}, []);
+
+	const commitNearestTier = useCallback(
+		(ratio: number) => {
+			let nearest = Math.round(ratio * maxIndex);
+			/* Максимум во время жеста включается только когда ползунок
+			   ФИЗИЧЕСКИ стукнулся о правый край (>= 98.5% трека) — до
+			   этого держим предыдущий уровень. Заранее ничего не
+			   вспыхивает; при отпускании рядом с краем ручка магнитно
+			   дотягивается сама, и эффект стартует по прибытии. */
+			if (
+				gestureRef.current.dragging &&
+				nearest === maxIndex &&
+				ratio < 0.985
+			) {
+				nearest = maxIndex - 1;
+			}
+			if (nearest !== committedIndexRef.current) {
+				onTierChange(nearest);
+			}
+		},
+		[maxIndex, onTierChange],
+	);
+
+	/* Кадр отрисовки: одна запись в DOM за кадр, сколько бы событий
+	   pointermove ни пришло между кадрами. */
+	const renderFrame = useCallback(() => {
+		const gesture = gestureRef.current;
+		gesture.rafId = 0;
+		applyFill(gesture.ratio);
+		commitNearestTier(gesture.ratio);
+	}, [applyFill, commitNearestTier]);
+
+	const ratioFromClientX = useCallback((clientX: number) => {
+		const rect = gestureRef.current.rect;
+		if (!rect || rect.width === 0) {
+			return 0;
+		}
+		const ratio = (clientX - rect.left) / rect.width;
+		return Math.min(1, Math.max(0, ratio));
+	}, []);
+
+	function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
+		const track = trackRef.current;
+		if (!track) {
+			return;
+		}
+		/* Геометрия читается ровно один раз за жест. */
+		const gesture = gestureRef.current;
+		gesture.rect = track.getBoundingClientRect();
+		gesture.dragging = true;
+		gesture.ratio = ratioFromClientX(event.clientX);
+		track.setPointerCapture(event.pointerId);
+		/* Атрибут ставится напрямую — отключает транзишены позиции без
+		   участия React. */
+		rootRef.current?.setAttribute("data-dragging", "true");
+		applyFill(gesture.ratio);
+		commitNearestTier(gesture.ratio);
+	}
+
+	function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+		const gesture = gestureRef.current;
+		if (!gesture.dragging) {
+			return;
+		}
+		gesture.ratio = ratioFromClientX(event.clientX);
+		if (gesture.rafId === 0) {
+			gesture.rafId = requestAnimationFrame(renderFrame);
+		}
+	}
+
+	function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
+		const gesture = gestureRef.current;
+		if (!gesture.dragging) {
+			return;
+		}
+		gesture.dragging = false;
+		cancelAnimationFrame(gesture.rafId);
+		gesture.rafId = 0;
+		trackRef.current?.releasePointerCapture(event.pointerId);
+		/* Возвращаем транзишены и примагничиваем ручку к уровню. */
+		rootRef.current?.removeAttribute("data-dragging");
+		const nearest = Math.round(gesture.ratio * maxIndex);
+		applyFill(maxIndex > 0 ? nearest / maxIndex : 0);
+		if (nearest !== committedIndexRef.current) {
+			onTierChange(nearest);
+		}
+	}
+
+	function handleKeyDown(event: React.KeyboardEvent<HTMLDivElement>) {
+		let next = tierIndex;
+		switch (event.key) {
+			case "ArrowRight":
+			case "ArrowUp":
+				next = Math.min(maxIndex, tierIndex + 1);
+				break;
+			case "ArrowLeft":
+			case "ArrowDown":
+				next = Math.max(0, tierIndex - 1);
+				break;
+			case "Home":
+				next = 0;
+				break;
+			case "End":
+				next = maxIndex;
+				break;
+			default:
+				return;
+		}
+		event.preventDefault();
+		if (next !== tierIndex) {
+			onTierChange(next);
+		}
+	}
+
+	return (
+		<div
+			ref={rootRef}
+			className={styles.tierSlider}
+			data-sheet-drag-ignore="true"
+			data-maxed={isMaxed || undefined}
+			style={{ "--brand": product.brandColor } as React.CSSProperties}
+		>
+			<div className={styles.tierEdges} aria-hidden="true">
+				<span>Базовый</span>
+				<span className={styles.tierEdgeMax}>Максимум</span>
+			</div>
+			<div
+				ref={trackRef}
+				className={styles.tierTrack}
+				role="slider"
+				tabIndex={0}
+				aria-label="Уровень подписки"
+				aria-valuemin={0}
+				aria-valuemax={maxIndex}
+				aria-valuenow={tierIndex}
+				aria-valuetext={currentTier?.name}
+				aria-orientation="horizontal"
+				onPointerDown={handlePointerDown}
+				onPointerMove={handlePointerMove}
+				onPointerUp={handlePointerEnd}
+				onPointerCancel={handlePointerEnd}
+				onKeyDown={handleKeyDown}
+			>
+				<div className={styles.tierTrackInner}>
+					<div className={styles.tierFill}>
+						<span className={styles.tierDither} />
+					</div>
+					{product.tiers.map((productTier, index) => (
+						<span
+							key={productTier.id}
+							className={styles.tierDot}
+							style={
+								{
+									"--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
+								} as React.CSSProperties
+							}
+						/>
+					))}
+				</div>
+				<span className={styles.tierThumb} />
+			</div>
+			<div className={styles.tierStops} aria-hidden="true">
+				{product.tiers.map((productTier, index) => (
+					<button
+						key={productTier.id}
+						type="button"
+						tabIndex={-1}
+						className={
+							index === tierIndex ? styles.tierStopActive : styles.tierStop
+						}
+						onClick={() => onTierChange(index)}
+					>
+						{productTier.name}
+					</button>
+				))}
 			</div>
 		</div>
 	);
@@ -245,7 +578,7 @@ function ShareMenu({ product }: ShareMenuProps) {
 				type="button"
 				className={shareButtonClassName}
 				onClick={handleShareButtonClick}
-				aria-label="Поделиться"
+				aria-label="Под��литься"
 				title="Поделиться"
 				aria-haspopup="true"
 				aria-expanded={isOpen}
@@ -334,6 +667,20 @@ function useSwipeToDismiss(
 	isEnabled: boolean,
 ) {
 	const [isDragging, setIsDragging] = useState(false);
+	/* Фаза «settling» — короткое окно после отпущенного незавершённого
+	   свайпа, когда включается transition для плавного возврата шита.
+	   Вне этого окна transition отсутствует, чтобы не конфликтовать
+	   с entry-анимацией открытия (источник рывков на iOS). */
+	const [isSettling, setIsSettling] = useState(false);
+	/* После первого перетаскивания панель навсегда переходит в «спокойное»
+	   состояние (isRested): возврат к базовому классу .panel заново
+	   проигрывал бы entry-анимацию sheetIn — шит повторно «выезжал» снизу. */
+	const [isRested, setIsRested] = useState(false);
+	const settleTimerRef = useRef<number | undefined>(undefined);
+
+	useEffect(() => {
+		return () => window.clearTimeout(settleTimerRef.current);
+	}, []);
 
 	useEffect(() => {
 		if (!isEnabled) {
@@ -355,6 +702,12 @@ function useSwipeToDismiss(
 
 		function handlePointerDown(event: PointerEvent) {
 			if (activePointerId !== null || getScrollTop() > 0) {
+				return;
+			}
+			/* Жесты внутри слайдера тиров принадлежат слайдеру: шит не
+			   должен ехать вниз, пока пользователь двигает ручку. */
+			const target = event.target as HTMLElement | null;
+			if (target?.closest("[data-sheet-drag-ignore]")) {
 				return;
 			}
 			activePointerId = event.pointerId;
@@ -388,13 +741,11 @@ function useSwipeToDismiss(
 			if (!panel.hasPointerCapture(event.pointerId)) {
 				capturePointerSafely(panel, event.pointerId);
 				setIsDragging(true);
+				setIsRested(true);
 			}
-			const stretch =
-				Math.min(dragOffset, HERO_STRETCH_RANGE_PX) * HERO_STRETCH_DAMPING;
-			const translate = Math.max(dragOffset - HERO_STRETCH_RANGE_PX, 0);
-			panel.style.setProperty("--hero-stretch", `${stretch}px`);
+			/* Панель просто следует за пальцем — без растягивания обложки. */
 			panel.style.transform =
-				translate > 0 ? `translateY(${translate}px)` : "";
+				dragOffset > 0 ? `translateY(${dragOffset}px)` : "";
 		}
 
 		function handlePointerEnd(event: PointerEvent) {
@@ -404,6 +755,7 @@ function useSwipeToDismiss(
 			const shouldDismiss =
 				dragOffset > panel.offsetHeight * SWIPE_DISMISS_DISTANCE_RATIO ||
 				(dragOffset > 0 && velocity > SWIPE_DISMISS_VELOCITY_PX_PER_MS);
+			const wasDragged = dragOffset > 0;
 			activePointerId = null;
 			dragOffset = 0;
 			setIsDragging(false);
@@ -411,8 +763,17 @@ function useSwipeToDismiss(
 				onDismiss();
 				return;
 			}
-			panel.style.removeProperty("--hero-stretch");
+			if (!wasDragged) {
+				return;
+			}
+			/* Плавный возврат: включаем transition на один такт settling,
+			   сбрасываем смещение и выключаем его по завершении. */
+			setIsSettling(true);
 			panel.style.transform = "";
+			window.clearTimeout(settleTimerRef.current);
+			settleTimerRef.current = window.setTimeout(() => {
+				setIsSettling(false);
+			}, SETTLE_DURATION_MS);
 		}
 
 		function handleTouchMove(event: TouchEvent) {
@@ -433,12 +794,11 @@ function useSwipeToDismiss(
 			panel.removeEventListener("pointerup", handlePointerEnd);
 			panel.removeEventListener("pointercancel", handlePointerEnd);
 			panel.removeEventListener("touchmove", handleTouchMove);
-			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
 		};
 	}, [isEnabled, onDismiss, panelRef, bodyRef]);
 
-	return isDragging;
+	return { isDragging, isSettling, isRested };
 }
 
 function usePanelScrolled(
@@ -485,14 +845,15 @@ function useSurfaceFocus(elementId: string) {
 	}, [elementId]);
 }
 
-function usePortalSurface(elementId: string) {
-	const [surface, setSurface] = useState<HTMLElement | null>(null);
-
+/* Блокируем прокрутку страницы за шитом, пока он от��рыт. */
+function useBodyScrollLock() {
 	useEffect(() => {
-		setSurface(document.getElementById(elementId));
-	}, [elementId]);
-
-	return surface;
+		const previousOverflow = document.body.style.overflow;
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = previousOverflow;
+		};
+	}, []);
 }
 
 function useEscapeKey(onEscape: () => void) {
@@ -511,7 +872,9 @@ function useEscapeKey(onEscape: () => void) {
 function useInitialFocus(targetRef: React.RefObject<HTMLElement | null>) {
 	useEffect(() => {
 		const frameId = requestAnimationFrame(() => {
-			targetRef.current?.focus();
+			/* preventScroll: без него iOS Safari скроллит панель в зону
+			   видимости прямо во время entry-анимации — визуальный рывок. */
+			targetRef.current?.focus({ preventScroll: true });
 		});
 		return () => cancelAnimationFrame(frameId);
 	}, [targetRef]);
