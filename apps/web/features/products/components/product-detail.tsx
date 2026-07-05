@@ -219,19 +219,51 @@ type TierSliderProps = {
 	onTierChange: (index: number) => void;
 };
 
+/* Мелкий шаг нативного range: ручка непрерывно следует за пальцем,
+   а к ближайшему уровню примагничивается только при отпускании. */
+const TIER_RANGE_RESOLUTION = 1000;
+
 /* Дискретный слайдер уровня подписки в духе слайдера Effort из
    Claude Code: прямоугольный трек с нейтральной серой заливкой, ручка
-   целиком внутри трека, а на максимальном уровне от правого края трека
-   «прорастают» пиксели ступенчатой анимацией. Визуальный трек — div'ы,
-   жест обслуживает невидимый нативный input[type=range] поверх. */
+   целиком внутри трека, на максимуме — брендовая подсветка и пиксели.
+   Визуальный трек — div'ы, жест обслуживает невидимый нативный
+   input[type=range] поверх. */
 function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 	const maxIndex = product.tiers.length - 1;
-	const fillRatio = maxIndex > 0 ? tierIndex / maxIndex : 0;
+	/* Пока палец на слайдере — живое непрерывное значение (0..1000),
+	   после отпускания — null, и ручка примагничивается к уровню. */
+	const [dragValue, setDragValue] = useState<number | null>(null);
+	const rangeValue =
+		dragValue ?? (maxIndex > 0 ? (tierIndex / maxIndex) * TIER_RANGE_RESOLUTION : 0);
+	const fillRatio = rangeValue / TIER_RANGE_RESOLUTION;
 	const isMaxed = tierIndex === maxIndex;
 	const currentTier = product.tiers[tierIndex];
 
 	function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-		onTierChange(Number(event.target.value));
+		const next = Number(event.target.value);
+		setDragValue(next);
+		/* Уровень (заголовок, цена) обновляется живьём по ближайшему тиру. */
+		onTierChange(Math.round((next / TIER_RANGE_RESOLUTION) * maxIndex));
+	}
+
+	function handleRelease() {
+		setDragValue(null);
+	}
+
+	function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
+		/* Клавиатура шагает по уровням, а не по тысячным долям трека. */
+		const step =
+			event.key === "ArrowRight" || event.key === "ArrowUp"
+				? 1
+				: event.key === "ArrowLeft" || event.key === "ArrowDown"
+					? -1
+					: 0;
+		if (step === 0) {
+			return;
+		}
+		event.preventDefault();
+		setDragValue(null);
+		onTierChange(Math.min(maxIndex, Math.max(0, tierIndex + step)));
 	}
 
 	return (
@@ -260,10 +292,14 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 					type="range"
 					className={styles.tierRange}
 					min={0}
-					max={maxIndex}
+					max={TIER_RANGE_RESOLUTION}
 					step={1}
-					value={tierIndex}
+					value={rangeValue}
 					onChange={handleChange}
+					onPointerUp={handleRelease}
+					onPointerCancel={handleRelease}
+					onBlur={handleRelease}
+					onKeyDown={handleKeyDown}
 					aria-label="Уровень подписки"
 					aria-valuetext={currentTier?.name}
 				/>

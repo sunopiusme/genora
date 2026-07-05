@@ -658,9 +658,9 @@
 	);
 }
 
-/* «Пиксели» на максимуме: два шахматных слоя в брендовом цвете.
-   Появление — цифровой «дизолв» (ступенчатое проявление слоёв со
-   сдвигом на полклетки), затем непрерывное мягкое мерцание. */
+/* «Пиксели» на максимуме: один шахматный слой в брендовом цвете,
+   растворяющийся к левому краю. Появление — спокойный короткий fade,
+   без мерцания и ступенчатых эффектов. */
 .tierDither {
 	position: absolute;
 	inset: 0 0 0 auto;
@@ -668,46 +668,24 @@
 	--px: 0.4375rem;
 	background:
 		conic-gradient(
-				color-mix(in srgb, var(--brand) 85%, white) 25%,
+				color-mix(in srgb, var(--brand) 75%, white) 25%,
 				transparent 0 50%,
-				color-mix(in srgb, var(--brand) 85%, white) 0 75%,
+				color-mix(in srgb, var(--brand) 75%, white) 0 75%,
 				transparent 0
 			)
-			right center / var(--px) var(--px),
-		conic-gradient(
-				transparent 25%,
-				color-mix(in srgb, var(--brand) 45%, transparent) 0 50%,
-				transparent 0 75%,
-				color-mix(in srgb, var(--brand) 45%, transparent) 0
-			)
-			calc(100% - var(--px) / 2) center / var(--px) var(--px);
-	-webkit-mask-image: linear-gradient(90deg, transparent, black 80%);
-	mask-image: linear-gradient(90deg, transparent, black 80%);
-	animation:
-		ditherIn 0.4s steps(4, end) both,
-		ditherShimmer 1.6s steps(2, end) 0.4s infinite;
+			right center / var(--px) var(--px);
+	-webkit-mask-image: linear-gradient(90deg, transparent, black 85%);
+	mask-image: linear-gradient(90deg, transparent, black 85%);
+	animation: ditherIn 0.35s ease-out both;
 	pointer-events: none;
 }
 
-/* Цифровое проявление: пиксели «материализуются» ступенями яркости
-   на месте, без выползания сбоку. */
 @keyframes ditherIn {
 	from {
 		opacity: 0;
 	}
 	to {
 		opacity: 1;
-	}
-}
-
-/* Лёгкое дыхание пикселей — живой инженерный шум, ступенчато. */
-@keyframes ditherShimmer {
-	0%,
-	100% {
-		opacity: 1;
-	}
-	50% {
-		opacity: 0.72;
 	}
 }
 
