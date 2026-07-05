@@ -683,7 +683,7 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М������������ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М��������������ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
@@ -752,7 +752,9 @@
 	position: absolute;
 	inset: 0 auto 0 0;
 	width: var(--fill);
-	border-radius: var(--radius-full);
+	/* Правый торец плоский: он всегда спрятан под ручкой, скруглённый
+	   край не выглядывает из-под неё сверху и снизу. */
+	border-radius: var(--radius-full) 0 0 var(--radius-full);
 	background-color: rgb(255 255 255 / 0.13);
 	transition:
 		width 0.16s cubic-bezier(0.4, 0, 0.2, 1),
@@ -816,18 +818,20 @@
 	opacity: 0;
 }
 
-/* Включение максимума: текстура «прорастает» от ручки (правого края)
-   влево плитка за плиткой (clip-path квантован steps, кратным колонкам
-   сетки), после чего решётки непрерывно переливаются в противофазе. */
+/* Включение максимума: сначала ручка доезжает до края (0.16s — та же
+   длительность, что и её transition), и только по прибытии текстура
+   «прорастает» от ручки влево плитка за плиткой (clip-path квантован
+   steps, кратным колонкам сетки), после чего решётки непрерывно
+   переливаются в противофазе. */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
 	animation:
-		ditherReveal 0.55s steps(48, end) both,
-		ditherTwinkleA 2.4s ease-in-out 0.55s infinite;
+		ditherReveal 0.55s steps(48, end) 0.16s both,
+		ditherTwinkleA 2.4s ease-in-out 0.71s infinite;
 }
 
 .tierSlider[data-maxed] .tierDither::after {
-	animation: ditherTwinkleB 2.4s ease-in-out 0.55s infinite;
+	animation: ditherTwinkleB 2.4s ease-in-out 0.71s infinite;
 }
 
 /* inset(0 0 0 X): левая кромка видимой области едет от 100% (виден
@@ -871,16 +875,16 @@
 	}
 }
 
-/* Ручка строго в размерах полоски: заполняет высоту трека с волосяным
-   зазором 2px, форма повторяет пилюлю — совпадает с треком заподлицо. */
+/* Ручка в размерах полоски, но на 1px «выше» неё с каждой стороны —
+   полностью перекрывает торец серой заливки, ничего не выглядывает. */
 .tierThumb {
 	position: absolute;
-	top: 2px;
-	bottom: 2px;
+	top: -1px;
+	bottom: -1px;
 	/* clamp держит ручку в пределах трека по горизонтали. */
-	left: clamp(0.625rem, var(--fill), calc(100% - 0.625rem));
+	left: clamp(0.6875rem, var(--fill), calc(100% - 0.6875rem));
 	transform: translateX(-50%);
-	width: 1.25rem;
+	width: 1.375rem;
 	border-radius: var(--radius-full);
 	background-color: rgb(152 152 158);
 	/* Примагничивание при отпускании: короткий равномерный доезд —

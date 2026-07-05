@@ -340,7 +340,19 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 
 	const commitNearestTier = useCallback(
 		(ratio: number) => {
-			const nearest = Math.round(ratio * maxIndex);
+			let nearest = Math.round(ratio * maxIndex);
+			/* Максимум во время жеста включается только когда ползунок
+			   ФИЗИЧЕСКИ стукнулся о правый край (>= 98.5% трека) — до
+			   этого держим предыдущий уровень. Заранее ничего не
+			   вспыхивает; при отпускании рядом с краем ручка магнитно
+			   дотягивается сама, и эффект стартует по прибытии. */
+			if (
+				gestureRef.current.dragging &&
+				nearest === maxIndex &&
+				ratio < 0.985
+			) {
+				nearest = maxIndex - 1;
+			}
 			if (nearest !== committedIndexRef.current) {
 				onTierChange(nearest);
 			}
