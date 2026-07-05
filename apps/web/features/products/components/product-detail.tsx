@@ -402,6 +402,14 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 		if (!gesture.dragging) {
 			return;
 		}
+		/* Страховка от «прилипания»: если pointerup потерялся (кнопка
+		   отпущена вне окна, alt-tab, потеря capture), у мыши уже нет
+		   зажатых кнопок — завершаем жест, иначе ручка ездит за
+		   курсором без нажатия. */
+		if (event.pointerType === "mouse" && event.buttons === 0) {
+			handlePointerEnd(event);
+			return;
+		}
 		gesture.ratio = ratioFromClientX(event.clientX);
 		if (gesture.rafId === 0) {
 			gesture.rafId = requestAnimationFrame(renderFrame);
@@ -416,7 +424,12 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 		gesture.dragging = false;
 		cancelAnimationFrame(gesture.rafId);
 		gesture.rafId = 0;
-		trackRef.current?.releasePointerCapture(event.pointerId);
+		/* releasePointerCapture бросает исключение, если capture уже
+		   потерян (lostpointercapture) — проверяем перед снятием. */
+		const track = trackRef.current;
+		if (track?.hasPointerCapture(event.pointerId)) {
+			track.releasePointerCapture(event.pointerId);
+		}
 		/* Возвращаем транзишены и примагничиваем ручку к уровню. */
 		rootRef.current?.removeAttribute("data-dragging");
 		const nearest = Math.round(gesture.ratio * maxIndex);
@@ -479,6 +492,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 				onPointerMove={handlePointerMove}
 				onPointerUp={handlePointerEnd}
 				onPointerCancel={handlePointerEnd}
+				onLostPointerCapture={handlePointerEnd}
 				onKeyDown={handleKeyDown}
 			>
 				<div className={styles.tierTrackInner}>

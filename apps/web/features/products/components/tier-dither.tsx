@@ -36,7 +36,7 @@ const WAVE_FRONT_CELLS = 9;
 /** Доля брендового цвета в точке (остальное — белый). */
 const BRAND_MIX = 0.38;
 /** Длительность нарастания пикселей справа налево при включении, мс. */
-const REVEAL_MS = 1500;
+const REVEAL_MS = 1200;
 /** Рваность фронта нарастания в ячейках — пиксели прорастают вразнобой. */
 const REVEAL_JITTER_CELLS = 8;
 /** Ширина яркого «пера» на фронте рисования, в ячейках. */
@@ -100,13 +100,11 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 			   свой джиттер, поэтому текстура растёт вразнобой, попиксельно,
 			   а не ровной шторкой. */
 			const revealProgress = Math.min(1, timeMs / REVEAL_MS);
-			/* Спокойный ease-in-out: рисование мягко разгоняется от ручки,
-			   ровно идёт по треку и плавно затухает к левому краю — без
-			   резкого рывка на старте. */
-			const eased =
-				revealProgress < 0.5
-					? 2 * revealProgress * revealProgress
-					: 1 - (-2 * revealProgress + 2) ** 2 / 2;
+			/* Ease-out: рисование начинается сразу в момент «стука» —
+			   первые пиксели у ручки появляются без ощутимой паузы, а к
+			   левому краю фронт спокойно замедляется. Мягкая степень 2.2
+			   сохраняет профессиональную неторопливость середины хода. */
+			const eased = 1 - (1 - revealProgress) ** 2.2;
 			const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
 			const revealing = revealProgress < 1;
 
