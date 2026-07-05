@@ -1,57 +1,27 @@
 .main {
-  display: grid;
-  grid-template-columns: 1fr;
-  min-height: 100dvh;
-  background-color: #000000;
-  color: var(--color-foreground);
-}
-
-.brand {
-  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  padding: var(--space-10) var(--space-6) var(--space-8);
+  height: 100dvh;
   overflow: hidden;
-}
-
-.brandGrid {
-  display: none;
-}
-
-.logo {
-  position: relative;
-  align-self: flex-start;
-  width: 2.75rem;
-  height: 2.75rem;
-}
-
-.brandBottom {
-  position: relative;
-  max-width: 30rem;
-}
-
-.headline {
-  margin: 0;
-  font-size: 1.5rem;
-  line-height: 1.15;
-  font-weight: var(--weight-semibold);
-  letter-spacing: -0.02em;
+  background-color: #000000;
   color: var(--color-foreground);
-  text-wrap: balance;
 }
 
 .formColumn {
   position: relative;
   display: flex;
+  flex: 1;
+  min-height: 0;
   flex-direction: column;
   align-items: center;
-  padding: var(--space-4) var(--space-6) var(--space-10);
+  padding: var(--space-2) var(--space-6)
+    calc(var(--space-4) + env(safe-area-inset-bottom));
 }
 
 .formInner {
   width: 100%;
   max-width: 22rem;
+  margin-block: auto;
   text-align: center;
 }
 
@@ -79,65 +49,17 @@
 
 .support {
   width: 100%;
-  margin-top: var(--space-8);
+  margin-top: var(--space-3);
+  flex-shrink: 0;
 }
 
 @media (min-width: 1024px) {
   .main {
+    display: grid;
     grid-template-columns: 1.05fr 1fr;
-  }
-
-  .brand {
-    justify-content: space-between;
-    gap: 0;
-    padding: var(--space-12);
-    border-right: 1px solid var(--color-border);
-    background: radial-gradient(
-        90% 75% at 14% 10%,
-        rgb(255 255 255 / 0.06),
-        transparent 52%
-      ),
-      radial-gradient(
-        120% 120% at 90% 100%,
-        rgb(0 0 0 / 0.35),
-        transparent 55%
-      ),
-      linear-gradient(
-        152deg,
-        var(--neutral-800) 0%,
-        var(--neutral-950) 46%,
-        var(--neutral-1000) 100%
-      );
-  }
-
-  .brandGrid {
-    display: block;
-    position: absolute;
-    inset: 0;
-    background-image: linear-gradient(
-        rgb(255 255 255 / 0.03) 1px,
-        transparent 1px
-      ),
-      linear-gradient(90deg, rgb(255 255 255 / 0.03) 1px, transparent 1px);
-    background-size: 3rem 3rem;
-    -webkit-mask-image: radial-gradient(
-      78% 72% at 16% 12%,
-      #000,
-      transparent 78%
-    );
-    mask-image: radial-gradient(78% 72% at 16% 12%, #000, transparent 78%);
-    pointer-events: none;
-  }
-
-  .logo {
-    width: 3rem;
-    height: 3rem;
-  }
-
-  .headline {
-    font-size: 2.25rem;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 
   .formColumn {

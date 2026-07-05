@@ -1,5 +1,17 @@
 .root {
   width: 100%;
+  animation: cardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(0.625rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .header {
@@ -15,6 +27,12 @@
   color: var(--color-foreground);
 }
 
+.subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-foreground-muted);
+}
+
 .social {
   display: flex;
   flex-direction: column;
@@ -22,18 +40,25 @@
 }
 
 .socialButton.socialButton {
-  height: 2.75rem;
+  height: 3rem;
   gap: var(--space-2);
+  border: none;
   border-radius: var(--radius-full);
-  font-weight: var(--weight-normal);
+  font-weight: var(--weight-semibold);
   font-size: var(--text-sm);
-  background-color: var(--neutral-700);
-  border-color: var(--neutral-700);
+  background-color: rgb(255 255 255 / 0.08);
+  color: var(--color-foreground);
+  transition:
+    background-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .socialButton.socialButton:hover {
-  background-color: var(--neutral-600);
-  border-color: var(--neutral-600);
+  background-color: rgb(255 255 255 / 0.1);
+}
+
+.socialButton.socialButton:active {
+  transform: scale(0.98);
 }
 
 .socialButton.socialButton:focus:not(:focus-visible) {
@@ -42,8 +67,8 @@
 }
 
 .socialButton.socialButton:focus-visible {
-  outline: 2px solid var(--color-border-strong);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .brandMark {
@@ -62,7 +87,7 @@
 .dividerLine {
   height: 1px;
   flex: 1;
-  background-color: var(--neutral-600);
+  background-color: rgb(255 255 255 / 0.14);
 }
 
 .dividerText {
@@ -89,9 +114,33 @@
 }
 
 .inputRow > input {
-  height: 2.75rem;
+  height: 3rem;
   font-size: var(--text-sm);
   padding-right: 2.5rem;
+  border: none;
+  background-color: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  transition: box-shadow 0.15s ease;
+}
+
+.inputRow > input:hover {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+.inputRow > input:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.2),
+    0 0 0 2px color-mix(in srgb, var(--color-foreground) 20%, transparent);
+}
+
+.inputRow > input[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px var(--color-danger);
+}
+
+.inputRow > input[aria-invalid="true"]:focus-visible {
+  box-shadow:
+    inset 0 0 0 1px var(--color-danger),
+    0 0 0 2px color-mix(in srgb, var(--color-danger) 35%, transparent);
 }
 
 .toggleButton {
@@ -142,19 +191,34 @@
 
 .submit.submit {
   margin-top: var(--space-1);
-  height: 2.75rem;
+  height: 3rem;
+  border: none;
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.submit.submit:hover {
+  background-color: var(--neutral-200);
+  box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
+}
+
+.submit.submit:active {
+  transform: scale(0.98);
 }
 
 .submit.submit:focus:not(:focus-visible) {
   outline: none;
-  box-shadow: none;
 }
 
 .submit.submit:focus-visible {
-  outline: 2px solid var(--color-border-strong);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .footer {
@@ -187,4 +251,35 @@
   outline: 2px solid var(--color-border-strong);
   outline-offset: 2px;
   border-radius: var(--radius-md);
+}
+
+@media (max-width: 1023px) {
+  .header {
+    margin-bottom: var(--space-4);
+  }
+
+  .divider {
+    margin-block: var(--space-3);
+  }
+
+  .socialButton.socialButton,
+  .submit.submit,
+  .inputRow > input {
+    height: 2.75rem;
+  }
+
+  .footer {
+    margin-top: var(--space-4);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+
+  .socialButton.socialButton:active,
+  .submit.submit:active {
+    transform: none;
+  }
 }

@@ -1,5 +1,17 @@
 .form {
   margin-top: var(--space-6);
+  animation: cardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(0.625rem);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .cells {
@@ -11,37 +23,42 @@
 .cell {
   height: 3rem;
   width: 100%;
-  border: 1px solid var(--color-border-strong);
+  border: none;
   border-radius: var(--radius-lg);
-  background-color: transparent;
+  background-color: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.16);
   text-align: center;
   font-size: var(--text-xl);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: box-shadow 0.15s ease;
+}
+
+.cell:hover {
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.26);
 }
 
 .cell:focus-visible {
   outline: none;
-  border-color: var(--color-foreground);
+  box-shadow: inset 0 0 0 1px var(--color-foreground);
 }
 
 .cellComplete {
-  border-color: var(--color-success);
+  box-shadow: inset 0 0 0 1px var(--color-success);
 }
 
+.cellComplete:hover,
 .cellComplete:focus-visible {
-  border-color: var(--color-success);
+  box-shadow: inset 0 0 0 1px var(--color-success);
 }
 
 .cellError {
-  border-color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px var(--color-danger);
 }
 
+.cellError:hover,
 .cellError:focus-visible {
-  border-color: var(--color-danger);
+  box-shadow: inset 0 0 0 1px var(--color-danger);
 }
 
 .message {
@@ -63,9 +80,34 @@
 .submit.submit {
   margin-top: var(--space-5);
   width: 100%;
-  height: 2.75rem;
+  height: 3rem;
+  border: none;
   border-radius: var(--radius-full);
   font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 8px 20px -10px rgb(255 255 255 / 0.25);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.submit.submit:hover:not(:disabled) {
+  background-color: var(--neutral-200);
+  box-shadow: 0 10px 26px -10px rgb(255 255 255 / 0.32);
+}
+
+.submit.submit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.submit.submit:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.submit.submit:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .footer {
@@ -103,4 +145,14 @@
 .resend:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form {
+    animation: none;
+  }
+
+  .submit.submit:active:not(:disabled) {
+    transform: none;
+  }
 }
