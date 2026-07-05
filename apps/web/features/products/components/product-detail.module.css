@@ -683,7 +683,7 @@
 	transition: color 0.3s ease;
 }
 
-/* На максимуме подпись «М����������������ксимум» подхватывает брендовый оттенок.
+/* На максимуме подпись «М������������������ксимум» подхватывает брендовый оттенок.
    Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
 .tierSlider[data-maxed] .tierEdgeMax {
 	color: color-mix(in srgb, var(--brand) 65%, white);
@@ -764,9 +764,18 @@
 		background-color 0.3s ease;
 }
 
-/* На максимуме заливка получает едва заметный брендовый подтон. */
+/* На максимуме заливка — градиент как в референсе: у ручки самая
+   светлая, почти сливается с её серым, и темнеет влево — сплошной
+   цвет «растворяется» в пиксельные блоки. */
 .tierSlider[data-maxed] .tierFill {
-	background-color: color-mix(in srgb, var(--brand) 12%, rgb(255 255 255 / 0.15));
+	background-color: rgb(255 255 255 / 0.11);
+	background-image: linear-gradient(
+		90deg,
+		transparent 0%,
+		color-mix(in srgb, var(--brand) 8%, rgb(255 255 255 / 0.07)) 55%,
+		color-mix(in srgb, var(--brand) 12%, rgb(255 255 255 / 0.2)) 88%,
+		rgb(255 255 255 / 0.3) 100%
+	);
 }
 
 /* Пиксельная (дизеринг) текстура внутри заливки, как в Ultracode:
@@ -785,61 +794,63 @@
 			transparent 0
 		)
 		center / var(--px) var(--px);
+	/* Плотность как в референсе: слева пиксели редкие, к середине-
+	   правому краю плотнее, а у самой ручки гаснут — там сплошной
+	   светлый цвет заливки. */
 	-webkit-mask-image: linear-gradient(
 		90deg,
-		rgb(0 0 0 / 0.35) 0%,
-		rgb(0 0 0 / 0.6) 40%,
-		rgb(0 0 0 / 0.9) 75%,
-		rgb(0 0 0 / 0.55) 97%
+		rgb(0 0 0 / 0.2) 0%,
+		rgb(0 0 0 / 0.5) 40%,
+		rgb(0 0 0 / 0.95) 72%,
+		rgb(0 0 0 / 0.35) 92%,
+		transparent 100%
 	);
 	mask-image: linear-gradient(
 		90deg,
-		rgb(0 0 0 / 0.35) 0%,
-		rgb(0 0 0 / 0.6) 40%,
-		rgb(0 0 0 / 0.9) 75%,
-		rgb(0 0 0 / 0.55) 97%
+		rgb(0 0 0 / 0.2) 0%,
+		rgb(0 0 0 / 0.5) 40%,
+		rgb(0 0 0 / 0.95) 72%,
+		rgb(0 0 0 / 0.35) 92%,
+		transparent 100%
 	);
 	opacity: 0;
 	transition: opacity 0.25s ease;
 	pointer-events: none;
 }
 
-/* Яркий слой тех же пикселей: виден только сквозь наклонные полосы
-   маски, которые медленно дрейфуют слева направо, — светлая полоска
-   пикселей проходит по пилюле, как на референсе. */
+/* Яркий слой тех же пикселей: волна света идёт от ручки ВЛЕВО
+   дискретными шагами по сетке — mask-position квантован steps()
+   ровно по колонкам пикселей, блоки «перещёлкиваются», а не плывут. */
 .tierDither::after {
 	content: "";
 	position: absolute;
 	inset: 0;
 	background: conic-gradient(
-			color-mix(in srgb, var(--brand) 35%, rgb(255 255 255 / 0.85)) 25%,
+			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 25%,
 			transparent 0 50%,
-			color-mix(in srgb, var(--brand) 35%, rgb(255 255 255 / 0.85)) 0 75%,
+			color-mix(in srgb, var(--brand) 30%, rgb(255 255 255 / 0.9)) 0 75%,
 			transparent 0
 		)
 		center / var(--px) var(--px);
+	/* Период полосы 4.5rem = 24 колонки пикселей по 0.1875rem. */
 	-webkit-mask-image: repeating-linear-gradient(
-		105deg,
+		90deg,
 		transparent 0,
-		rgb(0 0 0 / 0.9) 1.25rem,
-		transparent 2.5rem 4.5rem
+		rgb(0 0 0 / 0.85) 1.5rem,
+		transparent 3rem 4.5rem
 	);
 	mask-image: repeating-linear-gradient(
-		105deg,
+		90deg,
 		transparent 0,
-		rgb(0 0 0 / 0.9) 1.25rem,
-		transparent 2.5rem 4.5rem
+		rgb(0 0 0 / 0.85) 1.5rem,
+		transparent 3rem 4.5rem
 	);
-	-webkit-mask-size: 200% 100%;
-	mask-size: 200% 100%;
-	-webkit-mask-position: 0% 0;
-	mask-position: 0% 0;
 	opacity: 0;
 }
 
 /* Включение максимума: ручка с заливкой доезжают до края (0.16s), и
    пиксели проявляются вместе с полоской — они клиппятся заливкой.
-   По прибытии стартует дрейф светлой полосы пикселей. */
+   По прибытии блоки начинают перещёлкиваться влево. */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
 	transition-delay: 0.1s;
@@ -847,19 +858,20 @@
 
 .tierSlider[data-maxed] .tierDither::after {
 	opacity: 1;
-	animation: ditherSweep 3.2s linear 0.26s infinite;
+	animation: ditherSweep 2.8s steps(24, end) 0.26s infinite;
 }
 
-/* Дрейф маски: полосы света едут по пикселям слева направо.
-   Смещение на 100% mask-size за цикл даёт бесшовный повтор. */
+/* Сдвиг маски влево ровно на один период (4.5rem) за цикл, 24 шага —
+   по одной колонке пикселей за шаг: бесшовный блочный ход от ручки
+   к началу трека. */
 @keyframes ditherSweep {
 	from {
-		-webkit-mask-position: 0% 0;
-		mask-position: 0% 0;
+		-webkit-mask-position: 0 0;
+		mask-position: 0 0;
 	}
 	to {
-		-webkit-mask-position: -100% 0;
-		mask-position: -100% 0;
+		-webkit-mask-position: -4.5rem 0;
+		mask-position: -4.5rem 0;
 	}
 }
 
