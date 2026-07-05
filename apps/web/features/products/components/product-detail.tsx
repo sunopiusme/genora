@@ -6,7 +6,7 @@ import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@/stores/composer-store";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
-import { TierSlider } from "./tier-slider";
+import { TierSelector } from "./tier-selector";
 import { useMobileViewport } from "./use-mobile-viewport";
 
 const SURFACE_ELEMENT_ID = "dashboardSurface";
@@ -177,11 +177,13 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 			</div>
 
 			{hasTiers && tier && (
-				<TierSelector
-					product={product}
-					tierIndex={tierIndex}
-					onTierChange={setTierIndex}
-				/>
+				<div className={styles.tierSelectorSlot}>
+					<TierSelector
+						product={product}
+						tierIndex={tierIndex}
+						onTierChange={setTierIndex}
+					/>
+				</div>
 			)}
 
 			<div className={styles.priceCard}>
@@ -207,73 +209,6 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 					Обсудить товар
 				</button>
 			</div>
-		</div>
-	);
-}
-
-type TierSelectorProps = {
-	product: Product;
-	tierIndex: number;
-	onTierChange: (index: number) => void;
-};
-
-/* Селектор уровня подписки: компактная строка со значением, по нажатию
-   раскрывается меню со слайдером. Слайдер не занимает место в модалке
-   постоянно и появляется только когда пользователь выбирает уровень. */
-function TierSelector({ product, tierIndex, onTierChange }: TierSelectorProps) {
-	const [isOpen, setIsOpen] = useState(false);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const tier = product.tiers[tierIndex];
-
-	const close = useCallback(() => setIsOpen(false), []);
-	useClickOutside(containerRef, isOpen, close);
-
-	useEffect(() => {
-		if (!isOpen) {
-			return;
-		}
-		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key === "Escape") {
-				/* Гасим Escape локально, чтобы не закрылась вся модалка. */
-				event.stopPropagation();
-				close();
-			}
-		}
-		window.addEventListener("keydown", handleKeyDown, { capture: true });
-		return () =>
-			window.removeEventListener("keydown", handleKeyDown, { capture: true });
-	}, [isOpen, close]);
-
-	return (
-		<div className={styles.tierSelector} ref={containerRef}>
-			<button
-				type="button"
-				className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
-				onClick={() => setIsOpen((prev) => !prev)}
-				aria-haspopup="true"
-				aria-expanded={isOpen}
-			>
-				<span className={styles.tierTriggerCaption}>Уровень</span>
-				<span className={styles.tierTriggerValue}>
-					{tier?.name}
-					<Icon
-						icon={
-							isOpen ? "solar:alt-arrow-up-linear" : "solar:alt-arrow-down-linear"
-						}
-						className={styles.tierTriggerChevron}
-						aria-hidden="true"
-					/>
-				</span>
-			</button>
-			{isOpen && (
-				<div className={styles.tierMenu}>
-					<TierSlider
-						product={product}
-						tierIndex={tierIndex}
-						onTierChange={onTierChange}
-					/>
-				</div>
-			)}
 		</div>
 	);
 }

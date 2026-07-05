@@ -11,7 +11,7 @@ import {
 import { Button } from "@genora/ui";
 import type { Product } from "../types";
 import styles from "./product-card.module.css";
-import { TierSlider } from "./tier-slider";
+import { TierSelector } from "./tier-selector";
 
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
 const DOUBLE_CLICK_GRACE_MS = 220;
@@ -91,29 +91,32 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 					<span className={styles.period}>в {product.periodLabel}</span>
 				</p>
 			</div>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка только
-			    гасит всплытие к кликабельной карточке; интерактивность и
-			    клавиатурный доступ — у самого слайдера (role="slider"). */}
-			<div
-				className={styles.tierArea}
-				onPointerDown={stopCardGesture}
-				onClick={stopCardGesture}
-			>
-				<TierSlider
-					product={product}
-					tierIndex={tierIndex}
-					onTierChange={setTierIndex}
-					compact
-				/>
+			<div className={styles.footer}>
+				{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка
+				    только гасит всплытие к кликабельной карточке; интерактивность
+				    и клавиатура — у триггера и слайдера внутри селектора. */}
+				<div
+					className={styles.tierArea}
+					onPointerDown={stopCardGesture}
+					onClick={stopCardGesture}
+				>
+					<TierSelector
+						product={product}
+						tierIndex={tierIndex}
+						onTierChange={setTierIndex}
+						compact
+						placement="up"
+					/>
+				</div>
+				<Button
+					variant="primary"
+					size="lg"
+					className={styles.action}
+					onClick={handleBuyClick}
+				>
+					Купить
+				</Button>
 			</div>
-			<Button
-				variant="primary"
-				size="lg"
-				className={styles.action}
-				onClick={handleBuyClick}
-			>
-				Купить
-			</Button>
 		</article>
 	);
 }
