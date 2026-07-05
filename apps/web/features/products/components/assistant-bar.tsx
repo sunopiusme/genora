@@ -96,7 +96,7 @@ export function AssistantBar() {
   const isProfileAttached = useComposerStore(
     (state) => state.isProfileAttached,
   );
-  const detachProduct = useComposerStore((state) => state.detach);
+  const detachProduct = useComposerStore((state) => state.detachProduct);
   const detachFile = useComposerStore((state) => state.detachFile);
   const detachProfile = useComposerStore((state) => state.detachProfile);
 
@@ -184,39 +184,39 @@ export function AssistantBar() {
     setHasContent(true);
   }
 
+  const insertTokenRef = useRef(insertToken);
+  insertTokenRef.current = insertToken;
+
   useEffect(() => {
     if (!attachedProduct) {
       return;
     }
-    insertToken({
+    insertTokenRef.current({
       kind: "product",
       label: attachedProduct.name,
       logoSlug: attachedProduct.logoSlug,
     });
     detachProduct();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attachedProduct, detachProduct]);
 
   useEffect(() => {
     if (!attachedFile) {
       return;
     }
-    insertToken({
+    insertTokenRef.current({
       kind: "file",
       label: attachedFile.name,
       fileKind: attachedFile.kind,
     });
     detachFile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [attachedFile, detachFile]);
 
   useEffect(() => {
     if (!isProfileAttached) {
       return;
     }
-    insertToken({ kind: "profile", label: PROFILE.name });
+    insertTokenRef.current({ kind: "profile", label: PROFILE.name });
     detachProfile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProfileAttached, detachProfile]);
 
   const updateMentionDraftRef = useRef(updateMentionDraft);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getFeaturedProducts } from "../queries/featured-products";
+import { getFeaturedProducts } from "../catalog";
 import type { Product } from "../types";
 import { ProductCard } from "./product-card";
 import { ProductDetail } from "./product-detail";

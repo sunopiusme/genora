@@ -4,7 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "../stores/composer-store";
 import { getBrandLogoCssUrl } from "../brand-logos";
-import { getFeaturedProducts } from "../queries/featured-products";
+import { getFeaturedProducts } from "../catalog";
 import type { Product } from "../types";
 import styles from "./attach-menu.module.css";
 
@@ -19,7 +19,7 @@ export function AttachMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const [view, setView] = useState<MenuView>("actions");
   const [search, setSearch] = useState("");
-  const attachProduct = useComposerStore((state) => state.attach);
+  const attachProduct = useComposerStore((state) => state.attachProduct);
   const attachFile = useComposerStore((state) => state.attachFile);
 
   useCloseOnOutsideInteraction(rootRef, isOpen, close);

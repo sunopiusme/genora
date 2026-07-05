@@ -1,6 +1,4 @@
 .overlay {
-  /* fixed на body (как у профиля): шит живёт в собственном слое и не
-	   зависит от трансформаций/скролла поверхности дашборда. */
   position: fixed;
   inset: 0;
   z-index: 60;
@@ -71,8 +69,6 @@
   animation: none;
 }
 
-/* «Спокойное» состояние после первого перетаскивания: без entry-анимации,
-   иначе возврат к .panel заново проигрывал бы sheetIn/panelIn. */
 .panelRested {
   composes: panel;
   animation: none;
@@ -135,9 +131,6 @@
     pointer-events: none;
   }
 
-  /* Открытие — чистая animation без transition (как у profile-sheet):
-	   постоянный transition на transform конфликтовал с sheetIn и
-	   подгрузкой ассетов — на iOS шит дёргался при открытии. */
   .panel {
     margin: auto 0 0;
     max-width: none;
@@ -156,14 +149,11 @@
     transition: none;
   }
 
-  /* Возврат после незавершённого свайпа: transition включается только
-	   на эту короткую фазу, когда entry-анимация уже давно завершена. */
   .panelSettling {
     animation: none;
     transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
   }
 
-  /* После взаимодействия шит стоит на месте — никаких анимаций. */
   .panelRested {
     animation: none;
   }
@@ -203,7 +193,6 @@
     top: 0;
   }
 
-  /* На мобильном кнопки того же размера, что круглая кнопка хедера. */
   .iconButton {
     width: 2.75rem;
     height: 2.75rem;
@@ -251,7 +240,6 @@
   }
 }
 
-/* Ручка-грабер как у системных iOS-шитов; на десктопе скрыта. */
 .grabber {
   display: none;
   position: absolute;
@@ -281,8 +269,6 @@
   display: inline-flex;
 }
 
-/* Круглые кнопки в стиле кнопки хедера (mobileFab): бордер, surface-фон,
-   мягкая тень — единый язык управляющих элементов приложения. */
 .iconButton {
   display: inline-flex;
   align-items: center;
@@ -505,7 +491,6 @@
   mask: var(--logo-url) no-repeat center / contain;
 }
 
-/* Mirrored copy of the tile on the "glossy floor" below it */
 .heroReflection {
   position: absolute;
   top: calc(100% + 5%);
@@ -566,15 +551,10 @@
   color: var(--color-foreground);
 }
 
-/* Слот селектора уровня: сам селектор (триггер + меню со слайдером)
-   теперь общий компонент tier-selector.tsx; здесь только отступ в
-   ритме модалки. */
 .tierSelectorSlot {
   margin-top: var(--space-5);
 }
 
-/* Скруглённая карточка цены вместо линии-разделителя: спокойная
-   плашка в общем языке скруглений шита. */
 .priceCard {
   display: flex;
   align-items: center;
@@ -656,8 +636,6 @@
   box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
-/* «Тихая» вторичная кнопка в том же языке, что кнопка «Купить» на
-   карточках витрины: полупрозрачная плашка без бордера. */
 .secondaryAction {
   display: inline-flex;
   align-items: center;

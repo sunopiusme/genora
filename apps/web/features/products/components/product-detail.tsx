@@ -49,7 +49,7 @@ type ProductDetailModalProps = {
 function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
-  const attachProduct = useComposerStore((state) => state.attach);
+  const attachProduct = useComposerStore((state) => state.attachProduct);
   const isMobile = useMobileViewport();
   const requestClose = useDelayedClose(
     onClose,

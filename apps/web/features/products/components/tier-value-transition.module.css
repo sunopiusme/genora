@@ -1,8 +1,3 @@
-/* Посимвольный «одометр» сменных значений тира: крутятся только
-   изменившиеся символы, волной слева направо; неизменившиеся стоят
-   неподвижно. Дистанция прокрутки в em — масштабируется вместе с
-   кеглем (цена в модалке крупнее, чем подпись в триггере). */
-
 .root {
   display: inline-block;
   white-space: nowrap;
@@ -14,9 +9,6 @@
   white-space: nowrap;
 }
 
-/* Ячейка одного символа: ширина задаётся в px из useLayoutEffect;
-   transition делает перетекание соседей (следующие разряды, «₽»,
-   шеврон) плавным, а не рывком. */
 .cell {
   position: relative;
   display: inline-block;
@@ -26,14 +18,11 @@
   transition-delay: var(--roll-delay, 0ms);
 }
 
-/* Символ первого рендера: задаёт высоту и baseline, без анимации. */
 .charStatic {
   display: inline-block;
   white-space: pre;
 }
 
-/* Входящий символ: приезжает с противоположной стороны с задержкой
-   своей позиции в волне. */
 .char {
   composes: charStatic;
   animation: enterFromBelow 0.3s cubic-bezier(0.2, 0.7, 0.25, 1) both;
@@ -44,8 +33,6 @@
   animation-name: enterFromAbove;
 }
 
-/* Уходящий символ снимается с потока: не влияет на ширину и baseline,
-   быстро гаснет — короткое перекрытие читается как прокрутка барабана. */
 .charExiting {
   position: absolute;
   top: 0;
@@ -61,7 +48,6 @@
   animation-name: exitDownward;
 }
 
-/* Рост уровня: символы прокручиваются вверх, как барабан счётчика. */
 @keyframes enterFromBelow {
   from {
     opacity: 0;
@@ -84,7 +70,6 @@
   }
 }
 
-/* Снижение уровня: барабан крутится в обратную сторону. */
 @keyframes enterFromAbove {
   from {
     opacity: 0;
@@ -116,8 +101,6 @@
     animation: none;
   }
 
-  /* Уходящий символ убирается мгновенно: нулевая длительность
-	   сохраняет срабатывание onAnimationEnd для очистки состояния. */
   .charExiting {
     animation-duration: 0.01s;
     animation-delay: 0ms;

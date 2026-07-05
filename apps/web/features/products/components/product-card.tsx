@@ -82,9 +82,6 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
       <div className={styles.info}>
         <div className={styles.nameRow}>
           <h3 className={styles.name}>{product.name}</h3>
-          {/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка
-					    только гасит всплытие к кликабельной карточке; интерактивность
-					    и клавиатура — у триггера и слайдера внутри селектора. */}
           <span
             className={styles.tierArea}
             onPointerDown={stopCardGesture}

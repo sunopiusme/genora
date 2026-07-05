@@ -1,5 +1,4 @@
 .bar {
-  /* Якорь для всплывающего списка упоминаний. */
   position: relative;
   display: flex;
   align-items: center;
@@ -11,8 +10,6 @@
   box-shadow: var(--shadow-lg);
 }
 
-/* На мобильных бар компактнее: 36px-элементы + 4px отступы дают
-   стандартные 44px высоты вместо разбухших 52px. */
 @media (max-width: 40rem) {
   .bar {
     padding: var(--space-1);
@@ -27,25 +24,14 @@
   min-width: 0;
 }
 
-/* Однострочный contenteditable-редактор: теги живут прямо в потоке
-   текста. white-space: pre сохраняет пробелы вокруг тегов, длинная
-   строка скроллится по горизонтали. */
 .editor {
   flex: 1;
   min-width: 0;
   height: 2.25rem;
-  /* Компактный line box (22px = высоте тега) + центровка строки
-	   вертикальными padding-ами вместo line-height: 2.25rem.
-	   Каретка рядом с атомарным inline-элементом (тегом) рисуется
-	   по высоте line box — с большим line-height она раздувалась
-	   до 36px и «прыгала». Теперь line box одинаково низкий и в
-	   тексте, и вплотную к тегу. */
   line-height: 1.375rem;
   padding-block: calc((2.25rem - 1.375rem) / 2);
   padding-inline: var(--space-1) var(--space-2);
   font-family: var(--font-sans);
-  /* 16px minimum: iOS Safari force-zooms the page when focusing an
-	   input with a smaller font, which shifts the layout off-screen. */
   font-size: 1rem;
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
@@ -87,17 +73,9 @@
   }
 }
 
-/* Упоминание — просто синий текст в потоке фразы. Тот же размер и
-   та же строка, что у основного текста: ничего не меняется, кроме
-   цвета и чуть большей жирности. Backspace стирает тег целиком. */
 .token {
   display: inline;
   white-space: pre;
-  /* line-height: normal схлопывает inline-бокс тега до метрики
-	   шрифта (~18px) — как у обычного текста. С унаследованными
-	   22px бокс тега был выше текстового, и Chrome рисовал каретку
-	   рядом с тегом по его высоте: она «подрастала». Позицию строки
-	   это не меняет — line box задаёт сам редактор. */
   line-height: normal;
   user-select: none;
   animation: tokenIn 0.16s ease both;
@@ -113,8 +91,6 @@
 }
 
 .tokenLabel {
-  /* Размер — как у основного текста, line box — по метрике шрифта
-	   (см. комментарий у .token). */
   font-size: inherit;
   line-height: normal;
   font-weight: var(--weight-semibold);

@@ -3,7 +3,7 @@
 import { Avatar } from "@genora/ui";
 import { PROFILE } from "@features/profile";
 import { getBrandLogoCssUrl } from "../brand-logos";
-import { getFeaturedProducts } from "../queries/featured-products";
+import { getFeaturedProducts } from "../catalog";
 import type { Product } from "../types";
 import styles from "./mention-menu.module.css";
 

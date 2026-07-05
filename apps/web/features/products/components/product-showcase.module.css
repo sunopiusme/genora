@@ -5,8 +5,6 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  /* Плотная мобильная сетка: узкий межколоночный зазор, ряды
-	   разделены умеренно — карточки читаются как единый каталог. */
   gap: var(--space-4) var(--space-2);
 }
 

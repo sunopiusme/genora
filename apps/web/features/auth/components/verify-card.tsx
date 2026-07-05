@@ -8,6 +8,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, cn } from "@genora/ui";
 
@@ -41,11 +42,15 @@ export function VerifyCard() {
   const code = digits.join("");
   const isComplete = verificationSchema.safeParse({ code }).success;
 
+  function clearFeedback() {
+    setHasError(false);
+    setWasResent(false);
+  }
+
   function submitCode() {
     if (isSubmitting) return;
     setIsSubmitting(true);
-    setHasError(false);
-    setWasResent(false);
+    clearFeedback();
     setTimeout(() => router.push("/dashboard"), 300);
   }
 
@@ -55,8 +60,7 @@ export function VerifyCard() {
     const nextDigits = [...digits];
     nextDigits[index] = digit;
     setDigits(nextDigits);
-    setHasError(false);
-    setWasResent(false);
+    clearFeedback();
     if (digit && index < VERIFICATION_CODE_LENGTH - 1) {
       cellRefs.current[index + 1]?.focus();
     }
@@ -84,8 +88,7 @@ export function VerifyCard() {
       nextDigits[index] = pastedDigits.charAt(index);
     }
     setDigits(nextDigits);
-    setHasError(false);
-    setWasResent(false);
+    clearFeedback();
     const lastFilledIndex = Math.min(
       pastedDigits.length,
       VERIFICATION_CODE_LENGTH - 1,
@@ -110,6 +113,12 @@ export function VerifyCard() {
     setHasError(false);
     setWasResent(true);
     cellRefs.current[0]?.focus();
+  }
+
+  function getMessage(): string {
+    if (hasError) return "Введите 6‑значный код из письма";
+    if (wasResent) return "Новый код отправлен";
+    return "";
   }
 
   return (
@@ -147,11 +156,7 @@ export function VerifyCard() {
         )}
         role="alert"
       >
-        {hasError
-          ? "Введите 6‑значный код из письма"
-          : wasResent
-            ? "Новый код отправлен"
-            : ""}
+        {getMessage()}
       </p>
 
       <Button
@@ -165,9 +170,9 @@ export function VerifyCard() {
       </Button>
 
       <div className={styles.footer}>
-        <a href="/login" className={styles.link}>
+        <Link href="/login" className={styles.link}>
           Изменить почту
-        </a>
+        </Link>
         <button
           type="button"
           onClick={handleResend}

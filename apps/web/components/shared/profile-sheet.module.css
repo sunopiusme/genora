@@ -42,8 +42,6 @@
   }
 }
 
-/* Sheet rises from the bottom edge nearly to the ceiling, matching
-   the product-card sheet: rounded top corners, black surface. */
 .panel {
   position: relative;
   display: flex;
@@ -128,7 +126,6 @@
     calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
 }
 
-/* Centered avatar + name, like the reference header. */
 .identity {
   display: flex;
   flex-direction: column;
@@ -164,7 +161,6 @@
   color: var(--color-foreground-muted);
 }
 
-/* Card group of rows with hairline dividers between them. */
 .group {
   display: flex;
   flex-direction: column;
@@ -237,7 +233,6 @@ a.row:focus-visible {
   color: var(--color-foreground-subtle);
 }
 
-/* Secondary line under the label (e.g. the account email). */
 .rowDetail {
   padding-left: calc(1.25rem + var(--space-3));
   font-size: var(--text-sm);

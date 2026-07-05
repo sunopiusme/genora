@@ -103,7 +103,6 @@
   mask: var(--logo-url) no-repeat center / contain;
 }
 
-/* Mirrored copy of the tile on the "glossy floor" below it */
 .reflection {
   position: absolute;
   top: calc(100% + 5%);
@@ -141,8 +140,6 @@
   cursor: text;
 }
 
-/* Строка названия: имя слева, селектор уровня справа — селектор
-   прижат к стабильному краю и не зависит от ширины динамичной цены. */
 .nameRow {
   display: flex;
   align-items: center;
@@ -183,18 +180,12 @@
   color: var(--color-foreground-muted);
 }
 
-/* Зона селектора уровня в строке цены: обычный курсор вместо
-   карточного pointer — это самостоятельный контрол, а не часть
-   кликабельной обложки. */
 .tierArea {
   cursor: default;
   flex-shrink: 0;
   align-self: center;
 }
 
-/* «Тихая» кнопка в духе App Store «Get»: полупрозрачная плашка вместо
-   сплошной белой — обложка и цена остаются главными в иерархии.
-   Кнопка одна во всю ширину — единственная цель для покупки. */
 .action.action {
   height: 2.25rem;
   width: 100%;
