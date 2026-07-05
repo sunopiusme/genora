@@ -102,3 +102,18 @@
   filter: blur(12px);
 }
 
+/* Mobile: анимируемый blur больших слоёв за шитом роняет кадры на
+   iPhone и делает открытие дёрганым — шит и так накрывает экран,
+   достаточно затемнения самого оверлея. */
+@media (max-width: 47.9375rem) {
+  .header,
+  .scroll {
+    transition: none;
+  }
+
+  .page[data-detail-open] .header,
+  .page[data-detail-open] .scroll {
+    filter: none;
+  }
+}
+

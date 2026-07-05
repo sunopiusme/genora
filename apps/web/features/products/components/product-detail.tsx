@@ -23,15 +23,22 @@ type ProductDetailProps = {
 };
 
 export function ProductDetail({ product, onClose }: ProductDetailProps) {
-	const surface = usePortalSurface(SURFACE_ELEMENT_ID);
+	/* Portal to document.body (как у ProfileSheet): шит анимируется в
+	   fixed-слое поверх всего, а не внутри трансформируемой поверхности —
+	   на iOS это убирает дёрганое открытие. */
+	const [isMounted, setIsMounted] = useState(false);
 
-	if (!product || !surface) {
+	useEffect(() => {
+		setIsMounted(true);
+	}, []);
+
+	if (!product || !isMounted) {
 		return null;
 	}
 
 	return createPortal(
 		<ProductDetailModal product={product} onClose={onClose} />,
-		surface,
+		document.body,
 	);
 }
 
@@ -55,6 +62,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 	useEscapeKey(requestClose.begin);
 	useInitialFocus(panelRef);
 	useSurfaceFocus(SURFACE_ELEMENT_ID);
+	useBodyScrollLock();
 
 	function handleAskAssistant() {
 		attachProduct(product);
@@ -485,14 +493,15 @@ function useSurfaceFocus(elementId: string) {
 	}, [elementId]);
 }
 
-function usePortalSurface(elementId: string) {
-	const [surface, setSurface] = useState<HTMLElement | null>(null);
-
+/* Блокируем прокрутку страницы за шитом, пока он открыт. */
+function useBodyScrollLock() {
 	useEffect(() => {
-		setSurface(document.getElementById(elementId));
-	}, [elementId]);
-
-	return surface;
+		const previousOverflow = document.body.style.overflow;
+		document.body.style.overflow = "hidden";
+		return () => {
+			document.body.style.overflow = previousOverflow;
+		};
+	}, []);
 }
 
 function useEscapeKey(onEscape: () => void) {

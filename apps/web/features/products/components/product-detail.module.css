@@ -1,7 +1,9 @@
 .overlay {
-	position: absolute;
+	/* fixed на body (как у профиля): шит живёт в собственном слое и не
+	   зависит от трансформаций/скролла поверхности дашборда. */
+	position: fixed;
 	inset: 0;
-	z-index: 20;
+	z-index: 60;
 	display: flex;
 	padding: var(--space-6);
 	background-color: rgb(0 0 0 / 0.72);
