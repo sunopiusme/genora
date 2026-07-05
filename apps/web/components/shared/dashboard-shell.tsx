@@ -13,7 +13,7 @@ import Link from "next/link";
 import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@/lib/profile";
+import { PROFILE } from "@features/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
@@ -49,8 +49,6 @@ type RecentGroup = {
   items: string[];
 };
 
-/* Chats in a flat list grouped by time, ChatGPT-style. Replace with
-   real chat data (grouped by updated_at) when the backend is wired up. */
 const RECENT_GROUPS: RecentGroup[] = [
   {
     title: "Сегодня",
@@ -72,8 +70,6 @@ const RECENT_GROUPS: RecentGroup[] = [
   },
 ];
 
-/* Groups of the profile popup menu (ChatGPT-style), separated by
-   dividers. The header row with avatar/name/plan is rendered apart. */
 const PROFILE_MENU_GROUPS: NavItem[][] = [
   [
     {
@@ -111,7 +107,6 @@ const PROFILE_MENU_GROUPS: NavItem[][] = [
   ],
 ];
 
-/* A leftward swipe longer than this closes the sidebar. */
 const SWIPE_CLOSE_DISTANCE = 48;
 
 export function DashboardShell({ children }: { children: ReactNode }) {
@@ -123,9 +118,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  // Swipe-to-close: a horizontal leftward swipe anywhere on the open
-  // sidebar or the backdrop dismisses the drawer, matching the native
-  // iOS gesture. Vertical swipes keep scrolling the sidebar content.
   function handleTouchStart(event: TouchEvent<HTMLElement>) {
     const touch = event.touches[0];
     touchStart.current = { x: touch.clientX, y: touch.clientY };
@@ -147,9 +139,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     }
   }
 
-  // Track every open/close transition (toggle button, Escape, backdrop
-  // click) so the header freeze applies no matter how the sidebar was
-  // toggled.
   useEffect(() => {
     if (prevSidebarOpen.current === isSidebarOpen) {
       return;
@@ -159,8 +148,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
-    // Fallback in case the width transition never fires
-    // (e.g. prefers-reduced-motion).
     animationTimeout.current = setTimeout(() => {
       setIsAnimating(false);
     }, 300);
@@ -198,11 +185,6 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isSidebarOpen, closeSidebar]);
 
-  // Desktop and mobile share one sidebar state, but their layouts
-  // differ: on mobile an open sidebar pushes the whole page aside.
-  // When the viewport crosses into the mobile range (device rotation,
-  // window resize, DevTools device toolbar), close the sidebar so the
-  // page never appears pre-shifted.
   useEffect(() => {
     const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
     function handleChange(event: MediaQueryListEvent) {
@@ -235,7 +217,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
               type="button"
               className={styles.sidebarToggle}
               onClick={toggleSidebar}
-              aria-label="Переключи��ь меню"
+              aria-label="Переключить меню"
             >
               <SidebarIcon />
             </button>
@@ -325,18 +307,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 }
 
-/**
- * Кнопка профиля с выпадающим меню, раскрывающимся вверх от самой
- * кнопки — тот же паттерн, что у меню плюсика в чат-инпуте.
- */
 function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
-  // On mobile the profile opens a full-screen sheet instead of the
-  // anchored popover — the popover doesn't fit the drawer width.
   function handleProfileClick() {
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
       setIsSheetOpen(true);
@@ -367,7 +343,6 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
     };
   }, [isOpen]);
 
-  // Collapsing the sidebar hides the anchor context — close the menu.
   useEffect(() => {
     if (!isSidebarOpen) {
       setIsOpen(false);

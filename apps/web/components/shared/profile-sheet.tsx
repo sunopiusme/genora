@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Avatar } from "@genora/ui";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@/lib/profile";
+import { PROFILE } from "@features/profile";
 import styles from "./profile-sheet.module.css";
 
 const CLOSE_ANIMATION_MS = 280;
@@ -13,9 +13,7 @@ const CLOSE_ANIMATION_MS = 280;
 type SheetRow = {
 	label: string;
 	icon: string;
-	/** Secondary value shown on the right edge of the row. */
 	value?: string;
-	/** Value rendered under the label, full width (e.g. email). */
 	detail?: string;
 	href?: string;
 	accent?: boolean;
@@ -27,8 +25,6 @@ type SheetSection = {
 	rows: SheetRow[];
 };
 
-/* Full-screen profile sheet contents, ChatGPT-style: grey section
-   headers with card groups of rows. */
 const SHEET_SECTIONS: SheetSection[] = [
 	{
 		title: "Настройка Genora",
@@ -97,10 +93,6 @@ type ProfileSheetProps = {
 	onClose: () => void;
 };
 
-/**
- * Полноэкранный шит профиля на мобильных — раскрывается снизу до
- * потолка, как просмотр карточки товара, по референсу ChatGPT iOS.
- */
 export function ProfileSheet({ isOpen, onClose }: ProfileSheetProps) {
 	const [isMounted, setIsMounted] = useState(false);
 
@@ -143,7 +135,6 @@ function ProfileSheetPanel({ onClose }: { onClose: () => void }) {
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [requestClose]);
 
-	// Lock the page scroll behind the sheet while it is open.
 	useEffect(() => {
 		const previousOverflow = document.body.style.overflow;
 		document.body.style.overflow = "hidden";

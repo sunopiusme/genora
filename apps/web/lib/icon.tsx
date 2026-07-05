@@ -2,34 +2,17 @@
 
 import { Icon as IconifyIcon, addIcon, type IconProps } from "@iconify/react";
 
-/**
- * Иконки регистрируются офлайн через `addIcon`, поэтому `@iconify/react`
- * рендерит их из локального реестра и не обращается к Iconify API во время
- * рантайма.
- *
- * Обёртка `Icon` дополнительно проставляет `ssr`, чтобы иконка рисовалась уже
- * на первом (серверном) рендере, а не подменяла пустой плейсхолдер после
- * монтирования. Иначе `@iconify/react` показывает пустой <span> до `useEffect`,
- * что и вызывает мерцание иконок при загрузке страницы.
- *
- * Набор: Solar (linear), 24x24, MIT. При добавлении новой иконки в разметку
- * её тело нужно добавить сюда.
- */
 const SOLAR_ICONS: Record<string, string> = {
   "pen-new-square-linear":
     '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M22 10.5V12c0 4.714 0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12s0-7.071 1.464-8.536C4.93 2 7.286 2 12 2h1.5"/><path d="m16.652 3.455l.649-.649A2.753 2.753 0 0 1 21.194 6.7l-.65.649m-3.892-3.893s.081 1.379 1.298 2.595c1.216 1.217 2.595 1.298 2.595 1.298m-3.893-3.893L10.687 9.42c-.404.404-.606.606-.78.829q-.308.395-.524.848c-.121.255-.211.526-.392 1.068L8.412 13.9m12.133-6.552l-5.965 5.965c-.404.404-.606.606-.829.78a4.6 4.6 0 0 1-.848.524c-.255.121-.526.211-1.068.392l-1.735.579m0 0l-1.123.374a.742.742 0 0 1-.939-.94l.374-1.122m1.688 1.688L8.412 13.9"/></g>',
   "magnifer-linear":
     '<g fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11.5" cy="11.5" r="9.5"/><path stroke-linecap="round" d="M18.5 18.5L22 22"/></g>',
-  /* Утолщённые (stroke 2) варианты для строки ассистента. */
   "magnifer-bold-stroke":
     '<g fill="none" stroke="currentColor" stroke-width="2"><circle cx="11.5" cy="11.5" r="9"/><path stroke-linecap="round" d="M18.5 18.5L22 22"/></g>',
   "plus-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M12 5v14M5 12h14"/>',
   "arrow-up-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 20V4m0 0l6 6m-6-6l-6 6"/>',
-  /* Геометрически идентичен plus-bold-stroke, повёрнутому на 45°:
-     те же штрихи длиной 14 единиц вокруг центра. Так крестик в тегах
-     выглядит ровно как плюсик прикрепления в «открытом» состоянии. */
   "close-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M7.05 7.05L16.95 16.95M16.95 7.05L7.05 16.95"/>',
   "shop-2-linear":

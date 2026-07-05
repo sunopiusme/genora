@@ -9,12 +9,6 @@ type PageScrollAreaProps = {
   children: ReactNode;
 };
 
-/**
- * Scroll container that returns to the top when the viewport crosses
- * the mobile breakpoint (device rotation, window resize, DevTools
- * device mode). Without this, the scroll offset from the previous
- * layout is kept, and the reflowed content appears shifted upward.
- */
 export function PageScrollArea({ className, children }: PageScrollAreaProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
