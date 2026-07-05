@@ -83,13 +83,8 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 				</span>
 			</button>
 			<div className={styles.info}>
-				<h3 className={styles.name}>{product.name}</h3>
-				<div className={styles.price}>
-					<span className={styles.amount}>
-						{selectedTier?.priceLabel ?? product.priceLabel}
-					</span>
-					<span className={styles.period}>в {product.periodLabel}</span>
-					<span className={styles.priceDivider} aria-hidden="true" />
+				<div className={styles.nameRow}>
+					<h3 className={styles.name}>{product.name}</h3>
 					{/* biome-ignore lint/a11y/noStaticElementInteractions: обёртка
 					    только гасит всплытие к кликабельной карточке; интерактивность
 					    и клавиатура — у триггера и слайдера внутри селектора. */}
@@ -107,6 +102,12 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
 						/>
 					</span>
 				</div>
+				<p className={styles.price}>
+					<span className={styles.amount}>
+						{selectedTier?.priceLabel ?? product.priceLabel}
+					</span>
+					<span className={styles.period}>в {product.periodLabel}</span>
+				</p>
 			</div>
 			<Button
 				variant="primary"
