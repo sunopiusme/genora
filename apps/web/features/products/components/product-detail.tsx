@@ -16,6 +16,7 @@ const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
 const HERO_STRETCH_RANGE_PX = 96;
 const HERO_STRETCH_DAMPING = 0.6;
 const CLOSE_ANIMATION_MOBILE_MS = 280;
+const SETTLE_DURATION_MS = 380;
 
 type ProductDetailProps = {
 	product: Product | null;
@@ -56,7 +57,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 		onClose,
 		isMobile ? CLOSE_ANIMATION_MOBILE_MS : 0,
 	);
-	const isDragging = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
+	const swipe = useSwipeToDismiss(panelRef, bodyRef, requestClose.begin, isMobile);
 	const isScrolled = usePanelScrolled(bodyRef, isMobile);
 
 	useEscapeKey(requestClose.begin);
@@ -78,9 +79,11 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 		: styles.overlay;
 	const panelClassName = requestClose.isClosing
 		? styles.panelClosing
-		: isDragging
+		: swipe.isDragging
 			? styles.panelDragging
-			: styles.panel;
+			: swipe.isSettling
+				? styles.panelSettling
+				: styles.panel;
 	const controlsClassName = isScrolled
 		? `${styles.controls} ${styles.controlsScrolled}`
 		: styles.controls;
@@ -342,6 +345,16 @@ function useSwipeToDismiss(
 	isEnabled: boolean,
 ) {
 	const [isDragging, setIsDragging] = useState(false);
+	/* Фаза «settling» — короткое окно после отпущенного незавершённого
+	   свайпа, когда включается transition для плавного возврата шита.
+	   Вне этого окна transition отсутствует, чтобы не конфликтовать
+	   с entry-анимацией открытия (источник рывков на iOS). */
+	const [isSettling, setIsSettling] = useState(false);
+	const settleTimerRef = useRef<number | undefined>(undefined);
+
+	useEffect(() => {
+		return () => window.clearTimeout(settleTimerRef.current);
+	}, []);
 
 	useEffect(() => {
 		if (!isEnabled) {
@@ -412,6 +425,7 @@ function useSwipeToDismiss(
 			const shouldDismiss =
 				dragOffset > panel.offsetHeight * SWIPE_DISMISS_DISTANCE_RATIO ||
 				(dragOffset > 0 && velocity > SWIPE_DISMISS_VELOCITY_PX_PER_MS);
+			const wasDragged = dragOffset > 0;
 			activePointerId = null;
 			dragOffset = 0;
 			setIsDragging(false);
@@ -419,8 +433,18 @@ function useSwipeToDismiss(
 				onDismiss();
 				return;
 			}
+			if (!wasDragged) {
+				return;
+			}
+			/* Плавный возврат: включаем transition на один такт settling,
+			   сбрасываем смещение и выключаем его по завершении. */
+			setIsSettling(true);
 			panel.style.removeProperty("--hero-stretch");
 			panel.style.transform = "";
+			window.clearTimeout(settleTimerRef.current);
+			settleTimerRef.current = window.setTimeout(() => {
+				setIsSettling(false);
+			}, SETTLE_DURATION_MS);
 		}
 
 		function handleTouchMove(event: TouchEvent) {
@@ -446,7 +470,7 @@ function useSwipeToDismiss(
 		};
 	}, [isEnabled, onDismiss, panelRef, bodyRef]);
 
-	return isDragging;
+	return { isDragging, isSettling };
 }
 
 function usePanelScrolled(
@@ -520,7 +544,9 @@ function useEscapeKey(onEscape: () => void) {
 function useInitialFocus(targetRef: React.RefObject<HTMLElement | null>) {
 	useEffect(() => {
 		const frameId = requestAnimationFrame(() => {
-			targetRef.current?.focus();
+			/* preventScroll: без него iOS Safari скроллит панель в зону
+			   видимости прямо во время entry-анимации — визуальный рывок. */
+			targetRef.current?.focus({ preventScroll: true });
 		});
 		return () => cancelAnimationFrame(frameId);
 	}, [targetRef]);

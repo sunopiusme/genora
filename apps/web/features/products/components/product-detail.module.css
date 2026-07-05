@@ -66,6 +66,11 @@
 	transition: none;
 }
 
+.panelSettling {
+	composes: panel;
+	animation: none;
+}
+
 @keyframes overlayOut {
 	from {
 		opacity: 1;
@@ -123,6 +128,10 @@
 		pointer-events: none;
 	}
 
+	/* Открытие — чистая animation без transition (как у profile-sheet):
+	   постоянный transition на transform/max-height конфликтовал с
+	   sheetIn и любым изменением --hero-stretch или подгрузкой ассетов —
+	   на iOS шит дёргался при открытии. */
 	.panel {
 		margin: auto 0 0;
 		max-width: none;
@@ -134,14 +143,20 @@
 		overflow: hidden;
 		will-change: transform;
 		animation: sheetIn 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
-		transition:
-			transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
-			max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	.panelDragging {
 		animation: none;
 		transition: none;
+	}
+
+	/* Возврат после незавершённого свайпа: transition включается только
+	   на эту короткую фазу, когда entry-анимация уже давно завершена. */
+	.panelSettling {
+		animation: none;
+		transition:
+			transform 0.35s cubic-bezier(0.33, 1, 0.68, 1),
+			max-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
 	.overlayClosing.overlayClosing {
@@ -215,13 +230,14 @@
 		transform-origin: top left;
 	}
 
+	/* min-height без постоянного transition: анимируем возврат hero
+	   только в фазе settling, чтобы не мешать открытию шита. */
 	.hero.hero {
 		min-height: calc(14rem + var(--hero-stretch, 0px));
-		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 
-	.panelDragging .hero.hero {
-		transition: none;
+	.panelSettling .hero.hero {
+		transition: min-height 0.35s cubic-bezier(0.33, 1, 0.68, 1);
 	}
 }
 
