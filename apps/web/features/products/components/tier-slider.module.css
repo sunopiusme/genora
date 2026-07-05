@@ -1,0 +1,248 @@
+/* Слайдер уровня подписки (по мотивам Effort-слайдера Claude Code):
+   нейтральный серый трек, ручка целиком внутри. Фон и тень даёт
+   контейнер (дропдаун в детальном просмотре или карточка в витрине) —
+   сам слайдер прозрачный. */
+.tierSlider {
+	/* Размер трека и ручки — переменной: компактный режим уменьшает
+	   всю геометрию одним значением, клампы ручки/точек пересчитаются. */
+	--track-height: 1.375rem;
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	padding: var(--space-3) var(--space-4);
+}
+
+/* Компактный режим для дропдауна на карточке витрины: тот же ритм
+   отступов, что в модалке, но ниже трек — меню меньше, а слайдеру
+   не тесно; ряд «Базовый/Максимум» не рендерится. */
+.tierSliderCompact {
+	composes: tierSlider;
+	--track-height: 1.25rem;
+	padding: var(--space-3);
+	gap: var(--space-2);
+}
+
+.tierEdges {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+}
+
+.tierEdgeMax {
+	transition: color 0.3s ease;
+}
+
+/* На максимуме подпись «Максимум» подхватывает брендовый оттенок.
+   Меняется ТОЛЬКО цвет — вес и размер неизменны, текст не прыгает. */
+.tierSlider[data-maxed] .tierEdgeMax {
+	color: color-mix(in srgb, var(--brand) 65%, white);
+}
+
+/* Трек один в один как в референсе Claude Code: утопленная ТЁМНАЯ
+   полоса, темнее фона поповера (выемка, а не светлая плашка). Ручка —
+   прямой ребёнок трека и ВЫСТУПАЕТ за его края сверху и снизу, поэтому
+   overflow здесь visible; клиппинг заливки — во внутреннем слое.
+   Сам трек — интерактивный slider (Pointer Events из компонента);
+   touch-action: none отдаёт жест слайдеру, а не скроллу/шиту. */
+.tierTrack {
+	position: relative;
+	width: 100%;
+	height: var(--track-height);
+	border-radius: var(--radius-full);
+	background-color: rgb(0 0 0 / 0.35);
+	transition: background-color 0.3s ease;
+	touch-action: none;
+	cursor: pointer;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierTrack:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px rgb(255 255 255 / 0.35);
+}
+
+/* Внутренний клиппинг-слой: обрезает заливку и пиксельную текстуру
+   по пилюле, не мешая ручке выступать за трек. */
+.tierTrackInner {
+	position: absolute;
+	inset: 0;
+	border-radius: var(--radius-full);
+	overflow: hidden;
+	pointer-events: none;
+}
+
+/* Точки-остановки на позициях уровней; последняя — брендовая. */
+.tierDot {
+	position: absolute;
+	top: 50%;
+	left: clamp(
+		calc(var(--track-height) / 2 - 0.0625rem),
+		var(--pos),
+		calc(100% - var(--track-height) / 2 + 0.0625rem)
+	);
+	transform: translate(-50%, -50%);
+	width: 0.1875rem;
+	height: 0.1875rem;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.3);
+	transition: opacity 0.3s ease;
+}
+
+.tierDot:last-of-type {
+	background-color: color-mix(in srgb, var(--brand) 80%, white);
+}
+
+/* На максимуме точки скрываются — их накрывает светлая заливка. */
+.tierSlider[data-maxed] .tierDot {
+	opacity: 0;
+}
+
+/* Серая заливка тянется за ручкой ВСЕГДА: от левого края до текущей
+   позиции. На максимуме она достигает 100% и покрывает всю пилюлю —
+   именно от неё стартует шиммер. Ширина едет той же кривой и
+   длительностью, что и ручка, — движутся как один узел. */
+.tierFill {
+	position: absolute;
+	inset: 0 auto 0 0;
+	width: var(--fill);
+	/* Правый торец плоский: он всегда спрятан под ручкой, скруглённый
+	   край не выглядывает из-под неё сверху и снизу. Пиксельная
+	   текстура лежит ВНУТРИ заливки и клиппится ей — едет вместе с
+	   полоской, когда та дотягивается до края. */
+	border-radius: var(--radius-full) 0 0 var(--radius-full);
+	overflow: hidden;
+	background-color: rgb(255 255 255 / 0.13);
+	transition:
+		width 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s ease;
+}
+
+/* На максимуме заливка — градиент как в референсе: у ручки самая
+   светлая, почти сливается с её серым, и темнеет влево — сплошной
+   цвет «растворяется» в пиксельные блоки. */
+.tierSlider[data-maxed] .tierFill {
+	background-color: rgb(255 255 255 / 0.11);
+	background-image: linear-gradient(
+		90deg,
+		transparent 0%,
+		color-mix(in srgb, var(--brand) 8%, rgb(255 255 255 / 0.07)) 55%,
+		color-mix(in srgb, var(--brand) 12%, rgb(255 255 255 / 0.2)) 88%,
+		rgb(255 255 255 / 0.3) 100%
+	);
+}
+
+/* Пиксельный шиммер (референс — Ultracode): холст на всю заливку.
+   Каждый пиксель рисуется индивидуально в canvas (tier-dither.tsx):
+   у каждой ячейки свой порог включения, фаза и скорость мерцания,
+   волна энергии идёт от ручки влево — пиксели «прощёлкиваются» в
+   порядке своих порогов, а не колоннами-полосами. CSS здесь отвечает
+   только за позиционирование и плавное проявление слоя. */
+.tierDither {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	opacity: 0;
+	/* Плавность нужна только на выключении: при включении слой должен
+	   стать видимым мгновенно, чтобы «рисование» пикселей справа налево
+	   было заметно с самого первого кадра, а не пряталось за фейдом. */
+	transition: opacity 0.2s ease;
+	pointer-events: none;
+}
+
+/* Включение максимума: слой видим сразу — canvas сам «рисует»
+   пиксели от ручки влево, эффект нарастания не скрыт переходом. */
+.tierSlider[data-maxed] .tierDither {
+	opacity: 1;
+	transition: none;
+}
+
+/* При reduce-motion canvas сам рисует статичный кадр (без rAF);
+   приглушаем слой, чтобы неподвижная текстура не спорила с заливкой. */
+@media (prefers-reduced-motion: reduce) {
+	.tierSlider[data-maxed] .tierDither {
+		opacity: 0.5;
+	}
+}
+
+/* Ручка в размерах полоски, но на 1px «выше» неё с каждой стороны —
+   полностью перекрывает торец серой заливки, ничего не выглядывает. */
+.tierThumb {
+	position: absolute;
+	top: -1px;
+	bottom: -1px;
+	/* clamp держит ручку в пределах трека по горизонтали. */
+	left: clamp(
+		calc(var(--track-height) / 2),
+		var(--fill),
+		calc(100% - var(--track-height) / 2)
+	);
+	transform: translateX(-50%);
+	width: var(--track-height);
+	border-radius: var(--radius-full);
+	background-color: rgb(152 152 158);
+	/* Примагничивание при отпускании: короткий равномерный доезд —
+	   механика, а не пружина. Цвет — той же длительностью, что и
+	   остальные кроссфейды. */
+	transition:
+		left 0.16s cubic-bezier(0.4, 0, 0.2, 1),
+		background-color 0.3s ease;
+	pointer-events: none;
+}
+
+.tierSlider[data-maxed] .tierThumb {
+	background-color: #ffffff;
+}
+
+/* При активном перетаскивании отключаем transition у позиции ручки
+   И у ширины заливки — они следуют за пальцем мгновенно как один узел
+   (позиция пишется прямой записью CSS-переменной из rAF-цикла).
+   Цветовые кроссфейды всегда остаются плавными, чтобы состояние
+   максимума не «вспыхивало» при пересечении порога во время drag. */
+.tierSlider[data-dragging] .tierThumb {
+	transition: background-color 0.3s ease;
+}
+
+.tierSlider[data-dragging] .tierFill {
+	transition: background-color 0.3s ease;
+}
+
+/* Названия тиров под треком — кликабельные остановки. */
+.tierStops {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+/* Единый вес шрифта во всех состояниях: активность передаётся только
+   цветом и фоном — метки не «толстеют» и не сдвигаются при движении. */
+.tierStop {
+	padding: 0.125rem 0.5rem;
+	border: none;
+	border-radius: var(--radius-full);
+	background: transparent;
+	font-family: var(--font-sans);
+	font-size: var(--text-xs);
+	font-weight: var(--weight-medium);
+	color: var(--color-foreground-subtle);
+	cursor: pointer;
+	transition:
+		color 0.3s ease,
+		background-color 0.3s ease;
+}
+
+.tierStopActive {
+	composes: tierStop;
+	background-color: rgb(255 255 255 / 0.1);
+	color: var(--color-foreground);
+}
+
+/* На максимуме активная метка тира деликатно тонируется брендом. */
+.tierSlider[data-maxed] .tierStopActive {
+	background-color: color-mix(in srgb, var(--brand) 16%, transparent);
+	color: color-mix(in srgb, var(--brand) 45%, white);
+}

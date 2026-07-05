@@ -142,12 +142,24 @@
 	cursor: text;
 }
 
+/* Строка названия: имя слева, селектор уровня справа — селектор
+   прижат к стабильному краю и не зависит от ширины динамичной цены. */
+.nameRow {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.5rem;
+}
+
 .name {
 	margin: 0;
 	font-size: 0.875rem;
 	font-weight: var(--weight-medium);
 	line-height: 1.35;
 	color: var(--color-foreground);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .price {
@@ -172,10 +184,21 @@
 	color: var(--color-foreground-muted);
 }
 
+/* Зона селектора уровня в строке цены: обычный курсор вместо
+   карточного pointer — это самостоятельный контрол, а не часть
+   кликабельной обложки. */
+.tierArea {
+	cursor: default;
+	flex-shrink: 0;
+	align-self: center;
+}
+
 /* «Тихая» кнопка в духе App Store «Get»: полупрозрачная плашка вместо
-   сплошной белой — обложка и цена остаются главными в иерархии. */
+   сплошной белой — обложка и цена остаются главными в иерархии.
+   Кнопка одна во всю ширину — единственная цель для покупки. */
 .action.action {
 	height: 2.25rem;
+	width: 100%;
 	border-radius: 9999px;
 	border: none;
 	background-color: rgb(255 255 255 / 0.1);
