@@ -782,12 +782,31 @@
 		rgb(0 0 0 / 0.2) 94%
 	);
 	opacity: 0;
-	transition: opacity 0.4s ease;
 	pointer-events: none;
 }
 
+/* При дожатии до максимума пиксели «устраиваются» справа налево
+   ступенчатой волной — как в Claude Code. Анимация перезапускается
+   каждый раз, когда селектор начинает совпадать (снятие/установка
+   data-maxed). */
 .tierSlider[data-maxed] .tierDither {
 	opacity: 1;
+	animation: ditherSettle 0.5s steps(8, end) both;
+}
+
+@keyframes ditherSettle {
+	from {
+		clip-path: inset(0 0 0 100%);
+	}
+	to {
+		clip-path: inset(0 0 0 0);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tierSlider[data-maxed] .tierDither {
+		animation: none;
+	}
 }
 
 /* Скруглённая ручка внутри трека: серая в обычных состояниях,
@@ -803,8 +822,10 @@
 	border-radius: var(--radius-full);
 	background-color: rgb(178 178 182);
 	box-shadow: 0 1px 3px rgb(0 0 0 / 0.4);
+	/* Примагничивание при отпускании: чуть дольше и с мягким выбегом —
+	   ощущение снапа к ближайшему уровню, а не рывка. */
 	transition:
-		left 0.25s cubic-bezier(0.2, 0, 0, 1),
+		left 0.3s cubic-bezier(0.25, 1, 0.35, 1),
 		background-color 0.25s ease;
 	pointer-events: none;
 }
@@ -856,10 +877,11 @@
 		0 0 0 2px rgb(255 255 255 / 0.4);
 }
 
-/* При активном перетаскивании убираем transition — ручка следует
-   за пальцем мгновенно, без "догоняющей" анимации. */
-.tierTrackWrap:has(.tierRange:active) .tierThumb,
-.tierTrackWrap:has(.tierRange:active) .tierFill {
+/* При активном перетаскивании убираем transition через data-dragging
+   (ставится из JS): ручка следует за пальцем мгновенно, без
+   «резинового» отставания — :has(:active) на iOS срабатывал нестабильно. */
+.tierSlider[data-dragging] .tierThumb,
+.tierSlider[data-dragging] .tierFill {
 	transition: none;
 }
 

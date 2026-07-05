@@ -335,6 +335,7 @@ function TierSlider({ product, tierIndex, onTierChange }: TierSliderProps) {
 			className={styles.tierSlider}
 			data-sheet-drag-ignore="true"
 			data-maxed={isMaxed || undefined}
+			data-dragging={dragValue !== null || undefined}
 			style={
 				{
 					"--fill": `${fillRatio * 100}%`,
