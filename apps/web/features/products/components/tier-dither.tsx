@@ -188,7 +188,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 					}
 
 					/* Квантованная яркость: чем сильнее ячейка «пробила» свой
-					   порог, тем выше её дискретный уровень. */
+					   порог, т��м выше её дискретный уровень. */
 					const overshoot = Math.min(1, (energy - threshold) / 0.6);
 					const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
 					const alpha = 0.16 + (level / BRIGHTNESS_LEVELS) * 0.72;
@@ -244,6 +244,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
 
 		return () => {
 			cancelAnimationFrame(frameId);
+			cancelAnimationFrame(resizeFrameId);
 			resizeObserver.disconnect();
 		};
 	}, [active, brandColor]);
