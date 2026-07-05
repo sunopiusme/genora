@@ -5,7 +5,7 @@ import { useEffect, useRef, type ReactNode } from "react";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
 
 type PageScrollAreaProps = {
-  className: string;
+  className?: string;
   children: ReactNode;
 };
 

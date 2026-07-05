@@ -218,9 +218,9 @@ function parseHexColor(hex: string): Rgb {
 	const normalized = hex.trim().replace("#", "");
 	if (normalized.length === 3) {
 		return {
-			r: Number.parseInt(normalized[0] + normalized[0], 16),
-			g: Number.parseInt(normalized[1] + normalized[1], 16),
-			b: Number.parseInt(normalized[2] + normalized[2], 16),
+			r: Number.parseInt(normalized.charAt(0).repeat(2), 16),
+			g: Number.parseInt(normalized.charAt(1).repeat(2), 16),
+			b: Number.parseInt(normalized.charAt(2).repeat(2), 16),
 		};
 	}
 	if (normalized.length === 6) {

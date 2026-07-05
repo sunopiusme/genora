@@ -120,6 +120,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 
   function handleTouchStart(event: TouchEvent<HTMLElement>) {
     const touch = event.touches[0];
+    if (!touch) {
+      return;
+    }
     touchStart.current = { x: touch.clientX, y: touch.clientY };
   }
 
@@ -128,6 +131,9 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       return;
     }
     const touch = event.changedTouches[0];
+    if (!touch) {
+      return;
+    }
     const deltaX = touch.clientX - touchStart.current.x;
     const deltaY = touch.clientY - touchStart.current.y;
     touchStart.current = null;

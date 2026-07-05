@@ -78,7 +78,7 @@ export function VerifyCard() {
     event.preventDefault();
     const nextDigits = createEmptyDigits();
     for (let index = 0; index < pastedDigits.length; index += 1) {
-      nextDigits[index] = pastedDigits[index];
+      nextDigits[index] = pastedDigits.charAt(index);
     }
     setDigits(nextDigits);
     setHasError(false);

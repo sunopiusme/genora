@@ -141,7 +141,7 @@ export function AssistantBar() {
 
 		const id = `token-${Math.random().toString(36).slice(2, 10)}`;
 		const host = document.createElement("span");
-		host.className = styles.token;
+		host.className = styles.token ?? "";
 		host.contentEditable = "false";
 		host.dataset.tokenId = id;
 		host.dataset.label = data.label;
@@ -272,9 +272,9 @@ export function AssistantBar() {
 		const caret = selection.anchorOffset;
 
 		for (let index = caret - 1; index >= 0; index -= 1) {
-			const char = text[index];
+			const char = text.charAt(index);
 			if (char === "@") {
-				const charBefore = index === 0 ? "" : text[index - 1];
+				const charBefore = index === 0 ? "" : text.charAt(index - 1);
 				const isMentionStart =
 					charBefore === "" || /[\s\u00A0\u200B]/.test(charBefore);
 				if (isMentionStart) {
@@ -390,7 +390,10 @@ export function AssistantBar() {
 			}
 			if (event.key === "Enter" || event.key === "Tab") {
 				event.preventDefault();
-				handleSelectMention(mentionItems[mentionActiveIndex]);
+				const activeItem = mentionItems[mentionActiveIndex];
+				if (activeItem) {
+					handleSelectMention(activeItem);
+				}
 				return;
 			}
 			if (event.key === "Escape") {

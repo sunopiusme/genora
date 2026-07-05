@@ -4,34 +4,20 @@ import { useLayoutEffect, useRef, useState } from "react";
 import styles from "./tier-value-transition.module.css";
 
 type TierValueTransitionProps = {
-	/* Отображаемое значение: имя тира или ценник. */
 	text: string;
-	/* Порядковый номер тира — задаёт направление прокрутки: рост
-	   уровня «прокручивает» символы вверх, снижение — вниз. */
 	order: number;
 	className?: string;
 };
 
 type Cell = {
-	/* Позиция символа ОТ КОНЦА строки — стабильный ключ ячейки.
-	   Выравнивание с конца держит на месте суффиксы («₽», «Pro» в
-	   «Mega Pro»), а рост числа разрядов добавляет ячейки слева —
-	   как у настоящего одометра. */
 	pos: number;
-	/* Текущий символ; null — ячейка схлопывается (строка укоротилась). */
 	char: string | null;
-	/* Ревизия узла символа: инкремент перемонтирует узел и
-	   перезапускает enter-анимацию. 0 — первый рендер, без анимации. */
 	rev: number;
-	/* Предыдущий символ, уезжающий из ячейки. */
 	exiting: string | null;
-	/* Ступенчатая задержка волны слева направо, мс. */
 	delayMs: number;
 };
 
-/* Шаг волны между соседними изменившимися символами. */
 const STAGGER_MS = 26;
-/* Потолок суммарной задержки — длинный ценник не должен тянуться. */
 const MAX_DELAY_MS = 130;
 
 function buildInitialCells(text: string): Cell[] {
@@ -44,9 +30,6 @@ function buildInitialCells(text: string): Cell[] {
 	}));
 }
 
-/* Диф двух строк с выравниванием от конца: неизменившиеся позиции
-   сохраняют свои ячейки (узлы не перемонтируются — символ стоит
-   неподвижно), изменившиеся получают новую ревизию и место в волне. */
 function advanceCells(
 	prevCells: Cell[],
 	prevText: string,
@@ -74,7 +57,6 @@ function advanceCells(
 		}
 	}
 
-	/* Волна слева направо только по изменившимся ячейкам. */
 	let waveIndex = 0;
 	for (const cell of next) {
 		if (cell.rev === revision) {
@@ -86,23 +68,6 @@ function advanceCells(
 	return next;
 }
 
-/* Посимвольный «одометр» для сменных значений тира (цена, имя уровня):
-   строки выравниваются от конца, и крутятся ТОЛЬКО изменившиеся
-   символы — «₽» и совпавшие разряды стоят неподвижно, остальные
-   прокатываются вертикальной волной слева направо. Ширина каждой
-   ячейки анимируется в пикселях, так что соседние элементы (период
-   «в месяц», шеврон) сдвигаются плавно. Чистый CSS, без библиотек.
-
-   Механика:
-   - Смена text фиксируется прямо в рендере (канонический паттерн
-     derived state): диф строит новый список ячеек, изменившиеся
-     получают новый rev — React перемонтирует узел символа, и
-     enter-анимация запускается заново.
-   - Ширина ячейки замеряется по входящему символу в useLayoutEffect
-     до отрисовки кадра и перетекает transition'ом; после догрузки
-     шрифтов происходит одна повторная синхронизация.
-   - Первый рендер (rev 0) не анимируется — значение просто стоит
-     на месте при маунте карточки или открытии меню. */
 export function TierValueTransition({
 	text,
 	order,
@@ -118,8 +83,6 @@ export function TierValueTransition({
 	const rootRef = useRef<HTMLSpanElement>(null);
 	const previousOrderRef = useRef(order);
 
-	/* Свап во время рендера: React сразу перезапускает рендер с новым
-	   состоянием, старый кадр на экран не попадает. */
 	if (text !== state.text) {
 		const revision = state.revision + 1;
 		setState({
@@ -131,11 +94,6 @@ export function TierValueTransition({
 		previousOrderRef.current = order;
 	}
 
-	/* Ширина каждой ячейки = ширина её текущего символа, в пикселях:
-	   только численные значения анимируются transition'ом (auto — нет;
-	   первый замер на маунте потому происходит мгновенно). Повторный
-	   замер после document.fonts.ready страхует от смены метрик
-	   шрифта после загрузки. */
 	useLayoutEffect(() => {
 		const root = rootRef.current;
 		if (!root) {
@@ -180,8 +138,6 @@ export function TierValueTransition({
 			data-direction={direction}
 			aria-label={text}
 		>
-			{/* Ячейки скрыты от скринридеров: значение читается целиком
-			    из aria-label, а не по одному символу. */}
 			<span className={styles.row} aria-hidden="true">
 				{state.cells.map((cell) => (
 					<span

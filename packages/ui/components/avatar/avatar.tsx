@@ -154,7 +154,7 @@ export const Avatar = forwardRef<SVGSVGElement, AvatarProps>(function Avatar(
 
       <g clipPath={`url(#${clipId})`}>
         <circle cx={CENTER} cy={CENTER} r={CENTER} fill={color} />
-        {shape()}
+        {shape?.()}
       </g>
     </svg>
   );
