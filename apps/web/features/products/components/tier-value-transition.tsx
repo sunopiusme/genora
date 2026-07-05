@@ -1,116 +1,219 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import styles from "./tier-value-transition.module.css";
 
 type TierValueTransitionProps = {
 	/* Отображаемое значение: имя тира или ценник. */
 	text: string;
 	/* Порядковый номер тира — задаёт направление прокрутки: рост
-	   уровня «прокручивает» значение вверх, снижение — вниз. */
+	   уровня «прокручивает» символы вверх, снижение — вниз. */
 	order: number;
 	className?: string;
 };
 
-type ValueSnapshot = {
-	key: number;
-	text: string;
+type Cell = {
+	/* Позиция символа ОТ КОНЦА строки — стабильный ключ ячейки.
+	   Выравнивание с конца держит на месте суффиксы («₽», «Pro» в
+	   «Mega Pro»), а рост числа разрядов добавляет ячейки слева —
+	   как у настоящего одометра. */
+	pos: number;
+	/* Текущий символ; null — ячейка схлопывается (строка укоротилась). */
+	char: string | null;
+	/* Ревизия узла символа: инкремент перемонтирует узел и
+	   перезапускает enter-анимацию. 0 — первый рендер, без анимации. */
+	rev: number;
+	/* Предыдущий символ, уезжающий из ячейки. */
+	exiting: string | null;
+	/* Ступенчатая задержка волны слева направо, мс. */
+	delayMs: number;
 };
 
-/* Направленный «тикер» для сменных значений тира (цена, имя уровня):
-   старое значение уезжает и гаснет, новое приезжает с противоположной
-   стороны, а ширина контейнера плавно перетекает к ширине нового
-   текста — соседние элементы (период «в месяц», шеврон) не прыгают,
-   а сдвигаются мягко. Чистый CSS + два DOM-узла, без библиотек.
+/* Шаг волны между соседними изменившимися символами. */
+const STAGGER_MS = 26;
+/* Потолок суммарной задержки — длинный ценник не должен тянуться. */
+const MAX_DELAY_MS = 130;
+
+function buildInitialCells(text: string): Cell[] {
+	return Array.from(text, (char, index) => ({
+		pos: text.length - 1 - index,
+		char,
+		rev: 0,
+		exiting: null,
+		delayMs: 0,
+	}));
+}
+
+/* Диф двух строк с выравниванием от конца: неизменившиеся позиции
+   сохраняют свои ячейки (узлы не перемонтируются — символ стоит
+   неподвижно), изменившиеся получают новую ревизию и место в волне. */
+function advanceCells(
+	prevCells: Cell[],
+	prevText: string,
+	nextText: string,
+	revision: number,
+): Cell[] {
+	const maxLength = Math.max(prevText.length, nextText.length);
+	const prevByPos = new Map(prevCells.map((cell) => [cell.pos, cell]));
+	const next: Cell[] = [];
+
+	for (let pos = maxLength - 1; pos >= 0; pos -= 1) {
+		const oldChar = prevText[prevText.length - 1 - pos] ?? null;
+		const newChar = nextText[nextText.length - 1 - pos] ?? null;
+		const prevCell = prevByPos.get(pos);
+		if (oldChar === newChar && prevCell) {
+			next.push(prevCell);
+		} else {
+			next.push({
+				pos,
+				char: newChar,
+				rev: revision,
+				exiting: oldChar,
+				delayMs: 0,
+			});
+		}
+	}
+
+	/* Волна слева направо только по изменившимся ячейкам. */
+	let waveIndex = 0;
+	for (const cell of next) {
+		if (cell.rev === revision) {
+			cell.delayMs = Math.min(waveIndex * STAGGER_MS, MAX_DELAY_MS);
+			waveIndex += 1;
+		}
+	}
+
+	return next;
+}
+
+/* Посимвольный «одометр» для сменных значений тира (цена, имя уровня):
+   строки выравниваются от конца, и крутятся ТОЛЬКО изменившиеся
+   символы — «₽» и совпавшие разряды стоят неподвижно, остальные
+   прокатываются вертикальной волной слева направо. Ширина каждой
+   ячейки анимируется в пикселях, так что соседние элементы (период
+   «в месяц», шеврон) сдвигаются плавно. Чистый CSS, без библиотек.
 
    Механика:
    - Смена text фиксируется прямо в рендере (канонический паттерн
-     derived state): текущее значение становится «уходящим», новое —
-     текущим с новым ключом, чтобы React перемонтировал узел и enter-
-     анимация запустилась заново.
-   - Ширина контейнера задаётся в пикселях из useLayoutEffect до
-     отрисовки кадра и анимируется transition'ом; ResizeObserver
-     держит её в синхроне при догрузке шрифтов.
-   - Первый рендер (key 0) не анимируется — значение просто стоит
+     derived state): диф строит новый список ячеек, изменившиеся
+     получают новый rev — React перемонтирует узел символа, и
+     enter-анимация запускается заново.
+   - Ширина ячейки замеряется по входящему символу в useLayoutEffect
+     до отрисовки кадра и перетекает transition'ом; после догрузки
+     шрифтов происходит одна повторная синхронизация.
+   - Первый рендер (rev 0) не анимируется — значение просто стоит
      на месте при маунте карточки или открытии меню. */
 export function TierValueTransition({
 	text,
 	order,
 	className,
 }: TierValueTransitionProps) {
-	const [current, setCurrent] = useState<ValueSnapshot>(() => ({
-		key: 0,
+	const [state, setState] = useState(() => ({
 		text,
+		cells: buildInitialCells(text),
+		revision: 0,
 	}));
-	const [exiting, setExiting] = useState<ValueSnapshot | null>(null);
 	const [direction, setDirection] = useState<"up" | "down">("up");
 
-	const containerRef = useRef<HTMLSpanElement>(null);
-	const currentRef = useRef<HTMLSpanElement>(null);
+	const rootRef = useRef<HTMLSpanElement>(null);
 	const previousOrderRef = useRef(order);
 
 	/* Свап во время рендера: React сразу перезапускает рендер с новым
 	   состоянием, старый кадр на экран не попадает. */
-	if (text !== current.text) {
-		setExiting(current);
-		setCurrent({ key: current.key + 1, text });
+	if (text !== state.text) {
+		const revision = state.revision + 1;
+		setState({
+			text,
+			cells: advanceCells(state.cells, state.text, text, revision),
+			revision,
+		});
 		setDirection(order >= previousOrderRef.current ? "up" : "down");
+		previousOrderRef.current = order;
 	}
 
-	useEffect(() => {
-		previousOrderRef.current = order;
-	}, [order]);
-
-	/* Ширина контейнера = ширина текущего значения, в пикселях: только
-	   численные значения анимируются transition'ом (auto — нет; первый
-	   замер на маунте потому происходит мгновенно, без анимации).
-	   ResizeObserver страхует от смены метрик шрифта после загрузки. */
+	/* Ширина каждой ячейки = ширина её текущего символа, в пикселях:
+	   только численные значения анимируются transition'ом (auto — нет;
+	   первый замер на маунте потому происходит мгновенно). Повторный
+	   замер после document.fonts.ready страхует от смены метрик
+	   шрифта после загрузки. */
 	useLayoutEffect(() => {
-		const container = containerRef.current;
-		const value = currentRef.current;
-		if (!container || !value) {
+		const root = rootRef.current;
+		if (!root) {
 			return;
 		}
-		const syncWidth = () => {
-			container.style.width = `${value.getBoundingClientRect().width}px`;
+		const syncWidths = () => {
+			const cellNodes = root.querySelectorAll<HTMLElement>("[data-cell]");
+			for (const cellNode of cellNodes) {
+				const charNode = cellNode.querySelector<HTMLElement>("[data-char]");
+				cellNode.style.width = charNode
+					? `${charNode.getBoundingClientRect().width}px`
+					: "0px";
+			}
 		};
-		syncWidth();
-		/* Запись из колбэка обсервера уходит в следующий кадр: синхронная
-		   мутация layout внутри ResizeObserver зацикливает его в том же
-		   кадре («ResizeObserver loop completed…» в консоли). */
-		let frameId = 0;
-		const observer = new ResizeObserver(() => {
-			cancelAnimationFrame(frameId);
-			frameId = requestAnimationFrame(syncWidth);
+		syncWidths();
+		let cancelled = false;
+		document.fonts?.ready.then(() => {
+			if (!cancelled) {
+				syncWidths();
+			}
 		});
-		observer.observe(value);
 		return () => {
-			cancelAnimationFrame(frameId);
-			observer.disconnect();
+			cancelled = true;
 		};
-	}, [current.key]);
+	}, [state.revision]);
+
+	const handleExitEnd = (pos: number) => {
+		setState((prev) => ({
+			...prev,
+			cells: prev.cells
+				.map((cell) => (cell.pos === pos ? { ...cell, exiting: null } : cell))
+				.filter((cell) => cell.char !== null || cell.exiting !== null),
+		}));
+	};
 
 	const rootClassName = className ? `${styles.root} ${className}` : styles.root;
 
 	return (
-		<span ref={containerRef} className={rootClassName} data-direction={direction}>
-			<span
-				key={current.key}
-				ref={currentRef}
-				className={current.key === 0 ? styles.valueStatic : styles.value}
-			>
-				{current.text}
+		<span
+			ref={rootRef}
+			className={rootClassName}
+			data-direction={direction}
+			aria-label={text}
+		>
+			{/* Ячейки скрыты от скринридеров: значение читается целиком
+			    из aria-label, а не по одному символу. */}
+			<span className={styles.row} aria-hidden="true">
+				{state.cells.map((cell) => (
+					<span
+						key={cell.pos}
+						data-cell=""
+						className={styles.cell}
+						style={
+							cell.delayMs > 0
+								? ({ "--roll-delay": `${cell.delayMs}ms` } as React.CSSProperties)
+								: undefined
+						}
+					>
+						{cell.char !== null && (
+							<span
+								key={cell.rev}
+								data-char=""
+								className={cell.rev === 0 ? styles.charStatic : styles.char}
+							>
+								{cell.char}
+							</span>
+						)}
+						{cell.exiting !== null && (
+							<span
+								className={styles.charExiting}
+								onAnimationEnd={() => handleExitEnd(cell.pos)}
+							>
+								{cell.exiting}
+							</span>
+						)}
+					</span>
+				))}
 			</span>
-			{exiting && (
-				<span
-					key={exiting.key}
-					className={styles.valueExiting}
-					aria-hidden="true"
-					onAnimationEnd={() => setExiting(null)}
-				>
-					{exiting.text}
-				</span>
-			)}
 		</span>
 	);
 }
