@@ -99,6 +99,7 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 				className={panelClassName}
 				onClick={stopBackdropClose}
 			>
+				<span className={styles.grabber} aria-hidden="true" />
 				<div className={controlsClassName}>
 					<ShareMenu product={product} />
 					<button
@@ -162,21 +163,21 @@ type ProductPanelProps = {
 function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
 	return (
 		<div className={styles.content}>
-			<p className={styles.eyebrow}>{product.provider}</p>
-			<h2 id="product-detail-title" className={styles.name}>
-				{product.name}
-			</h2>
+			<div className={styles.heading}>
+				<p className={styles.eyebrow}>{product.provider}</p>
+				<h2 id="product-detail-title" className={styles.name}>
+					{product.name}
+				</h2>
+			</div>
 			<p className={styles.description}>{product.description}</p>
 
-			<div className={styles.divider} />
-
-			<p className={styles.priceRow}>
-				<span className={styles.amount}>{product.priceLabel}</span>
-				<span className={styles.separator} aria-hidden="true">
-					/
-				</span>
-				<span className={styles.period}>{product.periodLabel}</span>
-			</p>
+			<div className={styles.priceCard}>
+				<span className={styles.priceCaption}>Подписка</span>
+				<p className={styles.priceRow}>
+					<span className={styles.amount}>{product.priceLabel}</span>
+					<span className={styles.period}>{product.periodLabel}</span>
+				</p>
+			</div>
 
 			<div className={styles.actions}>
 				<button type="button" className={styles.primaryAction}>
