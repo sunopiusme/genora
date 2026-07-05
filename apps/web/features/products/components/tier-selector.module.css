@@ -53,8 +53,54 @@
 }
 
 .tierTriggerChevron {
-	font-size: 1rem;
+	/* flex-центрирование глифа: иконка-шрифт имеет собственный baseline
+	   и в inline-потоке съезжает на пиксель вниз относительно текста. */
+	display: inline-flex;
+	align-items: center;
+	flex-shrink: 0;
+	font-size: 0.875rem;
 	color: var(--color-foreground-subtle);
+}
+
+/* Компактный триггер карточки: фиксированный круг в размер кнопки
+   «Купить» (2.25rem) — ширина не зависит от названия тира, футер
+   карточки всегда одинаковой геометрии. */
+.tierIconTrigger {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.25rem;
+	height: 2.25rem;
+	padding: 0;
+	border: none;
+	border-radius: var(--radius-full);
+	background-color: rgb(255 255 255 / 0.1);
+	color: var(--color-foreground-muted);
+	cursor: pointer;
+	transition:
+		background-color 0.15s ease,
+		color 0.15s ease;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.tierIconTrigger:hover {
+	background-color: rgb(255 255 255 / 0.16);
+	color: var(--color-foreground);
+}
+
+.tierIconTrigger:focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+}
+
+.tierIconTriggerOpen {
+	composes: tierIconTrigger;
+	background-color: rgb(255 255 255 / 0.16);
+	color: var(--color-foreground);
+}
+
+.tierIconTriggerGlyph {
+	font-size: 1.125rem;
 }
 
 /* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
@@ -80,6 +126,13 @@
 	top: auto;
 	bottom: calc(100% + var(--space-2));
 	animation: tierMenuInUp 0.16s ease both;
+}
+
+/* Компактный модификатор меню для карточек витрины: заметно уже —
+   соразмерно карточке, а не модалке. */
+.tierMenuCompact {
+	width: min(13.5rem, calc(100vw - var(--space-8) * 2));
+	border-radius: var(--radius-xl);
 }
 
 @keyframes tierMenuIn {

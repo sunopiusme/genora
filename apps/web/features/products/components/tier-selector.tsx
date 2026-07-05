@@ -51,37 +51,66 @@ export function TierSelector({
 			window.removeEventListener("keydown", handleKeyDown, { capture: true });
 	}, [isOpen, close]);
 
+	const menuClassName = [
+		placement === "up" ? styles.tierMenuUp : styles.tierMenu,
+		compact ? styles.tierMenuCompact : "",
+	]
+		.join(" ")
+		.trim();
+
 	return (
 		<div className={styles.tierSelector} ref={containerRef}>
-			<button
-				type="button"
-				className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
-				onClick={() => setIsOpen((prev) => !prev)}
-				aria-haspopup="true"
-				aria-expanded={isOpen}
-			>
-				{!compact && (
-					<span className={styles.tierTriggerCaption}>Уровень</span>
-				)}
-				<span className={styles.tierTriggerValue}>
-					{tier?.name}
+			{compact ? (
+				/* Карточка витрины: фиксированная круглая кнопка-иконка —
+				   ширина не зависит от названия тира, кнопка «Купить» рядом
+				   всегда одинаковая. Текущий уровень озвучивается aria-label. */
+				<button
+					type="button"
+					className={
+						isOpen ? styles.tierIconTriggerOpen : styles.tierIconTrigger
+					}
+					onClick={() => setIsOpen((prev) => !prev)}
+					aria-haspopup="true"
+					aria-expanded={isOpen}
+					aria-label={`Уровень подписки: ${tier?.name}`}
+					title={`Уровень: ${tier?.name}`}
+				>
 					<Icon
-						icon={
-							isOpen ? "solar:alt-arrow-up-linear" : "solar:alt-arrow-down-linear"
-						}
-						className={styles.tierTriggerChevron}
+						icon="solar:tuning-2-linear"
+						className={styles.tierIconTriggerGlyph}
 						aria-hidden="true"
 					/>
-				</span>
-			</button>
-			{isOpen && (
-				<div
-					className={placement === "up" ? styles.tierMenuUp : styles.tierMenu}
+				</button>
+			) : (
+				<button
+					type="button"
+					className={isOpen ? styles.tierTriggerOpen : styles.tierTrigger}
+					onClick={() => setIsOpen((prev) => !prev)}
+					aria-haspopup="true"
+					aria-expanded={isOpen}
 				>
+					<span className={styles.tierTriggerCaption}>Уровень</span>
+					<span className={styles.tierTriggerValue}>
+						{tier?.name}
+						<Icon
+							icon={
+								isOpen
+									? "solar:alt-arrow-up-linear"
+									: "solar:alt-arrow-down-linear"
+							}
+							className={styles.tierTriggerChevron}
+							aria-hidden="true"
+						/>
+					</span>
+				</button>
+			)}
+			{isOpen && (
+				<div className={menuClassName}>
 					<TierSlider
 						product={product}
 						tierIndex={tierIndex}
 						onTierChange={onTierChange}
+						compact={compact}
 					/>
 				</div>
 			)}
