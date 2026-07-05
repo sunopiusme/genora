@@ -63,7 +63,10 @@ export function VerifyCard() {
     if (nextDigits.every((entry) => entry !== "")) submitCode();
   }
 
-  function handleKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(
+    index: number,
+    event: KeyboardEvent<HTMLInputElement>,
+  ) {
     if (event.key === "Backspace" && !digits[index] && index > 0) {
       cellRefs.current[index - 1]?.focus();
     }

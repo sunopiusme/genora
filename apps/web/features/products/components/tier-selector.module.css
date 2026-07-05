@@ -2,132 +2,132 @@
    слайдером. Общий для модалки товара и карточки в витрине. */
 
 .tierSelector {
-	position: relative;
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .tierTrigger {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-2);
-	padding: var(--space-2) var(--space-3);
-	border: none;
-	border-radius: var(--radius-full);
-	background-color: rgb(255 255 255 / 0.04);
-	box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
-	font-family: var(--font-sans);
-	cursor: pointer;
-	transition: background-color 0.15s ease;
-	-webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: none;
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.07);
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tierTrigger:hover {
-	background-color: rgb(255 255 255 / 0.06);
+  background-color: rgb(255 255 255 / 0.06);
 }
 
 .tierTrigger:focus-visible {
-	outline: none;
-	box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
+  outline: none;
+  box-shadow: inset 0 0 0 1.5px var(--color-border-strong);
 }
 
 .tierTriggerOpen {
-	composes: tierTrigger;
-	background-color: rgb(255 255 255 / 0.06);
+  composes: tierTrigger;
+  background-color: rgb(255 255 255 / 0.06);
 }
 
 .tierTriggerCaption {
-	font-size: var(--text-sm);
-	font-weight: var(--weight-medium);
-	color: var(--color-foreground-muted);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-muted);
 }
 
 .tierTriggerValue {
-	display: inline-flex;
-	align-items: center;
-	gap: var(--space-1);
-	font-size: var(--text-sm);
-	font-weight: var(--weight-semibold);
-	color: var(--color-foreground);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
 }
 
 .tierTriggerChevron {
-	/* flex-центрирование глифа: иконка-шрифт имеет собственный baseline
+  /* flex-центрирование глифа: иконка-шрифт имеет собственный baseline
 	   и в inline-потоке съезжает на пиксель вниз относительно текста.
 	   Фиксированный бокс 1em×1em — глиф Iconify грузится асинхронно,
 	   и без резерва места триггер прыгал бы по ширине. */
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: 1em;
-	height: 1em;
-	font-size: 0.875rem;
-	color: var(--color-foreground-subtle);
-	transition: transform 0.16s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  font-size: 0.875rem;
+  color: var(--color-foreground-subtle);
+  transition: transform 0.16s ease;
 }
 
 /* Открытое состояние: тот же глиф, повёрнутый на 180° — подмена
    иконки на «стрелку вверх» дёргала ширину триггера при загрузке. */
 .tierTriggerChevronOpen {
-	composes: tierTriggerChevron;
-	transform: rotate(180deg);
+  composes: tierTriggerChevron;
+  transform: rotate(180deg);
 }
 
 /* Компактный триггер карточки: тихая текстовая ссылка в строке цены —
    имя тира + шеврон, в ритме подписи «в месяц» рядом. Ничего не
    отнимает у кнопки «Купить» и не ломает геометрию футера. */
 .tierInlineTrigger {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.125rem;
-	padding: 0;
-	border: none;
-	background: none;
-	font-family: var(--font-sans);
-	font-size: 0.8125rem;
-	font-weight: var(--weight-medium);
-	color: var(--color-foreground-muted);
-	cursor: pointer;
-	transition: color 0.15s ease;
-	-webkit-tap-highlight-color: transparent;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.125rem;
+  padding: 0;
+  border: none;
+  background: none;
+  font-family: var(--font-sans);
+  font-size: 0.8125rem;
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tierInlineTrigger:hover {
-	color: var(--color-foreground);
+  color: var(--color-foreground);
 }
 
 .tierInlineTrigger:focus-visible {
-	outline: none;
-	color: var(--color-foreground);
-	text-decoration: underline;
-	text-underline-offset: 0.1875rem;
+  outline: none;
+  color: var(--color-foreground);
+  text-decoration: underline;
+  text-underline-offset: 0.1875rem;
 }
 
 .tierInlineTriggerOpen {
-	composes: tierInlineTrigger;
-	color: var(--color-foreground);
+  composes: tierInlineTrigger;
+  color: var(--color-foreground);
 }
 
 .tierInlineChevron {
-	/* flex-центрирование глифа: иконка-шрифт со своим baseline съезжает
+  /* flex-центрирование глифа: иконка-шрифт со своим baseline съезжает
 	   на пиксель вниз относительно текста в inline-потоке.
 	   Фиксированный бокс 1em×1em — резерв места под асинхронно
 	   загружаемый глиф Iconify, иначе триггер прыгает по ширине. */
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	flex-shrink: 0;
-	width: 1em;
-	height: 1em;
-	font-size: 0.8125rem;
-	transition: transform 0.16s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  font-size: 0.8125rem;
+  transition: transform 0.16s ease;
 }
 
 .tierInlineChevronOpen {
-	composes: tierInlineChevron;
-	transform: rotate(180deg);
+  composes: tierInlineChevron;
+  transform: rotate(180deg);
 }
 
 /* Менюшка со слайдером: абсолютный дропдаун поверх контента (как меню
@@ -136,67 +136,67 @@
    и якорь от левого края заставлял бы меню съезжать — центр держит
    его ровно там, где его вызвали. */
 .tierMenu {
-	position: absolute;
-	top: calc(100% + var(--space-2));
-	left: 50%;
-	transform: translateX(-50%);
-	width: min(17.5rem, calc(100vw - var(--space-8) * 2));
-	z-index: var(--z-overlay, 30);
-	border: 1px solid var(--color-border);
-	border-radius: var(--radius-2xl);
-	background-color: var(--color-surface-elevated);
-	box-shadow: var(--shadow-lg);
-	animation: tierMenuIn 0.16s ease both;
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(17.5rem, calc(100vw - var(--space-8) * 2));
+  z-index: var(--z-overlay, 30);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  animation: tierMenuIn 0.16s ease both;
 }
 
 /* Раскрытие вверх — для триггера у нижнего края карточки, чтобы меню
    не обрезалось краем сетки витрины. */
 .tierMenuUp {
-	composes: tierMenu;
-	top: auto;
-	bottom: calc(100% + var(--space-2));
-	animation: tierMenuInUp 0.16s ease both;
+  composes: tierMenu;
+  top: auto;
+  bottom: calc(100% + var(--space-2));
+  animation: tierMenuInUp 0.16s ease both;
 }
 
 /* Компактный модификатор меню для карточек витрины: уже модального,
    но с воздухом для слайдера. */
 .tierMenuCompact {
-	width: min(15rem, calc(100vw - var(--space-8) * 2));
-	border-radius: var(--radius-xl);
+  width: min(15rem, calc(100vw - var(--space-8) * 2));
+  border-radius: var(--radius-xl);
 }
 
 /* Keyframes включают translateX(-50%) — базовый transform центрирования
    перезаписывается анимацией, иначе меню прыгнет к левому краю. */
 @keyframes tierMenuIn {
-	from {
-		opacity: 0;
-		transform: translateX(-50%) translateY(0.375rem) scale(0.98);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(-50%) translateY(0) scale(1);
-	}
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
 
 @keyframes tierMenuInUp {
-	from {
-		opacity: 0;
-		transform: translateX(-50%) translateY(-0.375rem) scale(0.98);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(-50%) translateY(0) scale(1);
-	}
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.tierMenu,
-	.tierMenuUp {
-		animation: none;
-	}
+  .tierMenu,
+  .tierMenuUp {
+    animation: none;
+  }
 
-	.tierTriggerChevron,
-	.tierInlineChevron {
-		transition: none;
-	}
+  .tierTriggerChevron,
+  .tierInlineChevron {
+    transition: none;
+  }
 }

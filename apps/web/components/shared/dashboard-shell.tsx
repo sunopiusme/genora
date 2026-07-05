@@ -160,7 +160,10 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
-    if (event.target !== event.currentTarget || event.propertyName !== "width") {
+    if (
+      event.target !== event.currentTarget ||
+      event.propertyName !== "width"
+    ) {
       return;
     }
     if (animationTimeout.current) {
