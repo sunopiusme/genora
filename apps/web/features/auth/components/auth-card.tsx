@@ -69,6 +69,11 @@ export function AuthCard() {
         <h1 className={styles.title}>
           {isRegister ? "Создайте аккаунт" : "С возвращением"}
         </h1>
+        <p className={styles.subtitle}>
+          {isRegister
+            ? "Регистрация занимает меньше минуты"
+            : "Войдите, чтобы продолжить работу"}
+        </p>
       </div>
 
       <div className={styles.social}>

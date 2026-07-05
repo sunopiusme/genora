@@ -27,6 +27,12 @@
   color: var(--color-foreground);
 }
 
+.subtitle {
+  margin: var(--space-2) 0 0;
+  font-size: var(--text-sm);
+  color: var(--color-foreground-muted);
+}
+
 .social {
   display: flex;
   flex-direction: column;
@@ -81,7 +87,7 @@
 .dividerLine {
   height: 1px;
   flex: 1;
-  background-color: rgb(255 255 255 / 0.08);
+  background-color: rgb(255 255 255 / 0.14);
 }
 
 .dividerText {

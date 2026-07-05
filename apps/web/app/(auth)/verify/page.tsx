@@ -1,6 +1,6 @@
-import { Logo } from "@genora/ui";
 import { VerifyCard } from "@features/auth";
 
+import { BrandPanel } from "../brand-panel";
 import { SupportLink } from "../support-link";
 import styles from "./page.module.css";
 
@@ -13,13 +13,7 @@ export default async function VerifyPage({
 
   return (
     <main className={styles.main}>
-      <section className={styles.brand}>
-        <Logo className={styles.logo} />
-
-        <div className={styles.brandBottom}>
-          <h1 className={styles.headline}>Верните себе лучшие нейросети</h1>
-        </div>
-      </section>
+      <BrandPanel />
 
       <section className={styles.formColumn}>
         <div className={styles.formInner}>
