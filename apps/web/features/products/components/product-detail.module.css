@@ -71,6 +71,13 @@
 	animation: none;
 }
 
+/* «Спокойное» состояние после первого перетаскивания: без entry-анимации,
+   иначе возврат к .panel заново проигрывал бы sheetIn/panelIn. */
+.panelRested {
+	composes: panel;
+	animation: none;
+}
+
 @keyframes overlayOut {
 	from {
 		opacity: 1;
@@ -154,6 +161,11 @@
 	.panelSettling {
 		animation: none;
 		transition: transform 0.35s cubic-bezier(0.33, 1, 0.68, 1);
+	}
+
+	/* После взаимодействия шит стоит на месте — никаких анимаций. */
+	.panelRested {
+		animation: none;
 	}
 
 	.overlayClosing.overlayClosing {

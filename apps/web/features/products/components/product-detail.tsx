@@ -81,7 +81,9 @@ function ProductDetailModal({ product, onClose }: ProductDetailModalProps) {
 			? styles.panelDragging
 			: swipe.isSettling
 				? styles.panelSettling
-				: styles.panel;
+				: swipe.isRested
+					? styles.panelRested
+					: styles.panel;
 	const controlsClassName = isScrolled
 		? `${styles.controls} ${styles.controlsScrolled}`
 		: styles.controls;
@@ -348,6 +350,10 @@ function useSwipeToDismiss(
 	   Вне этого окна transition отсутствует, чтобы не конфликтовать
 	   с entry-анимацией открытия (источник рывков на iOS). */
 	const [isSettling, setIsSettling] = useState(false);
+	/* После первого перетаскивания панель навсегда переходит в «спокойное»
+	   состояние (isRested): возврат к базовому классу .panel заново
+	   проигрывал бы entry-анимацию sheetIn — шит повторно «выезжал» снизу. */
+	const [isRested, setIsRested] = useState(false);
 	const settleTimerRef = useRef<number | undefined>(undefined);
 
 	useEffect(() => {
@@ -407,6 +413,7 @@ function useSwipeToDismiss(
 			if (!panel.hasPointerCapture(event.pointerId)) {
 				capturePointerSafely(panel, event.pointerId);
 				setIsDragging(true);
+				setIsRested(true);
 			}
 			/* Панель просто следует за пальцем — без растягивания обложки. */
 			panel.style.transform =
@@ -463,7 +470,7 @@ function useSwipeToDismiss(
 		};
 	}, [isEnabled, onDismiss, panelRef, bodyRef]);
 
-	return { isDragging, isSettling };
+	return { isDragging, isSettling, isRested };
 }
 
 function usePanelScrolled(
