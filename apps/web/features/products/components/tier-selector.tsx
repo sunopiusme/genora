@@ -105,6 +105,7 @@ export function TierSelector({
 
 	const close = useCallback(() => setIsOpen(false), []);
 	useClickOutside(containerRef, isOpen, close);
+	useScrollLock(containerRef, isOpen);
 
 	useEffect(() => {
 		if (!isOpen) {
@@ -207,7 +208,11 @@ function useClickOutside(
 			return;
 		}
 
-		function handleMouseDown(event: MouseEvent) {
+		/* pointerdown вместо mousedown: на тач-устройствах mousedown
+		   приходит с задержкой или не приходит вовсе — меню не
+		   закрывалось по тапу мимо. Pointer Events покрывают мышь,
+		   палец и стилус одним слушателем. */
+		function handlePointerDown(event: PointerEvent) {
 			const target = event.target as Node;
 			const container = containerRef.current;
 			if (container && !container.contains(target)) {
@@ -215,7 +220,48 @@ function useClickOutside(
 			}
 		}
 
-		document.addEventListener("mousedown", handleMouseDown);
-		return () => document.removeEventListener("mousedown", handleMouseDown);
+		document.addEventListener("pointerdown", handlePointerDown);
+		return () => document.removeEventListener("pointerdown", handlePointerDown);
 	}, [containerRef, isActive, onOutsideClick]);
+}
+
+/* Блокировка фонового скролла на время открытого меню — канон
+   модальных поповеров (так работают Radix/Headless UI в modal-режиме).
+   Без неё каталог продолжал скроллиться под открытым слайдером, и
+   меню уезжало от своей точки открытия — выглядело сломанным.
+
+   Слушатели wheel/touchmove на документе с passive: false гасят
+   прокрутку ЛЮБОГО контейнера (body, внутренние скролл-области),
+   если жест начался вне меню. Внутри меню события не трогаются —
+   слайдер работает как обычно. Такой перехват не сдвигает layout,
+   поэтому не нужна компенсация ширины скроллбара, как при
+   overflow: hidden на body. */
+function useScrollLock(
+	containerRef: React.RefObject<HTMLElement | null>,
+	isActive: boolean,
+) {
+	useEffect(() => {
+		if (!isActive) {
+			return;
+		}
+
+		function handleScrollAttempt(event: Event) {
+			const target = event.target as Node;
+			const container = containerRef.current;
+			if (container && !container.contains(target)) {
+				event.preventDefault();
+			}
+		}
+
+		/* capture: true — перехват до того, как событие дойдёт до
+		   скроллируемых контейнеров; passive: false обязателен, иначе
+		   preventDefault для touchmove/wheel игнорируется браузером. */
+		const options = { passive: false, capture: true } as const;
+		document.addEventListener("wheel", handleScrollAttempt, options);
+		document.addEventListener("touchmove", handleScrollAttempt, options);
+		return () => {
+			document.removeEventListener("wheel", handleScrollAttempt, options);
+			document.removeEventListener("touchmove", handleScrollAttempt, options);
+		};
+	}, [containerRef, isActive]);
 }
