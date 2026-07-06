@@ -74,6 +74,33 @@
   flex-shrink: 0;
 }
 
+.verifyInner {
+  width: 100%;
+  text-align: center;
+}
+
+.verifyTitle {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-foreground);
+}
+
+.verifySubtitle {
+  margin-inline: auto;
+  margin-top: var(--space-3);
+  max-width: 20rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-base);
+  color: var(--color-foreground-muted);
+  text-wrap: balance;
+}
+
+.verifyEmail {
+  color: var(--color-foreground);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .overlay[data-state="open"],
   .content.content[data-state="open"] {

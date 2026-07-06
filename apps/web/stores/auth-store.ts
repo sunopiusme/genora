@@ -6,12 +6,19 @@ export type AuthUser = {
   name: string;
 };
 
+export type AuthView = "login" | "verify";
+
 type AuthStore = {
   user: AuthUser | null;
   hasHydrated: boolean;
+  view: AuthView | null;
+  verifyEmail: string | null;
   login: (email: string) => void;
   logout: () => void;
   setHasHydrated: (value: boolean) => void;
+  openLogin: () => void;
+  openVerify: (email: string) => void;
+  closeAuth: () => void;
 };
 
 function nameFromEmail(email: string): string {
@@ -29,9 +36,19 @@ export const useAuthStore = create<AuthStore>()(
     (set) => ({
       user: null,
       hasHydrated: false,
-      login: (email) => set({ user: { email, name: nameFromEmail(email) } }),
+      view: null,
+      verifyEmail: null,
+      login: (email) =>
+        set({
+          user: { email, name: nameFromEmail(email) },
+          view: null,
+          verifyEmail: null,
+        }),
       logout: () => set({ user: null }),
       setHasHydrated: (value) => set({ hasHydrated: value }),
+      openLogin: () => set({ view: "login" }),
+      openVerify: (email) => set({ view: "verify", verifyEmail: email }),
+      closeAuth: () => set({ view: null, verifyEmail: null }),
     }),
     {
       name: "genora-auth",

@@ -349,13 +349,44 @@ export function DashboardShell({ children }: { children: ReactNode }) {
 }
 
 function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
+  const openLogin = useAuthStore((state) => state.openLogin);
+
   return (
     <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
-      <Link href="/login" className={cn(styles.navLink, styles.loginLink)}>
-        <Icon icon="solar:login-2-linear" className={styles.navIcon} />
+      <button
+        type="button"
+        onClick={openLogin}
+        className={cn(styles.navLink, styles.loginLink)}
+      >
+        <LoginGlyph />
         <span className={styles.navLabel}>Войти</span>
-      </Link>
+      </button>
     </SidebarTooltip>
+  );
+}
+
+function LoginGlyph() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      className={styles.navIcon}
+      aria-hidden="true"
+    >
+      <path
+        d="M10 17.25c.06 1.09.25 1.8.78 2.34.94.91 2.45.91 5.47.91s4.53 0 5.47-.91c.94-.92.94-2.39.94-5.34v-4.5c0-2.95 0-4.42-.94-5.34C20.78 3.5 19.27 3.5 16.25 3.5s-4.53 0-5.47.91c-.53.52-.72 1.25-.78 2.34"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+      <path
+        d="M14.5 12H2.75m0 0 3-2.75M2.75 12l3 2.75"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }
 

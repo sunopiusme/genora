@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Button, Input, cn } from "@genora/ui";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -29,8 +28,8 @@ const SOCIAL_EMAILS = {
 } as const;
 
 export function AuthCard() {
-  const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const openVerify = useAuthStore((state) => state.openVerify);
   const [mode, setMode] = useState<AuthMode>("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -51,7 +50,6 @@ export function AuthCard() {
 
   function handleSocialLogin(provider: keyof typeof SOCIAL_EMAILS) {
     login(SOCIAL_EMAILS[provider]);
-    router.push("/dashboard");
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -72,7 +70,7 @@ export function AuthCard() {
     }
 
     setErrors({});
-    router.push(`/verify?email=${encodeURIComponent(email.trim())}`);
+    openVerify(email.trim());
   }
 
   return (

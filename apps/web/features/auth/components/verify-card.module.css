@@ -119,6 +119,11 @@
 }
 
 .link {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: inherit;
   color: var(--color-foreground-muted);
   text-decoration: none;
   transition: color 0.15s ease;

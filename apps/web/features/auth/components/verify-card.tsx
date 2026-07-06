@@ -8,8 +8,6 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button, cn } from "@genora/ui";
 import { useAuthStore } from "@/stores/auth-store";
 
@@ -27,8 +25,8 @@ function createEmptyDigits() {
 }
 
 export function VerifyCard({ email }: { email?: string }) {
-  const router = useRouter();
   const login = useAuthStore((state) => state.login);
+  const openLogin = useAuthStore((state) => state.openLogin);
   const [digits, setDigits] = useState<string[]>(createEmptyDigits);
   const [hasError, setHasError] = useState(false);
   const [wasResent, setWasResent] = useState(false);
@@ -56,7 +54,6 @@ export function VerifyCard({ email }: { email?: string }) {
     clearFeedback();
     setTimeout(() => {
       login(email ?? FALLBACK_EMAIL);
-      router.push("/dashboard");
     }, 300);
   }
 
@@ -176,9 +173,9 @@ export function VerifyCard({ email }: { email?: string }) {
       </Button>
 
       <div className={styles.footer}>
-        <Link href="/login" className={styles.link}>
+        <button type="button" onClick={openLogin} className={styles.link}>
           Изменить почту
-        </Link>
+        </button>
         <button
           type="button"
           onClick={handleResend}
