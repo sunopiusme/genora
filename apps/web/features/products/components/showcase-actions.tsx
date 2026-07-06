@@ -124,7 +124,7 @@ export function ShowcaseActions() {
     <div className={styles.actions} ref={rootRef}>
       <button
         type="button"
-        className={styles.iconButton}
+        className={`${styles.iconButton} ${styles.shareButton}`}
         onClick={handleShare}
         aria-label={copied ? "Ссылка скопирована" : "Поделиться"}
         title={copied ? "Скопировано" : "Поделиться"}
@@ -134,7 +134,7 @@ export function ShowcaseActions() {
       </button>
       <button
         type="button"
-        className={styles.iconButton}
+        className={`${styles.iconButton} ${styles.menuButton}`}
         onClick={() => setMenuOpen((open) => !open)}
         aria-label="Категории и сортировка"
         aria-haspopup="menu"
