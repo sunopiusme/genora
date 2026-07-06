@@ -21,6 +21,10 @@ import { RECENT_GROUPS } from "@/lib/recent-chats";
 import { PROFILE, formatBalance } from "@features/profile";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
+import {
+  LiquidGlassComposer,
+  LIQUID_GLASS_COMPOSER,
+} from "./liquid-glass-composer";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
@@ -170,6 +174,7 @@ export function AppShell({
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const isAnimatingRef = useRef(false);
   isAnimatingRef.current = isAnimating;
 
@@ -428,13 +433,17 @@ export function AppShell({
       )}
 
       <div className={styles.main}>
-        <div className={styles.content}>
+        <div ref={contentRef} className={styles.content}>
           {children}
-          <div className={styles.composer}>
-            <div className={styles.composerInner}>
-              <ComposerBar />
+          {LIQUID_GLASS_COMPOSER ? (
+            <LiquidGlassComposer rootRef={contentRef} />
+          ) : (
+            <div className={styles.composer}>
+              <div className={styles.composerInner}>
+                <ComposerBar />
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
