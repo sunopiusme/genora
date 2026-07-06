@@ -1,20 +1,32 @@
 .showcase {
   width: 100%;
+  /* Контейнер для сетки: колонки считаются от фактической ширины
+     витрины (окно минус сайдбар и отступы), а не от вьюпорта */
+  container-type: inline-size;
 }
 
+/* — Фиксированные колонки вместо auto-fill —
+   auto-fill перещёлкивал число колонок при открытии/закрытии сайдбара
+   (контейнер уже/шире на ~14rem) — карточки «толкались» и перестраивали
+   ряды. С фиксированным repeat(N, 1fr) число колонок в каждом диапазоне
+   постоянно: движение сайдбара лишь плавно масштабирует карточки вместе
+   с анимацией контейнера, без перескока рядов. */
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-4) var(--space-2);
 }
 
-@media (min-width: 48rem) {
+@container (min-width: 38rem) {
   .grid {
-    /* Минимум колонки 13.5rem: на полной ширине витрины
-       (--showcase-width) выходит 4 крупные карточки в ряд,
-       при сужении окна/сайдбара сетка плавно падает до 3 и 2 */
-    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     column-gap: var(--space-6);
     row-gap: var(--space-10);
+  }
+}
+
+@container (min-width: 56rem) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
