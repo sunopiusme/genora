@@ -20,6 +20,11 @@
   );
   position: relative;
   font-weight: var(--weight-medium);
+  /* Shared sidebar motion: fast, smooth, no eye strain.
+     Fades are shorter than the width slide so swaps finish first. */
+  --sidebar-anim: 0.15s;
+  --sidebar-fade: 0.1s;
+  --sidebar-ease: cubic-bezier(0.3, 0, 0.2, 1);
 }
 
 .sidebar {
@@ -29,7 +34,7 @@
   z-index: 30;
   width: var(--sidebar-rail-width);
   height: 100svh;
-  transition: width 0.2s ease;
+  transition: width var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .sidebarOpen {
@@ -131,7 +136,7 @@
   width: var(--sidebar-icon-size);
   flex-shrink: 0;
   opacity: 1;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 /* Expanded state shows the bold brand wordmark instead of the icon */
@@ -145,7 +150,7 @@
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .logo {
@@ -154,7 +159,6 @@
 
 .sidebarOpen .wordmark {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .sidebarToggleWrap {
@@ -167,7 +171,7 @@
   display: flex;
   align-items: center;
   /* Slide with the width animation instead of teleporting left <-> right */
-  transition: left 0.2s ease;
+  transition: left var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .sidebarToggle {
@@ -186,7 +190,7 @@
   pointer-events: none;
   transition:
     color 0.15s ease,
-    opacity 0.15s ease,
+    opacity var(--sidebar-fade) var(--sidebar-ease),
     background-color 0.15s ease;
 }
 
@@ -309,13 +313,13 @@
   width: var(--sidebar-icon-size);
   height: var(--sidebar-icon-size);
   opacity: 1;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .loginLabel {
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .loginGlyph {
@@ -324,7 +328,6 @@
 
 .sidebarOpen .loginLabel {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .navIcon {
@@ -341,12 +344,11 @@
   flex-shrink: 0;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .navLabel {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .section {
@@ -358,13 +360,12 @@
   flex-shrink: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .section {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .sectionTitle {
@@ -640,12 +641,11 @@
   gap: var(--space-px);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .profileIdentity {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .profileName {
@@ -696,7 +696,7 @@
   height: 100svh;
   overflow: hidden;
   padding-left: var(--sidebar-rail-width);
-  transition: padding-left 0.2s ease;
+  transition: padding-left var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .content {
