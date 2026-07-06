@@ -462,9 +462,9 @@
   gap: var(--space-2);
   flex-shrink: 0;
   padding-top: var(--space-1);
-  /* Shift down so the profile hover pill's gap to the sidebar bottom
-     equals its gap to the sidebar side edge */
-  margin-bottom: -0.25rem;
+  /* No downward shift: keep the footer pill's visual gap to the sidebar
+     bottom (~9.5px) in step with the rail's horizontal padding (~10px), so
+     the footer reads as evenly inset instead of flush with the bottom edge */
 }
 
 .profileRoot {
