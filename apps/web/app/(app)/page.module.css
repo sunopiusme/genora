@@ -23,15 +23,18 @@
 }
 
 /* — Геометрия контента —
-   Витрина занимает всю доступную ширину: без max-width, только боковые
-   отступы, повторяющие композер (.composer в app-shell.module.css):
+   Витрина ограничена --showcase-width и центрирована: по бокам всегда
+   остаётся воздух до сайдбара и краёв окна — карточки не липнут к ним.
+   Боковые отступы повторяют композер (.composer в app-shell.module.css):
    --space-4 + safe-area, минус --scrollbar-size, который .scroll уже
    резервирует с обеих сторон (scrollbar-gutter: stable both-edges).
-   Карточки идут вплотную к сайдбару/краям окна с одинаковым зазором
-   на любой ширине; число колонок при этом держат container queries
-   в product-showcase.module.css — сайдбар не вызывает перескока рядов. */
+   Число колонок держат container queries в product-showcase.module.css —
+   сайдбар не вызывает перескока рядов. */
 .scrollInner {
   width: 100%;
+  max-width: calc(
+    var(--showcase-width) + (var(--space-4) - var(--scrollbar-size)) * 2
+  );
   margin-inline: auto;
   padding-inline: calc(
       var(--space-4) - var(--scrollbar-size) + env(safe-area-inset-left, 0px)
