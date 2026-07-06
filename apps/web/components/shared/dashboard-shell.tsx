@@ -361,9 +361,16 @@ export function DashboardShell({
 
           <div className={styles.sidebarFooter}>
             {authenticatedUser ? (
-              <ProfileMenu isSidebarOpen={isSidebarOpen} user={authenticatedUser} />
+              <div key="profile" className={styles.footerSwap}>
+                <ProfileMenu
+                  isSidebarOpen={isSidebarOpen}
+                  user={authenticatedUser}
+                />
+              </div>
             ) : (
-              <LoginButton isSidebarOpen={isSidebarOpen} />
+              <div key="login" className={styles.footerSwap}>
+                <LoginButton isSidebarOpen={isSidebarOpen} />
+              </div>
             )}
           </div>
         </div>
@@ -408,7 +415,7 @@ function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
 
   return (
     <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
-      <button type="button" onClick={openLogin} className={styles.loginPill}>
+      <button type="button" onClick={openLogin} className={styles.loginButton}>
         <LoginGlyph />
         <span className={styles.loginLabel}>Войти</span>
       </button>

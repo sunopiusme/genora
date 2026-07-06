@@ -273,65 +273,92 @@
   background-color: var(--color-surface-elevated);
 }
 
-.loginPill {
+/* Mirrors .profile geometry exactly (same pad/inset math, hover pill and
+   negative margins) so signed-out and signed-in footer states share one
+   footprint and read as the same element with different content */
+.loginButton {
+  --profile-avatar-inset: calc(
+    var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
+  );
+  --profile-pad: 0.5rem;
+  --profile-pad-x-extra: calc(var(--profile-pad) - var(--profile-avatar-inset));
+  --profile-pad-y-extra: calc(var(--profile-pad) - var(--space-1));
   position: relative;
+  z-index: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 2.25rem;
-  padding: 0;
+  gap: var(--space-2);
+  width: calc(100% + var(--profile-pad-x-extra) * 2);
+  padding: var(--profile-pad);
+  margin-inline: calc(-1 * var(--profile-pad-x-extra));
+  margin-block: calc(-1 * var(--profile-pad-y-extra));
   border: none;
-  border-radius: var(--radius-full);
-  background-color: rgb(255 255 255 / 0.08);
-  color: var(--color-foreground);
+  border-radius: var(--radius-xl);
+  background: none;
   font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+  text-align: left;
   cursor: pointer;
   overflow: hidden;
-  transition:
-    background-color 0.15s ease,
-    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.loginPill:hover {
-  background-color: rgb(255 255 255 / 0.12);
+.loginButton::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: calc(50% - 0.8125rem - var(--profile-pad));
+  bottom: calc(50% - 0.8125rem - var(--profile-pad));
+  border-radius: var(--radius-xl);
+  background-color: transparent;
+  transition: background-color 0.15s ease;
 }
 
-.loginPill:active {
-  transform: scale(0.98);
+.loginButton:hover::before {
+  background-color: var(--color-surface);
 }
 
-.loginPill:focus:not(:focus-visible) {
-  outline: none;
-}
-
-.loginPill:focus-visible {
+.loginButton:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
+/* Same footprint as .profileAvatar so the glyph sits in the avatar slot */
 .loginGlyph {
-  position: absolute;
-  width: var(--sidebar-icon-size);
-  height: var(--sidebar-icon-size);
-  opacity: 1;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  flex-shrink: 0;
+  width: 1.625rem;
+  height: 1.625rem;
 }
 
 .loginLabel {
+  flex-shrink: 0;
   white-space: nowrap;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-sm);
   opacity: 0;
   transition: opacity var(--sidebar-fade) var(--sidebar-ease);
-}
-
-.sidebarOpen .loginGlyph {
-  opacity: 0;
 }
 
 .sidebarOpen .loginLabel {
   opacity: 1;
+}
+
+/* Crossfade between the login button and the profile block on auth change;
+   both share one footprint, so only opacity animates - no height jump.
+   Uses the same fade tokens as the rest of the sidebar motion. */
+.footerSwap {
+  animation: footerSwapIn var(--sidebar-fade) var(--sidebar-ease) both;
+}
+
+@keyframes footerSwapIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .navIcon {
@@ -862,12 +889,8 @@
     transition: none;
   }
 
-  .loginPill {
-    height: var(--sidebar-touch-target);
-  }
-
-  .loginGlyph {
-    opacity: 0;
+  .loginButton {
+    min-height: var(--sidebar-touch-target);
   }
 
   .loginLabel {
@@ -943,11 +966,8 @@
     transition: none;
   }
 
-  .backdrop {
+  .backdrop,
+  .footerSwap {
     animation: none;
-  }
-
-  .loginPill:active {
-    transform: none;
   }
 }
