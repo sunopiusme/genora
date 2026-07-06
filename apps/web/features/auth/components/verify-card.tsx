@@ -8,9 +8,8 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Button, cn } from "@genora/ui";
+import { useAuthStore } from "@/stores/auth-store";
 
 import {
   VERIFICATION_CODE_LENGTH,
@@ -19,13 +18,15 @@ import {
 import styles from "./verify-card.module.css";
 
 const RESEND_SECONDS = 30;
+const FALLBACK_EMAIL = "user@genora.app";
 
 function createEmptyDigits() {
   return Array<string>(VERIFICATION_CODE_LENGTH).fill("");
 }
 
-export function VerifyCard() {
-  const router = useRouter();
+export function VerifyCard({ email }: { email?: string }) {
+  const login = useAuthStore((state) => state.login);
+  const openLogin = useAuthStore((state) => state.openLogin);
   const [digits, setDigits] = useState<string[]>(createEmptyDigits);
   const [hasError, setHasError] = useState(false);
   const [wasResent, setWasResent] = useState(false);
@@ -51,7 +52,9 @@ export function VerifyCard() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     clearFeedback();
-    setTimeout(() => router.push("/dashboard"), 300);
+    setTimeout(() => {
+      login(email ?? FALLBACK_EMAIL);
+    }, 300);
   }
 
   function setDigit(index: number, rawValue: string) {
@@ -170,9 +173,9 @@ export function VerifyCard() {
       </Button>
 
       <div className={styles.footer}>
-        <Link href="/login" className={styles.link}>
+        <button type="button" onClick={openLogin} className={styles.link}>
           Изменить почту
-        </Link>
+        </button>
         <button
           type="button"
           onClick={handleResend}

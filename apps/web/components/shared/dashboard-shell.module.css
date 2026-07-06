@@ -228,6 +228,21 @@
   background-color: var(--color-surface-elevated);
 }
 
+.loginLink {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  background-color: var(--color-surface-elevated);
+  color: var(--color-foreground);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+}
+
+.loginLink:hover {
+  background-color: var(--color-surface-elevated);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+}
+
 .navIcon {
   width: var(--sidebar-icon-size);
   height: var(--sidebar-icon-size);

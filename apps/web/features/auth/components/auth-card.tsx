@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Button, Input, cn } from "@genora/ui";
+import { useAuthStore } from "@/stores/auth-store";
 
 import { loginSchema } from "../schemas/login-schema";
 import type { AuthMode } from "../types";
@@ -22,8 +22,14 @@ function getFieldError(
   return result.error.issues[0]?.message;
 }
 
+const SOCIAL_EMAILS = {
+  google: "user@gmail.com",
+  vk: "user@vk.com",
+} as const;
+
 export function AuthCard() {
-  const router = useRouter();
+  const login = useAuthStore((state) => state.login);
+  const openVerify = useAuthStore((state) => state.openVerify);
   const [mode, setMode] = useState<AuthMode>("register");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -40,6 +46,10 @@ export function AuthCard() {
 
   function clearError(field: keyof FieldErrors) {
     setErrors((prev) => ({ ...prev, [field]: undefined }));
+  }
+
+  function handleSocialLogin(provider: keyof typeof SOCIAL_EMAILS) {
+    login(SOCIAL_EMAILS[provider]);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -60,7 +70,7 @@ export function AuthCard() {
     }
 
     setErrors({});
-    router.push(`/verify?email=${encodeURIComponent(email.trim())}`);
+    openVerify(email.trim());
   }
 
   return (
@@ -77,11 +87,21 @@ export function AuthCard() {
       </div>
 
       <div className={styles.social}>
-        <Button variant="secondary" size="lg" className={styles.socialButton}>
+        <Button
+          variant="secondary"
+          size="lg"
+          className={styles.socialButton}
+          onClick={() => handleSocialLogin("google")}
+        >
           <GoogleMark />
           Войти через Google
         </Button>
-        <Button variant="secondary" size="lg" className={styles.socialButton}>
+        <Button
+          variant="secondary"
+          size="lg"
+          className={styles.socialButton}
+          onClick={() => handleSocialLogin("vk")}
+        >
           <VKMark />
           Войти через VK
         </Button>

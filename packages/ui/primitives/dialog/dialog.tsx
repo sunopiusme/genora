@@ -17,11 +17,13 @@ export const DialogDescription = RadixDialog.Description;
 
 export const DialogContent = forwardRef<
   ElementRef<typeof RadixDialog.Content>,
-  ComponentPropsWithoutRef<typeof RadixDialog.Content>
->(function DialogContent({ className, children, ...props }, ref) {
+  ComponentPropsWithoutRef<typeof RadixDialog.Content> & {
+    overlayClassName?: string;
+  }
+>(function DialogContent({ className, overlayClassName, children, ...props }, ref) {
   return (
     <RadixDialog.Portal>
-      <RadixDialog.Overlay className={styles.overlay} />
+      <RadixDialog.Overlay className={cn(styles.overlay, overlayClassName)} />
       <RadixDialog.Content
         ref={ref}
         className={cn(styles.content, className)}

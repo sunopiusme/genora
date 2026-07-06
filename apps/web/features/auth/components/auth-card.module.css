@@ -87,7 +87,7 @@
 .dividerLine {
   height: 1px;
   flex: 1;
-  background-color: rgb(255 255 255 / 0.14);
+  background-color: rgb(255 255 255 / 0.18);
 }
 
 .dividerText {
@@ -222,7 +222,7 @@
 }
 
 .footer {
-  margin-top: var(--space-5);
+  margin-top: var(--space-4);
   text-align: center;
   font-size: var(--text-sm);
   color: var(--color-foreground-muted);
