@@ -152,72 +152,44 @@
 }
 
 .viewport {
+  position: relative;
   width: 100%;
   overflow: hidden;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: height 0.3s cubic-bezier(0.33, 1, 0.68, 1);
 }
 
 .view {
   width: 100%;
 }
 
-.viewExit {
-  animation: viewOut 0.15s ease-in both;
+.viewLeaving {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  animation: viewFadeOut 0.12s ease-out both;
 }
 
-.viewExitBack {
-  animation: viewOutBack 0.15s ease-in both;
+.viewEntering {
+  animation: viewFadeIn 0.28s ease 0.1s both;
 }
 
-.viewEnter {
-  animation: viewIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-.viewEnterBack {
-  animation: viewInBack 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes viewOut {
+@keyframes viewFadeOut {
   from {
     opacity: 1;
-    transform: translateX(0);
   }
   to {
     opacity: 0;
-    transform: translateX(-1.25rem);
   }
 }
 
-@keyframes viewOutBack {
-  from {
-    opacity: 1;
-    transform: translateX(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateX(1.25rem);
-  }
-}
-
-@keyframes viewIn {
+@keyframes viewFadeIn {
   from {
     opacity: 0;
-    transform: translateX(1.5rem);
   }
   to {
     opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes viewInBack {
-  from {
-    opacity: 0;
-    transform: translateX(-1.5rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
   }
 }
 
@@ -317,11 +289,13 @@
 @media (prefers-reduced-motion: reduce) {
   .overlay[data-state],
   .content.content[data-state],
-  .viewExit,
-  .viewExitBack,
-  .viewEnter,
-  .viewEnterBack {
+  .viewLeaving,
+  .viewEntering {
     animation: none;
+  }
+
+  .viewLeaving {
+    display: none;
   }
 
   .viewport {

@@ -8,58 +8,91 @@ import { AuthCard } from "./auth-card";
 import { VerifyCard } from "./verify-card";
 import styles from "./auth-overlay.module.css";
 
-const VIEW_EXIT_MS = 150;
+const CROSSFADE_MS = 150;
 
 type AuthView = "login" | "verify";
+
+function ViewContent({
+  view,
+  verifyEmail,
+}: {
+  view: AuthView;
+  verifyEmail: string | null;
+}) {
+  if (view === "login") return <AuthCard />;
+  return (
+    <div className={styles.verifyInner}>
+      <h2 className={styles.verifyTitle}>Введите код</h2>
+      <p className={styles.verifySubtitle}>
+        Отправили 6&#8209;значный код{" "}
+        {verifyEmail ? (
+          <>
+            на <span className={styles.verifyEmail}>{verifyEmail}</span>
+          </>
+        ) : (
+          "на вашу почту"
+        )}
+        .
+      </p>
+      <VerifyCard email={verifyEmail ?? undefined} />
+    </div>
+  );
+}
 
 export function AuthOverlay() {
   const view = useAuthStore((state) => state.view);
   const verifyEmail = useAuthStore((state) => state.verifyEmail);
   const closeAuth = useAuthStore((state) => state.closeAuth);
 
-  const [displayedView, setDisplayedView] = useState<AuthView | null>(view);
-  const [phase, setPhase] = useState<"idle" | "exit" | "enter">("idle");
-  const [isBack, setIsBack] = useState(false);
+  const [currentView, setCurrentView] = useState<AuthView | null>(view);
+  const [leavingView, setLeavingView] = useState<AuthView | null>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
-  const innerRef = useRef<HTMLDivElement>(null);
+  const currentRef = useRef<HTMLDivElement>(null);
+  const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (!view) {
-      setDisplayedView(null);
-      setPhase("idle");
+      setCurrentView(null);
+      setLeavingView(null);
       return;
     }
-    if (!displayedView) {
-      setDisplayedView(view);
-      return;
-    }
-    if (view !== displayedView) {
-      setIsBack(view === "login");
-      setPhase("exit");
-      const timer = setTimeout(() => {
-        setDisplayedView(view);
-        setPhase("enter");
-      }, VIEW_EXIT_MS);
-      return () => clearTimeout(timer);
-    }
-  }, [view, displayedView]);
+    setCurrentView((prev) => {
+      if (prev && prev !== view) {
+        setLeavingView(prev);
+        if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+        clearTimerRef.current = setTimeout(
+          () => setLeavingView(null),
+          CROSSFADE_MS,
+        );
+      }
+      return view;
+    });
+  }, [view]);
 
+  useEffect(() => {
+    return () => {
+      if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
+    };
+  }, []);
+
+  // Keep viewport height in sync with the current view so it animates
+  // as one continuous curve during the crossfade.
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
-    const inner = innerRef.current;
-    if (!viewport || !inner) return;
+    const current = currentRef.current;
+    if (!viewport || !current) return;
 
     const update = () => {
-      viewport.style.height = `${inner.offsetHeight}px`;
+      viewport.style.height = `${current.offsetHeight}px`;
     };
     update();
 
     const observer = new ResizeObserver(update);
-    observer.observe(inner);
+    observer.observe(current);
     return () => observer.disconnect();
-  }, [displayedView]);
+  }, [currentView]);
 
-  if (!view || !displayedView) return null;
+  if (!view || !currentView) return null;
 
   const isLocked = view === "verify";
 
@@ -103,38 +136,17 @@ export function AuthOverlay() {
           </svg>
         </button>
         <div ref={viewportRef} className={styles.viewport}>
+          {leavingView && (
+            <div key={leavingView} className={styles.viewLeaving} aria-hidden>
+              <ViewContent view={leavingView} verifyEmail={verifyEmail} />
+            </div>
+          )}
           <div
-            ref={innerRef}
-            key={displayedView}
-            className={cn(
-              styles.view,
-              phase === "exit" &&
-                (isBack ? styles.viewExitBack : styles.viewExit),
-              phase === "enter" &&
-                (isBack ? styles.viewEnterBack : styles.viewEnter),
-            )}
-            onAnimationEnd={() => phase === "enter" && setPhase("idle")}
+            ref={currentRef}
+            key={currentView}
+            className={cn(styles.view, leavingView && styles.viewEntering)}
           >
-            {displayedView === "login" ? (
-              <AuthCard />
-            ) : (
-              <div className={styles.verifyInner}>
-                <h2 className={styles.verifyTitle}>Введите код</h2>
-                <p className={styles.verifySubtitle}>
-                  Отправили 6&#8209;значный код{" "}
-                  {verifyEmail ? (
-                    <>
-                      на{" "}
-                      <span className={styles.verifyEmail}>{verifyEmail}</span>
-                    </>
-                  ) : (
-                    "на вашу почту"
-                  )}
-                  .
-                </p>
-                <VerifyCard email={verifyEmail ?? undefined} />
-              </div>
-            )}
+            <ViewContent view={currentView} verifyEmail={verifyEmail} />
           </div>
         </div>
       </DialogContent>
