@@ -17,6 +17,7 @@
   --neutral-500: #737373;
   --neutral-600: #525252;
   --neutral-700: #404040;
+  --neutral-750: #303030;
   --neutral-800: #262626;
   --neutral-850: #1f1f1f;
   --neutral-900: #171717;
@@ -31,6 +32,9 @@
   --color-input: var(--neutral-950);
   --color-surface: var(--neutral-900);
   --color-surface-elevated: var(--neutral-800);
+  /* Поверхности, плавающие над чёрным (#000) фоном сайдбара: на чистом
+     чёрном тени не читаются, поэтому «высота» передаётся светлотой */
+  --color-surface-raised: var(--neutral-750);
   --color-border: var(--neutral-800);
   --color-border-strong: var(--neutral-600);
   --color-foreground: var(--neutral-50);

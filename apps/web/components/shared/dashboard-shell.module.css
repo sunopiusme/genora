@@ -134,14 +134,17 @@
   transition: opacity 0.15s ease;
 }
 
-.sidebarToggle {
+.sidebarToggleWrap {
   position: absolute;
-  /* Same padding as .navLink so the hover shape matches nav items,
-     while the icon itself stays exactly in place */
   left: 0;
   right: auto;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.sidebarToggle {
+  /* Same padding as .navLink so the hover shape matches nav items,
+     while the icon itself stays exactly in place */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -166,7 +169,9 @@
 
 .sidebarToggle:hover {
   color: var(--color-foreground);
-  background-color: var(--color-surface);
+  /* Светлее, чем hover у пунктов навигации: toggle — control-элемент,
+     который появляется поверх логотипа и должен читаться мгновенно */
+  background-color: var(--color-surface-elevated);
 }
 
 .sidebarHeader:hover .logo {
@@ -178,9 +183,12 @@
   pointer-events: auto;
 }
 
-.sidebarOpen .sidebarToggle {
+.sidebarOpen .sidebarToggleWrap {
   left: auto;
   right: 0;
+}
+
+.sidebarOpen .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
 }
@@ -420,9 +428,11 @@
   );
   max-width: calc(100vw - var(--space-8));
   padding: var(--space-2);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgb(255 255 255 / 0.06);
   border-radius: var(--radius-2xl);
-  background-color: var(--color-surface-elevated);
+  /* Светлее обычных меню: всплывает над чёрным (#000) сайдбаром,
+     где тени не читаются — «высота» передаётся светлотой */
+  background-color: var(--color-surface-raised);
   box-shadow: var(--shadow-lg);
   animation: profileMenuIn 0.16s ease both;
 }
@@ -515,7 +525,7 @@
   flex-direction: column;
   margin-top: var(--space-2);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgb(255 255 255 / 0.08);
 }
 
 .profileMenuItem {

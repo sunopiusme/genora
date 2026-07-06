@@ -256,14 +256,20 @@ export function DashboardShell({
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
             </span>
-            <button
-              type="button"
-              className={styles.sidebarToggle}
-              onClick={toggleSidebar}
-              aria-label="Переключить меню"
+            <SidebarTooltip
+              label={isSidebarOpen ? "Свернуть меню" : "Развернуть меню"}
+              isEnabled={!isAnimating}
+              className={styles.sidebarToggleWrap}
             >
-              <SidebarIcon />
-            </button>
+              <button
+                type="button"
+                className={styles.sidebarToggle}
+                onClick={toggleSidebar}
+                aria-label="Переключить меню"
+              >
+                <SidebarIcon />
+              </button>
+            </SidebarTooltip>
           </div>
 
           <div className={styles.scrollArea}>
