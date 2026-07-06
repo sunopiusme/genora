@@ -658,6 +658,36 @@
   color: var(--color-foreground-muted);
 }
 
+/* Balance row: same anatomy as .profileMenuItem but with a trailing value;
+   sits right under the header, the first group's divider separates it below */
+.profileMenuBalance {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
+  color: var(--color-foreground);
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.profileMenuBalance:hover,
+.profileMenuBalance:focus-visible {
+  outline: none;
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.profileMenuBalanceValue {
+  margin-left: auto;
+  white-space: nowrap;
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-foreground-muted);
+}
+
 .profile {
   --profile-avatar-inset: calc(
     var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
@@ -743,6 +773,25 @@
   font-size: var(--text-xs);
   line-height: var(--leading-xs);
   color: var(--color-foreground-muted);
+}
+
+/* Balance chip on the right edge of the profile trigger; fades in/out with
+   the sidebar exactly like .profileIdentity so the collapsed rail stays
+   avatar-only */
+.profileBalance {
+  flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-foreground-muted);
+  opacity: 0;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+.sidebarOpen .profileBalance {
+  opacity: 1;
 }
 
 .backdrop {

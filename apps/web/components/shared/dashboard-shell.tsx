@@ -16,7 +16,7 @@ import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@features/profile";
+import { PROFILE, formatBalance } from "@features/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
@@ -567,6 +567,22 @@ function ProfileMenu({
               aria-hidden="true"
             />
           </Link>
+          <Link
+            href="/dashboard"
+            role="menuitem"
+            className={styles.profileMenuBalance}
+            onClick={() => setIsOpen(false)}
+          >
+            <Icon
+              icon="solar:wallet-linear"
+              className={styles.profileMenuGlyph}
+              aria-hidden="true"
+            />
+            <span>Баланс</span>
+            <span className={styles.profileMenuBalanceValue}>
+              {formatBalance(PROFILE.balance)}
+            </span>
+          </Link>
           {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
             <div key={groupIndex} className={styles.profileMenuGroup}>
               {group.map((item) =>
@@ -627,6 +643,9 @@ function ProfileMenu({
           <span className={styles.profileIdentity}>
             <span className={styles.profileName}>{user.name}</span>
             <span className={styles.profilePlan}>{PROFILE.plan}</span>
+          </span>
+          <span className={styles.profileBalance}>
+            {formatBalance(PROFILE.balance)}
           </span>
         </button>
       </SidebarTooltip>
