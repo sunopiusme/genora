@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
+import { createPortal } from "react-dom";
+import { usePathname } from "next/navigation";
 import { AssistantBar } from "@features/products";
 import { cn } from "@genora/ui";
 import shellStyles from "./app-shell.module.css";
 import composerStyles from "./composer-bar.module.css";
+import { ComposerBar } from "./composer-bar";
 import styles from "./liquid-glass-composer.module.css";
 
 /**
  * ТЕСТОВЫЙ РЕЖИМ Liquid Glass для Composer.
+ *
+ * Архитектура: root для WebGL-стекла — сам скролл-контейнер страницы
+ * ([data-glass-scroll], см. PageScrollArea). Пилюля портализуется
+ * внутрь него sticky-элементом. Так снимок фона (html-to-image)
+ * делается один раз, а при скролле библиотека корректно смещает
+ * выборку — стекло преломляет реальный контент под собой.
  *
  * Откат: поставить false (или удалить этот файл и вернуть
  * стандартный блок composer в app-shell.tsx) и убрать пакет
@@ -34,6 +43,9 @@ const GLASS_CONFIG = {
 type LiquidGlassInstance = {
   destroy: () => void;
   markChanged: (element?: HTMLElement) => void;
+  capture: {
+    captureElement: (element: HTMLElement, force?: boolean) => Promise<void>;
+  };
 };
 
 type LiquidGlassComposerProps = {
@@ -41,60 +53,85 @@ type LiquidGlassComposerProps = {
 };
 
 export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
+  const pathname = usePathname();
   const anchorRef = useRef<HTMLDivElement>(null);
   const glassRef = useRef<HTMLDivElement>(null);
+  const [scroller, setScroller] = useState<HTMLElement | null>(null);
 
-  /* Геометрия: якорь в полосе composer задаёт место, стеклянная
-     пилюля (прямой потомок root — требование библиотеки)
-     выравнивается по нему. */
+  /* Поиск скролл-контейнера текущей страницы. */
   useEffect(() => {
     const root = rootRef.current;
+    if (!root) {
+      return;
+    }
+    setScroller(
+      root.querySelector<HTMLElement>("[data-glass-scroll]") ?? null,
+    );
+  }, [rootRef, pathname]);
+
+  /* Геометрия: якорь в полосе composer резервирует вертикальное
+     место; sticky-пилюля выравнивается по нему offset'ом снизу. */
+  useEffect(() => {
     const anchor = anchorRef.current;
     const glass = glassRef.current;
-    if (!root || !anchor || !glass) {
+    if (!anchor || !glass || !scroller) {
       return;
     }
 
+    /* Пилюля должна прижиматься к низу и при коротком контенте. */
+    const prevDisplay = scroller.style.display;
+    const prevDirection = scroller.style.flexDirection;
+    scroller.style.display = "flex";
+    scroller.style.flexDirection = "column";
+
     function align() {
-      if (!root || !anchor || !glass) {
+      if (!anchor || !glass || !scroller) {
         return;
       }
       const pillHeight = glass.offsetHeight;
-      const anchorHeight = `${pillHeight}px`;
-      if (anchor.style.height !== anchorHeight && pillHeight > 0) {
-        anchor.style.height = anchorHeight;
+      if (pillHeight > 0) {
+        const anchorHeight = `${pillHeight}px`;
+        if (anchor.style.height !== anchorHeight) {
+          anchor.style.height = anchorHeight;
+        }
       }
-
-      const rootRect = root.getBoundingClientRect();
+      const scrollerRect = scroller.getBoundingClientRect();
       const anchorRect = anchor.getBoundingClientRect();
-      const left = `${anchorRect.left - rootRect.left}px`;
-      const top = `${anchorRect.top - rootRect.top}px`;
-      const width = `${anchorRect.width}px`;
-      if (glass.style.left !== left) glass.style.left = left;
-      if (glass.style.top !== top) glass.style.top = top;
-      if (glass.style.width !== width) glass.style.width = width;
+      if (anchorRect.height > 0 && scrollerRect.height > 0) {
+        const bottom = `${Math.max(0, Math.round(scrollerRect.bottom - anchorRect.bottom))}px`;
+        if (glass.style.bottom !== bottom) {
+          glass.style.bottom = bottom;
+        }
+      }
     }
 
     align();
     const observer = new ResizeObserver(() => {
       requestAnimationFrame(align);
     });
-    observer.observe(root);
+    observer.observe(scroller);
     observer.observe(anchor);
     observer.observe(glass);
-    return () => observer.disconnect();
-  }, [rootRef]);
+    return () => {
+      observer.disconnect();
+      scroller.style.display = prevDisplay;
+      scroller.style.flexDirection = prevDirection;
+    };
+  }, [scroller]);
 
-  /* Инициализация WebGL-стекла. */
+  /* Инициализация WebGL-стекла: root — скролл-контейнер. */
   useEffect(() => {
+    if (!scroller) {
+      return;
+    }
+
     let destroyed = false;
     let instance: LiquidGlassInstance | null = null;
-    let cleanupScroll: (() => void) | null = null;
+    const cleanups: Array<() => void> = [];
 
     async function boot() {
-      const root = rootRef.current;
       const glass = glassRef.current;
-      if (!root || !glass) {
+      if (!scroller || !glass) {
         return;
       }
 
@@ -107,7 +144,7 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
         }
 
         instance = (await LiquidGlass.init({
-          root,
+          root: scroller,
           glassElements: [glass],
         })) as unknown as LiquidGlassInstance;
 
@@ -117,23 +154,47 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
           return;
         }
 
-        /* Фон под стеклом — растровый снимок: обновляем его после
-           того, как скролл контента остановился. */
-        let timer: number | undefined;
+        /* Живая рефракция при скролле: снимок фона валиден, меняется
+           только смещение выборки — шейдер перерисовываем покадрово. */
+        let raf = 0;
         const handleScroll = () => {
-          window.clearTimeout(timer);
-          timer = window.setTimeout(() => {
+          if (raf) {
+            return;
+          }
+          raf = requestAnimationFrame(() => {
+            raf = 0;
             instance?.markChanged();
-          }, 120);
+          });
         };
-        root.addEventListener("scroll", handleScroll, {
-          capture: true,
-          passive: true,
+        scroller.addEventListener("scroll", handleScroll, { passive: true });
+        cleanups.push(() => {
+          scroller.removeEventListener("scroll", handleScroll);
+          cancelAnimationFrame(raf);
         });
-        cleanupScroll = () => {
-          root.removeEventListener("scroll", handleScroll, { capture: true });
-          window.clearTimeout(timer);
-        };
+
+        /* Контент страницы (карточки) подгружается асинхронно —
+           пересобираем снимок фона после мутаций DOM. */
+        const inner = scroller.querySelector<HTMLElement>(":scope > *");
+        if (inner && inner !== glass) {
+          let timer: number | undefined;
+          const mutationObserver = new MutationObserver(() => {
+            window.clearTimeout(timer);
+            timer = window.setTimeout(() => {
+              void instance?.capture.captureElement(inner, true);
+            }, 200);
+          });
+          mutationObserver.observe(inner, {
+            childList: true,
+            subtree: true,
+            characterData: true,
+          });
+          cleanups.push(() => {
+            mutationObserver.disconnect();
+            window.clearTimeout(timer);
+          });
+          /* Первый контент мог дорендериться между init и наблюдением. */
+          void instance.capture.captureElement(inner, true);
+        }
       } catch (error) {
         console.error("[liquid-glass] init failed:", error);
         /* Фолбэк: возвращаем пилюле непрозрачный фон. */
@@ -145,18 +206,31 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
 
     return () => {
       destroyed = true;
-      cleanupScroll?.();
+      for (const cleanup of cleanups) {
+        cleanup();
+      }
       instance?.destroy();
       instance = null;
     };
-  }, [rootRef]);
+  }, [scroller]);
+
+  /* Страница без [data-glass-scroll] — стандартный composer. */
+  if (!scroller) {
+    return (
+      <div className={shellStyles.composer}>
+        <div className={shellStyles.composerInner}>
+          <ComposerBar />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
       <div className={shellStyles.composer} data-liquid-glass="">
         <div className={shellStyles.composerInner}>
           <div className={composerStyles.bar}>
-            {/* Якорь резервирует место пилюли в потоке полосы composer */}
+            {/* Якорь резервирует место пилюли в полосе composer */}
             <div
               ref={anchorRef}
               className={cn(composerStyles.input, styles.anchor)}
@@ -169,13 +243,16 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
         </div>
       </div>
 
-      {/* Стеклянная пилюля — прямой потомок root (.content) */}
-      <div
-        ref={glassRef}
-        className={cn(styles.glassPill, shellStyles.composerGlass)}
-      >
-        <AssistantBar />
-      </div>
+      {/* Стеклянная пилюля — sticky прямой потомок скроллера */}
+      {createPortal(
+        <div
+          ref={glassRef}
+          className={cn(styles.glassPill, shellStyles.composerGlass)}
+        >
+          <AssistantBar />
+        </div>,
+        scroller,
+      )}
     </>
   );
 }

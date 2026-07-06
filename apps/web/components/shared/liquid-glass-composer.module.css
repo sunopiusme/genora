@@ -15,14 +15,24 @@
   }
 }
 
-/* Стеклянная пилюля: позиция (left/top/width) выставляется из JS
-   по якорю. Должна быть прямым потомком .content — требование
-   библиотеки @ybouane/liquidglass. */
+/* Стеклянная пилюля — sticky прямой потомок скролл-контейнера
+   страницы (требование библиотеки: glass = direct child of root).
+   Позиционируется CSS с первого кадра — без прыжка из угла.
+   Точный отступ снизу докручивает JS (align). */
 .glassPill {
-  position: absolute;
-  z-index: 11;
-  left: 0;
-  top: 0;
+  position: sticky;
+  z-index: 5;
+  bottom: 4.75rem;
+  /* Прижатие к низу при коротком контенте (скроллер — flex column) */
+  margin-top: auto;
+  /* Геометрия повторяет composerInner: центр, max-width 48rem,
+     боковые отступы полосы composer. */
+  width: min(
+    100% - 2 * (var(--space-4) + env(safe-area-inset-left, 0px)),
+    48rem
+  );
+  margin-inline: auto;
+  flex-shrink: 0;
   border-radius: var(--radius-full);
 }
 

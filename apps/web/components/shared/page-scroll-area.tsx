@@ -22,7 +22,7 @@ export function PageScrollArea({ className, children }: PageScrollAreaProps) {
   }, []);
 
   return (
-    <div ref={scrollRef} className={className}>
+    <div ref={scrollRef} className={className} data-glass-scroll="">
       {children}
     </div>
   );
