@@ -567,22 +567,27 @@ function ProfileMenu({
               aria-hidden="true"
             />
           </Link>
-          <Link
-            href="/dashboard"
-            role="menuitem"
-            className={styles.profileMenuBalance}
-            onClick={() => setIsOpen(false)}
-          >
-            <Icon
-              icon="solar:wallet-linear"
-              className={styles.profileMenuGlyph}
-              aria-hidden="true"
-            />
-            <span>Баланс</span>
-            <span className={styles.profileMenuBalanceValue}>
-              {formatBalance(PROFILE.balance)}
+          <div className={styles.profileMenuBalanceCard}>
+            <span className={styles.profileMenuBalanceInfo}>
+              <span className={styles.profileMenuBalanceLabel}>Баланс</span>
+              <span className={styles.profileMenuBalanceValue}>
+                {formatBalance(PROFILE.balance)}
+              </span>
             </span>
-          </Link>
+            <Link
+              href="/dashboard"
+              role="menuitem"
+              className={styles.profileMenuTopUp}
+              onClick={() => setIsOpen(false)}
+            >
+              <Icon
+                icon="solar:add-circle-linear"
+                className={styles.profileMenuTopUpIcon}
+                aria-hidden="true"
+              />
+              Пополнить
+            </Link>
+          </div>
           {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
             <div key={groupIndex} className={styles.profileMenuGroup}>
               {group.map((item) =>
