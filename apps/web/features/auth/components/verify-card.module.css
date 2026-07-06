@@ -1,17 +1,5 @@
 .form {
   margin-top: var(--space-6);
-  animation: cardIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-@keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: scale(0.97) translateY(0.625rem);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
 }
 
 .codeField {
@@ -203,10 +191,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .form {
-    animation: none;
-  }
-
   .caret {
     animation: none;
   }

@@ -96,12 +96,20 @@
   cursor: pointer;
   transition:
     color 0.15s ease,
-    background-color 0.15s ease;
+    background-color 0.15s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .closeButton:hover {
   color: var(--color-foreground);
   background-color: rgb(255 255 255 / 0.1);
+}
+
+.closeButtonHidden {
+  opacity: 0;
+  transform: scale(0.9);
+  pointer-events: none;
 }
 
 .closeButton:focus {
@@ -141,6 +149,76 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+.viewport {
+  width: 100%;
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.view {
+  width: 100%;
+}
+
+.viewExit {
+  animation: viewOut 0.15s ease-in both;
+}
+
+.viewExitBack {
+  animation: viewOutBack 0.15s ease-in both;
+}
+
+.viewEnter {
+  animation: viewIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.viewEnterBack {
+  animation: viewInBack 0.32s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes viewOut {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-1.25rem);
+  }
+}
+
+@keyframes viewOutBack {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(1.25rem);
+  }
+}
+
+@keyframes viewIn {
+  from {
+    opacity: 0;
+    transform: translateX(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes viewInBack {
+  from {
+    opacity: 0;
+    transform: translateX(-1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .verifyInner {
@@ -238,7 +316,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .overlay[data-state],
-  .content.content[data-state] {
+  .content.content[data-state],
+  .viewExit,
+  .viewExitBack,
+  .viewEnter,
+  .viewEnterBack {
     animation: none;
+  }
+
+  .viewport {
+    transition: none;
   }
 }
