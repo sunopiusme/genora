@@ -23,7 +23,7 @@
 .glass form {
   background-color: color-mix(
     in srgb,
-    var(--color-surface-elevated) 55%,
+    var(--color-surface-elevated) 35%,
     transparent
   );
 }

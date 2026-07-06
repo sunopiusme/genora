@@ -10,11 +10,11 @@ const GLASS_OPTICS = {
   bend: 0.7,
   dispersion: 0.2,
   frost: 0,
-  saturate: 1.05,
+  saturate: 1,
   brightness: 0,
-  specular: 0.45,
-  sheen: 0.4,
-  glow: 0.15,
+  specular: 0.15,
+  sheen: 0,
+  glow: 0,
 };
 
 export function ComposerBar() {
