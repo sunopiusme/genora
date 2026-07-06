@@ -135,11 +135,16 @@
 }
 
 .sidebarToggleWrap {
+  /* No transform here: a transformed ancestor would become the containing
+     block for the fixed-position tooltip and shift it off-screen */
   position: absolute;
   left: 0;
-  right: auto;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  /* Slide with the width animation instead of teleporting left <-> right */
+  transition: left 0.2s ease;
 }
 
 .sidebarToggle {
@@ -184,8 +189,9 @@
 }
 
 .sidebarOpen .sidebarToggleWrap {
-  left: auto;
-  right: 0;
+  left: calc(
+    100% - var(--sidebar-icon-size) - var(--sidebar-item-pad) * 2
+  );
 }
 
 .sidebarOpen .sidebarToggle {
@@ -195,19 +201,6 @@
 
 .sidebarOpen .sidebarHeader:hover .logo {
   opacity: 1;
-}
-
-.sidebarAnimating .sidebarHeader .logo,
-.sidebarAnimating .sidebarHeader:hover .logo {
-  opacity: 1;
-  transition: none;
-}
-
-.sidebarAnimating .sidebarHeader .sidebarToggle,
-.sidebarAnimating .sidebarHeader:hover .sidebarToggle {
-  opacity: 0;
-  pointer-events: none;
-  transition: none;
 }
 
 .sidebarAnimating .sidebarScroll {
