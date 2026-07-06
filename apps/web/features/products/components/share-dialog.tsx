@@ -1,45 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Logo } from "@genora/ui";
 import styles from "./share-dialog.module.css";
-
-const TELEGRAM_ICON =
-  "https://cdn.jsdelivr.net/gh/glincker/thesvg@main/public/icons/telegram/default.svg";
-
-function AirDropGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="2.4" fill="currentColor" stroke="none" />
-      <path d="M7.6 16.4a6.2 6.2 0 0 1 0-8.8" />
-      <path d="M16.4 7.6a6.2 6.2 0 0 1 0 8.8" />
-      <path d="M4.9 19.1a10 10 0 0 1 0-14.2" />
-      <path d="M19.1 4.9a10 10 0 0 1 0 14.2" />
-    </svg>
-  );
-}
-
-function MessagesGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M12 3.5c-5.25 0-9.5 3.4-9.5 7.6 0 2.4 1.4 4.55 3.6 5.95-.15 1.05-.7 2.1-1.6 2.9a.4.4 0 0 0 .3.7c1.9-.1 3.45-.85 4.5-1.65.85.2 1.75.3 2.7.3 5.25 0 9.5-3.4 9.5-7.6S17.25 3.5 12 3.5Z" />
-    </svg>
-  );
-}
-
-function MailGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M3 6.75A2.75 2.75 0 0 1 5.75 4h12.5A2.75 2.75 0 0 1 21 6.75v10.5A2.75 2.75 0 0 1 18.25 20H5.75A2.75 2.75 0 0 1 3 17.25V6.75Zm2.2-.35 6.35 5.3c.27.22.63.22.9 0l6.35-5.3a.9.9 0 0 0-.55-.15H5.75a.9.9 0 0 0-.55.15Z" />
-    </svg>
-  );
-}
 
 function CopyGlyph() {
   return (
@@ -132,23 +95,19 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     }
   };
 
+  /* Иконки сервисов — реальные SVG, скачанные из
+     Wikimedia Commons и theSVG.org (см. public/share) */
   const apps = [
     {
       id: "airdrop",
       label: "AirDrop",
-      tileClass: styles.tileAirdrop,
-      glyph: <AirDropGlyph />,
+      icon: "/share/airdrop.svg",
       onClick: handleSystemShare,
     },
     {
       id: "telegram",
       label: "Telegram",
-      tileClass: styles.tileTelegram,
-      glyph: (
-        // Логотип Telegram с theSVG.org
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={TELEGRAM_ICON} alt="" className={styles.tileImg} />
-      ),
+      icon: "/share/telegram.svg",
       onClick: () => {
         window.open(
           `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`,
@@ -160,8 +119,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     {
       id: "messages",
       label: "Сообщения",
-      tileClass: styles.tileMessages,
-      glyph: <MessagesGlyph />,
+      icon: "/share/imessage.svg",
       onClick: () => {
         window.location.href = `sms:?&body=${encodeURIComponent(`${shareTitle} ${pageUrl}`)}`;
       },
@@ -169,8 +127,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     {
       id: "mail",
       label: "Почта",
-      tileClass: styles.tileMail,
-      glyph: <MailGlyph />,
+      icon: "/share/mail.svg",
       onClick: () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
@@ -192,13 +149,11 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
         aria-label="Поделиться"
       >
         <header className={styles.header}>
-          <img
-            src="/genora-app-icon.png"
-            alt=""
-            className={styles.cover}
-            width={56}
-            height={56}
-          />
+          {/* Обложка: наш логотип на чёрном сквиркле */}
+          <span className={styles.cover} aria-hidden="true">
+            <span className={styles.coverGlow} />
+            <Logo className={styles.coverLogo} width="1.75rem" height="1.75rem" />
+          </span>
           <div className={styles.headerText}>
             <p className={styles.siteTitle}>{shareTitle}</p>
             <p className={styles.siteHost}>{host}</p>
@@ -232,8 +187,9 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
               className={styles.appButton}
               onClick={app.onClick}
             >
-              <span className={`${styles.tile} ${app.tileClass}`}>
-                {app.glyph}
+              <span className={styles.tile}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={app.icon} alt="" className={styles.tileImg} />
               </span>
               <span className={styles.appLabel}>{app.label}</span>
             </button>
@@ -248,10 +204,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
             className={styles.circleAction}
             onClick={handleCopy}
           >
-            <span
-              className={styles.circle}
-              data-copied={copied || undefined}
-            >
+            <span className={styles.circle} data-copied={copied || undefined}>
               <CopyGlyph />
             </span>
             <span className={styles.appLabel}>
