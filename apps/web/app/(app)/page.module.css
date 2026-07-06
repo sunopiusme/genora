@@ -8,6 +8,8 @@
   height: 100%;
   overflow-y: auto;
   overscroll-behavior: none;
+  /* Симметричный резерв под скроллбар с обеих сторон — контент по центру */
+  scrollbar-gutter: stable both-edges;
 }
 
 .scrollInner {

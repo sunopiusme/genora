@@ -8,6 +8,8 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   overflow-y: auto;
+  /* Симметричный резерв под скроллбар — панель остаётся по центру */
+  scrollbar-gutter: stable both-edges;
   animation: overlayIn 0.2s ease both;
 }
 

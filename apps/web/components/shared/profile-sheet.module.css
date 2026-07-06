@@ -122,6 +122,8 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Симметричный резерв под скроллбар — контент шторки по центру */
+  scrollbar-gutter: stable both-edges;
   padding: var(--space-8) var(--space-4)
     calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
 }

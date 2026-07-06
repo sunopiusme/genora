@@ -117,6 +117,8 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Симметричный резерв под скроллбар — пункты сайдбара не сдвигаются */
+  scrollbar-gutter: stable both-edges;
   padding-block: var(--space-2);
 }
 

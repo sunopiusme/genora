@@ -71,6 +71,8 @@
   max-height: calc(100dvh - var(--space-8));
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Симметричный резерв под скроллбар — форма остаётся по центру */
+  scrollbar-gutter: stable both-edges;
   padding: var(--space-10) var(--space-8)
     calc(var(--space-8) + env(safe-area-inset-bottom));
   border-radius: var(--radius-3xl);
