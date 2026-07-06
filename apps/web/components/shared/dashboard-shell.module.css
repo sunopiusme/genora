@@ -23,11 +23,22 @@
   /* Shared sidebar motion: gentle and organic, no eye strain.
      A symmetric ease-in-out: the panel wakes up softly, glides, and
      settles with a long feather-light deceleration - no snappy start.
-     Fades are shorter than the width slide so swaps finish first.
-     The mobile drawer travels further, so it gets a slightly longer run. */
+     The mobile drawer travels further, so it gets a slightly longer run.
+
+     Fades are direction-aware so the whole toggle reads as one motion:
+     - collapsing: content fades out fast (fade-out), finishing before the
+       shrinking edge reaches it - text is never visibly clipped mid-fade;
+     - expanding: content fades in after a short delay (fade-in-delay),
+       appearing into space the panel has already opened - no bleed-over.
+     delay + fade-in (0.12 + 0.16 = 0.28s) lands just inside the 0.3s
+     width slide, so everything settles together.
+     Opacity uses a plain `ease` - short fades feel laggy on the slow
+     ease-in-out curve reserved for the width/transform slide. */
   --sidebar-anim: 0.3s;
   --sidebar-anim-mobile: 0.38s;
-  --sidebar-fade: 0.2s;
+  --sidebar-fade-out: 0.12s;
+  --sidebar-fade-in: 0.16s;
+  --sidebar-fade-in-delay: 0.12s;
   --sidebar-ease: cubic-bezier(0.45, 0.05, 0.15, 1);
 }
 
@@ -140,7 +151,8 @@
   width: var(--sidebar-icon-size);
   flex-shrink: 0;
   opacity: 1;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  /* Visible in the collapsed state: fades back in (delayed) on collapse */
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 /* Expanded state shows the bold brand wordmark instead of the icon */
@@ -154,15 +166,20 @@
   white-space: nowrap;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  /* Hidden in the collapsed state: fades out fast on collapse */
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .logo {
   opacity: 0;
+  /* Fades out fast on expand */
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .wordmark {
   opacity: 1;
+  /* Fades in delayed on expand, into space that already exists */
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .sidebarToggleWrap {
@@ -192,9 +209,10 @@
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
+  /* Hidden state: reached on collapse and on hover-out - quick fade-out */
   transition:
     color 0.15s ease,
-    opacity var(--sidebar-fade) var(--sidebar-ease),
+    opacity var(--sidebar-fade-out) ease,
     background-color 0.15s ease;
 }
 
@@ -215,6 +233,9 @@
    so the logo/toggle swap can't flicker while the width animates. */
 .sidebarHeaderHovered .logo {
   opacity: 0;
+  /* Hover swap must stay snappy: override the delayed toggle fade-in
+     so the logo doesn't linger under the appearing toggle button */
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarHeaderHovered .sidebarToggle {
@@ -231,6 +252,11 @@
 .sidebarOpen .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
+  /* Fades in delayed on expand, after its slide destination has room */
+  transition:
+    color 0.15s ease,
+    opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay),
+    background-color 0.15s ease;
 }
 
 .sidebarAnimating .sidebarScroll {
@@ -317,21 +343,25 @@
   width: var(--sidebar-icon-size);
   height: var(--sidebar-icon-size);
   opacity: 1;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  /* Visible collapsed: fades back in delayed on collapse */
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .loginLabel {
   white-space: nowrap;
   opacity: 0;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  /* Fades out fast on collapse, before the shrinking edge clips it */
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .loginGlyph {
   opacity: 0;
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .loginLabel {
   opacity: 1;
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .navIcon {
@@ -348,11 +378,14 @@
   flex-shrink: 0;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  /* Fades out fast on collapse, before the shrinking edge clips it */
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .navLabel {
   opacity: 1;
+  /* Fades in delayed on expand, into space that already exists */
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .section {
@@ -364,12 +397,13 @@
   flex-shrink: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .section {
   opacity: 1;
   pointer-events: auto;
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .sectionTitle {
@@ -645,11 +679,12 @@
   gap: var(--space-px);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+  transition: opacity var(--sidebar-fade-out) ease;
 }
 
 .sidebarOpen .profileIdentity {
   opacity: 1;
+  transition: opacity var(--sidebar-fade-in) ease var(--sidebar-fade-in-delay);
 }
 
 .profileName {
@@ -939,7 +974,16 @@
 
 @media (prefers-reduced-motion: reduce) {
   .sidebar,
-  .main {
+  .main,
+  .sidebarToggleWrap,
+  .logo,
+  .wordmark,
+  .sidebarToggle,
+  .loginGlyph,
+  .loginLabel,
+  .navLabel,
+  .section,
+  .profileIdentity {
     transition: none;
   }
 
