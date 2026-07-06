@@ -8,13 +8,13 @@ const GLASS_OPTICS = {
   depth: 0.3,
   curvature: 0.18,
   bend: 0.7,
-  dispersion: 0.25,
-  frost: 1.5,
-  saturate: 1.4,
-  brightness: 0.06,
-  specular: 1,
-  sheen: 1,
-  glow: 0.4,
+  dispersion: 0.2,
+  frost: 0,
+  saturate: 1.05,
+  brightness: 0,
+  specular: 0.45,
+  sheen: 0.4,
+  glow: 0.15,
 };
 
 export function ComposerBar() {
