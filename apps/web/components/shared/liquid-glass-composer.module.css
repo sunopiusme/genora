@@ -1,0 +1,40 @@
+/* Тестовые стили Liquid Glass Composer.
+   Откат: удалить файл вместе с liquid-glass-composer.tsx. */
+
+/* Якорь — невидимый слот в полосе composer, задающий геометрию пилюли.
+   Высота выставляется из JS по реальной высоте пилюли. */
+.anchor {
+  min-height: 3.25rem;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media (max-width: 40rem) {
+  .anchor {
+    min-height: 2.75rem;
+  }
+}
+
+/* Стеклянная пилюля: позиция (left/top/width) выставляется из JS
+   по якорю. Должна быть прямым потомком .content — требование
+   библиотеки @ybouane/liquidglass. */
+.glassPill {
+  position: absolute;
+  z-index: 11;
+  left: 0;
+  top: 0;
+  border-radius: var(--radius-full);
+}
+
+/* Пилюля становится прозрачной — фон рисует WebGL-стекло на canvas,
+   который библиотека вставляет внутрь .glassPill. */
+.glassPill form {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+/* Фолбэк, если WebGL не инициализировался: возвращаем обычный вид. */
+.glassPill[data-glass-fallback] form {
+  background-color: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+}
