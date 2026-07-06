@@ -31,18 +31,19 @@ import styles from "./liquid-glass-composer.module.css";
  */
 export const LIQUID_GLASS_COMPOSER = true;
 
+/* Параметры близки к дефолтам библиотеки (README ybouane/liquidglass):
+   агрессивные значения (shadowOpacity 0.55, edgeHighlight 0.35)
+   давали «затемнение по всей поверхности». */
 const GLASS_CONFIG = {
-  blurAmount: 0.22,
-  refraction: 0.78,
-  chromAberration: 0.08,
-  /* Заметная светящаяся кромка: на плоском тёмном фоне именно она
-     отделяет стекло от подложки. */
-  edgeHighlight: 0.35,
-  fresnel: 1.4,
+  blurAmount: 0.2,
+  refraction: 0.69,
+  chromAberration: 0.05,
+  edgeHighlight: 0.12,
+  fresnel: 1,
   cornerRadius: 26,
   zRadius: 22,
-  saturation: 0.2,
-  shadowOpacity: 0.55,
+  saturation: 0.1,
+  shadowOpacity: 0.3,
   floating: false,
 };
 
@@ -180,7 +181,18 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
           return;
         }
 
-        /* Стекло готово — снимаем непрозрачный pending-вид. */
+        /* Pending-вид снимаем только после того, как WebGL-canvas
+           реально отрисовал кадры (init резолвится ДО первой отрисовки —
+           снятие сразу и давало цепочку «обычный → пусто → стекло»).
+           Два rAF: кадр рендера библиотеки + кадр композитинга. */
+        await new Promise<void>((resolve) => {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => resolve());
+          });
+        });
+        if (destroyed) {
+          return;
+        }
         glass.removeAttribute("data-glass-pending");
 
         const inner = scroller.querySelector<HTMLElement>(":scope > *");
@@ -191,7 +203,9 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
         let capturing = false;
         let pendingCapture = false;
         const RECAPTURE_COOLDOWN = 1200;
-        let lastCapture = 0;
+        /* init() уже сделал pre-warm снимок — стартуем кулдаун сейчас,
+           иначе немедленная пересъёмка подменяла свежий кадр стекла. */
+        let lastCapture = Date.now();
         const recapture = async () => {
           if (!inner || inner === glass || !instance) {
             return;
