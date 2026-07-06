@@ -129,13 +129,19 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
 
 const SWIPE_CLOSE_DISTANCE = 48;
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+export function DashboardShell({
+  children,
+  initialUser = null,
+}: {
+  children: ReactNode;
+  initialUser?: AuthUser | null;
+}) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
-  const authenticatedUser = hasHydrated ? user : null;
+  const authenticatedUser = hasHydrated ? user : initialUser;
   const navItems = authenticatedUser
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
