@@ -22,20 +22,18 @@
   margin-block: var(--space-20) var(--space-32);
 }
 
-/* — Единая геометрия с композером на всех брейкпоинтах —
-   Композер (.composer в app-shell.module.css) имеет боковые отступы
-   --space-4 + safe-area, а его инпут ограничен --composer-width и
-   центрирован. Здесь та же формула, но с поправкой: .scroll резервирует
-   --scrollbar-size с обеих сторон (scrollbar-gutter: stable both-edges),
-   а композер лежит поверх скролла и этого резерва не имеет. Поэтому из
-   боковых отступов вычитается --scrollbar-size — видимые края контента
-   совпадают с краями чат-инпута пиксель в пиксель: на мобильном и
-   планшете карточки идут ровно по ширине инпута, на десктопе оба блока
-   центрируются и сужаются синхронно при любом состоянии сайдбара. */
+/* — Геометрия контента —
+   Витрина ограничена --showcase-width и центрирована: по бокам всегда
+   остаётся воздух до сайдбара и краёв окна — карточки не липнут к ним.
+   Боковые отступы повторяют композер (.composer в app-shell.module.css):
+   --space-4 + safe-area, минус --scrollbar-size, который .scroll уже
+   резервирует с обеих сторон (scrollbar-gutter: stable both-edges).
+   Число колонок держат container queries в product-showcase.module.css —
+   сайдбар не вызывает перескока рядов. */
 .scrollInner {
   width: 100%;
   max-width: calc(
-    var(--composer-width) + (var(--space-4) - var(--scrollbar-size)) * 2
+    var(--showcase-width) + (var(--space-4) - var(--scrollbar-size)) * 2
   );
   margin-inline: auto;
   padding-inline: calc(
