@@ -94,30 +94,15 @@
 }
 
 .title {
+  /* Строго по центру шапки независимо от кнопок справа */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
-  flex-shrink: 0;
   font-size: 0.9375rem;
   font-weight: var(--weight-semibold);
   color: var(--color-foreground);
   white-space: nowrap;
-}
-
-.headerLeading {
-  display: flex;
-  align-items: center;
-  flex: 1;
-  min-width: 0;
-  /* Плавное затухание чипов у правого края перед кнопками */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    #000 calc(100% - 1.5rem),
-    transparent
-  );
-  mask-image: linear-gradient(
-    to right,
-    #000 calc(100% - 1.5rem),
-    transparent
-  );
 }
 
 .headerTrailing {

@@ -1,92 +1,121 @@
 .actions {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   flex-shrink: 0;
   pointer-events: auto;
 }
 
-/* Пилюля «Поделиться» — как на референсе */
-.share {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  appearance: none;
-  border: 1px solid var(--color-border-strong);
-  border-radius: var(--radius-full);
-  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-2);
-  background: var(--color-surface-raised);
-  color: var(--color-foreground);
-  font-family: inherit;
-  font-size: 0.8125rem;
-  font-weight: var(--weight-medium);
-  line-height: 1.4;
-  white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    border-color 0.15s ease;
-}
-
-.share:hover {
-  background: var(--color-surface-elevated);
-}
-
-.share:focus-visible,
-.more:focus-visible {
-  outline: 2px solid var(--color-border-strong);
-  outline-offset: 1px;
-}
-
-.shareIcon {
-  display: inline-flex;
-  width: 1rem;
-  height: 1rem;
-}
-
-.shareIcon svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Круглая кнопка «…» */
-.more {
+/* Минималистичные иконочные кнопки: без обводки и фона,
+   hover — как у toggle-кнопки сайдбара, размеры одинаковые */
+.iconButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 2rem;
+  height: 2rem;
   appearance: none;
-  border: 1px solid transparent;
-  border-radius: var(--radius-full);
-  background: transparent;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: none;
   color: var(--color-foreground-muted);
   cursor: pointer;
   transition:
     color 0.15s ease,
-    background-color 0.15s ease,
-    border-color 0.15s ease;
+    background-color 0.15s ease;
 }
 
-.more:hover {
+.iconButton:hover,
+.iconButton[data-active] {
   color: var(--color-foreground);
-  background: var(--color-surface-elevated);
+  background-color: var(--color-surface-elevated);
 }
 
-.more svg {
+.iconButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 1px;
+}
+
+.iconButton svg {
   width: 1rem;
   height: 1rem;
 }
 
-/* Мобильные: остаётся только кружок с тремя точками */
-@media (max-width: 47.9375rem) {
-  .share {
-    display: none;
-  }
+.iconButton[data-copied] {
+  color: var(--color-foreground);
+}
 
-  .more {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface-raised);
-    color: var(--color-foreground);
-  }
+/* Выпадающее меню категорий и сортировки */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: 30;
+  min-width: 13rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-raised);
+  box-shadow: var(--shadow-lg, 0 8px 24px rgb(0 0 0 / 0.35));
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.menuHeading {
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-foreground-muted);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-2);
+  background: none;
+  color: var(--color-foreground);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.menuItem:hover {
+  background-color: var(--color-surface-elevated);
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: -2px;
+}
+
+.menuCheck {
+  display: inline-flex;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-foreground);
+}
+
+.menuCheck svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menuDivider {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background: var(--color-border);
 }
