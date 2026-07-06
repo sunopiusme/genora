@@ -221,7 +221,7 @@ export function DashboardShell({
     // transitionend normally fires first
     animationTimeout.current = setTimeout(() => {
       endSidebarAnimation();
-    }, 300);
+    }, 380);
   }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {

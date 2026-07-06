@@ -20,13 +20,15 @@
   );
   position: relative;
   font-weight: var(--weight-medium);
-  /* Shared sidebar motion: fast, smooth, no eye strain.
+  /* Shared sidebar motion: gentle and organic, no eye strain.
+     The ease curve starts soft and lands with a long, feather-light
+     deceleration (Apple-style), so nothing ever feels abrupt.
      Fades are shorter than the width slide so swaps finish first.
      The mobile drawer travels further, so it gets a slightly longer run. */
-  --sidebar-anim: 0.15s;
-  --sidebar-anim-mobile: 0.25s;
-  --sidebar-fade: 0.1s;
-  --sidebar-ease: cubic-bezier(0.3, 0, 0.2, 1);
+  --sidebar-anim: 0.24s;
+  --sidebar-anim-mobile: 0.32s;
+  --sidebar-fade: 0.16s;
+  --sidebar-ease: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .sidebar {
