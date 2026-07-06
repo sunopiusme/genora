@@ -52,8 +52,17 @@
     0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
-/* Фолбэк, если WebGL не инициализировался: возвращаем обычный вид. */
+/* Пока WebGL не готов (pending) или не инициализировался (fallback) —
+   пилюля выглядит как обычный composer: одна форма, один объект,
+   плавный переход в стекло без «подмены». */
+.glassPill[data-glass-pending] form,
 .glassPill[data-glass-fallback] form {
   background-color: var(--color-surface-elevated);
   box-shadow: var(--shadow-lg);
+}
+
+.glassPill form {
+  transition:
+    background-color 0.35s ease,
+    box-shadow 0.35s ease;
 }

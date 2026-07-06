@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { AssistantBar } from "@features/products";
@@ -58,15 +64,35 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
   const glassRef = useRef<HTMLDivElement>(null);
   const [scroller, setScroller] = useState<HTMLElement | null>(null);
 
-  /* Поиск скролл-контейнера текущей страницы. */
-  useEffect(() => {
-    const root = rootRef.current;
-    if (!root) {
-      return;
-    }
-    setScroller(
-      root.querySelector<HTMLElement>("[data-glass-scroll]") ?? null,
-    );
+  /* Поиск скролл-контейнера текущей страницы. useLayoutEffect —
+     до первой отрисовки, иначе на кадр мелькает обычный composer,
+     который тут же подменяется стеклянным.
+
+     ВАЖНО: rootRef.current здесь ещё может быть null (layout-эффекты
+     детей выполняются раньше привязки ref родителя), поэтому ищем
+     через rootRef с фолбэком на document и повтором на след. кадр. */
+  useLayoutEffect(() => {
+    let raf = 0;
+    const find = () => {
+      const scope = rootRef.current ?? document;
+      const found = scope.querySelector<HTMLElement>("[data-glass-scroll]");
+      if (found) {
+        setScroller(found);
+        return;
+      }
+      /* Страница могла ещё не домонтироваться — одна повторная
+         попытка после первого кадра, дальше — фолбэк-ветка. */
+      raf = requestAnimationFrame(() => {
+        const late = (rootRef.current ?? document).querySelector<HTMLElement>(
+          "[data-glass-scroll]",
+        );
+        setScroller(late ?? null);
+      });
+    };
+    find();
+    return () => {
+      cancelAnimationFrame(raf);
+    };
   }, [rootRef, pathname]);
 
   /* Геометрия: якорь в полосе composer резервирует вертикальное
@@ -154,46 +180,88 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
           return;
         }
 
-        /* Живая рефракция при скролле: снимок фона валиден, меняется
-           только смещение выборки — шейдер перерисовываем покадрово. */
-        let raf = 0;
-        const handleScroll = () => {
-          if (raf) {
+        /* Стекло готово — снимаем непрозрачный pending-вид. */
+        glass.removeAttribute("data-glass-pending");
+
+        const inner = scroller.querySelector<HTMLElement>(":scope > *");
+
+        /* Единая очередь пересъёмки фона: не чаще одного захвата
+           одновременно и с паузой между ними — гонка параллельных
+           captureElement и вызывала постоянное мигание поверхности. */
+        let capturing = false;
+        let pendingCapture = false;
+        const RECAPTURE_COOLDOWN = 1200;
+        let lastCapture = 0;
+        const recapture = async () => {
+          if (!inner || inner === glass || !instance) {
             return;
           }
-          raf = requestAnimationFrame(() => {
-            raf = 0;
-            instance?.markChanged();
-          });
+          if (capturing) {
+            pendingCapture = true;
+            return;
+          }
+          const now = Date.now();
+          if (now - lastCapture < RECAPTURE_COOLDOWN) {
+            pendingCapture = true;
+            window.setTimeout(() => {
+              if (pendingCapture) {
+                pendingCapture = false;
+                void recapture();
+              }
+            }, RECAPTURE_COOLDOWN - (now - lastCapture));
+            return;
+          }
+          capturing = true;
+          lastCapture = now;
+          try {
+            await instance.capture.captureElement(inner, true);
+            instance.markChanged();
+          } finally {
+            capturing = false;
+            if (pendingCapture && !destroyed) {
+              pendingCapture = false;
+              void recapture();
+            }
+          }
+        };
+
+        /* Скролл: НЕ пересъёмка и НЕ покадровый markChanged (это
+           заставляло все стёкла перерисовываться каждый кадр).
+           Один markChanged после остановки скролла + свежий снимок. */
+        let scrollTimer: number | undefined;
+        const handleScroll = () => {
+          window.clearTimeout(scrollTimer);
+          scrollTimer = window.setTimeout(() => {
+            void recapture();
+          }, 220);
         };
         scroller.addEventListener("scroll", handleScroll, { passive: true });
         cleanups.push(() => {
           scroller.removeEventListener("scroll", handleScroll);
-          cancelAnimationFrame(raf);
+          window.clearTimeout(scrollTimer);
         });
 
-        /* Контент страницы (карточки) подгружается асинхронно —
-           пересобираем снимок фона после мутаций DOM. */
-        const inner = scroller.querySelector<HTMLElement>(":scope > *");
+        /* Асинхронная догрузка контента (карточки, изображения):
+           один отложенный снимок после затишья мутаций. Только
+           childList — characterData дёргала пересъёмку на каждый чих. */
         if (inner && inner !== glass) {
-          let timer: number | undefined;
+          let mutationTimer: number | undefined;
           const mutationObserver = new MutationObserver(() => {
-            window.clearTimeout(timer);
-            timer = window.setTimeout(() => {
-              void instance?.capture.captureElement(inner, true);
-            }, 200);
+            window.clearTimeout(mutationTimer);
+            mutationTimer = window.setTimeout(() => {
+              void recapture();
+            }, 500);
           });
           mutationObserver.observe(inner, {
             childList: true,
             subtree: true,
-            characterData: true,
           });
           cleanups.push(() => {
             mutationObserver.disconnect();
-            window.clearTimeout(timer);
+            window.clearTimeout(mutationTimer);
           });
-          /* Первый контент мог дорендериться между init и наблюдением. */
-          void instance.capture.captureElement(inner, true);
+          /* Контент мог дорендериться между init и наблюдением. */
+          void recapture();
         }
       } catch (error) {
         console.error("[liquid-glass] init failed:", error);
@@ -243,10 +311,13 @@ export function LiquidGlassComposer({ rootRef }: LiquidGlassComposerProps) {
         </div>
       </div>
 
-      {/* Стеклянная пилюля — sticky прямой потомок скроллера */}
+      {/* Стеклянная пилюля — sticky прямой потомок скроллера.
+          data-glass-pending: до готовности WebGL пилюля выглядит как
+          обычный composer — никаких «двух объектов» при загрузке. */}
       {createPortal(
         <div
           ref={glassRef}
+          data-glass-pending=""
           className={cn(styles.glassPill, shellStyles.composerGlass)}
         >
           <AssistantBar />
