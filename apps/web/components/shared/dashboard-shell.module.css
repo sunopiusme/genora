@@ -328,21 +328,46 @@
   background-color: var(--color-surface);
 }
 
+/* Expanded: reads as a proper call-to-action - glyph collapses away,
+   label centers, and the pill is always filled (not just on hover) */
+.sidebarOpen .loginButton {
+  gap: 0;
+}
+
+.sidebarOpen .loginButton::before {
+  background-color: var(--color-surface);
+}
+
+.sidebarOpen .loginButton:hover::before {
+  background-color: var(--color-surface-elevated);
+}
+
 .loginButton:focus-visible {
   outline: none;
   box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
-/* Same footprint as .profileAvatar so the glyph sits in the avatar slot */
+/* Same footprint as .profileAvatar so the glyph sits in the avatar slot
+   when collapsed; folds to zero width in the expanded state */
 .loginGlyph {
   flex-shrink: 0;
   width: 1.625rem;
   height: 1.625rem;
+  transition:
+    width var(--sidebar-fade) var(--sidebar-ease),
+    opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+.sidebarOpen .loginGlyph {
+  width: 0;
+  opacity: 0;
 }
 
 .loginLabel {
-  flex-shrink: 0;
+  flex: 1;
+  min-width: 0;
   white-space: nowrap;
+  text-align: center;
   font-size: var(--text-sm);
   font-weight: var(--weight-semibold);
   line-height: var(--leading-sm);
@@ -487,9 +512,10 @@
   border: 1px solid rgb(255 255 255 / 0.06);
   border-radius: var(--radius-2xl);
   /* Светлее обычных меню: всплывает над чёрным (#000) сайдбаром,
-     где тени не читаются — «высота» передаётся светлотой */
+     где тени не читаются — «высота» передаётся светлотой. Тени здесь нет
+     намеренно: --shadow-lg бросает 12px вниз и затемняла блок профиля,
+     который находится сразу под меню */
   background-color: var(--color-surface-raised);
-  box-shadow: var(--shadow-lg);
   animation: profileMenuIn 0.16s ease both;
 }
 
@@ -506,6 +532,9 @@
 
 .profileMenuFlyout {
   transform-origin: left bottom;
+  /* Флайаут висит над контентной областью (не над профилем),
+     поэтому тень здесь уместна и ничего не затемняет в сайдбаре */
+  box-shadow: var(--shadow-lg);
   animation: profileMenuFlyoutIn 0.16s ease both;
 }
 
@@ -903,6 +932,19 @@
       var(--sidebar-touch-target),
       var(--profile-content-h) + var(--profile-pad) * 2
     );
+    gap: 0;
+  }
+
+  /* Mobile drawer always shows the expanded treatment:
+     filled pill, no glyph, centered label */
+  .loginButton::before {
+    background-color: var(--color-surface);
+  }
+
+  .loginGlyph {
+    width: 0;
+    opacity: 0;
+    transition: none;
   }
 
   .loginLabel {
