@@ -11,7 +11,7 @@ import styles from "./product-detail.module.css";
 import { TierSelector } from "./tier-selector";
 import { TierValueTransition } from "./tier-value-transition";
 
-const SURFACE_ELEMENT_ID = "dashboardSurface";
+const SURFACE_ELEMENT_ID = "showcaseSurface";
 const COPIED_RESET_DELAY_MS = 1500;
 const SWIPE_START_THRESHOLD_PX = 8;
 const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
