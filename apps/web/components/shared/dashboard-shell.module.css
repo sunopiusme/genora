@@ -5,7 +5,7 @@
   --sidebar-border-width: 1px;
   /* Extra rail width so hover pills get breathing room
      both inside (around the avatar/icon) and to the rail edges */
-  --sidebar-rail-extra: 0.625rem;
+  --sidebar-rail-extra: 0.25rem;
   --sidebar-rail-width: calc(
     var(--sidebar-inset) * 2 + var(--sidebar-item-pad) * 2 +
       var(--sidebar-icon-size) + var(--sidebar-border-width) +
@@ -395,7 +395,7 @@
   padding-top: var(--space-1);
   /* Shift down so the profile hover pill's gap to the sidebar bottom
      equals its gap to the sidebar side edge */
-  margin-bottom: -0.0625rem;
+  margin-bottom: -0.25rem;
 }
 
 .profileRoot {
