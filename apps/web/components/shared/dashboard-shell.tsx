@@ -369,18 +369,25 @@ function LoginGlyph() {
       className={styles.loginGlyph}
       aria-hidden="true"
     >
-      <path
-        d="M10 17.25c.06 1.09.25 1.8.78 2.34.94.91 2.45.91 5.47.91s4.53 0 5.47-.91c.94-.92.94-2.39.94-5.34v-4.5c0-2.95 0-4.42-.94-5.34C20.78 3.5 19.27 3.5 16.25 3.5s-4.53 0-5.47.91c-.53.52-.72 1.25-.78 2.34"
+      <circle
+        cx="12"
+        cy="12"
+        r="9.25"
         stroke="currentColor"
         strokeWidth="1.5"
-        strokeLinecap="round"
+      />
+      <circle
+        cx="12"
+        cy="9.5"
+        r="3"
+        stroke="currentColor"
+        strokeWidth="1.5"
       />
       <path
-        d="M14.5 12H2.75m0 0 3-2.75M2.75 12l3 2.75"
+        d="M6.17 18.45c.6-2.32 2.9-3.7 5.83-3.7s5.23 1.38 5.83 3.7"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   );
