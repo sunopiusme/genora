@@ -658,9 +658,9 @@
   color: var(--color-foreground-muted);
 }
 
-/* Balance chip in the flyout menu header - rendered only when the rail is
-   collapsed, because that's the one state where the trigger widget's own
-   balance chip (.profileBalance) is faded out and invisible */
+/* Trailing balance chip on the "Пополнить" menu item - the same pill
+   language as .profileBalance in the trigger widget, so the amount stays
+   visible from the menu in both collapsed and expanded rail states */
 .profileMenuBalanceChip {
   flex-shrink: 0;
   margin-left: auto;

@@ -89,14 +89,17 @@ type ProfileMenuItem = {
   href: string;
   icon: string;
   isLogout?: boolean;
+  /** Show the current balance as a trailing chip on this item */
+  showsBalance?: boolean;
 };
 
 const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
-      label: "Пополнить баланс",
+      label: "Пополнить",
       href: "/dashboard",
       icon: "solar:wallet-linear",
+      showsBalance: true,
     },
     {
       label: "Улучшить план",
@@ -566,11 +569,6 @@ function ProfileMenu({
               <span className={styles.profileMenuName}>{user.name}</span>
               <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
             </span>
-            {!isSidebarOpen && (
-              <span className={styles.profileMenuBalanceChip}>
-                {formatBalance(PROFILE.balance)}
-              </span>
-            )}
             <Icon
               icon="solar:alt-arrow-right-linear"
               className={styles.profileMenuChevron}
@@ -609,6 +607,11 @@ function ProfileMenu({
                       aria-hidden="true"
                     />
                     {item.label}
+                    {item.showsBalance && (
+                      <span className={styles.profileMenuBalanceChip}>
+                        {formatBalance(PROFILE.balance)}
+                      </span>
+                    )}
                   </Link>
                 ),
               )}
@@ -617,7 +620,7 @@ function ProfileMenu({
         </div>
       )}
       <SidebarTooltip
-        label={`${user.name} · ${formatBalance(PROFILE.balance)}`}
+        label={user.name}
         isEnabled={!isSidebarOpen && !isOpen}
       >
         <button
