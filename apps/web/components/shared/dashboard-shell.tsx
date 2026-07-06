@@ -152,6 +152,30 @@ export function DashboardShell({
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const isAnimatingRef = useRef(false);
+  isAnimatingRef.current = isAnimating;
+
+  // While the sidebar width animates, the header moves under a stationary
+  // cursor and fires spurious pointerenter/leave events, which would blink
+  // the logo/toggle swap. Freeze hover during the animation, then re-sync
+  // from the real cursor position once it settles.
+  function handleHeaderPointerEnter() {
+    if (!isAnimatingRef.current) {
+      setIsHeaderHovered(true);
+    }
+  }
+
+  function handleHeaderPointerLeave() {
+    if (!isAnimatingRef.current) {
+      setIsHeaderHovered(false);
+    }
+  }
+
+  function endSidebarAnimation() {
+    setIsAnimating(false);
+    setIsHeaderHovered(headerRef.current?.matches(":hover") ?? false);
+  }
 
   function handleTouchStart(event: TouchEvent<HTMLElement>) {
     const touch = event.touches[0];
@@ -190,7 +214,7 @@ export function DashboardShell({
       clearTimeout(animationTimeout.current);
     }
     animationTimeout.current = setTimeout(() => {
-      setIsAnimating(false);
+      endSidebarAnimation();
     }, 300);
   }, [isSidebarOpen]);
 
@@ -205,7 +229,7 @@ export function DashboardShell({
       clearTimeout(animationTimeout.current);
       animationTimeout.current = null;
     }
-    setIsAnimating(false);
+    endSidebarAnimation();
   }
 
   useEffect(() => {
@@ -254,12 +278,13 @@ export function DashboardShell({
       >
         <div className={styles.sidebarInner}>
           <div
+            ref={headerRef}
             className={cn(
               styles.sidebarHeader,
               isHeaderHovered && styles.sidebarHeaderHovered,
             )}
-            onPointerEnter={() => setIsHeaderHovered(true)}
-            onPointerLeave={() => setIsHeaderHovered(false)}
+            onPointerEnter={handleHeaderPointerEnter}
+            onPointerLeave={handleHeaderPointerLeave}
           >
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
@@ -274,7 +299,7 @@ export function DashboardShell({
                 type="button"
                 className={styles.sidebarToggle}
                 onClick={toggleSidebar}
-                aria-label="Переключит�� меню"
+                aria-label="Переключить меню"
               >
                 <SidebarIcon />
               </button>
