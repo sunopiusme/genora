@@ -17,7 +17,6 @@
     "@genora/utils": "workspace:*",
     "@hookform/resolvers": "3.9.1",
     "@iconify/react": "5.2.0",
-    "@samasante/liquid-glass": "^0.1.1",
     "@tanstack/react-query": "5.62.7",
     "next": "15.1.2",
     "next-auth": "5.0.0-beta.25",

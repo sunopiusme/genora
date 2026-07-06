@@ -13,21 +13,6 @@
   margin-inline: auto;
 }
 
-.glass {
-  width: 100%;
-  border-radius: var(--radius-full);
-}
-
-/* Панель внутри стекла становится полупрозрачной, чтобы преломление
-   читалось сквозь неё. Меню и попапы внутри формы не затрагиваются. */
-.glass form {
-  background-color: color-mix(
-    in srgb,
-    var(--color-surface-elevated) 35%,
-    transparent
-  );
-}
-
 .disclaimer {
   margin: 0;
   font-size: var(--text-xs);

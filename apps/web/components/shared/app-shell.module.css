@@ -850,6 +850,17 @@
     calc(var(--space-4) + env(safe-area-inset-right, 0px));
 }
 
+.composer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to top, #000 30%, transparent 92%);
+  mask-image: linear-gradient(to top, #000 30%, transparent 92%);
+  pointer-events: none;
+}
+
 .composer::after {
   content: "";
   position: absolute;
