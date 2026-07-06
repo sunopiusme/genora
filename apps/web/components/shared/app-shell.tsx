@@ -21,10 +21,6 @@ import { RECENT_GROUPS } from "@/lib/recent-chats";
 import { PROFILE, formatBalance } from "@features/profile";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
-import {
-  LiquidGlassComposer,
-  LIQUID_GLASS_COMPOSER,
-} from "./liquid-glass-composer";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
@@ -435,15 +431,11 @@ export function AppShell({
       <div className={styles.main}>
         <div ref={contentRef} className={styles.content}>
           {children}
-          {LIQUID_GLASS_COMPOSER ? (
-            <LiquidGlassComposer rootRef={contentRef} />
-          ) : (
-            <div className={styles.composer}>
-              <div className={styles.composerInner}>
-                <ComposerBar />
-              </div>
+          <div className={styles.composer}>
+            <div className={styles.composerInner}>
+              <ComposerBar />
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

@@ -904,25 +904,12 @@
   filter: blur(12px);
 }
 
-/* Тестовый Liquid Glass: стеклянная пилюля живёт вне .composer
-   (прямой потомок .content — требование библиотеки), поэтому
-   дублируем для неё blur при открытой детали. */
-.composerGlass {
-  transition: filter 0.25s ease;
-}
-
-.content:has(main[data-detail-open]) .composerGlass {
-  filter: blur(12px);
-}
-
 @media (max-width: 47.9375rem) {
-  .composer,
-  .composerGlass {
+  .composer {
     transition: none;
   }
 
-  .content:has(main[data-detail-open]) .composer,
-  .content:has(main[data-detail-open]) .composerGlass {
+  .content:has(main[data-detail-open]) .composer {
     filter: none;
   }
 }
