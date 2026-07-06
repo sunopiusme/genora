@@ -150,8 +150,8 @@
 
 .verifyTitle {
   margin: 0;
-  font-size: var(--text-xl);
-  font-weight: var(--weight-medium);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-semibold);
   letter-spacing: var(--tracking-tight);
   color: var(--color-foreground);
 }
@@ -160,14 +160,14 @@
   margin-inline: auto;
   margin-top: var(--space-3);
   max-width: 20rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: var(--leading-base);
-  color: var(--color-foreground-muted);
+  color: var(--color-foreground);
   text-wrap: balance;
 }
 
 .verifyEmail {
-  color: var(--color-foreground);
+  font-weight: var(--weight-medium);
 }
 
 @media (max-width: 47.9375rem) {
