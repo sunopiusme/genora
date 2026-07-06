@@ -14,6 +14,15 @@ const SORT_OPTIONS: { id: ShowcaseSort; label: string }[] = [
   { id: "name", label: "По названию" },
 ];
 
+/* Иконки панели «Поделиться» — прогреваем кэш браузера заранее,
+   чтобы при открытии панели они появлялись мгновенно */
+const SHARE_ICONS = [
+  "/share/airdrop.png",
+  "/share/telegram.png",
+  "/share/imessage.png",
+  "/share/mail.png",
+];
+
 function ShareIcon() {
   return (
     <svg
@@ -70,6 +79,13 @@ export function ShowcaseActions() {
   const [shareOpen, setShareOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const menuId = useId();
+
+  useEffect(() => {
+    for (const src of SHARE_ICONS) {
+      const img = new Image();
+      img.src = src;
+    }
+  }, []);
 
   useEffect(() => {
     if (!menuOpen && !shareOpen) return;
