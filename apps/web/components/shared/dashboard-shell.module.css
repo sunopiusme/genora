@@ -658,9 +658,9 @@
   color: var(--color-foreground-muted);
 }
 
-/* Trailing balance chip inside the "top up" menu item - the same pill
-   language as .profileBalance in the trigger widget, so both surfaces
-   speak one visual voice */
+/* Balance chip in the menu header, next to the identity block: data lives
+   with the profile info (same pill language as .profileBalance in the
+   trigger widget), while "top up" stays an ordinary action in the groups */
 .profileMenuBalanceChip {
   flex-shrink: 0;
   margin-left: auto;

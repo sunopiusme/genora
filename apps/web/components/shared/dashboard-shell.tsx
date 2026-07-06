@@ -94,6 +94,11 @@ type ProfileMenuItem = {
 const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
+      label: "Пополнить баланс",
+      href: "/dashboard",
+      icon: "solar:wallet-linear",
+    },
+    {
       label: "Улучшить план",
       href: "/dashboard",
       icon: "solar:star-fall-minimalistic-2-linear",
@@ -561,24 +566,6 @@ function ProfileMenu({
               <span className={styles.profileMenuName}>{user.name}</span>
               <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
             </span>
-            <Icon
-              icon="solar:alt-arrow-right-linear"
-              className={styles.profileMenuChevron}
-              aria-hidden="true"
-            />
-          </Link>
-          <Link
-            href="/dashboard"
-            role="menuitem"
-            className={styles.profileMenuItem}
-            onClick={() => setIsOpen(false)}
-          >
-            <Icon
-              icon="solar:wallet-linear"
-              className={styles.profileMenuGlyph}
-              aria-hidden="true"
-            />
-            Пополнить
             <span className={styles.profileMenuBalanceChip}>
               {formatBalance(PROFILE.balance)}
             </span>
