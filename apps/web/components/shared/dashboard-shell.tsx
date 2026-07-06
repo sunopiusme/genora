@@ -16,7 +16,7 @@ import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@features/profile";
+import { PROFILE, formatBalance } from "@features/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
@@ -89,10 +89,18 @@ type ProfileMenuItem = {
   href: string;
   icon: string;
   isLogout?: boolean;
+  /** Show the current balance as a trailing chip on this item */
+  showsBalance?: boolean;
 };
 
 const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
+    {
+      label: "Пополнить",
+      href: "/dashboard",
+      icon: "solar:wallet-linear",
+      showsBalance: true,
+    },
     {
       label: "Улучшить план",
       href: "/dashboard",
@@ -361,9 +369,16 @@ export function DashboardShell({
 
           <div className={styles.sidebarFooter}>
             {authenticatedUser ? (
-              <ProfileMenu isSidebarOpen={isSidebarOpen} user={authenticatedUser} />
+              <div key="profile" className={styles.footerSwap}>
+                <ProfileMenu
+                  isSidebarOpen={isSidebarOpen}
+                  user={authenticatedUser}
+                />
+              </div>
             ) : (
-              <LoginButton isSidebarOpen={isSidebarOpen} />
+              <div key="login" className={styles.footerSwap}>
+                <LoginButton isSidebarOpen={isSidebarOpen} />
+              </div>
             )}
           </div>
         </div>
@@ -408,7 +423,7 @@ function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
 
   return (
     <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
-      <button type="button" onClick={openLogin} className={styles.loginPill}>
+      <button type="button" onClick={openLogin} className={styles.loginButton}>
         <LoginGlyph />
         <span className={styles.loginLabel}>Войти</span>
       </button>
@@ -471,7 +486,10 @@ function ProfileMenu({
       setMenuStyle({
         position: "fixed",
         left: rect.left,
-        bottom: window.innerHeight - rect.top + 8,
+        // Tight ~4px visual gap to the profile block: its visible pill
+        // starts 5.5px below rect.top (the trigger's hover-pill inset),
+        // so anchor to the pill edge, not the button box
+        bottom: window.innerHeight - (rect.top + 5.5) + 4,
       });
       return;
     }
@@ -589,6 +607,11 @@ function ProfileMenu({
                       aria-hidden="true"
                     />
                     {item.label}
+                    {item.showsBalance && (
+                      <span className={styles.profileMenuBalanceChip}>
+                        {formatBalance(PROFILE.balance)}
+                      </span>
+                    )}
                   </Link>
                 ),
               )}
@@ -617,6 +640,9 @@ function ProfileMenu({
           <span className={styles.profileIdentity}>
             <span className={styles.profileName}>{user.name}</span>
             <span className={styles.profilePlan}>{PROFILE.plan}</span>
+          </span>
+          <span className={styles.profileBalance}>
+            {formatBalance(PROFILE.balance)}
           </span>
         </button>
       </SidebarTooltip>

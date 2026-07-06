@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Avatar } from "@genora/ui";
 import { Icon } from "@/lib/icon";
-import { PROFILE } from "@features/profile";
+import { PROFILE, formatBalance } from "@features/profile";
 import styles from "./profile-sheet.module.css";
 
 const CLOSE_ANIMATION_MS = 280;
@@ -52,6 +52,11 @@ const SHEET_SECTIONS: SheetSection[] = [
   {
     title: "Аккаунт",
     rows: [
+      {
+        label: "Баланс",
+        icon: "solar:wallet-linear",
+        value: formatBalance(PROFILE.balance),
+      },
       {
         label: "Email",
         icon: "solar:letter-linear",
