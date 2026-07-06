@@ -8,20 +8,6 @@ import { loginSchema } from "../schemas/login-schema";
 import type { AuthMode } from "../types";
 import styles from "./auth-card.module.css";
 
-type FieldErrors = {
-  email?: string;
-  password?: string;
-};
-
-function getFieldError(
-  field: keyof FieldErrors,
-  value: string,
-): string | undefined {
-  const result = loginSchema.shape[field].safeParse(value);
-  if (result.success) return undefined;
-  return result.error.issues[0]?.message;
-}
-
 const SOCIAL_EMAILS = {
   google: "user@gmail.com",
   vk: "user@vk.com",
@@ -32,20 +18,13 @@ export function AuthCard() {
   const openVerify = useAuthStore((state) => state.openVerify);
   const [mode, setMode] = useState<AuthMode>("register");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<FieldErrors>({});
+  const [error, setError] = useState<string | undefined>(undefined);
   const emailRef = useRef<HTMLInputElement>(null);
-  const passwordRef = useRef<HTMLInputElement>(null);
   const isRegister = mode === "register";
 
   function switchMode(next: AuthMode) {
     setMode(next);
-    setErrors({});
-  }
-
-  function clearError(field: keyof FieldErrors) {
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setError(undefined);
   }
 
   function handleSocialLogin(provider: keyof typeof SOCIAL_EMAILS) {
@@ -55,22 +34,15 @@ export function AuthCard() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const emailError = getFieldError("email", email);
-    if (emailError) {
-      setErrors({ email: emailError });
+    const result = loginSchema.shape.email.safeParse(email);
+    if (!result.success) {
+      setError(result.error.issues[0]?.message);
       emailRef.current?.focus();
       return;
     }
 
-    const passwordError = getFieldError("password", password);
-    if (passwordError) {
-      setErrors({ password: passwordError });
-      passwordRef.current?.focus();
-      return;
-    }
-
-    setErrors({});
-    openVerify(email.trim());
+    setError(undefined);
+    openVerify(result.data);
   }
 
   return (
@@ -114,44 +86,26 @@ export function AuthCard() {
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
-        <Field error={errors.email}>
-          <Input
-            ref={emailRef}
-            name="email"
-            type="email"
-            autoComplete="email"
-            placeholder="Email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              clearError("email");
-            }}
-            aria-invalid={errors.email ? true : undefined}
-          />
-        </Field>
-        <Field error={errors.password}>
-          <Input
-            ref={passwordRef}
-            name="password"
-            type={showPassword ? "text" : "password"}
-            autoComplete={isRegister ? "new-password" : "current-password"}
-            placeholder="Пароль"
-            value={password}
-            onChange={(event) => {
-              setPassword(event.target.value);
-              clearError("password");
-            }}
-            aria-invalid={errors.password ? true : undefined}
-          />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className={styles.toggleButton}
-            aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
-          >
-            {showPassword ? <EyeOffIcon /> : <EyeIcon />}
-          </button>
-        </Field>
+        <div className={styles.field}>
+          <div className={styles.inputRow}>
+            <Input
+              ref={emailRef}
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="Email"
+              value={email}
+              onChange={(event) => {
+                setEmail(event.target.value);
+                setError(undefined);
+              }}
+              aria-invalid={error ? true : undefined}
+            />
+          </div>
+          <p className={cn(styles.hint, error && styles.hintError)} role="alert">
+            {error}
+          </p>
+        </div>
 
         <Button
           type="submit"
@@ -159,7 +113,7 @@ export function AuthCard() {
           size="lg"
           className={styles.submit}
         >
-          {isRegister ? "Создать аккаунт" : "Продолжить"}
+          Получить код
         </Button>
       </form>
 
@@ -172,23 +126,6 @@ export function AuthCard() {
         >
           {isRegister ? "Войти" : "Зарегистрироваться"}
         </button>
-      </p>
-    </div>
-  );
-}
-
-function Field({
-  error,
-  children,
-}: {
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={styles.field}>
-      <div className={styles.inputRow}>{children}</div>
-      <p className={cn(styles.hint, error && styles.hintError)} role="alert">
-        {error}
       </p>
     </div>
   );
@@ -227,53 +164,6 @@ function VKMark() {
       <path
         fill="#ffffff"
         d="M18.22 16.27h-1.4c-.53 0-.69-.42-1.64-1.37-.83-.8-1.19-.9-1.39-.9-.28 0-.36.08-.36.47v1.26c0 .33-.11.53-.97.53-1.42 0-3-.86-4.1-2.46-1.66-2.33-2.12-4.08-2.12-4.44 0-.2.08-.38.47-.38h1.4c.35 0 .48.16.62.53.69 2 1.84 3.74 2.31 3.74.18 0 .26-.08.26-.53V11.3c-.06-.97-.57-1.05-.57-1.4 0-.16.14-.33.36-.33h2.2c.3 0 .4.16.4.51v2.74c0 .3.13.4.22.4.18 0 .32-.1.64-.43 1-1.12 1.71-2.84 1.71-2.84.1-.2.26-.4.6-.4h1.4c.42 0 .51.22.42.51-.18.81-1.88 3.2-1.88 3.2-.15.24-.2.35 0 .62.15.2.62.62.93.99.58.66 1.02 1.21 1.14 1.6.13.38-.07.58-.46.58Z"
-      />
-    </svg>
-  );
-}
-
-function EyeIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className={styles.toggleIcon}
-      aria-hidden="true"
-    >
-      <path
-        d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="12"
-        cy="12"
-        r="3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
-function EyeOffIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      className={styles.toggleIcon}
-      aria-hidden="true"
-    >
-      <path
-        d="m2 2 20 20M6.71 6.7a13.38 13.38 0 0 0-4.7 5.3s3 7 10 7a9.26 9.26 0 0 0 5.3-1.7m-2.5-5.3a3 3 0 1 1-4.24-4.24M12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   );
