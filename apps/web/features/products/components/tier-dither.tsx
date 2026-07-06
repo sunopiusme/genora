@@ -46,12 +46,21 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
       if (!canvas) {
         return;
       }
-      const rect = canvas.getBoundingClientRect();
+      // offsetWidth/offsetHeight возвращают layout-размер и игнорируют
+      // CSS-трансформации — в отличие от getBoundingClientRect(), который
+      // во время scale-анимации открытия меню возвращает сжатый размер
+      // и портит буфер canvas (артефакты при повторном открытии).
+      const width = canvas.offsetWidth;
+      const height = canvas.offsetHeight;
       const dpr = window.devicePixelRatio || 1;
-      cssWidth = rect.width;
-      cssHeight = rect.height;
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      const nextWidth = Math.max(1, Math.round(width * dpr));
+      const nextHeight = Math.max(1, Math.round(height * dpr));
+      cssWidth = width;
+      cssHeight = height;
+      if (canvas.width !== nextWidth || canvas.height !== nextHeight) {
+        canvas.width = nextWidth;
+        canvas.height = nextHeight;
+      }
       context?.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
