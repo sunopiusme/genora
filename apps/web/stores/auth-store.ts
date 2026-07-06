@@ -69,6 +69,7 @@ export const useAuthStore = create<AuthStore>()(
       name: "genora-auth",
       partialize: (state) => ({ user: state.user }),
       onRehydrateStorage: () => (state) => {
+        if (state?.user) writeAuthCookie(state.user);
         state?.setHasHydrated(true);
       },
     },
