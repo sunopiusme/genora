@@ -27,10 +27,19 @@
 }
 
 /* Пилюля становится прозрачной — фон рисует WebGL-стекло на canvas,
-   который библиотека вставляет внутрь .glassPill. */
+   который библиотека вставляет внутрь .glassPill (z-index: -1).
+   Поверх canvas кладём лёгкий тинт и тонкую светлую кайму, чтобы
+   стекло читалось как материал даже на плоском тёмном фоне. */
 .glassPill form {
-  background-color: transparent;
-  box-shadow: none;
+  background-color: color-mix(
+    in srgb,
+    var(--color-surface-elevated) 32%,
+    transparent
+  );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.12),
+    inset 0 -1px 0 rgb(255 255 255 / 0.04),
+    0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
 /* Фолбэк, если WebGL не инициализировался: возвращаем обычный вид. */

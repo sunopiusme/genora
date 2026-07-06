@@ -17,15 +17,17 @@ import styles from "./liquid-glass-composer.module.css";
 export const LIQUID_GLASS_COMPOSER = true;
 
 const GLASS_CONFIG = {
-  blurAmount: 0.18,
-  refraction: 0.72,
-  chromAberration: 0.06,
-  edgeHighlight: 0.08,
-  fresnel: 1,
+  blurAmount: 0.22,
+  refraction: 0.78,
+  chromAberration: 0.08,
+  /* Заметная светящаяся кромка: на плоском тёмном фоне именно она
+     отделяет стекло от подложки. */
+  edgeHighlight: 0.35,
+  fresnel: 1.4,
   cornerRadius: 26,
   zRadius: 22,
-  saturation: 0.15,
-  shadowOpacity: 0.35,
+  saturation: 0.2,
+  shadowOpacity: 0.55,
   floating: false,
 };
 
