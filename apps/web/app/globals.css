@@ -39,14 +39,27 @@ html::-webkit-scrollbar {
    Стилизуем нативный скролл, а не заменяем его JS-реализацией:
    физика (инерция, трекпад, клавиатура, клик и перетаскивание по треку)
    остаётся браузерной, меняется только внешний вид.
-   Полоса аллоцирует 10px, но видимый ползунок — 4px: прозрачная рамка
+   Полоса аллоцирует 8px, но видимый ползунок — 4px: прозрачная рамка
    с background-clip: content-box создаёт воздух вокруг тонкой «нити»,
-   при этом вся 10px-зона остаётся кликабельной, так что попасть по
+   при этом вся 8px-зона остаётся кликабельной, так что попасть по
    ползунку легко. На hover рамка сужается — ползунок утолщается до 6px
    и светлеет, при перетаскивании контраст усиливается ещё на шаг. */
+
+/* — Симметричный gutter: скроллбар не сдвигает контент влево —
+   Нативная полоса отъедает место только справа, из-за чего контент
+   уезжал влево относительно центра. stable both-edges резервирует
+   одинаковый отступ с обеих сторон, так что контент остаётся ровно
+   по центру — и когда полоса видна, и когда её нет (нет и «прыжка»
+   при появлении/исчезновении скролла). Свойство действует только на
+   реальные скролл-контейнеры (overflow: auto/scroll), для остальных
+   элементов оно no-op, поэтому универсальный селектор безопасен. */
+* {
+  scrollbar-gutter: stable both-edges;
+}
+
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: transparent;
 }
 
@@ -58,19 +71,19 @@ html::-webkit-scrollbar {
 *::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
   background-clip: content-box;
-  border: 3px solid transparent;
+  border: 2px solid transparent;
   border-radius: var(--radius-full);
   min-height: 2.5rem;
 }
 
 *::-webkit-scrollbar-thumb:hover {
   background-color: var(--scrollbar-thumb-hover);
-  border-width: 2px;
+  border-width: 1px;
 }
 
 *::-webkit-scrollbar-thumb:active {
   background-color: var(--scrollbar-thumb-active);
-  border-width: 2px;
+  border-width: 1px;
 }
 
 /* — Кастомный scrollbar: Firefox —
