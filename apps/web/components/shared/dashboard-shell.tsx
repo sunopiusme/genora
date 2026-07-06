@@ -430,7 +430,7 @@ function ProfileMenu({
     }
     setMenuStyle({
       position: "fixed",
-      left: rect.right + 10,
+      left: rect.right + 18,
       bottom: Math.max(window.innerHeight - rect.bottom - 2, 8),
     });
   }, [isOpen, isSidebarOpen]);
