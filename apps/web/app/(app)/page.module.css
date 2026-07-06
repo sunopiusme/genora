@@ -44,8 +44,11 @@
   right: 0;
   z-index: 10;
   pointer-events: none;
-  padding-block: var(--space-5) var(--space-8);
-  padding-inline: var(--space-6);
+  /* Прижато к верху, как hover-пилюли свернутого сайдбара:
+     top = --sidebar-inset (--space-2) + 1.5px поправки на зазор
+     тултип-триггера у toggle-кнопки; бока = --space-3 */
+  padding-block: calc(var(--space-2) + 1.5px) var(--space-8);
+  padding-inline: var(--space-3);
 }
 
 .header::before {
@@ -88,15 +91,52 @@
   z-index: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: var(--space-4);
   width: 100%;
+  /* Та же высота, что у пункта сайдбара (pad×2 + иконка):
+     вертикальные центры кнопок и hover-пилюль совпадают */
+  min-height: calc(
+    var(--space-2) * 2 + 1.0625rem
+  );
 }
 
 .title {
+  /* Строго по центру шапки независимо от кнопок справа */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
   margin: 0;
   font-size: 0.9375rem;
   font-weight: var(--weight-semibold);
   color: var(--color-foreground);
+  white-space: nowrap;
+}
+
+.headerTrailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 47.9375rem) {
+  .header {
+    /* Та же геометрия, что у .mobileFab (toggle-кнопка сайдбара):
+       top и боковые отступы совпадают, чтобы кружок «...» стоял
+       на одном уровне с FAB */
+    padding-block: calc(var(--space-3) + env(safe-area-inset-top, 0px))
+      var(--space-8);
+    padding-inline: calc(var(--space-3) + env(safe-area-inset-left, 0px))
+      calc(var(--space-3) + env(safe-area-inset-right, 0px));
+  }
+
+  .headerInner {
+    gap: var(--space-3);
+    /* Высота ряда равна высоте FAB — заголовок центрируется по ней */
+    min-height: 2.75rem;
+    /* Отступ слева под плавающую кнопку сайдбара */
+    padding-left: 2.75rem;
+  }
 }
 
 .header,

@@ -1,0 +1,172 @@
+.actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  pointer-events: auto;
+}
+
+/* Минималистичные иконочные кнопки: без обводки и фона,
+   hover — как у toggle-кнопки сайдбара, размеры одинаковые */
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: none;
+  color: var(--color-foreground-muted);
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.iconButton:hover,
+.iconButton[data-active] {
+  color: var(--color-foreground);
+  background-color: var(--color-surface-elevated);
+}
+
+.iconButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 1px;
+}
+
+.iconButton svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.iconButton[data-copied] {
+  color: var(--color-foreground);
+}
+
+/* Выпадающее меню категорий и сортировки.
+   Геометрия и поведение — как у меню «+» (attach-menu):
+   панель radius-2xl, пункты-«пилюли», та же анимация появления */
+.menu {
+  position: absolute;
+  top: calc(100% + var(--space-3));
+  right: 0;
+  z-index: var(--z-overlay, 30);
+  min-width: 13.5rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-2xl);
+  background-color: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  animation: menuIn 0.16s ease both;
+}
+
+@keyframes menuIn {
+  from {
+    opacity: 0;
+    transform: translateY(-0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu {
+    animation: none;
+  }
+}
+
+.menuHeading {
+  margin: 0;
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.6875rem;
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-foreground-muted);
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  appearance: none;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: var(--space-2) var(--space-3);
+  background: none;
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.menuItem:hover {
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.menuItem:focus-visible {
+  outline: none;
+  background-color: rgb(255 255 255 / 0.08);
+}
+
+.menuCheck {
+  display: inline-flex;
+  width: 0.875rem;
+  height: 0.875rem;
+  color: var(--color-foreground);
+}
+
+.menuCheck svg {
+  width: 100%;
+  height: 100%;
+}
+
+.menuDivider {
+  height: 1px;
+  margin: var(--space-1) var(--space-2);
+  background: var(--color-border);
+}
+
+/* Мобильные и планшеты: один круглый элемент с тремя точками,
+   в том же стиле, что и круглая toggle-кнопка сайдбара */
+@media (max-width: 63.9375rem) {
+  .shareButton {
+    display: none;
+  }
+
+  .menuButton {
+    /* Тот же размер, что и .mobileFab (toggle-кнопка сайдбара) */
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    background-color: var(--color-surface);
+    color: var(--color-foreground);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  }
+
+  .menuButton svg {
+    /* Иконка того же размера, что и в toggle-кнопке сайдбара */
+    width: var(--sidebar-icon-size, 1.25rem);
+    height: var(--sidebar-icon-size, 1.25rem);
+  }
+
+  .menuButton:hover,
+  .menuButton[data-active] {
+    background-color: var(--color-surface-elevated);
+  }
+}

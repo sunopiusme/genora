@@ -1,10 +1,21 @@
-import type { Product } from "./types";
+import type { Product, ProductCategoryFilter } from "./types";
+
+export const PRODUCT_CATEGORY_FILTERS: {
+  id: ProductCategoryFilter;
+  label: string;
+}[] = [
+  { id: "all", label: "Все" },
+  { id: "assistants", label: "Ассистенты" },
+  { id: "images", label: "Изображения" },
+  { id: "code", label: "Код" },
+];
 
 const FEATURED_PRODUCTS: Product[] = [
   {
     id: "chatgpt",
     name: "ChatGPT",
     provider: "OpenAI",
+    category: "assistants",
     logoSlug: "openai",
     brandColor: "#16d9a3",
     brandGlow: "#2f7cff",
@@ -34,6 +45,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "claude",
     name: "Claude",
     provider: "Anthropic",
+    category: "assistants",
     logoSlug: "anthropic",
     brandColor: "#ff8a5c",
     brandGlow: "#e14fb2",
@@ -70,6 +82,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "midjourney",
     name: "Midjourney",
     provider: "Midjourney",
+    category: "images",
     logoSlug: "midjourney",
     brandColor: "#7b8cff",
     brandGlow: "#b45cff",
@@ -113,6 +126,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "gemini",
     name: "Gemini",
     provider: "Google",
+    category: "assistants",
     logoSlug: "gemini",
     brandColor: "#4e86f5",
     brandGlow: "#9a6bff",
@@ -142,6 +156,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "perplexity",
     name: "Perplexity",
     provider: "Perplexity",
+    category: "assistants",
     logoSlug: "perplexity",
     brandColor: "#2fd4ee",
     brandGlow: "#2f6bff",
@@ -171,6 +186,7 @@ const FEATURED_PRODUCTS: Product[] = [
     id: "github-copilot",
     name: "GitHub Copilot",
     provider: "GitHub",
+    category: "code",
     logoSlug: "github",
     brandColor: "#8b5cf6",
     brandGlow: "#38bdf8",

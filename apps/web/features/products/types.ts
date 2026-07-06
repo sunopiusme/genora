@@ -1,3 +1,9 @@
+export type ProductCategory = "assistants" | "images" | "code";
+
+export type ProductCategoryFilter = ProductCategory | "all";
+
+export type ShowcaseSort = "featured" | "price-asc" | "price-desc" | "name";
+
 export type ProductTier = {
   id: string;
   name: string;
@@ -9,6 +15,7 @@ export type Product = {
   id: string;
   name: string;
   provider: string;
+  category: ProductCategory;
   logoSlug: string;
   brandColor: string;
   brandGlow: string;
