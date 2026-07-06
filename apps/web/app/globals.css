@@ -1,5 +1,11 @@
 @import "@genora/design-tokens/tokens.css";
 
+:root {
+  /* Ширина чат-инпута — опорная (эталонная) ширина, по которой на десктопе
+     выравнивается контент дашборда (Product Showcase и др.) */
+  --composer-width: 44rem;
+}
+
 *,
 *::before,
 *::after {
