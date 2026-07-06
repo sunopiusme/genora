@@ -14,6 +14,10 @@
   --scrollbar-thumb: var(--neutral-700);
   --scrollbar-thumb-hover: var(--color-border-strong);
   --scrollbar-thumb-active: var(--neutral-500);
+  /* Аллоцируемая ширина полосы; scrollbar-gutter: stable both-edges
+     резервирует ровно столько с каждой стороны — токен нужен, чтобы
+     контейнеры могли компенсировать этот резерв в своих отступах */
+  --scrollbar-size: 8px;
 }
 
 *,
@@ -59,8 +63,8 @@ html::-webkit-scrollbar {
    меню и т.д.), рядом с его overflow-y. */
 
 *::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
   background: transparent;
 }
 
