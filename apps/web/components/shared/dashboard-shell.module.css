@@ -134,6 +134,29 @@
   transition: opacity 0.15s ease;
 }
 
+/* Expanded state shows the bold brand wordmark instead of the icon */
+.wordmark {
+  position: absolute;
+  left: var(--sidebar-item-pad);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--color-foreground);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+}
+
+.sidebarOpen .logo {
+  opacity: 0;
+}
+
+.sidebarOpen .wordmark {
+  opacity: 1;
+  transition: opacity 0.15s ease 0.08s;
+}
+
 .sidebarToggleWrap {
   /* No transform here: a transformed ancestor would become the containing
      block for the fixed-position tooltip and shift it off-screen */
@@ -199,8 +222,11 @@
   pointer-events: auto;
 }
 
-.sidebarOpen .sidebarHeader:hover .logo {
-  opacity: 1;
+/* While the width animates, the cursor sweeps across the header and
+   :hover flips on/off, blinking the logo/toggle swap. Disabling pointer
+   events makes :hover unmatchable until the animation settles. */
+.sidebarAnimating .sidebarHeader {
+  pointer-events: none;
 }
 
 .sidebarAnimating .sidebarScroll {

@@ -256,6 +256,7 @@ export function DashboardShell({
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
             </span>
+            <span className={styles.wordmark}>Genora</span>
             <SidebarTooltip
               label={isSidebarOpen ? "Свернуть меню" : "Развернуть меню"}
               isEnabled={!isAnimating}
@@ -265,7 +266,7 @@ export function DashboardShell({
                 type="button"
                 className={styles.sidebarToggle}
                 onClick={toggleSidebar}
-                aria-label="Переключить меню"
+                aria-label="Переключит�� меню"
               >
                 <SidebarIcon />
               </button>
