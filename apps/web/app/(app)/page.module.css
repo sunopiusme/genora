@@ -44,8 +44,11 @@
   right: 0;
   z-index: 10;
   pointer-events: none;
-  padding-block: var(--space-5) var(--space-8);
-  padding-inline: var(--space-6);
+  /* Прижато к верху, как hover-пилюли свернутого сайдбара:
+     top = --sidebar-inset (--space-2) + 1.5px поправки на зазор
+     тултип-триггера у toggle-кнопки; бока = --space-3 */
+  padding-block: calc(var(--space-2) + 1.5px) var(--space-8);
+  padding-inline: var(--space-3);
 }
 
 .header::before {
@@ -90,7 +93,11 @@
   align-items: center;
   gap: var(--space-4);
   width: 100%;
-  min-height: 1.75rem;
+  /* Та же высота, что у пункта сайдбара (pad×2 + иконка):
+     вертикальные центры кнопок и hover-пилюль совпадают */
+  min-height: calc(
+    var(--space-2) * 2 + 1.0625rem
+  );
 }
 
 .title {
