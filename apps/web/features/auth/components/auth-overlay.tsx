@@ -1,11 +1,10 @@
 "use client";
 
-import { Dialog, DialogContent, DialogTitle, Logo } from "@genora/ui";
+import { Dialog, DialogContent, DialogTitle } from "@genora/ui";
 import { useAuthStore } from "@/stores/auth-store";
 
 import { AuthCard } from "./auth-card";
 import { VerifyCard } from "./verify-card";
-import { SupportLink } from "./support-link";
 import styles from "./auth-overlay.module.css";
 
 export function AuthOverlay() {
@@ -53,7 +52,6 @@ export function AuthOverlay() {
             </svg>
           </button>
         )}
-        <Logo className={styles.logo} />
         {view === "login" ? (
           <AuthCard />
         ) : (
@@ -73,7 +71,6 @@ export function AuthOverlay() {
             <VerifyCard email={verifyEmail ?? undefined} />
           </div>
         )}
-        <SupportLink className={styles.support} />
       </DialogContent>
     </Dialog>
   );

@@ -94,11 +94,14 @@
   background: none;
   color: var(--color-foreground-muted);
   cursor: pointer;
-  transition: color 0.15s ease;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
 }
 
 .closeButton:hover {
   color: var(--color-foreground);
+  background-color: rgb(255 255 255 / 0.1);
 }
 
 .closeButton:focus {
@@ -138,18 +141,6 @@
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-.logo {
-  width: 2.25rem;
-  height: 2.25rem;
-  margin-bottom: var(--space-5);
-  flex-shrink: 0;
-}
-
-.support {
-  margin-top: var(--space-4);
-  flex-shrink: 0;
 }
 
 .verifyInner {
@@ -224,16 +215,6 @@
 
   .grabber {
     display: block;
-  }
-
-  .logo {
-    width: 2rem;
-    height: 2rem;
-    margin-bottom: var(--space-4);
-  }
-
-  .support {
-    margin-top: var(--space-3);
   }
 }
 
