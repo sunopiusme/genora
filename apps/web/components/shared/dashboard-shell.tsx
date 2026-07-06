@@ -566,9 +566,11 @@ function ProfileMenu({
               <span className={styles.profileMenuName}>{user.name}</span>
               <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
             </span>
-            <span className={styles.profileMenuBalanceChip}>
-              {formatBalance(PROFILE.balance)}
-            </span>
+            <Icon
+              icon="solar:alt-arrow-right-linear"
+              className={styles.profileMenuChevron}
+              aria-hidden="true"
+            />
           </Link>
           {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
             <div key={groupIndex} className={styles.profileMenuGroup}>
