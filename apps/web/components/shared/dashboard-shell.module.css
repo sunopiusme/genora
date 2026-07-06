@@ -381,8 +381,14 @@
 
 /* Crossfade between the login button and the profile block on auth change;
    both share one footprint, so only opacity animates - no height jump.
-   Uses the same fade tokens as the rest of the sidebar motion. */
+   Uses the same fade tokens as the rest of the sidebar motion.
+   NB: the filling opacity animation makes this a permanent stacking context,
+   trapping the profile menu's z-index inside it - so the wrapper itself must
+   sit above the scroll fade (.scrollArea::after, z-index 1) or the fade
+   paints over the open menu's bottom edge */
 .footerSwap {
+  position: relative;
+  z-index: 2;
   animation: footerSwapIn var(--sidebar-fade) var(--sidebar-ease) both;
 }
 
