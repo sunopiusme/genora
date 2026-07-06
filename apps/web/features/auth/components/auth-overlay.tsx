@@ -8,7 +8,7 @@ import { AuthCard } from "./auth-card";
 import { VerifyCard } from "./verify-card";
 import styles from "./auth-overlay.module.css";
 
-const CROSSFADE_MS = 150;
+const CROSSFADE_MS = 180;
 
 type AuthView = "login" | "verify";
 

@@ -97,8 +97,7 @@
   transition:
     color 0.15s ease,
     background-color 0.15s ease,
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    opacity 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .closeButton:hover {
@@ -108,7 +107,6 @@
 
 .closeButtonHidden {
   opacity: 0;
-  transform: scale(0.9);
   pointer-events: none;
 }
 
@@ -155,7 +153,7 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  transition: height 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  transition: height 0.18s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .view {
@@ -168,11 +166,11 @@
   left: 0;
   width: 100%;
   pointer-events: none;
-  animation: viewFadeOut 0.12s ease-out both;
+  animation: viewFadeOut 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 .viewEntering {
-  animation: viewFadeIn 0.28s ease 0.1s both;
+  animation: viewFadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
 @keyframes viewFadeOut {
