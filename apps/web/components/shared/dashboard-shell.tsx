@@ -148,6 +148,7 @@ export function DashboardShell({
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
@@ -252,7 +253,14 @@ export function DashboardShell({
         onTouchEnd={handleTouchEnd}
       >
         <div className={styles.sidebarInner}>
-          <div className={styles.sidebarHeader}>
+          <div
+            className={cn(
+              styles.sidebarHeader,
+              isHeaderHovered && styles.sidebarHeaderHovered,
+            )}
+            onPointerEnter={() => setIsHeaderHovered(true)}
+            onPointerLeave={() => setIsHeaderHovered(false)}
+          >
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
             </span>

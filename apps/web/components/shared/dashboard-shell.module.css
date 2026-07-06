@@ -202,11 +202,14 @@
   background-color: var(--color-surface-elevated);
 }
 
-.sidebarHeader:hover .logo {
+/* Hover is tracked as React state (.sidebarHeaderHovered), not CSS :hover:
+   a single source of truth that never gets force-toggled mid-animation,
+   so the logo/toggle swap can't flicker while the width animates. */
+.sidebarHeaderHovered .logo {
   opacity: 0;
 }
 
-.sidebarHeader:hover .sidebarToggle {
+.sidebarHeaderHovered .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
 }
@@ -220,13 +223,6 @@
 .sidebarOpen .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
-}
-
-/* While the width animates, the cursor sweeps across the header and
-   :hover flips on/off, blinking the logo/toggle swap. Disabling pointer
-   events makes :hover unmatchable until the animation settles. */
-.sidebarAnimating .sidebarHeader {
-  pointer-events: none;
 }
 
 .sidebarAnimating .sidebarScroll {
