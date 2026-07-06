@@ -117,6 +117,9 @@
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  /* Без scrollbar-gutter: сайдбар узкий (в свёрнутом виде — рельса с
+     иконками), резерв 8px с двух сторон сжимал пункты. Контент тут не
+     центрируется относительно скроллбара, так что сдвига и не было. */
   padding-block: var(--space-2);
 }
 

@@ -4,6 +4,20 @@
   /* Ширина чат-инпута — опорная (эталонная) ширина, по которой на десктопе
      выравнивается контент дашборда (Product Showcase и др.) */
   --composer-width: 44rem;
+
+  /* — Кастомный scrollbar —
+     Трек прозрачный (скроллбар живёт поверх поверхностей разной светлоты:
+     чёрный сайдбар, --color-surface у карточек), поэтому окрашивается
+     только ползунок. Шкала контраста ползунка идёт по нейтральным токенам
+     дизайн-системы: покой → border, hover → border-strong, drag → ещё
+     светлее. Никаких произвольных hex. */
+  --scrollbar-thumb: var(--neutral-700);
+  --scrollbar-thumb-hover: var(--color-border-strong);
+  --scrollbar-thumb-active: var(--neutral-500);
+  /* Аллоцируемая ширина полосы; scrollbar-gutter: stable both-edges
+     резервирует ровно столько с каждой стороны — токен нужен, чтобы
+     контейнеры могли компенсировать этот резерв в своих отступах */
+  --scrollbar-size: 8px;
 }
 
 *,
@@ -23,6 +37,89 @@ html {
 html::-webkit-scrollbar {
   width: 0;
   background: transparent;
+}
+
+/* — Кастомный scrollbar: Chrome / Edge / Safari (WebKit/Blink) —
+   Стилизуем нативный скролл, а не заменяем его JS-реализацией:
+   физика (инерция, трекпад, клавиатура, клик и перетаскивание по треку)
+   остаётся браузерной, меняется только внешний вид.
+   Полоса аллоцирует 8px, но видимый ползунок — 4px: прозрачная рамка
+   с background-clip: content-box создаёт воздух вокруг тонкой «нити»,
+   при этом вся 8px-зона остаётся кликабельной, так что попасть по
+   ползунку легко. На hover рамка сужается — ползунок утолщается до 6px
+   и светлеет, при перетаскивании контраст усиливается ещё на шаг. */
+
+/* — Симметричный gutter: скроллбар не сдвигает контент влево —
+   Нативная полоса отъедает место только справа, из-за чего контент
+   уезжал влево относительно центра. stable both-edges резервирует
+   одинаковый отступ с обеих сторон, так что контент остаётся ровно
+   по центру — и когда полоса видна, и когда её нет (нет и «прыжка»
+   при появлении/исчезновении скролла).
+   ВАЖНО: не вешать на универсальный селектор — scrollbar-gutter
+   действует и на overflow: hidden (карточки, обрезки скруглений),
+   из-за чего вся вёрстка получала лишние поля. Поэтому свойство
+   задаётся точечно, в модульных стилях каждого реального
+   вертикального скролл-контейнера (page .scroll, сайдбар, шторки,
+   меню и т.д.), рядом с его overflow-y. */
+
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+  background: transparent;
+}
+
+*::-webkit-scrollbar-track,
+*::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* — Лимиты трека сверху/снизу —
+   margin-block укорачивает рабочую зону трека: ползунок не дотягивается
+   до самых краёв контейнера и не «раскатывается» на всю высоту.
+   Заодно длина ползунка (пропорциональная треку) становится компактнее. */
+*::-webkit-scrollbar-track {
+  margin-block: var(--space-4);
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  background-clip: content-box;
+  border: 2px solid transparent;
+  border-radius: var(--radius-full);
+  min-height: 2rem;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+  border-width: 1px;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+  border-width: 1px;
+}
+
+/* — Кастомный scrollbar: Firefox —
+   Только там, где WebKit-псевдоэлементы не поддерживаются: если задать
+   scrollbar-width/scrollbar-color в Chrome, он отключит стили
+   ::-webkit-scrollbar выше. Универсальный селектор имеет нулевую
+   специфичность, поэтому точечные скрытия (композер: scrollbar-width:
+   none) продолжают побеждать. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+
+  *:hover {
+    scrollbar-color: var(--scrollbar-thumb-hover) transparent;
+  }
+
+  html {
+    /* Паритет с html::-webkit-scrollbar { width: 0 }: скролл страницы
+       живёт во внутренних контейнерах, полоса на html не нужна */
+    scrollbar-width: none;
+  }
 }
 
 body {
