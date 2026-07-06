@@ -25,6 +25,18 @@
   }
 }
 
+/* Десктоп: та же геометрия, что у композера (.composer/.composerInner в
+   dashboard-shell.module.css) — контент витрины получает ровно ширину
+   чат-инпута (--composer-width) и те же боковые отступы (--space-8),
+   поэтому оба блока центрируются и сужаются синхронно при любом
+   состоянии сайдбара */
+@media (min-width: 64rem) {
+  .scrollInner {
+    max-width: calc(var(--composer-width) + var(--space-8) * 2);
+    padding-inline: var(--space-8);
+  }
+}
+
 .header {
   position: absolute;
   top: 0;

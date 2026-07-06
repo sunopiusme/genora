@@ -8,7 +8,7 @@
 
 .input {
   width: 100%;
-  max-width: 44rem;
+  max-width: var(--composer-width);
   min-width: 0;
   margin-inline: auto;
 }
