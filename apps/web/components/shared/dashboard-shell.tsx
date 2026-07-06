@@ -210,6 +210,10 @@ export function DashboardShell({
     }
     prevSidebarOpen.current = isSidebarOpen;
     setIsAnimating(true);
+    // Swap toggle -> logo immediately at click time: the crossfade runs in
+    // parallel with the width slide instead of waiting for it to finish.
+    // endSidebarAnimation re-syncs from the real cursor position afterwards.
+    setIsHeaderHovered(false);
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
