@@ -2,6 +2,12 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@genora/ui";
+import {
+  AIRDROP_ICON,
+  IMESSAGE_ICON,
+  MAIL_ICON,
+  TELEGRAM_ICON,
+} from "./share-icons";
 import styles from "./share-dialog.module.css";
 
 function CopyGlyph() {
@@ -67,19 +73,19 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     }
   };
 
-  /* Иконки сервисов — официальные iOS/macOS-иконки,
-     предоставленные пользователем (см. public/share) */
+  /* Иконки сервисов — официальные iOS/macOS-иконки, встроенные
+     как data URI: рендерятся мгновенно, без сетевых запросов */
   const apps = [
     {
       id: "airdrop",
       label: "AirDrop",
-      icon: "/share/airdrop.png",
+      icon: AIRDROP_ICON,
       onClick: handleAirDrop,
     },
     {
       id: "telegram",
       label: "Telegram",
-      icon: "/share/telegram.png",
+      icon: TELEGRAM_ICON,
       /* macOS-иконка с полями — масштабируем под общий размер */
       zoom: true,
       onClick: () => {
@@ -93,7 +99,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     {
       id: "messages",
       label: "Сообщения",
-      icon: "/share/imessage.png",
+      icon: IMESSAGE_ICON,
       onClick: () => {
         window.location.href = `sms:?&body=${encodeURIComponent(`${shareTitle} ${pageUrl}`)}`;
       },
@@ -101,7 +107,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     {
       id: "mail",
       label: "Почта",
-      icon: "/share/mail.png",
+      icon: MAIL_ICON,
       onClick: () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
