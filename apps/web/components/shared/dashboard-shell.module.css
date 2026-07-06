@@ -504,7 +504,10 @@
 
 .profileMenu {
   position: absolute;
-  bottom: calc(100% + var(--space-2));
+  /* Fallback only: the real position is an inline fixed style computed in
+     ProfileMenu's useLayoutEffect (dashboard-shell.tsx), which anchors the
+     menu ~4px above the trigger's visible pill */
+  bottom: calc(100% + var(--space-1));
   left: 0;
   z-index: var(--z-overlay, 40);
   display: flex;
@@ -518,7 +521,7 @@
   border: 1px solid rgb(255 255 255 / 0.06);
   border-radius: var(--radius-2xl);
   /* Светлее обычных меню: всплывает над чёрным (#000) сайдбаром,
-     где тени не читаются — «высота» передаётся светлотой. Тени здесь нет
+     ��де тени не читаются — «высота» передаётся светлотой. Тени здесь нет
      намеренно: --shadow-lg бросает 12px вниз и затемняла блок профиля,
      который находится сразу под меню */
   background-color: var(--color-surface-raised);

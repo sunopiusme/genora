@@ -478,7 +478,10 @@ function ProfileMenu({
       setMenuStyle({
         position: "fixed",
         left: rect.left,
-        bottom: window.innerHeight - rect.top + 8,
+        // Tight ~4px visual gap to the profile block: its visible pill
+        // starts 5.5px below rect.top (the trigger's hover-pill inset),
+        // so anchor to the pill edge, not the button box
+        bottom: window.innerHeight - (rect.top + 5.5) + 4,
       });
       return;
     }
