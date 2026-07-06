@@ -544,7 +544,7 @@
   --profile-avatar-inset: calc(
     var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
   );
-  --profile-pad: var(--space-2);
+  --profile-pad: 0.375rem;
   --profile-pad-x-extra: calc(var(--profile-pad) - var(--profile-avatar-inset));
   --profile-pad-y-extra: calc(var(--profile-pad) - var(--space-1));
   position: relative;
