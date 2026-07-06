@@ -128,13 +128,20 @@
   }
 
   .menuButton {
-    width: 2.25rem;
-    height: 2.25rem;
+    /* Тот же размер, что и .mobileFab (toggle-кнопка сайдбара) */
+    width: 2.75rem;
+    height: 2.75rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-full);
     background-color: var(--color-surface);
     color: var(--color-foreground);
     box-shadow: 0 2px 10px rgb(0 0 0 / 0.35);
+  }
+
+  .menuButton svg {
+    /* Иконка того же размера, что и в toggle-кнопке сайдбара */
+    width: var(--sidebar-icon-size, 1.25rem);
+    height: var(--sidebar-icon-size, 1.25rem);
   }
 
   .menuButton:hover,
