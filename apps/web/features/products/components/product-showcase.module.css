@@ -10,7 +10,10 @@
 
 @media (min-width: 48rem) {
   .grid {
-    grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr));
+    /* Минимум колонки 13.5rem: на полной ширине витрины
+       (--showcase-width) выходит 4 крупные карточки в ряд,
+       при сужении окна/сайдбара сетка плавно падает до 3 и 2 */
+    grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
     column-gap: var(--space-6);
     row-gap: var(--space-10);
   }
