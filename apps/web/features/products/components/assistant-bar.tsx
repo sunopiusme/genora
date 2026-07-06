@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { PROFILE } from "@features/profile";
 import { Icon } from "@/lib/icon";
+import { useAuthStore } from "@/stores/auth-store";
 import { useComposerStore } from "../stores/composer-store";
 import { AttachMenu } from "./attach-menu";
 import { MentionMenu, getMentionItems, type MentionItem } from "./mention-menu";
@@ -99,6 +100,16 @@ export function AssistantBar() {
   const detachProduct = useComposerStore((state) => state.detachProduct);
   const detachFile = useComposerStore((state) => state.detachFile);
   const detachProfile = useComposerStore((state) => state.detachProfile);
+  const focusSignal = useComposerStore((state) => state.focusSignal);
+  const user = useAuthStore((state) => state.user);
+  const openLogin = useAuthStore((state) => state.openLogin);
+
+  useEffect(() => {
+    if (focusSignal === 0) {
+      return;
+    }
+    editorRef.current?.focus();
+  }, [focusSignal]);
 
   const mentionItems = mentionDraft ? getMentionItems(mentionDraft.query) : [];
   const isMentionOpen = mentionDraft !== null && mentionItems.length > 0;
@@ -357,6 +368,10 @@ export function AssistantBar() {
     event.preventDefault();
     const query = serialize();
     if (query.length === 0) {
+      return;
+    }
+    if (!user) {
+      openLogin();
       return;
     }
     router.push(`/products?q=${encodeURIComponent(query)}`);

@@ -264,6 +264,16 @@
   background-color: var(--color-surface);
 }
 
+/* Reset native button chrome when a nav item is rendered as <button>
+   ("Новый запрос" is a command, not a destination) */
+.navButton {
+  width: 100%;
+  border: none;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+
 .navLinkActive {
   color: var(--color-foreground);
   background-color: var(--color-surface-elevated);

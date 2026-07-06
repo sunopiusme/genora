@@ -12,11 +12,14 @@ import {
   type TransitionEvent,
 } from "react";
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
+import { RECENT_GROUPS } from "@/lib/recent-chats";
 import { PROFILE, formatBalance } from "@features/profile";
+import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
@@ -27,8 +30,9 @@ type NavItem = {
   label: string;
   href: string;
   icon: string;
-  active?: boolean;
   requiresAuth?: boolean;
+  /** Action items run custom logic instead of plain navigation */
+  action?: "new-request";
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -36,51 +40,30 @@ const NAV_ITEMS: NavItem[] = [
     label: "Новый запрос",
     href: "/",
     icon: "solar:pen-new-square-linear",
+    action: "new-request",
   },
-  { label: "Поиск", href: "/", icon: "solar:magnifer-linear" },
+  {
+    label: "Поиск",
+    href: "/search",
+    icon: "solar:magnifer-linear",
+    requiresAuth: true,
+  },
   {
     label: "Витрина",
     href: "/",
     icon: "solar:shop-2-linear",
-    active: true,
   },
   {
     label: "Подписки",
-    href: "/",
+    href: "/subscriptions",
     icon: "solar:card-2-linear",
     requiresAuth: true,
   },
   {
     label: "Заказы",
-    href: "/",
+    href: "/orders",
     icon: "solar:bag-4-linear",
     requiresAuth: true,
-  },
-];
-
-type RecentGroup = {
-  title: string;
-  items: string[];
-};
-
-const RECENT_GROUPS: RecentGroup[] = [
-  {
-    title: "Сегодня",
-    items: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
-  },
-  {
-    title: "Вчера",
-    items: ["Промпты для генерации изображений", "Сравнить Claude и Gemini"],
-  },
-  {
-    title: "Последние 7 дней",
-    items: [
-      "Midjourney для дизайна",
-      "Материалы для обучения модели",
-      "Доступ к GitHub Copilot",
-      "Оплата подписки не прошла",
-      "Что выбрать для кода",
-    ],
   },
 ];
 
@@ -146,15 +129,41 @@ export function AppShell({
   children: ReactNode;
   initialUser?: AuthUser | null;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const openLogin = useAuthStore((state) => state.openLogin);
+  const requestComposerFocus = useComposerStore((state) => state.requestFocus);
   const authenticatedUser = hasHydrated ? user : initialUser;
   const navItems = authenticatedUser
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
+
+  function isNavItemActive(item: NavItem): boolean {
+    // Action items are commands, not destinations — never highlight them
+    if (item.action) {
+      return false;
+    }
+    return pathname === item.href;
+  }
+
+  function handleNewRequest() {
+    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+      closeSidebar();
+    }
+    if (!authenticatedUser) {
+      openLogin();
+      return;
+    }
+    if (pathname !== "/") {
+      router.push("/");
+    }
+    requestComposerFocus();
+  }
   const [isAnimating, setIsAnimating] = useState(false);
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -330,16 +339,30 @@ export function AppShell({
                     label={item.label}
                     isEnabled={!isSidebarOpen}
                   >
-                    <Link
-                      href={item.href}
-                      className={cn(
-                        styles.navLink,
-                        item.active && styles.navLinkActive,
-                      )}
-                    >
-                      <Icon icon={item.icon} className={styles.navIcon} />
-                      <span className={styles.navLabel}>{item.label}</span>
-                    </Link>
+                    {item.action === "new-request" ? (
+                      <button
+                        type="button"
+                        className={cn(styles.navLink, styles.navButton)}
+                        onClick={handleNewRequest}
+                      >
+                        <Icon icon={item.icon} className={styles.navIcon} />
+                        <span className={styles.navLabel}>{item.label}</span>
+                      </button>
+                    ) : (
+                      <Link
+                        href={item.href}
+                        className={cn(
+                          styles.navLink,
+                          isNavItemActive(item) && styles.navLinkActive,
+                        )}
+                        aria-current={
+                          isNavItemActive(item) ? "page" : undefined
+                        }
+                      >
+                        <Icon icon={item.icon} className={styles.navIcon} />
+                        <span className={styles.navLabel}>{item.label}</span>
+                      </Link>
+                    )}
                   </SidebarTooltip>
                 ))}
               </nav>
