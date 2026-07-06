@@ -1,6 +1,7 @@
 "use client";
 
 import { Dialog, DialogContent, DialogTitle, Logo } from "@genora/ui";
+import { Icon } from "@/lib/icon";
 import { useAuthStore } from "@/stores/auth-store";
 
 import { AuthCard } from "./auth-card";
@@ -30,6 +31,17 @@ export function AuthOverlay() {
         <DialogTitle className={styles.srOnly}>
           {view === "login" ? "Вход в Genora" : "Подтверждение почты"}
         </DialogTitle>
+        <span className={styles.grabber} aria-hidden="true" />
+        {!isLocked && (
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={closeAuth}
+            aria-label="Закрыть"
+          >
+            <Icon icon="solar:close-linear" aria-hidden="true" />
+          </button>
+        )}
         <Logo className={styles.logo} />
         {view === "login" ? (
           <AuthCard />
