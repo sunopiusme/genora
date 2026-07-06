@@ -228,19 +228,66 @@
   background-color: var(--color-surface-elevated);
 }
 
-.loginLink {
+.loginPill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  height: 2.25rem;
+  padding: 0;
   border: none;
-  cursor: pointer;
-  font-family: inherit;
-  background-color: var(--color-surface-elevated);
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.08);
   color: var(--color-foreground);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.loginLink:hover {
-  background-color: var(--color-surface-elevated);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+.loginPill:hover {
+  background-color: rgb(255 255 255 / 0.12);
+}
+
+.loginPill:active {
+  transform: scale(0.98);
+}
+
+.loginPill:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.loginPill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
+}
+
+.loginGlyph {
+  position: absolute;
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+  opacity: 1;
+  transition: opacity 0.1s ease;
+}
+
+.loginLabel {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.sidebarOpen .loginGlyph {
+  opacity: 0;
+}
+
+.sidebarOpen .loginLabel {
+  opacity: 1;
+  transition: opacity 0.15s ease 0.08s;
 }
 
 .navIcon {
@@ -726,6 +773,19 @@
     transition: none;
   }
 
+  .loginPill {
+    height: var(--sidebar-touch-target);
+  }
+
+  .loginGlyph {
+    opacity: 0;
+  }
+
+  .loginLabel {
+    opacity: 1;
+    transition: none;
+  }
+
   .navLink {
     gap: var(--space-2);
     min-height: var(--sidebar-touch-target);
@@ -796,5 +856,9 @@
 
   .backdrop {
     animation: none;
+  }
+
+  .loginPill:active {
+    transform: none;
   }
 }

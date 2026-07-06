@@ -353,13 +353,9 @@ function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
 
   return (
     <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
-      <button
-        type="button"
-        onClick={openLogin}
-        className={cn(styles.navLink, styles.loginLink)}
-      >
+      <button type="button" onClick={openLogin} className={styles.loginPill}>
         <LoginGlyph />
-        <span className={styles.navLabel}>Войти</span>
+        <span className={styles.loginLabel}>Войти</span>
       </button>
     </SidebarTooltip>
   );
@@ -370,7 +366,7 @@ function LoginGlyph() {
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      className={styles.navIcon}
+      className={styles.loginGlyph}
       aria-hidden="true"
     >
       <path
