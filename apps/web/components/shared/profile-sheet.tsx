@@ -32,19 +32,19 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Персонализация",
         icon: "solar:magic-stick-3-linear",
-        href: "/dashboard",
+        href: "/",
         chevron: true,
       },
       {
         label: "Профиль",
         icon: "solar:user-circle-linear",
-        href: "/dashboard",
+        href: "/",
         chevron: true,
       },
       {
         label: "Настройки",
         icon: "solar:settings-linear",
-        href: "/dashboard",
+        href: "/",
         chevron: true,
       },
     ],
@@ -70,7 +70,7 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Улучшить план",
         icon: "solar:star-fall-minimalistic-2-linear",
-        href: "/dashboard",
+        href: "/",
         accent: true,
       },
     ],
@@ -81,13 +81,13 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Помощь",
         icon: "solar:question-circle-linear",
-        href: "/dashboard",
+        href: "/",
         chevron: true,
       },
       {
         label: "Выйти",
         icon: "solar:logout-2-linear",
-        href: "/dashboard",
+        href: "/",
       },
     ],
   },
