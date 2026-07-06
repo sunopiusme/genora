@@ -585,17 +585,17 @@ function SidebarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect
-        x="3"
-        y="4"
-        width="18"
-        height="16"
-        rx="3"
+        x="2"
+        y="3.25"
+        width="20"
+        height="17.5"
+        rx="3.25"
         stroke="currentColor"
         strokeWidth="1.8"
         fill="none"
       />
       <path
-        d="M9 4.5v15"
+        d="M8.75 3.75v16.5"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
