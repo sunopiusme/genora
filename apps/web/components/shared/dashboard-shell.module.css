@@ -283,6 +283,15 @@
   --profile-pad: 0.5rem;
   --profile-pad-x-extra: calc(var(--profile-pad) - var(--profile-avatar-inset));
   --profile-pad-y-extra: calc(var(--profile-pad) - var(--space-1));
+  /* Two-line identity block height (.profileIdentity: name + plan lines) so
+     the signed-out button is exactly as tall as the profile block. Without
+     this the single-line label makes the button 11px shorter and its hover
+     pill lands flush on the sidebar's bottom edge instead of inset like the
+     profile's pill. */
+  --profile-content-h: calc(
+    var(--leading-sm) + var(--space-px) + var(--leading-xs)
+  );
+  min-height: calc(var(--profile-content-h) + var(--profile-pad) * 2);
   position: relative;
   z-index: 0;
   display: flex;
@@ -890,7 +899,10 @@
   }
 
   .loginButton {
-    min-height: var(--sidebar-touch-target);
+    min-height: max(
+      var(--sidebar-touch-target),
+      var(--profile-content-h) + var(--profile-pad) * 2
+    );
   }
 
   .loginLabel {
