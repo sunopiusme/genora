@@ -80,6 +80,8 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
       id: "telegram",
       label: "Telegram",
       icon: "/share/telegram.png",
+      /* macOS-иконка с полями — масштабируем под общий размер */
+      zoom: true,
       onClick: () => {
         window.open(
           `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`,
@@ -131,7 +133,15 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
           >
             <span className={styles.tile}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={app.icon} alt="" className={styles.tileImg} />
+              <img
+                src={app.icon}
+                alt=""
+                className={
+                  app.zoom
+                    ? `${styles.tileImg} ${styles.tileImgZoom}`
+                    : styles.tileImg
+                }
+              />
             </span>
             <span className={styles.appLabel}>{app.label}</span>
           </button>

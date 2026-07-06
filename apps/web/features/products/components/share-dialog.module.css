@@ -145,6 +145,13 @@
   object-fit: cover;
 }
 
+/* Telegram — macOS-иконка 512×512: белый сквиркл занимает ~80%
+   холста с прозрачными полями и тенью. Масштабируем, чтобы контент
+   заполнял тайл так же, как iOS-иконки (1024/824 ≈ 1.243) */
+.tileImgZoom {
+  transform: scale(1.243);
+}
+
 /* Без hover-scale: только лёгкое высветление */
 .appButton:hover .tile {
   filter: brightness(1.12);
