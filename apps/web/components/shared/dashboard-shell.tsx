@@ -3,8 +3,10 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
   type TouchEvent,
   type TransitionEvent,
@@ -410,7 +412,28 @@ function ProfileMenu({
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>();
   const logout = useAuthStore((state) => state.logout);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !rootRef.current) {
+      return;
+    }
+    const rect = rootRef.current.getBoundingClientRect();
+    if (isSidebarOpen) {
+      setMenuStyle({
+        position: "fixed",
+        left: rect.left,
+        bottom: window.innerHeight - rect.top + 8,
+      });
+      return;
+    }
+    setMenuStyle({
+      position: "fixed",
+      left: rect.right + 10,
+      bottom: Math.max(window.innerHeight - rect.bottom - 2, 8),
+    });
+  }, [isOpen, isSidebarOpen]);
 
   function handleLogout() {
     setIsOpen(false);
@@ -457,7 +480,15 @@ function ProfileMenu({
   return (
     <div ref={rootRef} className={styles.profileRoot}>
       {isOpen && (
-        <div id={menuId} role="menu" className={styles.profileMenu}>
+        <div
+          id={menuId}
+          role="menu"
+          className={cn(
+            styles.profileMenu,
+            !isSidebarOpen && styles.profileMenuFlyout,
+          )}
+          style={menuStyle}
+        >
           <Link
             href="/dashboard"
             role="menuitem"
