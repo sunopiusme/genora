@@ -29,7 +29,7 @@ export default async function VerifyPage({
             .
           </p>
 
-          <VerifyCard />
+          <VerifyCard email={email} />
         </div>
       </AuthModal>
     </main>

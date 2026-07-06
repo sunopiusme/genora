@@ -11,6 +11,7 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button, cn } from "@genora/ui";
+import { useAuthStore } from "@/stores/auth-store";
 
 import {
   VERIFICATION_CODE_LENGTH,
@@ -19,13 +20,15 @@ import {
 import styles from "./verify-card.module.css";
 
 const RESEND_SECONDS = 30;
+const FALLBACK_EMAIL = "user@genora.app";
 
 function createEmptyDigits() {
   return Array<string>(VERIFICATION_CODE_LENGTH).fill("");
 }
 
-export function VerifyCard() {
+export function VerifyCard({ email }: { email?: string }) {
   const router = useRouter();
+  const login = useAuthStore((state) => state.login);
   const [digits, setDigits] = useState<string[]>(createEmptyDigits);
   const [hasError, setHasError] = useState(false);
   const [wasResent, setWasResent] = useState(false);
@@ -51,7 +54,10 @@ export function VerifyCard() {
     if (isSubmitting) return;
     setIsSubmitting(true);
     clearFeedback();
-    setTimeout(() => router.push("/dashboard"), 300);
+    setTimeout(() => {
+      login(email ?? FALLBACK_EMAIL);
+      router.push("/dashboard");
+    }, 300);
   }
 
   function setDigit(index: number, rawValue: string) {

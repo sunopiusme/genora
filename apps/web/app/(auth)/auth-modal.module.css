@@ -3,6 +3,34 @@
   backdrop-filter: blur(2px);
 }
 
+.overlay[data-state="open"] {
+  animation: authOverlayIn 0.2s ease-out;
+}
+
+.content.content[data-state="open"] {
+  animation: authModalIn 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes authOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes authModalIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 .content {
   top: 50%;
   left: 50%;
@@ -44,6 +72,13 @@
 .support {
   margin-top: var(--space-4);
   flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay[data-state="open"],
+  .content.content[data-state="open"] {
+    animation: none;
+  }
 }
 
 @media (max-width: 1023px) {

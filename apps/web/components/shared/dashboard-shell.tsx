@@ -12,6 +12,7 @@ import {
 import Link from "next/link";
 import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
+import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
 import { PROFILE } from "@features/profile";
 import { ComposerBar } from "@/app/dashboard/composer-bar";
@@ -25,6 +26,7 @@ type NavItem = {
   href: string;
   icon: string;
   active?: boolean;
+  requiresAuth?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -40,8 +42,18 @@ const NAV_ITEMS: NavItem[] = [
     icon: "solar:shop-2-linear",
     active: true,
   },
-  { label: "Подписки", href: "/dashboard", icon: "solar:card-2-linear" },
-  { label: "Заказы", href: "/dashboard", icon: "solar:bag-4-linear" },
+  {
+    label: "Подписки",
+    href: "/dashboard",
+    icon: "solar:card-2-linear",
+    requiresAuth: true,
+  },
+  {
+    label: "Заказы",
+    href: "/dashboard",
+    icon: "solar:bag-4-linear",
+    requiresAuth: true,
+  },
 ];
 
 type RecentGroup = {
@@ -70,7 +82,14 @@ const RECENT_GROUPS: RecentGroup[] = [
   },
 ];
 
-const PROFILE_MENU_GROUPS: NavItem[][] = [
+type ProfileMenuItem = {
+  label: string;
+  href: string;
+  icon: string;
+  isLogout?: boolean;
+};
+
+const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
       label: "Улучшить план",
@@ -103,6 +122,7 @@ const PROFILE_MENU_GROUPS: NavItem[][] = [
       label: "Выйти",
       href: "/dashboard",
       icon: "solar:logout-2-linear",
+      isLogout: true,
     },
   ],
 ];
@@ -113,6 +133,12 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const user = useAuthStore((state) => state.user);
+  const hasHydrated = useAuthStore((state) => state.hasHydrated);
+  const authenticatedUser = hasHydrated ? user : null;
+  const navItems = authenticatedUser
+    ? NAV_ITEMS
+    : NAV_ITEMS.filter((item) => !item.requiresAuth);
   const [isAnimating, setIsAnimating] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
@@ -235,7 +261,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
           <div className={styles.scrollArea}>
             <div className={styles.sidebarScroll}>
               <nav className={styles.nav}>
-                {NAV_ITEMS.map((item) => (
+                {navItems.map((item) => (
                   <SidebarTooltip
                     key={item.label}
                     label={item.label}
@@ -255,29 +281,35 @@ export function DashboardShell({ children }: { children: ReactNode }) {
                 ))}
               </nav>
 
-              <div className={styles.section}>
-                {RECENT_GROUPS.map((group) => (
-                  <div key={group.title} className={styles.subsection}>
-                    <p className={styles.sectionTitle}>{group.title}</p>
-                    <nav className={styles.recents}>
-                      {group.items.map((item) => (
-                        <Link
-                          key={item}
-                          href="/dashboard"
-                          className={styles.recentLink}
-                        >
-                          {item}
-                        </Link>
-                      ))}
-                    </nav>
-                  </div>
-                ))}
-              </div>
+              {authenticatedUser && (
+                <div className={styles.section}>
+                  {RECENT_GROUPS.map((group) => (
+                    <div key={group.title} className={styles.subsection}>
+                      <p className={styles.sectionTitle}>{group.title}</p>
+                      <nav className={styles.recents}>
+                        {group.items.map((item) => (
+                          <Link
+                            key={item}
+                            href="/dashboard"
+                            className={styles.recentLink}
+                          >
+                            {item}
+                          </Link>
+                        ))}
+                      </nav>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
           <div className={styles.sidebarFooter}>
-            <ProfileMenu isSidebarOpen={isSidebarOpen} />
+            {authenticatedUser ? (
+              <ProfileMenu isSidebarOpen={isSidebarOpen} user={authenticatedUser} />
+            ) : (
+              <LoginButton isSidebarOpen={isSidebarOpen} />
+            )}
           </div>
         </div>
       </aside>
@@ -316,11 +348,35 @@ export function DashboardShell({ children }: { children: ReactNode }) {
   );
 }
 
-function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
+function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
+  return (
+    <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
+      <Link href="/login" className={cn(styles.navLink, styles.loginLink)}>
+        <Icon icon="solar:login-2-linear" className={styles.navIcon} />
+        <span className={styles.navLabel}>Войти</span>
+      </Link>
+    </SidebarTooltip>
+  );
+}
+
+function ProfileMenu({
+  isSidebarOpen,
+  user,
+}: {
+  isSidebarOpen: boolean;
+  user: AuthUser;
+}) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const logout = useAuthStore((state) => state.logout);
+
+  function handleLogout() {
+    setIsOpen(false);
+    setIsSheetOpen(false);
+    logout();
+  }
 
   function handleProfileClick() {
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
@@ -369,12 +425,12 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
             onClick={() => setIsOpen(false)}
           >
             <Avatar
-              name={PROFILE.name}
+              name={user.name}
               size="2rem"
               className={styles.profileMenuAvatar}
             />
             <span className={styles.profileMenuIdentity}>
-              <span className={styles.profileMenuName}>{PROFILE.name}</span>
+              <span className={styles.profileMenuName}>{user.name}</span>
               <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
             </span>
             <Icon
@@ -385,28 +441,45 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
           </Link>
           {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
             <div key={groupIndex} className={styles.profileMenuGroup}>
-              {group.map((item) => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  role="menuitem"
-                  className={styles.profileMenuItem}
-                  onClick={() => setIsOpen(false)}
-                >
-                  <Icon
-                    icon={item.icon}
-                    className={styles.profileMenuGlyph}
-                    aria-hidden="true"
-                  />
-                  {item.label}
-                </Link>
-              ))}
+              {group.map((item) =>
+                item.isLogout ? (
+                  <button
+                    key={item.label}
+                    type="button"
+                    role="menuitem"
+                    className={styles.profileMenuItem}
+                    onClick={handleLogout}
+                  >
+                    <Icon
+                      icon={item.icon}
+                      className={styles.profileMenuGlyph}
+                      aria-hidden="true"
+                    />
+                    {item.label}
+                  </button>
+                ) : (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    role="menuitem"
+                    className={styles.profileMenuItem}
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Icon
+                      icon={item.icon}
+                      className={styles.profileMenuGlyph}
+                      aria-hidden="true"
+                    />
+                    {item.label}
+                  </Link>
+                ),
+              )}
             </div>
           ))}
         </div>
       )}
       <SidebarTooltip
-        label={PROFILE.username}
+        label={user.name}
         isEnabled={!isSidebarOpen && !isOpen}
       >
         <button
@@ -419,12 +492,12 @@ function ProfileMenu({ isSidebarOpen }: { isSidebarOpen: boolean }) {
           aria-controls={isOpen ? menuId : undefined}
         >
           <Avatar
-            name={PROFILE.name}
+            name={user.name}
             size="1.625rem"
             className={styles.profileAvatar}
           />
           <span className={styles.profileIdentity}>
-            <span className={styles.profileName}>{PROFILE.username}</span>
+            <span className={styles.profileName}>{user.name}</span>
             <span className={styles.profilePlan}>{PROFILE.plan}</span>
           </span>
         </button>
