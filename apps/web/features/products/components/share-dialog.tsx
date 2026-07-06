@@ -21,53 +21,25 @@ function CopyGlyph() {
   );
 }
 
-function MoreGlyph() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
-}
-
-type ShareDialogProps = {
-  open: boolean;
+type ShareMenuProps = {
   onClose: () => void;
 };
 
-export function ShareDialog({ open, onClose }: ShareDialogProps) {
-  const dialogRef = useRef<HTMLDivElement | null>(null);
+/* Панель «Поделиться» — выпадающее меню, привязанное к кнопке,
+   в том же стиле, что и меню категорий по «...» */
+export function ShareMenu({ onClose }: ShareMenuProps) {
   const [copied, setCopied] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
   const [host, setHost] = useState("");
   const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    if (!open) return;
     setPageUrl(window.location.href);
     setHost(window.location.hostname);
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [open, onClose]);
-
-  useEffect(() => {
     return () => {
       if (resetTimer.current) clearTimeout(resetTimer.current);
     };
   }, []);
-
-  if (!open) return null;
 
   const shareTitle = "Genora Pro";
 
@@ -82,7 +54,7 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     }
   };
 
-  const handleSystemShare = async () => {
+  const handleAirDrop = async () => {
     if (navigator.share) {
       try {
         await navigator.share({ title: shareTitle, url: pageUrl });
@@ -95,14 +67,14 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     }
   };
 
-  /* Иконки сервисов — реальные SVG, скачанные из
+  /* Иконки сервисов — официальные SVG, скачанные из
      Wikimedia Commons и theSVG.org (см. public/share) */
   const apps = [
     {
       id: "airdrop",
       label: "AirDrop",
       icon: "/share/airdrop.svg",
-      onClick: handleSystemShare,
+      onClick: handleAirDrop,
     },
     {
       id: "telegram",
@@ -135,94 +107,45 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
   ];
 
   return (
-    <div
-      className={styles.overlay}
-      onPointerDown={(event) => {
-        if (!dialogRef.current?.contains(event.target as Node)) onClose();
-      }}
-    >
-      <div
-        ref={dialogRef}
-        className={styles.dialog}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Поделиться"
-      >
-        <header className={styles.header}>
-          {/* Обложка: наш логотип на чёрном сквиркле */}
-          <span className={styles.cover} aria-hidden="true">
-            <span className={styles.coverGlow} />
-            <Logo className={styles.coverLogo} width="1.75rem" height="1.75rem" />
-          </span>
-          <div className={styles.headerText}>
-            <p className={styles.siteTitle}>{shareTitle}</p>
-            <p className={styles.siteHost}>{host}</p>
-          </div>
-          <button
-            type="button"
-            className={styles.closeButton}
-            onClick={onClose}
-            aria-label="Закрыть"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="m6 6 12 12M18 6 6 18" />
-            </svg>
-          </button>
-        </header>
-
-        <div className={styles.divider} role="separator" />
-
-        <div className={styles.appsRow}>
-          {apps.map((app) => (
-            <button
-              key={app.id}
-              type="button"
-              className={styles.appButton}
-              onClick={app.onClick}
-            >
-              <span className={styles.tile}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={app.icon} alt="" className={styles.tileImg} />
-              </span>
-              <span className={styles.appLabel}>{app.label}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className={styles.divider} role="separator" />
-
-        <div className={styles.actionsRow}>
-          <button
-            type="button"
-            className={styles.circleAction}
-            onClick={handleCopy}
-          >
-            <span className={styles.circle} data-copied={copied || undefined}>
-              <CopyGlyph />
-            </span>
-            <span className={styles.appLabel}>
-              {copied ? "Скопировано" : "Копировать"}
-            </span>
-          </button>
-          <button
-            type="button"
-            className={styles.circleAction}
-            onClick={handleSystemShare}
-          >
-            <span className={styles.circle}>
-              <MoreGlyph />
-            </span>
-            <span className={styles.appLabel}>Ещё</span>
-          </button>
+    <div className={styles.panel} role="dialog" aria-label="Поделиться">
+      <div className={styles.header}>
+        {/* Обложка: наш логотип на чёрном сквиркле */}
+        <span className={styles.cover} aria-hidden="true">
+          <Logo className={styles.coverLogo} width="1.5rem" height="1.5rem" />
+        </span>
+        <div className={styles.headerText}>
+          <p className={styles.siteTitle}>{shareTitle}</p>
+          <p className={styles.siteHost}>{host}</p>
         </div>
       </div>
+
+      <div className={styles.divider} role="separator" />
+
+      <div className={styles.appsRow}>
+        {apps.map((app) => (
+          <button
+            key={app.id}
+            type="button"
+            className={styles.appButton}
+            onClick={app.onClick}
+          >
+            <span className={styles.tile}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={app.icon} alt="" className={styles.tileImg} />
+            </span>
+            <span className={styles.appLabel}>{app.label}</span>
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.divider} role="separator" />
+
+      <button type="button" className={styles.copyItem} onClick={handleCopy}>
+        <span>{copied ? "Скопировано" : "Копировать ссылку"}</span>
+        <span className={styles.copyIcon} data-copied={copied || undefined}>
+          <CopyGlyph />
+        </span>
+      </button>
     </div>
   );
 }

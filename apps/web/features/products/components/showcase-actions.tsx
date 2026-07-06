@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { PRODUCT_CATEGORY_FILTERS } from "../catalog";
 import { useShowcaseStore } from "../stores/showcase-store";
 import type { ShowcaseSort } from "../types";
-import { ShareDialog } from "./share-dialog";
+import { ShareMenu } from "./share-dialog";
 import styles from "./showcase-actions.module.css";
 
 const SORT_OPTIONS: { id: ShowcaseSort; label: string }[] = [
@@ -72,15 +72,19 @@ export function ShowcaseActions() {
   const menuId = useId();
 
   useEffect(() => {
-    if (!menuOpen) return;
+    if (!menuOpen && !shareOpen) return;
 
+    const closeAll = () => {
+      setMenuOpen(false);
+      setShareOpen(false);
+    };
     const handlePointerDown = (event: PointerEvent) => {
       if (!rootRef.current?.contains(event.target as Node)) {
-        setMenuOpen(false);
+        closeAll();
       }
     };
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") closeAll();
     };
 
     document.addEventListener("pointerdown", handlePointerDown);
@@ -89,25 +93,32 @@ export function ShowcaseActions() {
       document.removeEventListener("pointerdown", handlePointerDown);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [menuOpen]);
+  }, [menuOpen, shareOpen]);
 
   return (
     <div className={styles.actions} ref={rootRef}>
       <button
         type="button"
         className={`${styles.iconButton} ${styles.shareButton}`}
-        onClick={() => setShareOpen(true)}
+        onClick={() => {
+          setShareOpen((open) => !open);
+          setMenuOpen(false);
+        }}
         aria-label="Поделиться"
         title="Поделиться"
         aria-haspopup="dialog"
         aria-expanded={shareOpen}
+        data-active={shareOpen || undefined}
       >
         <ShareIcon />
       </button>
       <button
         type="button"
         className={`${styles.iconButton} ${styles.menuButton}`}
-        onClick={() => setMenuOpen((open) => !open)}
+        onClick={() => {
+          setMenuOpen((open) => !open);
+          setShareOpen(false);
+        }}
         aria-label="Категории и сортировка"
         aria-haspopup="menu"
         aria-expanded={menuOpen}
@@ -167,7 +178,7 @@ export function ShowcaseActions() {
         </div>
       )}
 
-      <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} />
+      {shareOpen && <ShareMenu onClose={() => setShareOpen(false)} />}
     </div>
   );
 }
