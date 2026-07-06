@@ -5,8 +5,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   async redirects() {
     return [
-      { source: "/login", destination: "/dashboard", permanent: false },
-      { source: "/verify", destination: "/dashboard", permanent: false },
+      { source: "/login", destination: "/", permanent: false },
+      { source: "/verify", destination: "/", permanent: false },
+      { source: "/dashboard", destination: "/", permanent: false },
     ];
   },
 };

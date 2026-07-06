@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
-import { DashboardShell } from "@components/shared/dashboard-shell";
+import { AppShell } from "@components/shared/app-shell";
 import { AuthOverlay } from "@features/auth";
 import { AUTH_COOKIE_NAME, type AuthUser } from "@/stores/auth-store";
 
@@ -17,7 +17,7 @@ function parseAuthCookie(value: string | undefined): AuthUser | null {
   }
 }
 
-export default async function DashboardLayout({
+export default async function AppLayout({
   children,
 }: {
   children: ReactNode;
@@ -27,7 +27,7 @@ export default async function DashboardLayout({
 
   return (
     <>
-      <DashboardShell initialUser={initialUser}>{children}</DashboardShell>
+      <AppShell initialUser={initialUser}>{children}</AppShell>
       <AuthOverlay />
     </>
   );

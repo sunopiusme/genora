@@ -17,11 +17,11 @@ import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
 import { PROFILE, formatBalance } from "@features/profile";
-import { ComposerBar } from "@/app/dashboard/composer-bar";
+import { ComposerBar } from "./composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
 import { MOBILE_MEDIA_QUERY } from "./breakpoints";
-import styles from "./dashboard-shell.module.css";
+import styles from "./app-shell.module.css";
 
 type NavItem = {
   label: string;
@@ -34,25 +34,25 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Новый запрос",
-    href: "/dashboard",
+    href: "/",
     icon: "solar:pen-new-square-linear",
   },
-  { label: "Поиск", href: "/dashboard", icon: "solar:magnifer-linear" },
+  { label: "Поиск", href: "/", icon: "solar:magnifer-linear" },
   {
     label: "Витрина",
-    href: "/dashboard",
+    href: "/",
     icon: "solar:shop-2-linear",
     active: true,
   },
   {
     label: "Подписки",
-    href: "/dashboard",
+    href: "/",
     icon: "solar:card-2-linear",
     requiresAuth: true,
   },
   {
     label: "Заказы",
-    href: "/dashboard",
+    href: "/",
     icon: "solar:bag-4-linear",
     requiresAuth: true,
   },
@@ -97,40 +97,40 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
       label: "Пополнить",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:wallet-linear",
       showsBalance: true,
     },
     {
       label: "Улучшить план",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:star-fall-minimalistic-2-linear",
     },
     {
       label: "Персонализация",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:magic-stick-3-linear",
     },
     {
       label: "Профиль",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:user-circle-linear",
     },
     {
       label: "Настройки",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:settings-linear",
     },
   ],
   [
     {
       label: "Помощь",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:question-circle-linear",
     },
     {
       label: "Выйти",
-      href: "/dashboard",
+      href: "/",
       icon: "solar:logout-2-linear",
       isLogout: true,
     },
@@ -139,7 +139,7 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
 
 const SWIPE_CLOSE_DISTANCE = 48;
 
-export function DashboardShell({
+export function AppShell({
   children,
   initialUser = null,
 }: {
@@ -353,7 +353,7 @@ export function DashboardShell({
                         {group.items.map((item) => (
                           <Link
                             key={item}
-                            href="/dashboard"
+                            href="/"
                             className={styles.recentLink}
                           >
                             {item}
@@ -555,7 +555,7 @@ function ProfileMenu({
           style={menuStyle}
         >
           <Link
-            href="/dashboard"
+            href="/"
             role="menuitem"
             className={styles.profileMenuHeader}
             onClick={() => setIsOpen(false)}

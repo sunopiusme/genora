@@ -505,7 +505,7 @@
 .profileMenu {
   position: absolute;
   /* Fallback only: the real position is an inline fixed style computed in
-     ProfileMenu's useLayoutEffect (dashboard-shell.tsx), which anchors the
+     ProfileMenu's useLayoutEffect (app-shell.tsx), which anchors the
      menu ~4px above the trigger's visible pill */
   bottom: calc(100% + var(--space-1));
   left: 0;
