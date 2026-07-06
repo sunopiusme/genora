@@ -1,7 +1,7 @@
 import { VerifyCard } from "@features/auth";
 
-import { BrandPanel } from "../brand-panel";
-import { SupportLink } from "../support-link";
+import { AuthBackdrop } from "../auth-backdrop";
+import { AuthModal } from "../auth-modal";
 import styles from "./page.module.css";
 
 export default async function VerifyPage({
@@ -12,14 +12,13 @@ export default async function VerifyPage({
   const { email } = await searchParams;
 
   return (
-    <main className={styles.main}>
-      <BrandPanel />
-
-      <section className={styles.formColumn}>
-        <div className={styles.formInner}>
+    <main>
+      <AuthBackdrop />
+      <AuthModal title="Подтверждение почты">
+        <div className={styles.inner}>
           <h2 className={styles.title}>Введите код</h2>
           <p className={styles.subtitle}>
-            Отправили 6‑значный код{" "}
+            Отправили 6&#8209;значный код{" "}
             {email ? (
               <>
                 на <span className={styles.email}>{email}</span>
@@ -32,9 +31,7 @@ export default async function VerifyPage({
 
           <VerifyCard />
         </div>
-
-        <SupportLink className={styles.support} />
-      </section>
+      </AuthModal>
     </main>
   );
 }
