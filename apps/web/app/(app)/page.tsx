@@ -1,4 +1,8 @@
-import { ProductShowcase, ShowcaseFilter } from "@features/products";
+import {
+  ProductShowcase,
+  ShowcaseActions,
+  ShowcaseFilter,
+} from "@features/products";
 import { PageScrollArea } from "@/components/shared/page-scroll-area";
 import styles from "./page.module.css";
 
@@ -7,10 +11,13 @@ export default function HomePage() {
     <main id="showcaseSurface" className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headerInner}>
+          <h1 className={styles.title}>Витрина</h1>
           <div className={styles.headerLeading}>
             <ShowcaseFilter />
           </div>
-          <h1 className={styles.title}>Витрина</h1>
+          <div className={styles.headerTrailing}>
+            <ShowcaseActions />
+          </div>
         </div>
       </header>
 
