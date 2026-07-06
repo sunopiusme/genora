@@ -24,6 +24,15 @@ export function VerifyCard({ email }: { email?: string }) {
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Focus the code field once the view transition has settled, so the
+  // user can type immediately without the focus ring jumping mid-animation.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus({ preventScroll: true });
+    }, 380);
+    return () => clearTimeout(timer);
+  }, []);
+
   useEffect(() => {
     if (seconds <= 0) return;
     const timer = setInterval(() => setSeconds((value) => value - 1), 1000);

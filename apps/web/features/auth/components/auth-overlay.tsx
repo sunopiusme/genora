@@ -8,9 +8,10 @@ import { AuthCard } from "./auth-card";
 import { VerifyCard } from "./verify-card";
 import styles from "./auth-overlay.module.css";
 
-const CROSSFADE_MS = 180;
+const TRANSITION_MS = 360;
 
 type AuthView = "login" | "verify";
+type TransitionDirection = "forward" | "back";
 
 function ViewContent({
   view,
@@ -46,6 +47,7 @@ export function AuthOverlay() {
 
   const [currentView, setCurrentView] = useState<AuthView | null>(view);
   const [leavingView, setLeavingView] = useState<AuthView | null>(null);
+  const [direction, setDirection] = useState<TransitionDirection>("forward");
   const viewportRef = useRef<HTMLDivElement>(null);
   const currentRef = useRef<HTMLDivElement>(null);
   const clearTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,11 +60,12 @@ export function AuthOverlay() {
     }
     setCurrentView((prev) => {
       if (prev && prev !== view) {
+        setDirection(view === "verify" ? "forward" : "back");
         setLeavingView(prev);
         if (clearTimerRef.current) clearTimeout(clearTimerRef.current);
         clearTimerRef.current = setTimeout(
           () => setLeavingView(null),
-          CROSSFADE_MS,
+          TRANSITION_MS,
         );
       }
       return view;
@@ -135,7 +138,13 @@ export function AuthOverlay() {
             />
           </svg>
         </button>
-        <div ref={viewportRef} className={styles.viewport}>
+        <div
+          ref={viewportRef}
+          className={cn(
+            styles.viewport,
+            direction === "forward" ? styles.forward : styles.back,
+          )}
+        >
           {leavingView && (
             <div key={leavingView} className={styles.viewLeaving} aria-hidden>
               <ViewContent view={leavingView} verifyEmail={verifyEmail} />
