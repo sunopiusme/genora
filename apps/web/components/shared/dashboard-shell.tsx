@@ -566,6 +566,11 @@ function ProfileMenu({
               <span className={styles.profileMenuName}>{user.name}</span>
               <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
             </span>
+            {!isSidebarOpen && (
+              <span className={styles.profileMenuBalanceChip}>
+                {formatBalance(PROFILE.balance)}
+              </span>
+            )}
             <Icon
               icon="solar:alt-arrow-right-linear"
               className={styles.profileMenuChevron}
@@ -612,7 +617,7 @@ function ProfileMenu({
         </div>
       )}
       <SidebarTooltip
-        label={user.name}
+        label={`${user.name} · ${formatBalance(PROFILE.balance)}`}
         isEnabled={!isSidebarOpen && !isOpen}
       >
         <button
