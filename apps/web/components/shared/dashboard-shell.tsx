@@ -372,21 +372,21 @@ function LoginGlyph() {
       <circle
         cx="12"
         cy="12"
-        r="9.25"
+        r="9.1"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.8"
       />
       <circle
         cx="12"
         cy="9.5"
         r="3"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.8"
       />
       <path
         d="M6.17 18.45c.6-2.32 2.9-3.7 5.83-3.7s5.23 1.38 5.83 3.7"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.8"
         strokeLinecap="round"
       />
     </svg>
