@@ -17,6 +17,8 @@ export function AuthModal({
     <Dialog open>
       <DialogContent
         className={styles.content}
+        overlayClassName={styles.overlay}
+        onOpenAutoFocus={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
         onPointerDownOutside={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}
