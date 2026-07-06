@@ -71,15 +71,48 @@
   max-height: calc(100dvh - var(--space-8));
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: var(--space-8) var(--space-6)
-    calc(var(--space-6) + env(safe-area-inset-bottom));
+  padding: var(--space-10) var(--space-8)
+    calc(var(--space-8) + env(safe-area-inset-bottom));
   border-radius: var(--radius-3xl);
-  border: 1px solid rgb(255 255 255 / 0.14);
+  border: none;
   background-color: var(--color-surface-elevated);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.08),
-    0 24px 64px -20px rgb(0 0 0 / 0.6),
-    0 8px 24px -12px rgb(0 0 0 / 0.4);
+  box-shadow: 0 20px 60px -16px rgb(0 0 0 / 0.5);
+}
+
+.closeButton {
+  position: absolute;
+  top: var(--space-5);
+  right: var(--space-5);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-full);
+  background: none;
+  color: var(--color-foreground-muted);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.closeButton:hover {
+  color: var(--color-foreground);
+}
+
+.closeButton:focus {
+  outline: none;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 2px;
+}
+
+.closeIcon {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .grabber {
@@ -173,9 +206,12 @@
     border-bottom: none;
     padding: var(--space-8) var(--space-5)
       calc(var(--space-5) + env(safe-area-inset-bottom));
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.08),
-      0 -24px 64px -20px rgb(0 0 0 / 0.6);
+    box-shadow: 0 -20px 60px -16px rgb(0 0 0 / 0.5);
+  }
+
+  .closeButton {
+    top: var(--space-4);
+    right: var(--space-4);
   }
 
   .content.content[data-state="open"] {
