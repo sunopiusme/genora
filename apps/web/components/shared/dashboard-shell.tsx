@@ -217,17 +217,18 @@ export function DashboardShell({
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
-    // Fallback slightly above the CSS width transition (--sidebar-anim);
+    // Fallback slightly above the longest CSS run (--sidebar-anim-mobile);
     // transitionend normally fires first
     animationTimeout.current = setTimeout(() => {
       endSidebarAnimation();
-    }, 220);
+    }, 300);
   }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    // Desktop animates width; the mobile drawer animates transform
     if (
       event.target !== event.currentTarget ||
-      event.propertyName !== "width"
+      (event.propertyName !== "width" && event.propertyName !== "transform")
     ) {
       return;
     }
