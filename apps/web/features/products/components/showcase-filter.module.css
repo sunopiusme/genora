@@ -1,0 +1,53 @@
+.filter {
+  min-width: 0;
+  pointer-events: auto;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.track::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex-shrink: 0;
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-full);
+  padding: var(--space-1) var(--space-3);
+  background: transparent;
+  color: var(--color-foreground-muted);
+  font-family: inherit;
+  font-size: 0.8125rem;
+  font-weight: var(--weight-medium);
+  line-height: 1.4;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.chip:hover {
+  color: var(--color-foreground);
+  background: var(--color-surface-elevated);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-border-strong);
+  outline-offset: 1px;
+}
+
+.chip[data-active] {
+  color: var(--color-foreground);
+  background: var(--color-surface-raised);
+  border-color: var(--color-border-strong);
+}
