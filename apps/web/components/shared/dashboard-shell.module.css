@@ -541,13 +541,16 @@
   --profile-pad: calc(
     var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
   );
+  --profile-pad-y: var(--space-2);
+  --profile-pad-y-extra: calc(var(--profile-pad-y) - var(--space-1));
   display: flex;
   align-items: center;
   gap: var(--space-2);
   width: 100%;
-  padding: var(--space-1) var(--profile-pad);
+  padding: var(--profile-pad-y) var(--profile-pad);
+  margin-block: calc(-1 * var(--profile-pad-y-extra));
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: none;
   font-family: inherit;
   text-align: left;
