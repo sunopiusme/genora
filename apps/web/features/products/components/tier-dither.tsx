@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import styles from "./product-detail.module.css";
+import styles from "./tier-slider.module.css";
 
 type TierDitherProps = {
   active: boolean;
