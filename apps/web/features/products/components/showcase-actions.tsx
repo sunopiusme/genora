@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { PRODUCT_CATEGORY_FILTERS } from "../catalog";
 import { useShowcaseStore } from "../stores/showcase-store";
 import type { ShowcaseSort } from "../types";
+import { ShareDialog } from "./share-dialog";
 import styles from "./showcase-actions.module.css";
 
 const SORT_OPTIONS: { id: ShowcaseSort; label: string }[] = [
@@ -66,16 +67,9 @@ export function ShowcaseActions() {
   const setSort = useShowcaseStore((state) => state.setSort);
 
   const [menuOpen, setMenuOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
-  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const menuId = useId();
-
-  useEffect(() => {
-    return () => {
-      if (resetTimer.current) clearTimeout(resetTimer.current);
-    };
-  }, []);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -97,38 +91,16 @@ export function ShowcaseActions() {
     };
   }, [menuOpen]);
 
-  const handleShare = async () => {
-    const url = window.location.href;
-
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: document.title, url });
-        return;
-      } catch {
-        // Пользователь отменил системный диалог — ничего не делаем
-        return;
-      }
-    }
-
-    try {
-      await navigator.clipboard.writeText(url);
-      setCopied(true);
-      if (resetTimer.current) clearTimeout(resetTimer.current);
-      resetTimer.current = setTimeout(() => setCopied(false), 1600);
-    } catch {
-      // Буфер обмена недоступен
-    }
-  };
-
   return (
     <div className={styles.actions} ref={rootRef}>
       <button
         type="button"
         className={`${styles.iconButton} ${styles.shareButton}`}
-        onClick={handleShare}
-        aria-label={copied ? "Ссылка скопирована" : "Поделиться"}
-        title={copied ? "Скопировано" : "Поделиться"}
-        data-copied={copied || undefined}
+        onClick={() => setShareOpen(true)}
+        aria-label="Поделиться"
+        title="Поделиться"
+        aria-haspopup="dialog"
+        aria-expanded={shareOpen}
       >
         <ShareIcon />
       </button>
@@ -194,6 +166,8 @@ export function ShowcaseActions() {
           ))}
         </div>
       )}
+
+      <ShareDialog open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   );
 }
