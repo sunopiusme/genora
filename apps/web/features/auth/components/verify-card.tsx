@@ -86,7 +86,6 @@ export function VerifyCard({ email }: { email?: string }) {
       <div
         className={cn(
           styles.codeField,
-          isFocused && styles.codeFieldFocused,
           hasError && styles.codeFieldError,
           !hasError && isComplete && styles.codeFieldComplete,
         )}
