@@ -21,6 +21,10 @@ type AuthStore = {
   closeAuth: () => void;
 };
 
+export const AUTH_COOKIE_NAME = "genora-auth-user";
+
+const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
+
 function nameFromEmail(email: string): string {
   const localPart = email.split("@")[0] ?? "";
   const words = localPart.replace(/[._-]+/g, " ").trim();
@@ -31,6 +35,15 @@ function nameFromEmail(email: string): string {
     .join(" ");
 }
 
+function writeAuthCookie(user: AuthUser) {
+  const value = encodeURIComponent(JSON.stringify(user));
+  document.cookie = `${AUTH_COOKIE_NAME}=${value}; path=/; max-age=${AUTH_COOKIE_MAX_AGE}; samesite=lax`;
+}
+
+function clearAuthCookie() {
+  document.cookie = `${AUTH_COOKIE_NAME}=; path=/; max-age=0; samesite=lax`;
+}
+
 export const useAuthStore = create<AuthStore>()(
   persist(
     (set) => ({
@@ -38,13 +51,15 @@ export const useAuthStore = create<AuthStore>()(
       hasHydrated: false,
       view: null,
       verifyEmail: null,
-      login: (email) =>
-        set({
-          user: { email, name: nameFromEmail(email) },
-          view: null,
-          verifyEmail: null,
-        }),
-      logout: () => set({ user: null }),
+      login: (email) => {
+        const user = { email, name: nameFromEmail(email) };
+        writeAuthCookie(user);
+        set({ user, view: null, verifyEmail: null });
+      },
+      logout: () => {
+        clearAuthCookie();
+        set({ user: null });
+      },
       setHasHydrated: (value) => set({ hasHydrated: value }),
       openLogin: () => set({ view: "login" }),
       openVerify: (email) => set({ view: "verify", verifyEmail: email }),
@@ -54,6 +69,7 @@ export const useAuthStore = create<AuthStore>()(
       name: "genora-auth",
       partialize: (state) => ({ user: state.user }),
       onRehydrateStorage: () => (state) => {
+        if (state?.user) writeAuthCookie(state.user);
         state?.setHasHydrated(true);
       },
     },

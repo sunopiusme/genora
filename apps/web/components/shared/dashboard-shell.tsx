@@ -3,8 +3,10 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
+  type CSSProperties,
   type ReactNode,
   type TouchEvent,
   type TransitionEvent,
@@ -129,20 +131,51 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
 
 const SWIPE_CLOSE_DISTANCE = 48;
 
-export function DashboardShell({ children }: { children: ReactNode }) {
+export function DashboardShell({
+  children,
+  initialUser = null,
+}: {
+  children: ReactNode;
+  initialUser?: AuthUser | null;
+}) {
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
-  const authenticatedUser = hasHydrated ? user : null;
+  const authenticatedUser = hasHydrated ? user : initialUser;
   const navItems = authenticatedUser
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const headerRef = useRef<HTMLDivElement>(null);
+  const isAnimatingRef = useRef(false);
+  isAnimatingRef.current = isAnimating;
+
+  // While the sidebar width animates, the header moves under a stationary
+  // cursor and fires spurious pointerenter/leave events, which would blink
+  // the logo/toggle swap. Freeze hover during the animation, then re-sync
+  // from the real cursor position once it settles.
+  function handleHeaderPointerEnter() {
+    if (!isAnimatingRef.current) {
+      setIsHeaderHovered(true);
+    }
+  }
+
+  function handleHeaderPointerLeave() {
+    if (!isAnimatingRef.current) {
+      setIsHeaderHovered(false);
+    }
+  }
+
+  function endSidebarAnimation() {
+    setIsAnimating(false);
+    setIsHeaderHovered(headerRef.current?.matches(":hover") ?? false);
+  }
 
   function handleTouchStart(event: TouchEvent<HTMLElement>) {
     const touch = event.touches[0];
@@ -177,18 +210,25 @@ export function DashboardShell({ children }: { children: ReactNode }) {
     }
     prevSidebarOpen.current = isSidebarOpen;
     setIsAnimating(true);
+    // Swap toggle -> logo immediately at click time: the crossfade runs in
+    // parallel with the width slide instead of waiting for it to finish.
+    // endSidebarAnimation re-syncs from the real cursor position afterwards.
+    setIsHeaderHovered(false);
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
+    // Fallback slightly above the longest CSS run (--sidebar-anim-mobile);
+    // transitionend normally fires first
     animationTimeout.current = setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+      endSidebarAnimation();
+    }, 440);
   }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
+    // Desktop animates width; the mobile drawer animates transform
     if (
       event.target !== event.currentTarget ||
-      event.propertyName !== "width"
+      (event.propertyName !== "width" && event.propertyName !== "transform")
     ) {
       return;
     }
@@ -196,7 +236,7 @@ export function DashboardShell({ children }: { children: ReactNode }) {
       clearTimeout(animationTimeout.current);
       animationTimeout.current = null;
     }
-    setIsAnimating(false);
+    endSidebarAnimation();
   }
 
   useEffect(() => {
@@ -244,18 +284,33 @@ export function DashboardShell({ children }: { children: ReactNode }) {
         onTouchEnd={handleTouchEnd}
       >
         <div className={styles.sidebarInner}>
-          <div className={styles.sidebarHeader}>
+          <div
+            ref={headerRef}
+            className={cn(
+              styles.sidebarHeader,
+              isHeaderHovered && styles.sidebarHeaderHovered,
+            )}
+            onPointerEnter={handleHeaderPointerEnter}
+            onPointerLeave={handleHeaderPointerLeave}
+          >
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
             </span>
-            <button
-              type="button"
-              className={styles.sidebarToggle}
-              onClick={toggleSidebar}
-              aria-label="Переключить меню"
+            <span className={styles.wordmark}>Genora</span>
+            <SidebarTooltip
+              label={isSidebarOpen ? "Свернуть меню" : "Развернуть меню"}
+              isEnabled={!isAnimating}
+              className={styles.sidebarToggleWrap}
             >
-              <SidebarIcon />
-            </button>
+              <button
+                type="button"
+                className={styles.sidebarToggle}
+                onClick={toggleSidebar}
+                aria-label="Переключить меню"
+              >
+                <SidebarIcon />
+              </button>
+            </SidebarTooltip>
           </div>
 
           <div className={styles.scrollArea}>
@@ -353,13 +408,9 @@ function LoginButton({ isSidebarOpen }: { isSidebarOpen: boolean }) {
 
   return (
     <SidebarTooltip label="Войти" isEnabled={!isSidebarOpen}>
-      <button
-        type="button"
-        onClick={openLogin}
-        className={cn(styles.navLink, styles.loginLink)}
-      >
+      <button type="button" onClick={openLogin} className={styles.loginPill}>
         <LoginGlyph />
-        <span className={styles.navLabel}>Войти</span>
+        <span className={styles.loginLabel}>Войти</span>
       </button>
     </SidebarTooltip>
   );
@@ -370,21 +421,28 @@ function LoginGlyph() {
     <svg
       viewBox="0 0 24 24"
       fill="none"
-      className={styles.navIcon}
+      className={styles.loginGlyph}
       aria-hidden="true"
     >
-      <path
-        d="M10 17.25c.06 1.09.25 1.8.78 2.34.94.91 2.45.91 5.47.91s4.53 0 5.47-.91c.94-.92.94-2.39.94-5.34v-4.5c0-2.95 0-4.42-.94-5.34C20.78 3.5 19.27 3.5 16.25 3.5s-4.53 0-5.47.91c-.53.52-.72 1.25-.78 2.34"
+      <circle
+        cx="12"
+        cy="12"
+        r="9.1"
         stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
+        strokeWidth="1.8"
+      />
+      <circle
+        cx="12"
+        cy="9.5"
+        r="3"
+        stroke="currentColor"
+        strokeWidth="1.8"
       />
       <path
-        d="M14.5 12H2.75m0 0 3-2.75M2.75 12l3 2.75"
+        d="M6.17 18.45c.6-2.32 2.9-3.7 5.83-3.7s5.23 1.38 5.83 3.7"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.8"
         strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   );
@@ -401,7 +459,28 @@ function ProfileMenu({
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [menuStyle, setMenuStyle] = useState<CSSProperties>();
   const logout = useAuthStore((state) => state.logout);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !rootRef.current) {
+      return;
+    }
+    const rect = rootRef.current.getBoundingClientRect();
+    if (isSidebarOpen) {
+      setMenuStyle({
+        position: "fixed",
+        left: rect.left,
+        bottom: window.innerHeight - rect.top + 8,
+      });
+      return;
+    }
+    setMenuStyle({
+      position: "fixed",
+      left: rect.right + 18,
+      bottom: Math.max(window.innerHeight - rect.bottom - 2, 8),
+    });
+  }, [isOpen, isSidebarOpen]);
 
   function handleLogout() {
     setIsOpen(false);
@@ -448,7 +527,15 @@ function ProfileMenu({
   return (
     <div ref={rootRef} className={styles.profileRoot}>
       {isOpen && (
-        <div id={menuId} role="menu" className={styles.profileMenu}>
+        <div
+          id={menuId}
+          role="menu"
+          className={cn(
+            styles.profileMenu,
+            !isSidebarOpen && styles.profileMenuFlyout,
+          )}
+          style={menuStyle}
+        >
           <Link
             href="/dashboard"
             role="menuitem"
@@ -545,17 +632,17 @@ function SidebarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <rect
-        x="3"
-        y="4"
-        width="18"
-        height="16"
-        rx="3"
+        x="2"
+        y="3.25"
+        width="20"
+        height="17.5"
+        rx="3.25"
         stroke="currentColor"
         strokeWidth="1.8"
         fill="none"
       />
       <path
-        d="M9 4.5v15"
+        d="M8.75 3.75v16.5"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"

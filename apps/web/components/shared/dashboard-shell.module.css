@@ -3,17 +3,32 @@
   --sidebar-item-pad: var(--space-2);
   --sidebar-icon-size: 1.0625rem;
   --sidebar-border-width: 1px;
+  /* Extra rail width so hover pills get breathing room
+     both inside (around the avatar/icon) and to the rail edges */
+  --sidebar-rail-extra: 0.25rem;
   --sidebar-rail-width: calc(
     var(--sidebar-inset) * 2 + var(--sidebar-item-pad) * 2 +
-      var(--sidebar-icon-size) + var(--sidebar-border-width)
+      var(--sidebar-icon-size) + var(--sidebar-border-width) +
+      var(--sidebar-rail-extra)
   );
-  --sidebar-expanded-width: clamp(14.5rem, 12vw + 5.5rem, 17rem);
+  --sidebar-expanded-width: calc(
+    clamp(14.5rem, 12vw + 5.5rem, 17rem) + var(--sidebar-rail-extra)
+  );
   --sidebar-content-width: calc(
     var(--sidebar-expanded-width) - var(--sidebar-inset) * 2 -
-      var(--sidebar-border-width)
+      var(--sidebar-rail-extra) - var(--sidebar-border-width)
   );
   position: relative;
   font-weight: var(--weight-medium);
+  /* Shared sidebar motion: gentle and organic, no eye strain.
+     A symmetric ease-in-out: the panel wakes up softly, glides, and
+     settles with a long feather-light deceleration - no snappy start.
+     Fades are shorter than the width slide so swaps finish first.
+     The mobile drawer travels further, so it gets a slightly longer run. */
+  --sidebar-anim: 0.3s;
+  --sidebar-anim-mobile: 0.38s;
+  --sidebar-fade: 0.2s;
+  --sidebar-ease: cubic-bezier(0.45, 0.05, 0.15, 1);
 }
 
 .sidebar {
@@ -23,7 +38,7 @@
   z-index: 30;
   width: var(--sidebar-rail-width);
   height: 100svh;
-  transition: width 0.2s ease;
+  transition: width var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .sidebarOpen {
@@ -37,6 +52,9 @@
   width: 100%;
   height: 100%;
   padding: var(--sidebar-inset);
+  /* Same horizontal padding in both states so items never shift on toggle;
+     the extra keeps collapsed items centered with breathing room */
+  padding-inline: calc(var(--sidebar-inset) + var(--sidebar-rail-extra) / 2);
   background-color: #000000;
   border-right: var(--sidebar-border-width) solid var(--color-border);
   overflow: hidden;
@@ -108,7 +126,7 @@
   align-items: center;
   justify-content: flex-start;
   padding: var(--space-2) var(--sidebar-item-pad);
-  margin-bottom: var(--space-2);
+  margin-bottom: 0;
 }
 
 .sidebarHeader svg {
@@ -122,20 +140,53 @@
   width: var(--sidebar-icon-size);
   flex-shrink: 0;
   opacity: 1;
-  transition: opacity 0.15s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+/* Expanded state shows the bold brand wordmark instead of the icon */
+.wordmark {
+  position: absolute;
+  left: var(--sidebar-item-pad);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.01em;
+  color: var(--color-foreground);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+.sidebarOpen .logo {
+  opacity: 0;
+}
+
+.sidebarOpen .wordmark {
+  opacity: 1;
+}
+
+.sidebarToggleWrap {
+  /* No transform here: a transformed ancestor would become the containing
+     block for the fixed-position tooltip and shift it off-screen */
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  /* Slide with the width animation instead of teleporting left <-> right */
+  transition: left var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .sidebarToggle {
-  position: absolute;
-  left: var(--sidebar-item-pad);
-  right: auto;
-  top: 50%;
-  transform: translateY(-50%);
+  /* Same padding as .navLink so the hover shape matches nav items,
+     while the icon itself stays exactly in place */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 0.5rem var(--sidebar-item-pad);
   border: none;
+  border-radius: var(--radius-lg);
   background: none;
   color: var(--color-foreground);
   cursor: pointer;
@@ -143,7 +194,8 @@
   pointer-events: none;
   transition:
     color 0.15s ease,
-    opacity 0.15s ease;
+    opacity var(--sidebar-fade) var(--sidebar-ease),
+    background-color 0.15s ease;
 }
 
 .sidebarToggle svg {
@@ -153,39 +205,32 @@
 
 .sidebarToggle:hover {
   color: var(--color-foreground);
+  /* Светлее, чем hover у пунктов навигации: toggle — control-элемент,
+     который появляется поверх логотипа и должен читаться мгновенно */
+  background-color: var(--color-surface-elevated);
 }
 
-.sidebarHeader:hover .logo {
+/* Hover is tracked as React state (.sidebarHeaderHovered), not CSS :hover:
+   a single source of truth that never gets force-toggled mid-animation,
+   so the logo/toggle swap can't flicker while the width animates. */
+.sidebarHeaderHovered .logo {
   opacity: 0;
 }
 
-.sidebarHeader:hover .sidebarToggle {
+.sidebarHeaderHovered .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
+}
+
+.sidebarOpen .sidebarToggleWrap {
+  left: calc(
+    100% - var(--sidebar-icon-size) - var(--sidebar-item-pad) * 2
+  );
 }
 
 .sidebarOpen .sidebarToggle {
-  left: auto;
-  right: var(--sidebar-item-pad);
   opacity: 1;
   pointer-events: auto;
-}
-
-.sidebarOpen .sidebarHeader:hover .logo {
-  opacity: 1;
-}
-
-.sidebarAnimating .sidebarHeader .logo,
-.sidebarAnimating .sidebarHeader:hover .logo {
-  opacity: 1;
-  transition: none;
-}
-
-.sidebarAnimating .sidebarHeader .sidebarToggle,
-.sidebarAnimating .sidebarHeader:hover .sidebarToggle {
-  opacity: 0;
-  pointer-events: none;
-  transition: none;
 }
 
 .sidebarAnimating .sidebarScroll {
@@ -228,19 +273,65 @@
   background-color: var(--color-surface-elevated);
 }
 
-.loginLink {
+.loginPill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+  height: 2.25rem;
+  padding: 0;
   border: none;
-  cursor: pointer;
-  font-family: inherit;
-  background-color: var(--color-surface-elevated);
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.08);
   color: var(--color-foreground);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.1);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    background-color 0.15s ease,
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
-.loginLink:hover {
-  background-color: var(--color-surface-elevated);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.18);
+.loginPill:hover {
+  background-color: rgb(255 255 255 / 0.12);
+}
+
+.loginPill:active {
+  transform: scale(0.98);
+}
+
+.loginPill:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.loginPill:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--color-border-strong);
+}
+
+.loginGlyph {
+  position: absolute;
+  width: var(--sidebar-icon-size);
+  height: var(--sidebar-icon-size);
+  opacity: 1;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+.loginLabel {
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
+}
+
+.sidebarOpen .loginGlyph {
+  opacity: 0;
+}
+
+.sidebarOpen .loginLabel {
+  opacity: 1;
 }
 
 .navIcon {
@@ -257,12 +348,11 @@
   flex-shrink: 0;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .navLabel {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .section {
@@ -274,13 +364,12 @@
   flex-shrink: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .section {
   opacity: 1;
   pointer-events: auto;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .sectionTitle {
@@ -337,6 +426,9 @@
   gap: var(--space-2);
   flex-shrink: 0;
   padding-top: var(--space-1);
+  /* Shift down so the profile hover pill's gap to the sidebar bottom
+     equals its gap to the sidebar side edge */
+  margin-bottom: -0.25rem;
 }
 
 .profileRoot {
@@ -356,9 +448,11 @@
   );
   max-width: calc(100vw - var(--space-8));
   padding: var(--space-2);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgb(255 255 255 / 0.06);
   border-radius: var(--radius-2xl);
-  background-color: var(--color-surface-elevated);
+  /* Светлее обычных меню: всплывает над чёрным (#000) сайдбаром,
+     где тени не читаются — «высота» передаётся светлотой */
+  background-color: var(--color-surface-raised);
   box-shadow: var(--shadow-lg);
   animation: profileMenuIn 0.16s ease both;
 }
@@ -371,6 +465,29 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+.profileMenuFlyout {
+  transform-origin: left bottom;
+  animation: profileMenuFlyoutIn 0.16s ease both;
+}
+
+@keyframes profileMenuFlyoutIn {
+  from {
+    opacity: 0;
+    transform: translateX(-0.375rem) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profileMenu,
+  .profileMenuFlyout {
+    animation: none;
   }
 }
 
@@ -428,7 +545,7 @@
   flex-direction: column;
   margin-top: var(--space-2);
   padding-top: var(--space-2);
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgb(255 255 255 / 0.08);
 }
 
 .profileMenuItem {
@@ -468,26 +585,45 @@
 }
 
 .profile {
-  --profile-pad: calc(
+  --profile-avatar-inset: calc(
     var(--sidebar-item-pad) - (1.625rem - var(--sidebar-icon-size)) / 2
   );
+  --profile-pad: 0.5rem;
+  --profile-pad-x-extra: calc(var(--profile-pad) - var(--profile-avatar-inset));
+  --profile-pad-y-extra: calc(var(--profile-pad) - var(--space-1));
+  position: relative;
+  z-index: 0;
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-1) var(--profile-pad);
+  width: calc(100% + var(--profile-pad-x-extra) * 2);
+  padding: var(--profile-pad);
+  margin-inline: calc(-1 * var(--profile-pad-x-extra));
+  margin-block: calc(-1 * var(--profile-pad-y-extra));
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: none;
   font-family: inherit;
   text-align: left;
   cursor: pointer;
   overflow: hidden;
+}
+
+.profile::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 0;
+  right: 0;
+  top: calc(50% - 0.8125rem - var(--profile-pad));
+  bottom: calc(50% - 0.8125rem - var(--profile-pad));
+  border-radius: var(--radius-xl);
+  background-color: transparent;
   transition: background-color 0.15s ease;
 }
 
-.profile:hover,
-.profile[data-open] {
+.profile:hover::before,
+.profile[data-open]::before {
   background-color: var(--color-surface);
 }
 
@@ -509,12 +645,11 @@
   gap: var(--space-px);
   flex-shrink: 0;
   opacity: 0;
-  transition: opacity 0.1s ease;
+  transition: opacity var(--sidebar-fade) var(--sidebar-ease);
 }
 
 .sidebarOpen .profileIdentity {
   opacity: 1;
-  transition: opacity 0.15s ease 0.08s;
 }
 
 .profileName {
@@ -544,7 +679,8 @@
   padding: 0;
   background-color: rgb(0 0 0 / 0.5);
   cursor: pointer;
-  animation: backdropIn 0.2s ease both;
+  /* Fades in over the same run as the mobile drawer slide */
+  animation: backdropIn var(--sidebar-anim-mobile) var(--sidebar-ease) both;
   touch-action: none;
   overscroll-behavior: contain;
 }
@@ -565,7 +701,7 @@
   height: 100svh;
   overflow: hidden;
   padding-left: var(--sidebar-rail-width);
-  transition: padding-left 0.2s ease;
+  transition: padding-left var(--sidebar-anim) var(--sidebar-ease);
 }
 
 .content {
@@ -701,7 +837,7 @@
   .sidebar {
     width: var(--sidebar-expanded-width);
     transform: translateX(-100%);
-    transition: transform 0.25s ease;
+    transition: transform var(--sidebar-anim-mobile) var(--sidebar-ease);
     touch-action: pan-y;
   }
 
@@ -722,6 +858,19 @@
   }
 
   .navLabel {
+    opacity: 1;
+    transition: none;
+  }
+
+  .loginPill {
+    height: var(--sidebar-touch-target);
+  }
+
+  .loginGlyph {
+    opacity: 0;
+  }
+
+  .loginLabel {
     opacity: 1;
     transition: none;
   }
@@ -763,7 +912,7 @@
 
   .main {
     padding-left: 0;
-    transition: transform 0.25s ease;
+    transition: transform var(--sidebar-anim-mobile) var(--sidebar-ease);
     will-change: transform;
   }
 
@@ -796,5 +945,9 @@
 
   .backdrop {
     animation: none;
+  }
+
+  .loginPill:active {
+    transform: none;
   }
 }

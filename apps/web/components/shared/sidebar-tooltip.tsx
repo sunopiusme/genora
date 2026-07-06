@@ -19,12 +19,14 @@ type SidebarTooltipProps = {
   label: string;
   isEnabled: boolean;
   children: ReactNode;
+  className?: string;
 };
 
 export function SidebarTooltip({
   label,
   isEnabled,
   children,
+  className,
 }: SidebarTooltipProps) {
   const [position, setPosition] = useState<TooltipPosition | null>(null);
 
@@ -44,7 +46,7 @@ export function SidebarTooltip({
 
   return (
     <div
-      className={styles.trigger}
+      className={className ? `${styles.trigger} ${className}` : styles.trigger}
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
       onFocus={showTooltip}

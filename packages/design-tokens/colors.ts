@@ -10,6 +10,7 @@ export const palette = {
     500: "#737373",
     600: "#525252",
     700: "#404040",
+    750: "#303030",
     800: "#262626",
     900: "#171717",
     950: "#0a0a0a",
@@ -39,6 +40,8 @@ export const colors = {
   input: palette.neutral[950],
   surface: palette.neutral[900],
   surfaceElevated: palette.neutral[800],
+  // Поверхности над чёрным фоном сайдбара — «высота» через светлоту
+  surfaceRaised: palette.neutral[750],
   border: palette.neutral[800],
   borderStrong: palette.neutral[600],
   foreground: palette.neutral[50],
