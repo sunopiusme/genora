@@ -519,6 +519,20 @@ export function AssistantBar() {
       )}
 
       <button
+        type="button"
+        className={styles.modelPill}
+        aria-label="Выбор модели: ChatGPT Auto"
+      >
+        <span className={styles.modelPillName}>ChatGPT</span>
+        <span className={styles.modelPillMode}>Auto</span>
+        <Icon
+          icon="solar:alt-arrow-right-linear"
+          className={styles.modelPillChevron}
+          aria-hidden="true"
+        />
+      </button>
+
+      <button
         type="submit"
         className={styles.submit}
         disabled={!hasContent}
