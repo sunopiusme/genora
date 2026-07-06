@@ -15,12 +15,17 @@ export function AuthOverlay() {
 
   if (!view) return null;
 
+  const isLocked = view === "verify";
+
   return (
-    <Dialog open onOpenChange={(open) => !open && closeAuth()}>
+    <Dialog open onOpenChange={(open) => !open && !isLocked && closeAuth()}>
       <DialogContent
         className={styles.content}
         overlayClassName={styles.overlay}
         onOpenAutoFocus={(event) => event.preventDefault()}
+        onEscapeKeyDown={(event) => isLocked && event.preventDefault()}
+        onPointerDownOutside={(event) => isLocked && event.preventDefault()}
+        onInteractOutside={(event) => isLocked && event.preventDefault()}
       >
         <DialogTitle className={styles.srOnly}>
           {view === "login" ? "Вход в Genora" : "Подтверждение почты"}
