@@ -153,7 +153,9 @@
   position: relative;
   width: 100%;
   overflow: hidden;
-  transition: height 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  /* One continuous "settle" curve shared by the height change and the
+     entering view, so the card reads as a single object reshaping. */
+  transition: height 0.36s cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 .view {
@@ -166,28 +168,69 @@
   left: 0;
   width: 100%;
   pointer-events: none;
-  animation: viewFadeOut 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.viewEntering {
-  animation: viewFadeIn 0.18s cubic-bezier(0.4, 0, 0.2, 1) both;
+/* Choreography: the outgoing view exits quickly and quietly, then the
+   incoming view arrives on a softer, slightly delayed curve. The 4px
+   directional drift is felt rather than seen — it gives the change a
+   spatial cause without ever looking like a slide. */
+.forward .viewLeaving {
+  animation: viewExitForward 0.16s cubic-bezier(0.4, 0, 1, 1) both;
 }
 
-@keyframes viewFadeOut {
+.back .viewLeaving {
+  animation: viewExitBack 0.16s cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+.forward .viewEntering {
+  animation: viewEnterForward 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
+}
+
+.back .viewEntering {
+  animation: viewEnterBack 0.3s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
+}
+
+@keyframes viewExitForward {
   from {
     opacity: 1;
+    transform: translateX(0);
   }
   to {
     opacity: 0;
+    transform: translateX(-0.25rem);
   }
 }
 
-@keyframes viewFadeIn {
+@keyframes viewExitBack {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(0.25rem);
+  }
+}
+
+@keyframes viewEnterForward {
   from {
     opacity: 0;
+    transform: translateX(0.5rem);
   }
   to {
     opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes viewEnterBack {
+  from {
+    opacity: 0;
+    transform: translateX(-0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -287,8 +330,8 @@
 @media (prefers-reduced-motion: reduce) {
   .overlay[data-state],
   .content.content[data-state],
-  .viewLeaving,
-  .viewEntering {
+  .viewport .viewLeaving,
+  .viewport .viewEntering {
     animation: none;
   }
 
