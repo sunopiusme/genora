@@ -67,19 +67,19 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     }
   };
 
-  /* Иконки сервисов — официальные SVG, скачанные из
-     Wikimedia Commons и theSVG.org (см. public/share) */
+  /* Иконки сервисов — официальные iOS/macOS-иконки,
+     предоставленные пользователем (см. public/share) */
   const apps = [
     {
       id: "airdrop",
       label: "AirDrop",
-      icon: "/share/airdrop.svg",
+      icon: "/share/airdrop.png",
       onClick: handleAirDrop,
     },
     {
       id: "telegram",
       label: "Telegram",
-      icon: "/share/telegram.svg",
+      icon: "/share/telegram.png",
       onClick: () => {
         window.open(
           `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`,
@@ -91,7 +91,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     {
       id: "messages",
       label: "Сообщения",
-      icon: "/share/imessage.svg",
+      icon: "/share/imessage.png",
       onClick: () => {
         window.location.href = `sms:?&body=${encodeURIComponent(`${shareTitle} ${pageUrl}`)}`;
       },
@@ -99,7 +99,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     {
       id: "mail",
       label: "Почта",
-      icon: "/share/mail.svg",
+      icon: "/share/mail.png",
       onClick: () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
