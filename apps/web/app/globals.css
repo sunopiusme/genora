@@ -69,12 +69,20 @@ html::-webkit-scrollbar {
   background: transparent;
 }
 
+/* — Лимиты трека сверху/снизу —
+   margin-block укорачивает рабочую зону трека: ползунок не дотягивается
+   до самых краёв контейнера и не «раскатывается» на всю высоту.
+   Заодно длина ползунка (пропорциональная треку) становится компактнее. */
+*::-webkit-scrollbar-track {
+  margin-block: var(--space-4);
+}
+
 *::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
   background-clip: content-box;
   border: 2px solid transparent;
   border-radius: var(--radius-full);
-  min-height: 2.5rem;
+  min-height: 2rem;
 }
 
 *::-webkit-scrollbar-thumb:hover {
