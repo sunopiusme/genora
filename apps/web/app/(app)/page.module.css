@@ -23,19 +23,15 @@
 }
 
 /* — Геометрия контента —
-   Боковые отступы повторяют композер (.composer в app-shell.module.css):
+   Витрина занимает всю доступную ширину: без max-width, только боковые
+   отступы, повторяющие композер (.composer в app-shell.module.css):
    --space-4 + safe-area, минус --scrollbar-size, который .scroll уже
    резервирует с обеих сторон (scrollbar-gutter: stable both-edges).
-   На мобильном и планшете карточки идут ровно по ширине чат-инпута.
-   Лимит ширины при этом — --showcase-width, а не --composer-width:
-   сетка каталога шире текстового инпута (4–5 колонок на десктопе),
-   но оба блока центрированы по одной оси и сужаются синхронно
-   при любом состоянии сайдбара. */
+   Карточки идут вплотную к сайдбару/краям окна с одинаковым зазором
+   на любой ширине; число колонок при этом держат container queries
+   в product-showcase.module.css — сайдбар не вызывает перескока рядов. */
 .scrollInner {
   width: 100%;
-  max-width: calc(
-    var(--showcase-width) + (var(--space-4) - var(--scrollbar-size)) * 2
-  );
   margin-inline: auto;
   padding-inline: calc(
       var(--space-4) - var(--scrollbar-size) + env(safe-area-inset-left, 0px)
