@@ -32,6 +32,9 @@ type NavItem = {
   icon: string;
   requiresAuth?: boolean;
   action?: "new-request" | "search";
+  /* Переход на другую площадку платформы: при ховере появляется
+     стрелка «вверх и в сторону», сигнализирующая о переходе. */
+  isExternalArea?: boolean;
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -64,6 +67,12 @@ const NAV_ITEMS: NavItem[] = [
     href: "/orders",
     icon: "solar:bag-4-linear",
     requiresAuth: true,
+  },
+  {
+    label: "Синора",
+    href: "/synora",
+    icon: "solar:code-square-linear",
+    isExternalArea: true,
   },
 ];
 
@@ -347,6 +356,13 @@ export function AppShell({
                       >
                         <Icon icon={item.icon} className={styles.navIcon} />
                         <span className={styles.navLabel}>{item.label}</span>
+                        {item.isExternalArea && (
+                          <Icon
+                            icon="solar:arrow-right-up-linear"
+                            className={styles.navExternalArrow}
+                            aria-hidden="true"
+                          />
+                        )}
                       </Link>
                     )}
                   </SidebarTooltip>
