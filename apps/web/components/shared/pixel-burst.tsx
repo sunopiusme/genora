@@ -79,7 +79,20 @@ const HALO_ALPHA = 0.11;
 /* Порог включения: половина порядка Байера + половина хэша клетки */
 const BAYER_SHARE = 0.5;
 
+/* Плавный запуск: всё поле разгорается smoothstep-конвертом из
+   центра — ядро зажигается первым, края подтягиваются следом */
+const INTRO_MS = 1200;
+/* Эхо подключается только после того, как первая волна дошла до
+   границы (waveTime = 1), и нарастает постепенно */
+const ECHO_RAMP_WAVES = 0.6;
+
 const TWO_PI = Math.PI * 2;
+
+/* Классический smoothstep: плавные производные на обоих концах */
+function smoothstep(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -144,10 +157,16 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       /* Непрерывное время волны: гладкий ход гребня, как в шейдере */
       const waveTime = elapsedMs / WAVE_PERIOD_MS;
 
+      /* Конверт запуска: 0 -> 1 за INTRO_MS, гасит всё поле в начале */
+      const intro = smoothstep(elapsedMs / INTRO_MS);
+      /* Эхо включается, лишь когда первая волна дошла до границы,
+         и набирает силу постепенно — причинность соблюдена */
+      const echoGain = smoothstep((waveTime - 1) / ECHO_RAMP_WAVES);
+
       /* Ядро дышит ступенями: два уровня, как контрольная лампа */
       const corePulse =
         Math.floor(step / CORE_PULSE_PERIOD_STEPS) % 2 === 0 ? 0 : CORE_PULSE;
-      const coreEnergy = CORE_BASE + corePulse;
+      const coreEnergy = (CORE_BASE + corePulse) * intro;
 
       for (let col = 0; col < columns; col++) {
         for (let row = 0; row < rows; row++) {
@@ -176,21 +195,28 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
           const shapeDistance =
             (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
             (1 / SUPERELLIPSE_POWER);
-          const wavePhase = shapeDistance - waveTime;
-          const cyclePhase = wavePhase - Math.floor(wavePhase);
-          const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
-            WAVE_SHARPNESS;
-          /* Лёгкое затухание к границе — энергия волны рассеивается */
+          /* Причинность: волна существует только там, куда уже дошла.
+             До клетки на дистанции d первый гребень добирается в момент
+             waveTime = d — раньше этого волны в клетке просто нет */
           const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
-          energy += WAVE_BOOST * crest * attenuation;
+          if (waveTime >= shapeDistance) {
+            const wavePhase = shapeDistance - waveTime;
+            const cyclePhase = wavePhase - Math.floor(wavePhase);
+            const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
+              WAVE_SHARPNESS;
+            energy += WAVE_BOOST * crest * attenuation;
+          }
 
           /* Эхо: фронт, отражённый от границ, бежит обратно к центру.
-             Встречаясь с прямой волной, даёт интерференционную вспышку */
-          const echoPhase = shapeDistance + waveTime;
-          const echoCycle = echoPhase - Math.floor(echoPhase);
-          const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
-            ECHO_SHARPNESS;
-          energy += ECHO_BOOST * echoCrest * attenuation;
+             Появляется лишь после первого касания границы (echoGain)
+             и встречаясь с прямой волной даёт интерференционную вспышку */
+          if (echoGain > 0) {
+            const echoPhase = shapeDistance + waveTime;
+            const echoCycle = echoPhase - Math.floor(echoPhase);
+            const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
+              ECHO_SHARPNESS;
+            energy += ECHO_BOOST * echoGain * echoCrest * attenuation;
+          }
 
           /* --- Слой 3: мерцание-перебегание. Личный слот клетки:
              в слот «выкл» проседает, в противофазе — вспыхивает.
@@ -199,9 +225,9 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
           const slot =
             (step + (hash % TWINKLE_PERIOD_STEPS)) % TWINKLE_PERIOD_STEPS;
           if (slot === 0) {
-            energy -= TWINKLE_OFF_DROP;
+            energy -= TWINKLE_OFF_DROP * intro;
           } else if (slot === Math.floor(TWINKLE_PERIOD_STEPS / 2)) {
-            energy += TWINKLE_ON_BOOST;
+            energy += TWINKLE_ON_BOOST * intro;
           }
 
           /* Порог — смесь порядка Байера и хэша клетки: россыпь

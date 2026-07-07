@@ -72,7 +72,19 @@ const HALO_ALPHA = 0.1;
    узор органичный, как россыпь, но пространственно ровный */
 const BAYER_SHARE = 0.5;
 
+/* Плавный запуск: волновое поле разгорается smoothstep-конвертом
+   после проявления, эхо подключается лишь после первого касания
+   границы первой волной */
+const INTRO_MS = 1200;
+const ECHO_RAMP_WAVES = 0.6;
+
 const TWO_PI = Math.PI * 2;
+
+/* Классический smoothstep: плавные производные на обоих концах */
+function smoothstep(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
 
 export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -142,9 +154,16 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       const isRevealing = revealStep < revealSteps;
 
       /* --- Фаза 2: волновое поле. Мерцание идёт по шаговому такту,
-         гребень волны — по непрерывному времени, как в шейдере --- */
+         гребень волны — по непрерывному времени, как в шейдере.
+         Отсчёт волны начинается после проявления поля --- */
+      const revealDoneMs = revealSteps * REVEAL_STEP_MS;
+      const waveClockMs = Math.max(0, timeMs - revealDoneMs);
       const step = staticMode ? 0 : Math.floor(timeMs / STEP_MS);
-      const waveTime = staticMode ? 0 : timeMs / WAVE_PERIOD_MS;
+      const waveTime = staticMode ? 0 : waveClockMs / WAVE_PERIOD_MS;
+      const intro = staticMode ? 0 : smoothstep(waveClockMs / INTRO_MS);
+      const echoGain = staticMode
+        ? 0
+        : smoothstep((waveTime - 1) / ECHO_RAMP_WAVES);
 
       /* Центр и полуоси активной зоны — для нормировки суперэллипсной
          дистанции: 0 в центре поля, ровно 1 на его границах */
@@ -184,20 +203,27 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
             const shapeDistance =
               (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
               (1 / SUPERELLIPSE_POWER);
-            const wavePhase = shapeDistance - waveTime;
-            const cyclePhase = wavePhase - Math.floor(wavePhase);
-            const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
-              WAVE_SHARPNESS;
+            /* Причинность: волна существует только там, куда уже
+               дошла — до клетки на дистанции d первый гребень
+               добирается в момент waveTime = d */
             const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
-            waveBoost = WAVE_BOOST * crest * attenuation;
+            if (waveTime >= shapeDistance) {
+              const wavePhase = shapeDistance - waveTime;
+              const cyclePhase = wavePhase - Math.floor(wavePhase);
+              const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
+                WAVE_SHARPNESS;
+              waveBoost = WAVE_BOOST * crest * attenuation;
+            }
 
-            /* Эхо: отражённый фронт бежит обратно к центру,
-               интерферируя с прямой волной */
-            const echoPhase = shapeDistance + waveTime;
-            const echoCycle = echoPhase - Math.floor(echoPhase);
-            const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
-              ECHO_SHARPNESS;
-            waveBoost += ECHO_BOOST * echoCrest * attenuation;
+            /* Эхо: отражённый фронт бежит обратно к центру, появляясь
+               лишь после первого касания границы прямой волной */
+            if (echoGain > 0) {
+              const echoPhase = shapeDistance + waveTime;
+              const echoCycle = echoPhase - Math.floor(echoPhase);
+              const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
+                ECHO_SHARPNESS;
+              waveBoost += ECHO_BOOST * echoGain * echoCrest * attenuation;
+            }
           }
 
           /* Мерцание-перебегание: личный слот клетки внутри цикла.
@@ -209,9 +235,9 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
             const slot =
               (step + (hash % TWINKLE_PERIOD_STEPS)) % TWINKLE_PERIOD_STEPS;
             if (slot === 0) {
-              twinkleBoost = -TWINKLE_OFF_DROP;
+              twinkleBoost = -TWINKLE_OFF_DROP * intro;
             } else if (slot === Math.floor(TWINKLE_PERIOD_STEPS / 2)) {
-              twinkleBoost = TWINKLE_ON_BOOST;
+              twinkleBoost = TWINKLE_ON_BOOST * intro;
             }
           }
 
@@ -224,7 +250,7 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
           const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
           const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
 
-          /* Мгновенная яркость клетки в этом кадре */
+          /* Мгновенная яркость клет��и в этом кадре */
           let intensity = 0;
           if (energy > threshold) {
             const overshoot = Math.min(1, (energy - threshold) / 0.5);
