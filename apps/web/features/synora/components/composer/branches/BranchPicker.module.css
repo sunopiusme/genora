@@ -70,38 +70,15 @@
   min-width: 280px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: var(--c-surface-glass);
-  -webkit-backdrop-filter: blur(24px) saturate(160%);
-  backdrop-filter: blur(24px) saturate(160%);
+  /* Сплошная приподнятая поверхность (токены Геноры), без стекла. */
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    0 12px 32px rgba(0, 0, 0, 0.32),
-    0 -24px 48px rgba(0, 0, 0, 0.55);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 1px;
   z-index: 20;
-}
-
-.popover::before {
-  content: "";
-  position: absolute;
-  inset: -40px;
-  border-radius: calc(var(--c-card-radius) + 40px);
-  -webkit-backdrop-filter: blur(12px);
-  backdrop-filter: blur(12px);
-  -webkit-mask-image: radial-gradient(
-    ellipse closest-side,
-    rgba(0, 0, 0, 0.95) 30%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  mask-image: radial-gradient(
-    ellipse closest-side,
-    rgba(0, 0, 0, 0.95) 30%,
-    rgba(0, 0, 0, 0) 100%
-  );
-  pointer-events: none;
-  z-index: -1;
 }
 
 .search {

@@ -168,7 +168,6 @@ export function ComposerInput() {
           className={styles.card}
           data-drag={fileDrop.dragOver}
           data-focus={inputFocused}
-          data-typing={promptReady}
           data-sending={sending}
           aria-busy={sending}
           {...fileDrop.handlers}
@@ -203,6 +202,18 @@ export function ComposerInput() {
             </div>
           ) : null}
 
+          {/* Верхний ряд карточки — многострочное поле ввода.
+              Живёт отдельно от toolbar'а, чтобы длинный промпт
+              рос вниз (auto-grow), а не сжимал контролы. */}
+          <PromptInput
+            value={prompt}
+            disabled={sending}
+            canSubmit={canSubmit}
+            onValueChange={setPrompt}
+            onFocusChange={setInputFocused}
+            onSubmit={handleSubmit}
+          />
+
           <div className={styles.toolbar} data-recording={voiceStage !== "idle"}>
             <div className={styles.toolbarLeft}>
               <PlusDropdown
@@ -212,34 +223,22 @@ export function ComposerInput() {
               />
               {voiceStage !== "idle" ? (
                 <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
-              ) : (
-                <>
-                  <PromptInput
-                    value={prompt}
-                    disabled={sending}
-                    canSubmit={canSubmit}
-                    onValueChange={setPrompt}
-                    onFocusChange={setInputFocused}
-                    onSubmit={handleSubmit}
-                  />
-                  {planMode ? (
-                    <span className={styles.modeChip}>
-                      <span className={styles.modeChipIcon} aria-hidden="true">
-                        <ListChecksIcon />
-                      </span>
-                      Планирование
-                      <button
-                        type="button"
-                        className={styles.modeChipClose}
-                        aria-label="Выключить планирование"
-                        onClick={() => setPlanMode(false)}
-                      >
-                        <CloseIcon />
-                      </button>
-                    </span>
-                  ) : null}
-                </>
-              )}
+              ) : planMode ? (
+                <span className={styles.modeChip}>
+                  <span className={styles.modeChipIcon} aria-hidden="true">
+                    <ListChecksIcon />
+                  </span>
+                  Планирование
+                  <button
+                    type="button"
+                    className={styles.modeChipClose}
+                    aria-label="Выключить планирование"
+                    onClick={() => setPlanMode(false)}
+                  >
+                    <CloseIcon />
+                  </button>
+                </span>
+              ) : null}
             </div>
 
             <div className={styles.toolbarRight}>
