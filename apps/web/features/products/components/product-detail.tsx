@@ -8,11 +8,12 @@ import { useMobileViewport } from "../hooks/use-mobile-viewport";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";
 import styles from "./product-detail.module.css";
+import { ShareMenu as ShareDialogMenu } from "./share-dialog";
+import shareStyles from "./share-dialog.module.css";
 import { TierSelector } from "./tier-selector";
 import { TierValueTransition } from "./tier-value-transition";
 
 const SURFACE_ELEMENT_ID = "showcaseSurface";
-const COPIED_RESET_DELAY_MS = 1500;
 const SWIPE_START_THRESHOLD_PX = 8;
 const SWIPE_DISMISS_DISTANCE_RATIO = 0.25;
 const SWIPE_DISMISS_VELOCITY_PX_PER_MS = 0.6;
@@ -230,16 +231,14 @@ type ShareMenuProps = {
 
 function ShareMenu({ product }: ShareMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [isCopied, setIsCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
-  const copiedResetTimerRef = useRef<number | undefined>(undefined);
-  const isMobile = useMobileViewport();
 
   useClickOutside(menuRef, isOpen, closeMenu);
 
   useEffect(() => {
-    return () => window.clearTimeout(copiedResetTimerRef.current);
-  }, []);
+    setShareUrl(buildProductShareUrl(product.id));
+  }, [product.id]);
 
   function closeMenu() {
     setIsOpen(false);
@@ -247,36 +246,6 @@ function ShareMenu({ product }: ShareMenuProps) {
 
   function toggleMenu() {
     setIsOpen((prev) => !prev);
-  }
-
-  function handleShareButtonClick() {
-    if (isMobile && canUseSystemShare()) {
-      void openSystemShare(product);
-      return;
-    }
-    toggleMenu();
-  }
-
-  async function handleCopyLink() {
-    try {
-      await navigator.clipboard.writeText(buildProductShareUrl(product.id));
-      setIsCopied(true);
-      copiedResetTimerRef.current = window.setTimeout(() => {
-        setIsCopied(false);
-        closeMenu();
-      }, COPIED_RESET_DELAY_MS);
-    } catch {
-      closeMenu();
-    }
-  }
-
-  function handleShareTelegram() {
-    window.open(
-      buildTelegramShareUrl(product),
-      "_blank",
-      "noopener,noreferrer",
-    );
-    closeMenu();
   }
 
   const shareButtonClassName = isOpen
@@ -288,59 +257,45 @@ function ShareMenu({ product }: ShareMenuProps) {
       <button
         type="button"
         className={shareButtonClassName}
-        onClick={handleShareButtonClick}
+        onClick={toggleMenu}
         aria-label="Поделиться"
-        title="Поделиться"
-        aria-haspopup="true"
+        aria-haspopup="dialog"
         aria-expanded={isOpen}
       >
         <Icon icon="solar:square-share-line-linear" aria-hidden="true" />
       </button>
       {isOpen && (
-        <div className={styles.shareMenu} role="menu">
-          <button
-            type="button"
-            className={styles.shareItem}
-            onClick={handleCopyLink}
-            role="menuitem"
-          >
-            <CopyLinkItem isCopied={isCopied} />
-          </button>
-          <button
-            type="button"
-            className={styles.shareItem}
-            onClick={handleShareTelegram}
-            role="menuitem"
-          >
-            <span className={styles.shareItemGlyph}>
-              <Icon icon="solar:plain-linear" aria-hidden="true" />
-            </span>
-            <span className={styles.shareItemLabel}>Telegram</span>
-          </button>
-        </div>
+        <ShareDialogMenu
+          onClose={closeMenu}
+          title={product.name}
+          url={shareUrl}
+          align="left"
+          cover={<ProductShareCover product={product} />}
+        />
       )}
     </div>
   );
 }
 
-type CopyLinkItemProps = {
-  isCopied: boolean;
+type ProductShareCoverProps = {
+  product: Product;
 };
 
-function CopyLinkItem({ isCopied }: CopyLinkItemProps) {
-  const iconName = isCopied ? "solar:check-read-linear" : "solar:link-linear";
-  const label = isCopied ? "Скопировано" : "Ссылка";
-  const glyphClassName = isCopied
-    ? styles.shareItemGlyphSuccess
-    : styles.shareItemGlyph;
-
+function ProductShareCover({ product }: ProductShareCoverProps) {
   return (
-    <>
-      <span className={glyphClassName}>
-        <Icon icon={iconName} aria-hidden="true" />
-      </span>
-      <span className={styles.shareItemLabel}>{label}</span>
-    </>
+    <span
+      className={shareStyles.cover}
+      style={
+        {
+          "--logo-url": getBrandLogoCssUrl(product.logoSlug),
+          "--brand": product.brandColor,
+        } as React.CSSProperties
+      }
+      aria-hidden="true"
+    >
+      <span className={shareStyles.coverProductGlow} />
+      <span className={shareStyles.coverProductLogo} />
+    </span>
   );
 }
 
@@ -599,40 +554,9 @@ function useClickOutside(
   }, [containerRef, isActive, onOutsideClick]);
 }
 
-function canUseSystemShare() {
-  return (
-    typeof navigator !== "undefined" && typeof navigator.share === "function"
-  );
-}
-
-async function openSystemShare(product: Product) {
-  try {
-    await navigator.share({
-      title: product.name,
-      text: buildShareText(product),
-      url: buildProductShareUrl(product.id),
-    });
-  } catch {
-    return;
-  }
-}
-
-function buildShareText(product: Product) {
-  return `${product.name} — ${product.priceLabel}/${product.periodLabel}`;
-}
-
 function buildProductShareUrl(productId: Product["id"]) {
   if (typeof window === "undefined") {
     return "";
   }
   return `${window.location.origin}/products?id=${productId}`;
-}
-
-function buildTelegramShareUrl(product: Product) {
-  const shareUrl = buildProductShareUrl(product.id);
-  const shareText = buildShareText(product);
-  const encodedUrl = encodeURIComponent(shareUrl);
-  const encodedText = encodeURIComponent(shareText);
-  const telegramShareBaseUrl = "https://t.me/share/url";
-  return `${telegramShareBaseUrl}?url=${encodedUrl}&text=${encodedText}`;
 }

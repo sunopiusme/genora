@@ -16,6 +16,13 @@
   animation: panelIn 0.16s ease both;
 }
 
+/* Привязка панели к левому краю кнопки (для детального просмотра,
+   где кнопка Share находится слева) */
+.panelLeft {
+  right: auto;
+  left: 0;
+}
+
 @keyframes panelIn {
   from {
     opacity: 0;
@@ -70,6 +77,28 @@
   position: relative;
   color: #fff;
   filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.35));
+}
+
+/* Обложка товара: логотип бренда на том же графитовом сквиркле
+   с лёгким брендовым свечением сверху (--brand задаётся инлайн) */
+.coverProductGlow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    120% 90% at 50% 0%,
+    var(--brand, transparent),
+    transparent 62%
+  );
+  opacity: 0.35;
+}
+
+.coverProductLogo {
+  position: relative;
+  width: 55%;
+  aspect-ratio: 1;
+  background-color: #fff;
+  -webkit-mask: var(--logo-url) no-repeat center / contain;
+  mask: var(--logo-url) no-repeat center / contain;
 }
 
 .headerText {

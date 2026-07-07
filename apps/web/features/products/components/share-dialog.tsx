@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Logo } from "@genora/ui";
 import { IMESSAGE_ICON, MAIL_ICON, TELEGRAM_ICON } from "./share-icons";
 import styles from "./share-dialog.module.css";
@@ -36,23 +36,38 @@ function MoreGlyph() {
 
 type ShareMenuProps = {
   onClose: () => void;
+  /** Заголовок шаринга; по умолчанию — название сервиса */
+  title?: string;
+  /** Ссылка для шаринга; по умолчанию — текущая страница */
+  url?: string;
+  /** Кастомная обложка в шапке (например, логотип товара) */
+  cover?: ReactNode;
+  /** Сторона привязки панели к кнопке; по умолчанию — справа */
+  align?: "left" | "right";
 };
 
-export function ShareMenu({ onClose }: ShareMenuProps) {
+export function ShareMenu({
+  onClose,
+  title,
+  url,
+  cover,
+  align = "right",
+}: ShareMenuProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const [pageUrl, setPageUrl] = useState("");
+  const [currentPageUrl, setCurrentPageUrl] = useState("");
   const [host, setHost] = useState("");
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setPageUrl(window.location.href);
+    setCurrentPageUrl(window.location.href);
     setHost(window.location.hostname);
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     };
   }, []);
 
-  const shareTitle = "Genora Pro";
+  const shareTitle = title ?? "Genora Pro";
+  const pageUrl = url ?? currentPageUrl;
 
   const handleCopy = async () => {
     try {
@@ -123,11 +138,23 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
   ];
 
   return (
-    <div className={styles.panel} role="dialog" aria-label="Поделиться">
+    <div
+      className={
+        align === "left" ? `${styles.panel} ${styles.panelLeft}` : styles.panel
+      }
+      role="dialog"
+      aria-label="Поделиться"
+    >
       <div className={styles.header}>
-        <span className={styles.cover} aria-hidden="true">
-          <Logo className={styles.coverLogo} width="1.5rem" height="1.5rem" />
-        </span>
+        {cover ?? (
+          <span className={styles.cover} aria-hidden="true">
+            <Logo
+              className={styles.coverLogo}
+              width="1.5rem"
+              height="1.5rem"
+            />
+          </span>
+        )}
         <div className={styles.headerText}>
           <p className={styles.siteTitle}>{shareTitle}</p>
           <p className={styles.siteHost}>{host}</p>
