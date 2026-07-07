@@ -16,13 +16,6 @@
   animation: panelIn 0.16s ease both;
 }
 
-/* Привязка панели к левому краю кнопки (для детального просмотра,
-   где кнопка Share находится слева) */
-.panelLeft {
-  right: auto;
-  left: 0;
-}
-
 @keyframes panelIn {
   from {
     opacity: 0;

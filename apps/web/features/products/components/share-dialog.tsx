@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { Logo } from "@genora/ui";
 import { IMESSAGE_ICON, MAIL_ICON, TELEGRAM_ICON } from "./share-icons";
 import styles from "./share-dialog.module.css";
@@ -42,20 +48,16 @@ type ShareMenuProps = {
   url?: string;
   /** Кастомная обложка в шапке (например, логотип товара) */
   cover?: ReactNode;
-  /** Сторона привязки панели к кнопке; по умолчанию — справа */
-  align?: "left" | "right";
 };
 
-export function ShareMenu({
-  onClose,
-  title,
-  url,
-  cover,
-  align = "right",
-}: ShareMenuProps) {
+const PANEL_VIEWPORT_MARGIN_PX = 12;
+
+export function ShareMenu({ onClose, title, url, cover }: ShareMenuProps) {
   const [isCopied, setIsCopied] = useState(false);
   const [currentPageUrl, setCurrentPageUrl] = useState("");
   const [host, setHost] = useState("");
+  const [shiftX, setShiftX] = useState(0);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -64,6 +66,21 @@ export function ShareMenu({
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     };
+  }, []);
+
+  /* Не даём панели выходить за края вьюпорта: один раз после
+  монтирования измеряем её положение (сдвиг ещё равен нулю)
+  и при необходимости сдвигаем по горизонтали. */
+  useLayoutEffect(() => {
+    const panelEl = panelRef.current;
+    if (!panelEl) return;
+    const rect = panelEl.getBoundingClientRect();
+    if (rect.left < PANEL_VIEWPORT_MARGIN_PX) {
+      setShiftX(PANEL_VIEWPORT_MARGIN_PX - rect.left);
+    } else if (rect.right > window.innerWidth - PANEL_VIEWPORT_MARGIN_PX) {
+      setShiftX(window.innerWidth - PANEL_VIEWPORT_MARGIN_PX - rect.right);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const shareTitle = title ?? "Genora Pro";
@@ -139,9 +156,9 @@ export function ShareMenu({
 
   return (
     <div
-      className={
-        align === "left" ? `${styles.panel} ${styles.panelLeft}` : styles.panel
-      }
+      ref={panelRef}
+      className={styles.panel}
+      style={shiftX !== 0 ? { right: -shiftX } : undefined}
       role="dialog"
       aria-label="Поделиться"
     >

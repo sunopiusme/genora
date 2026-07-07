@@ -269,7 +269,6 @@ function ShareMenu({ product }: ShareMenuProps) {
           onClose={closeMenu}
           title={product.name}
           url={shareUrl}
-          align="left"
           cover={<ProductShareCover product={product} />}
         />
       )}
