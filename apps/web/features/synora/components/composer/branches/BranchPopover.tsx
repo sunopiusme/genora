@@ -105,50 +105,57 @@ export function BranchPopover({ branch, placement, onSelect }: Props) {
   );
 }
 
-/* ─── Иконки ─────────────────────────── */
+/* ─── Иконки — стиль Solar Linear ──────────
+   24×24, stroke 1.5, скруглённые окончания —
+   единая шкала с lib/icon.tsx. Инлайн-SVG:
+   без сетевых загрузок и мигания. */
 
 const baseProps = {
   viewBox: "0 0 24 24",
   fill: "none" as const,
   stroke: "currentColor",
-  strokeWidth: 1.6,
+  strokeWidth: 1.5,
   strokeLinecap: "round" as const,
   strokeLinejoin: "round" as const,
 };
 
+/* Ветка git — узлы и плавное ответвление. */
 export function BranchIcon() {
   return (
     <svg {...baseProps}>
-      <circle cx="6" cy="5" r="2" />
-      <circle cx="6" cy="19" r="2" />
-      <circle cx="18" cy="7" r="2" />
-      <path d="M6 7v10" />
-      <path d="M18 9c0 4-4 4-6 5" />
+      <circle cx="6.5" cy="5.5" r="2" />
+      <circle cx="6.5" cy="18.5" r="2" />
+      <circle cx="17.5" cy="7.5" r="2" />
+      <path d="M6.5 7.5v9" />
+      <path d="M17.5 9.5c0 3.5-3.5 3.8-6 4.5-1.7.5-2.5 1-2.5 2.5" />
     </svg>
   );
 }
 
+/* Solar magnifer-linear. */
 function SearchIcon() {
   return (
     <svg {...baseProps}>
-      <circle cx="11" cy="11" r="6.5" />
-      <path d="m16 16 4 4" />
+      <circle cx="11.5" cy="11.5" r="7.5" />
+      <path d="m17 17 4.5 4.5" />
     </svg>
   );
 }
 
+/* Solar add-circle без круга — чистый плюс. */
 function PlusIcon() {
   return (
     <svg {...baseProps}>
-      <path d="M12 5v14M5 12h14" />
+      <path d="M12 5.5v13M5.5 12h13" />
     </svg>
   );
 }
 
+/* Solar check-read-linear (одиночная галочка). */
 function CheckIcon() {
   return (
-    <svg {...baseProps} strokeWidth={2.4}>
-      <path d="m5 12 5 5 9-11" />
+    <svg {...baseProps} strokeWidth={1.8}>
+      <path d="m4.5 12.75 4.5 4.5L19.5 6.75" />
     </svg>
   );
 }

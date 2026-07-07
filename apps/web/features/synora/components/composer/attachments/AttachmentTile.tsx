@@ -90,13 +90,14 @@ export function AttachmentTile({ attachment, onRemove, onReorder }: Props) {
   );
 }
 
+/* Solar music-note-linear — стиль единый с lib/icon.tsx. */
 function AudioIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth="1.6"
+      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -107,9 +108,10 @@ function AudioIcon() {
   );
 }
 
+/* Solar close-linear. */
 function CloseIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
       <path d="M6 6 18 18M18 6 6 18" />
     </svg>
   );

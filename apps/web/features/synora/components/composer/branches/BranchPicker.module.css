@@ -234,14 +234,20 @@
   .wrap {
     position: static;
     min-width: 0;
+    flex: 0 1 auto;
   }
   .trigger {
     min-width: 0;
-    padding: 8px 8px;
+    max-width: 100%;
+    padding: 8px 6px;
+    gap: 6px;
   }
   .triggerLabel {
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .triggerChevron {
+    display: none;
   }
   .popover {
     left: 0;

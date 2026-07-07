@@ -260,14 +260,27 @@
   .wrap {
     position: static;
     min-width: 0;
+    /* Название проекта — главный текст нижней
+       панели: сжимается последним (shrink 1 против
+       большего показателя у соседей не нужен —
+       у окружения на мобильном остаётся только
+       иконка, у ветки короткое имя). */
+    flex: 0 1 auto;
   }
   .trigger {
     min-width: 0;
-    padding: 8px 8px;
+    max-width: 100%;
+    padding: 8px 6px;
+    gap: 6px;
   }
   .triggerLabel {
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  /* Шеврон — лишний орнамент на узком экране:
+     чип и так очевидно интерактивен. */
+  .triggerChevron {
+    display: none;
   }
   .popover {
     left: 0;

@@ -1049,7 +1049,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 /* iOS-style toggle. Невзаимодействующий —
-   состояние держит родитель��кая кнопка через
+   состояние держит родите��ь��кая кнопка через
    data-on. Шайба сдвигается в активно�� положение
    при data-on="true". */
 .toggle {
@@ -1097,6 +1097,20 @@ button.iconBtn[data-loading="true"] svg {
    • поповеры пикеров растягиваются на всю
      ширину композера (media-блоки пикеров). */
 @media (max-width: 560px) {
+  /* Grid-ячейка .stack по умолчанию не уже своего
+     min-content — жёсткий toolbar распирал композер
+     шире вьюпорта. min-width: 0 разрешает сжатие,
+     а сжимаются лейблы чипов (ellipsis ниже и в
+     media-блоках пикеров). */
+  .stack,
+  .card,
+  .toolbar,
+  .toolbarLeft,
+  .toolbarRight,
+  .context {
+    min-width: 0;
+    max-width: 100%;
+  }
   .card {
     padding: 12px;
     gap: 10px;
@@ -1109,9 +1123,13 @@ button.iconBtn[data-loading="true"] svg {
   }
   .toolbarLeft {
     gap: 6px;
+    flex-shrink: 0;
   }
   .toolbarRight {
     gap: 0;
+    /* Правая группа (доступ + модель + голос +
+       отправка) сжимается за счёт чипа модели. */
+    flex: 0 1 auto;
   }
   .sendBtn {
     margin-left: 2px;

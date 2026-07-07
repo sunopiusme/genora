@@ -1,6 +1,17 @@
 "use client";
 
-import { Icon as IconifyIcon, addIcon, type IconProps } from "@iconify/react";
+/* Offline-сборка Iconify: рендерит ТОЛЬКО локально
+   зарегистрированные иконки и физически не умеет
+   ходить в сеть (api.iconify.design). Это гарантирует,
+   что иконки не мигают и не подгружаются с задержкой
+   при обновлении страницы — даже если кто-то добавит
+   новое имя, оно просто не отрисуется в dev, а не
+   «доедет» позже по сети в prod. */
+import {
+  Icon as IconifyIcon,
+  addIcon,
+  type IconProps,
+} from "@iconify/react/offline";
 
 const SOLAR_ICONS: Record<string, string> = {
   "pen-new-square-linear":
@@ -84,5 +95,17 @@ for (const [name, body] of Object.entries(SOLAR_ICONS)) {
 }
 
 export function Icon(props: IconProps) {
+  /* Дев-страховка: незарегистрированное имя — это баг
+     (иконка не отрисуется вовсе), сообщаем сразу. */
+  if (
+    process.env.NODE_ENV !== "production" &&
+    typeof props.icon === "string" &&
+    props.icon.startsWith("solar:") &&
+    !SOLAR_ICONS[props.icon.slice("solar:".length)]
+  ) {
+    console.warn(
+      `[icon] "${props.icon}" не зарегистрирована в lib/icon.tsx — добавьте её в SOLAR_ICONS`,
+    );
+  }
   return <IconifyIcon ssr {...props} />;
 }

@@ -74,17 +74,19 @@ export function BranchPicker({ branch, onChange }: Props) {
   );
 }
 
+/* Solar alt-arrow-down-linear — единый стиль
+   с остальными иконками композера. */
 function ChevronDownIcon() {
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={1.5}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="m6 9 6 6 6-6" />
+      <path d="m19 9-7 6-7-6" />
     </svg>
   );
 }
