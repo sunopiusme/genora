@@ -20,6 +20,8 @@ type SheetRow = {
   isAccent?: boolean;
   hasChevron?: boolean;
   isLogout?: boolean;
+  /* Раздел ещё в разработке: строка неактивна, вместо значения — «Скоро». */
+  isSoon?: boolean;
 };
 
 type SheetSection = {
@@ -27,27 +29,23 @@ type SheetSection = {
   rows: SheetRow[];
 };
 
-const SHEET_SECTIONS: SheetSection[] = [
+type ProfileSheetArea = "genora" | "synora";
+
+/* Секции магазина Genora: рабочая ссылка ведёт на существующую страницу
+   подписок, разделы без страниц помечены «Скоро». */
+const GENORA_SHEET_SECTIONS: SheetSection[] = [
   {
     title: "Настройка Genora",
     rows: [
       {
-        label: "Персонализация",
-        icon: "solar:magic-stick-3-linear",
-        href: "/genora",
-        hasChevron: true,
-      },
-      {
         label: "Профиль",
         icon: "solar:user-circle-linear",
-        href: "/genora",
-        hasChevron: true,
+        isSoon: true,
       },
       {
         label: "Настройки",
         icon: "solar:settings-linear",
-        href: "/genora",
-        hasChevron: true,
+        isSoon: true,
       },
     ],
   },
@@ -72,7 +70,7 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Улучшить план",
         icon: "solar:star-fall-minimalistic-2-linear",
-        href: "/genora",
+        href: "/subscriptions",
         isAccent: true,
       },
     ],
@@ -83,8 +81,7 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Помощь",
         icon: "solar:question-circle-linear",
-        href: "/genora",
-        hasChevron: true,
+        isSoon: true,
       },
       {
         label: "Выйти",
@@ -95,12 +92,83 @@ const SHEET_SECTIONS: SheetSection[] = [
   },
 ];
 
+/* Секции песочницы «Синора»: тариф с лимитами сборок и пополнение
+   баланса вместо витринных пунктов. Разделы без страниц — «Скоро»
+   до внедрения планов и ограничений. */
+const SYNORA_SHEET_SECTIONS: SheetSection[] = [
+  {
+    title: "Песочница",
+    rows: [
+      {
+        label: "Тариф и лимиты",
+        icon: "solar:card-2-linear",
+        isSoon: true,
+      },
+      {
+        label: "Пополнить",
+        icon: "solar:wallet-linear",
+        isSoon: true,
+      },
+      {
+        label: "Настройки песочницы",
+        icon: "solar:settings-linear",
+        isSoon: true,
+      },
+    ],
+  },
+  {
+    title: "Аккаунт",
+    rows: [
+      {
+        label: "Баланс",
+        icon: "solar:wallet-linear",
+        value: formatBalance(PROFILE.balance),
+      },
+      {
+        label: "Email",
+        icon: "solar:letter-linear",
+        detail: PROFILE.email,
+      },
+      {
+        label: "Профиль",
+        icon: "solar:user-circle-linear",
+        isSoon: true,
+      },
+    ],
+  },
+  {
+    title: "Прочее",
+    rows: [
+      {
+        label: "Помощь",
+        icon: "solar:question-circle-linear",
+        isSoon: true,
+      },
+      {
+        label: "Выйти",
+        icon: "solar:logout-2-linear",
+        isLogout: true,
+      },
+    ],
+  },
+];
+
+const SHEET_SECTIONS_BY_AREA: Record<ProfileSheetArea, SheetSection[]> = {
+  genora: GENORA_SHEET_SECTIONS,
+  synora: SYNORA_SHEET_SECTIONS,
+};
+
 type ProfileSheetProps = {
   isOpen: boolean;
   onClose: () => void;
+  area?: ProfileSheetArea;
 };
 
-export function ProfileSheet({ isOpen, onClose }: ProfileSheetProps) {
+export function ProfileSheet({
+  isOpen,
+  onClose,
+  area = "genora",
+}: ProfileSheetProps) {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
@@ -111,10 +179,19 @@ export function ProfileSheet({ isOpen, onClose }: ProfileSheetProps) {
     return null;
   }
 
-  return createPortal(<ProfileSheetPanel onClose={onClose} />, document.body);
+  return createPortal(
+    <ProfileSheetPanel onClose={onClose} area={area} />,
+    document.body,
+  );
 }
 
-function ProfileSheetPanel({ onClose }: { onClose: () => void }) {
+function ProfileSheetPanel({
+  onClose,
+  area,
+}: {
+  onClose: () => void;
+  area: ProfileSheetArea;
+}) {
   const [isClosing, setIsClosing] = useState(false);
   const closeTimer = useRef<number | undefined>(undefined);
 
@@ -183,7 +260,7 @@ function ProfileSheetPanel({ onClose }: { onClose: () => void }) {
             <p className={styles.identityName}>{PROFILE.name}</p>
           </div>
 
-          {SHEET_SECTIONS.map((section) => (
+          {SHEET_SECTIONS_BY_AREA[area].map((section) => (
             <section key={section.title} className={styles.section}>
               <h3 className={styles.sectionTitle}>{section.title}</h3>
               <div className={styles.group}>
@@ -229,6 +306,7 @@ function SheetRowItem({
           {row.label}
         </span>
         {row.value && <span className={styles.rowValue}>{row.value}</span>}
+        {row.isSoon && <span className={styles.rowSoonChip}>Скоро</span>}
         {row.hasChevron && (
           <Icon
             icon="solar:alt-arrow-right-linear"

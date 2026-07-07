@@ -705,6 +705,32 @@
   color: var(--color-foreground-muted);
 }
 
+/* Пункт-заглушка для разделов в разработке: приглушён и не реагирует
+   на ховер, чтобы не выглядеть кликабельным */
+.profileMenuItemSoon {
+  cursor: default;
+  color: var(--color-foreground-muted);
+}
+
+.profileMenuItemSoon:hover,
+.profileMenuItemSoon:focus-visible {
+  background: none;
+}
+
+/* Чип «Скоро» — та же pill-форма, что и чип баланса, но приглушённая */
+.profileMenuSoonChip {
+  flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
+  padding: var(--space-px) var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.06);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-xs);
+  color: var(--color-foreground-subtle);
+}
+
 /* Trailing balance chip on the "Пополнить" menu item - the same pill
    language as .profileBalance in the trigger widget, so the amount stays
    visible from the menu in both collapsed and expanded rail states */

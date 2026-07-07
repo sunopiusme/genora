@@ -15,6 +15,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type ReactNode,
@@ -94,6 +95,15 @@ export function SynoraShell({
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+
+  /* Базовое состояние интерфейса: на десктопе sidebar развёрнут
+     по умолчанию, на мобильных остаётся скрытым (overlay по кнопке).
+     Синхронно с AppShell — см. комментарий там. */
+  useLayoutEffect(() => {
+    const isDesktop = !window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+    useUiStore.getState().initSidebar(isDesktop);
+    prevSidebarOpen.current = useUiStore.getState().isSidebarOpen;
+  }, []);
 
   function isNavItemActive(item: NavItem): boolean {
     if (item.action || item.isExternalArea) {
@@ -324,6 +334,7 @@ export function SynoraShell({
                 isSidebarOpen={isSidebarOpen}
                 user={authenticatedUser}
                 planLabel="Песочница"
+                area="synora"
               />
             </div>
           </div>

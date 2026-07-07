@@ -76,57 +76,99 @@ const NAV_ITEMS: NavItem[] = [
   },
 ];
 
+export type ProfileMenuArea = "genora" | "synora";
+
 type ProfileMenuItem = {
   label: string;
-  href: string;
   icon: string;
+  /* Ссылка на существующую страницу. Пункты без href — разделы,
+     которые ещё в разработке: рендерятся неактивными с чипом «Скоро». */
+  href?: string;
   isLogout?: boolean;
   showsBalance?: boolean;
 };
 
-const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
+/* Меню магазина Genora: подписки уже существуют как страница,
+   остальные разделы аккаунта появятся позже. */
+const GENORA_PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
       label: "Пополнить",
-      href: "/genora",
       icon: "solar:wallet-linear",
       showsBalance: true,
     },
     {
       label: "Улучшить план",
-      href: "/genora",
+      href: "/subscriptions",
       icon: "solar:star-fall-minimalistic-2-linear",
     },
     {
-      label: "Персонализация",
-      href: "/genora",
-      icon: "solar:magic-stick-3-linear",
-    },
-    {
       label: "Профиль",
-      href: "/genora",
       icon: "solar:user-circle-linear",
     },
     {
       label: "Настройки",
-      href: "/genora",
       icon: "solar:settings-linear",
     },
   ],
   [
     {
       label: "Помощь",
-      href: "/genora",
       icon: "solar:question-circle-linear",
     },
     {
       label: "Выйти",
-      href: "/genora",
       icon: "solar:logout-2-linear",
       isLogout: true,
     },
   ],
 ];
+
+/* Меню песочницы «Синора»: вместо витринных пунктов — тариф с лимитами
+   сборок, пополнение баланса и настройки самой песочницы. Разделы
+   без страниц помечаются «Скоро» до внедрения планов и ограничений. */
+const SYNORA_PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
+  [
+    {
+      label: "Тариф и лимиты",
+      icon: "solar:card-2-linear",
+    },
+    {
+      label: "Пополнить",
+      icon: "solar:wallet-linear",
+      showsBalance: true,
+    },
+  ],
+  [
+    {
+      label: "Профиль",
+      icon: "solar:user-circle-linear",
+    },
+    {
+      label: "Настройки песочницы",
+      icon: "solar:settings-linear",
+    },
+  ],
+  [
+    {
+      label: "Помощь",
+      icon: "solar:question-circle-linear",
+    },
+    {
+      label: "Выйти",
+      icon: "solar:logout-2-linear",
+      isLogout: true,
+    },
+  ],
+];
+
+const PROFILE_MENU_GROUPS_BY_AREA: Record<
+  ProfileMenuArea,
+  ProfileMenuItem[][]
+> = {
+  genora: GENORA_PROFILE_MENU_GROUPS,
+  synora: SYNORA_PROFILE_MENU_GROUPS,
+};
 
 const SWIPE_CLOSE_DISTANCE = 48;
 
@@ -188,6 +230,16 @@ export function AppShell({
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  /* Базовое состояние интерфейса: на десктопе sidebar развёрнут
+     по умолчанию, на мобильных остаётся скрытым (overlay по кнопке).
+     useLayoutEffect выставляет состояние до первой отрисовки, а ручное
+     обновление prevSidebarOpen не даёт запуститься анимации открытия. */
+  useLayoutEffect(() => {
+    const isDesktop = !window.matchMedia(MOBILE_MEDIA_QUERY).matches;
+    useUiStore.getState().initSidebar(isDesktop);
+    prevSidebarOpen.current = useUiStore.getState().isSidebarOpen;
+  }, []);
 
   function endSidebarAnimation() {
     setIsAnimating(false);
@@ -492,13 +544,19 @@ export function ProfileMenu({
   isSidebarOpen,
   user,
   planLabel,
+  area = "genora",
 }: {
   isSidebarOpen: boolean;
   user: AuthUser;
   /* Подпись плана в триггере и шапке меню; по умолчанию — план Genora.
      Другие площадки (Синора) передают свою подпись. */
   planLabel?: string;
+  /* Площадка определяет состав меню: магазин Genora и песочница
+     «Синора» показывают разные пункты аккаунта. */
+  area?: ProfileMenuArea;
 }) {
+  const menuGroups = PROFILE_MENU_GROUPS_BY_AREA[area];
+  const areaHomeHref = area === "synora" ? "/synora" : "/genora";
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -581,7 +639,7 @@ export function ProfileMenu({
           style={menuStyle}
         >
           <Link
-            href="/genora"
+            href={areaHomeHref}
             role="menuitem"
             className={styles.profileMenuHeader}
             onClick={() => setIsOpen(false)}
@@ -603,25 +661,61 @@ export function ProfileMenu({
               aria-hidden="true"
             />
           </Link>
-          {PROFILE_MENU_GROUPS.map((group, groupIndex) => (
+          {menuGroups.map((group, groupIndex) => (
             <div key={groupIndex} className={styles.profileMenuGroup}>
-              {group.map((item) =>
-                item.isLogout ? (
-                  <button
-                    key={item.label}
-                    type="button"
-                    role="menuitem"
-                    className={styles.profileMenuItem}
-                    onClick={handleLogout}
-                  >
-                    <Icon
-                      icon={item.icon}
-                      className={styles.profileMenuGlyph}
-                      aria-hidden="true"
-                    />
-                    {item.label}
-                  </button>
-                ) : (
+              {group.map((item) => {
+                if (item.isLogout) {
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      role="menuitem"
+                      className={styles.profileMenuItem}
+                      onClick={handleLogout}
+                    >
+                      <Icon
+                        icon={item.icon}
+                        className={styles.profileMenuGlyph}
+                        aria-hidden="true"
+                      />
+                      {item.label}
+                    </button>
+                  );
+                }
+                if (!item.href) {
+                  /* Раздел ещё в разработке: неактивный пункт с чипом
+                     «Скоро» вместо ссылки в никуда. */
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      role="menuitem"
+                      className={cn(
+                        styles.profileMenuItem,
+                        styles.profileMenuItemSoon,
+                      )}
+                      aria-disabled="true"
+                      disabled
+                    >
+                      <Icon
+                        icon={item.icon}
+                        className={styles.profileMenuGlyph}
+                        aria-hidden="true"
+                      />
+                      {item.label}
+                      {item.showsBalance ? (
+                        <span className={styles.profileMenuBalanceChip}>
+                          {formatBalance(PROFILE.balance)}
+                        </span>
+                      ) : (
+                        <span className={styles.profileMenuSoonChip}>
+                          Скоро
+                        </span>
+                      )}
+                    </button>
+                  );
+                }
+                return (
                   <Link
                     key={item.label}
                     href={item.href}
@@ -641,8 +735,8 @@ export function ProfileMenu({
                       </span>
                     )}
                   </Link>
-                ),
-              )}
+                );
+              })}
             </div>
           ))}
         </div>
@@ -679,6 +773,7 @@ export function ProfileMenu({
       <ProfileSheet
         isOpen={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
+        area={area}
       />
     </div>
   );
