@@ -265,6 +265,31 @@ export function AppShell({
     };
   }, []);
 
+  /* pointerleave не срабатывает при уходе со вкладки/окна браузера,
+  поэтому hover-state может «залипнуть». Ресинхронизируем его с реальным
+  CSS :hover при возврате фокуса, смене видимости и навигации. */
+  useEffect(() => {
+    function syncHeaderHover() {
+      if (!isAnimatingRef.current) {
+        setIsHeaderHovered(headerRef.current?.matches(":hover") ?? false);
+      }
+    }
+    window.addEventListener("focus", syncHeaderHover);
+    window.addEventListener("blur", syncHeaderHover);
+    document.addEventListener("visibilitychange", syncHeaderHover);
+    return () => {
+      window.removeEventListener("focus", syncHeaderHover);
+      window.removeEventListener("blur", syncHeaderHover);
+      document.removeEventListener("visibilitychange", syncHeaderHover);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isAnimatingRef.current) {
+      setIsHeaderHovered(headerRef.current?.matches(":hover") ?? false);
+    }
+  }, [pathname]);
+
   useEffect(() => {
     if (!isSidebarOpen) {
       return;
