@@ -28,7 +28,7 @@ export function TierSlider({
     rect: null as DOMRect | null,
     ratio: 0,
     rafId: 0,
-    dragging: false,
+    isDragging: false,
   });
   const committedIndexRef = useRef(tierIndex);
   committedIndexRef.current = tierIndex;
@@ -38,7 +38,7 @@ export function TierSlider({
   }, []);
 
   useLayoutEffect(() => {
-    if (!gestureRef.current.dragging) {
+    if (!gestureRef.current.isDragging) {
       applyFill(maxIndex > 0 ? tierIndex / maxIndex : 0);
     }
   }, [tierIndex, maxIndex, applyFill]);
@@ -51,7 +51,7 @@ export function TierSlider({
     (ratio: number) => {
       let nearest = Math.round(ratio * maxIndex);
       if (
-        gestureRef.current.dragging &&
+        gestureRef.current.isDragging &&
         nearest === maxIndex &&
         ratio < 0.985
       ) {
@@ -87,7 +87,7 @@ export function TierSlider({
     }
     const gesture = gestureRef.current;
     gesture.rect = track.getBoundingClientRect();
-    gesture.dragging = true;
+    gesture.isDragging = true;
     gesture.ratio = ratioFromClientX(event.clientX);
     track.setPointerCapture(event.pointerId);
     rootRef.current?.setAttribute("data-dragging", "true");
@@ -97,7 +97,7 @@ export function TierSlider({
 
   function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
     const gesture = gestureRef.current;
-    if (!gesture.dragging) {
+    if (!gesture.isDragging) {
       return;
     }
     if (event.pointerType === "mouse" && event.buttons === 0) {
@@ -112,10 +112,10 @@ export function TierSlider({
 
   function handlePointerEnd(event: React.PointerEvent<HTMLDivElement>) {
     const gesture = gestureRef.current;
-    if (!gesture.dragging) {
+    if (!gesture.isDragging) {
       return;
     }
-    gesture.dragging = false;
+    gesture.isDragging = false;
     cancelAnimationFrame(gesture.rafId);
     gesture.rafId = 0;
     const track = trackRef.current;
@@ -190,7 +190,7 @@ export function TierSlider({
       >
         <div className={styles.tierTrackInner}>
           <div className={styles.tierFill}>
-            <TierDither active={isMaxed} brandColor={product.brandColor} />
+            <TierDither isActive={isMaxed} brandColor={product.brandColor} />
           </div>
           {product.tiers.map((productTier, index) => (
             <span

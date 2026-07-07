@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { cn } from "@genora/ui";
 import { Icon } from "@/lib/icon";
 import { useAuthStore } from "@/stores/auth-store";
 import { RECENT_GROUPS } from "@/lib/recent-chats";
@@ -90,13 +89,9 @@ export function SearchView() {
                 <h2 className={styles.groupTitle}>{group.title}</h2>
                 <div className={styles.results}>
                   {group.items.map((item) => (
-                    <Link
-                      key={item}
-                      href="/"
-                      className={cn(styles.resultLink)}
-                    >
+                    <Link key={item} href="/" className={styles.resultLink}>
                       <Icon
-                        icon="solar:chat-line-linear"
+                        icon="solar:chat-round-line-linear"
                         className={styles.resultIcon}
                         aria-hidden="true"
                       />

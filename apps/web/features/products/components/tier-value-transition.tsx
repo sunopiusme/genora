@@ -12,7 +12,7 @@ type TierValueTransitionProps = {
 type Cell = {
   pos: number;
   char: string | null;
-  rev: number;
+  revision: number;
   exiting: string | null;
   delayMs: number;
 };
@@ -24,7 +24,7 @@ function buildInitialCells(text: string): Cell[] {
   return Array.from(text, (char, index) => ({
     pos: text.length - 1 - index,
     char,
-    rev: 0,
+    revision: 0,
     exiting: null,
     delayMs: 0,
   }));
@@ -50,7 +50,7 @@ function advanceCells(
       next.push({
         pos,
         char: newChar,
-        rev: revision,
+        revision,
         exiting: oldChar,
         delayMs: 0,
       });
@@ -59,7 +59,7 @@ function advanceCells(
 
   let waveIndex = 0;
   for (const cell of next) {
-    if (cell.rev === revision) {
+    if (cell.revision === revision) {
       cell.delayMs = Math.min(waveIndex * STAGGER_MS, MAX_DELAY_MS);
       waveIndex += 1;
     }
@@ -109,14 +109,14 @@ export function TierValueTransition({
       }
     };
     syncWidths();
-    let cancelled = false;
+    let isCancelled = false;
     document.fonts?.ready.then(() => {
-      if (!cancelled) {
+      if (!isCancelled) {
         syncWidths();
       }
     });
     return () => {
-      cancelled = true;
+      isCancelled = true;
     };
   }, [state.revision]);
 
@@ -154,9 +154,9 @@ export function TierValueTransition({
           >
             {cell.char !== null && (
               <span
-                key={cell.rev}
+                key={cell.revision}
                 data-char=""
-                className={cell.rev === 0 ? styles.charStatic : styles.char}
+                className={cell.revision === 0 ? styles.charStatic : styles.char}
               >
                 {cell.char}
               </span>

@@ -10,6 +10,8 @@ import {
 } from "./share-icons";
 import styles from "./share-dialog.module.css";
 
+const COPIED_RESET_DELAY_MS = 1600;
+
 function CopyGlyph() {
   return (
     <svg
@@ -31,19 +33,17 @@ type ShareMenuProps = {
   onClose: () => void;
 };
 
-/* Панель «Поделиться» — выпадающее меню, привязанное к кнопке,
-   в том же стиле, что и меню категорий по «...» */
 export function ShareMenu({ onClose }: ShareMenuProps) {
-  const [copied, setCopied] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
   const [pageUrl, setPageUrl] = useState("");
   const [host, setHost] = useState("");
-  const resetTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     setPageUrl(window.location.href);
     setHost(window.location.hostname);
     return () => {
-      if (resetTimer.current) clearTimeout(resetTimer.current);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     };
   }, []);
 
@@ -52,42 +52,43 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(pageUrl);
-      setCopied(true);
-      if (resetTimer.current) clearTimeout(resetTimer.current);
-      resetTimer.current = setTimeout(() => setCopied(false), 1600);
+      setIsCopied(true);
+      if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = setTimeout(
+        () => setIsCopied(false),
+        COPIED_RESET_DELAY_MS,
+      );
     } catch {
-      // Буфер обмена недоступен
+      return;
     }
   };
 
   const handleAirDrop = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: shareTitle, url: pageUrl });
-        onClose();
-      } catch {
-        // Пользователь отменил системный диалог
-      }
-    } else {
-      handleCopy();
+    if (!navigator.share) {
+      await handleCopy();
+      return;
+    }
+    try {
+      await navigator.share({ title: shareTitle, url: pageUrl });
+      onClose();
+    } catch {
+      return;
     }
   };
 
-  /* Иконки сервисов — официальные iOS/macOS-иконки, встроенные
-     как data URI: рендерятся мгновенно, без сетевых запросов */
   const apps = [
     {
       id: "airdrop",
       label: "AirDrop",
       icon: AIRDROP_ICON,
+      hasIconPadding: false,
       onClick: handleAirDrop,
     },
     {
       id: "telegram",
       label: "Telegram",
       icon: TELEGRAM_ICON,
-      /* macOS-иконка с полями — масштабируем под общий размер */
-      zoom: true,
+      hasIconPadding: true,
       onClick: () => {
         window.open(
           `https://t.me/share/url?url=${encodeURIComponent(pageUrl)}&text=${encodeURIComponent(shareTitle)}`,
@@ -100,6 +101,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
       id: "messages",
       label: "Сообщения",
       icon: IMESSAGE_ICON,
+      hasIconPadding: false,
       onClick: () => {
         window.location.href = `sms:?&body=${encodeURIComponent(`${shareTitle} ${pageUrl}`)}`;
       },
@@ -108,6 +110,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
       id: "mail",
       label: "Почта",
       icon: MAIL_ICON,
+      hasIconPadding: false,
       onClick: () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
@@ -117,7 +120,6 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
   return (
     <div className={styles.panel} role="dialog" aria-label="Поделиться">
       <div className={styles.header}>
-        {/* Обложка: наш логотип на чёрном сквиркле */}
         <span className={styles.cover} aria-hidden="true">
           <Logo className={styles.coverLogo} width="1.5rem" height="1.5rem" />
         </span>
@@ -143,7 +145,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
                 src={app.icon}
                 alt=""
                 className={
-                  app.zoom
+                  app.hasIconPadding
                     ? `${styles.tileImg} ${styles.tileImgZoom}`
                     : styles.tileImg
                 }
@@ -157,8 +159,8 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
       <div className={styles.divider} role="separator" />
 
       <button type="button" className={styles.copyItem} onClick={handleCopy}>
-        <span>{copied ? "Скопировано" : "Копировать ссылку"}</span>
-        <span className={styles.copyIcon} data-copied={copied || undefined}>
+        <span>{isCopied ? "Скопировано" : "Копировать ссылку"}</span>
+        <span className={styles.copyIcon} data-copied={isCopied || undefined}>
           <CopyGlyph />
         </span>
       </button>

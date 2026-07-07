@@ -1,3 +1,4 @@
+export { AUTH_COOKIE_NAME, parseAuthCookie } from "./auth-cookie";
 export { AuthCard } from "./components/auth-card";
 export { AuthOverlay } from "./components/auth-overlay";
 export { VerifyCard } from "./components/verify-card";

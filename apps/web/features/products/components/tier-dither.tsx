@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import styles from "./tier-slider.module.css";
 
 type TierDitherProps = {
-  active: boolean;
+  isActive: boolean;
   brandColor: string;
 };
 
@@ -22,7 +22,7 @@ const REVEAL_PEN_CELLS = 6;
 const WAVE_STEP_MS = 96;
 const WAVE_DELAY_MS = 400;
 
-export function TierDither({ active, brandColor }: TierDitherProps) {
+export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -46,10 +46,6 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
       if (!canvas) {
         return;
       }
-      // offsetWidth/offsetHeight возвращают layout-размер и игнорируют
-      // CSS-трансформации — в отличие от getBoundingClientRect(), который
-      // во время scale-анимации открытия меню возвращает сжатый размер
-      // и портит буфер canvas (артефакты при повторном открытии).
       const width = canvas.offsetWidth;
       const height = canvas.offsetHeight;
       const dpr = window.devicePixelRatio || 1;
@@ -78,7 +74,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
       const revealProgress = Math.min(1, timeMs / REVEAL_MS);
       const eased = 1 - (1 - revealProgress) ** 2.2;
       const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
-      const revealing = revealProgress < 1;
+      const isRevealing = revealProgress < 1;
 
       const waveTimeMs = Math.max(0, timeMs - REVEAL_MS - WAVE_DELAY_MS);
       const steppedTime = Math.floor(waveTimeMs / WAVE_STEP_MS) * WAVE_STEP_MS;
@@ -115,7 +111,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
             );
 
           let waveBoost = 0;
-          if (!revealing && distance < WAVE_FRONT_CELLS) {
+          if (!isRevealing && distance < WAVE_FRONT_CELLS) {
             const frontStrength = (1 - distance / WAVE_FRONT_CELLS) ** 2;
             const lottery = cellHash(col * 19 + 3, row * 23 + 13);
             if (lottery < frontStrength) {
@@ -124,7 +120,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
           }
 
           let penBoost = 0;
-          if (revealing) {
+          if (isRevealing) {
             const penDistance = col - revealJitter - revealFrontCol;
             if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
               penBoost = (1 - penDistance / REVEAL_PEN_CELLS) ** 2 * 0.3;
@@ -166,7 +162,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
       cancelAnimationFrame(resizeFrameId);
       resizeFrameId = requestAnimationFrame(() => {
         syncCanvasSize();
-        if (active && reducedMotion.matches) {
+        if (isActive && reducedMotion.matches) {
           drawFrame(REVEAL_MS);
         }
       });
@@ -174,7 +170,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
     resizeObserver.observe(canvas);
     syncCanvasSize();
 
-    if (active) {
+    if (isActive) {
       if (reducedMotion.matches) {
         drawFrame(REVEAL_MS);
       } else {
@@ -189,7 +185,7 @@ export function TierDither({ active, brandColor }: TierDitherProps) {
       cancelAnimationFrame(resizeFrameId);
       resizeObserver.disconnect();
     };
-  }, [active, brandColor]);
+  }, [isActive, brandColor]);
 
   return (
     <canvas ref={canvasRef} className={styles.tierDither} aria-hidden="true" />

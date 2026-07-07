@@ -10,7 +10,6 @@ type ComposerStore = {
   attachedProduct: Product | null;
   attachedFile: AttachedFile | null;
   isProfileAttached: boolean;
-  /** Monotonic counter: bump it to ask the composer editor to grab focus */
   focusSignal: number;
   attachProduct: (product: Product) => void;
   attachFile: (file: AttachedFile) => void;

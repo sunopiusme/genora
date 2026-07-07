@@ -3,6 +3,5 @@ export type Profile = {
   username: string;
   email: string;
   plan: string;
-  /** Account balance in rubles */
   balance: number;
 };
