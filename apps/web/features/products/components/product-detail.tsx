@@ -177,24 +177,8 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         <p className={styles.eyebrow}>{product.provider}</p>
         <h2 id="product-detail-title" className={styles.name}>
           {product.name}
-          {tier && (
-            <>
-              {" "}
-              <TierValueTransition text={tier.name} order={tierIndex} />
-            </>
-          )}
         </h2>
       </div>
-
-      {hasTiers && tier && (
-        <div className={styles.tierSelectorSlot}>
-          <TierSelector
-            product={product}
-            tierIndex={tierIndex}
-            onTierChange={setTierIndex}
-          />
-        </div>
-      )}
 
       <p className={styles.priceRow}>
         <span className={styles.amount}>
@@ -205,6 +189,16 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         </span>
         <span className={styles.period}>{`/ ${product.periodLabel}`}</span>
       </p>
+
+      {hasTiers && tier && (
+        <div className={styles.tierSelectorSlot}>
+          <TierSelector
+            product={product}
+            tierIndex={tierIndex}
+            onTierChange={setTierIndex}
+          />
+        </div>
+      )}
 
       <div className={styles.actions}>
         <button type="button" className={styles.primaryAction}>

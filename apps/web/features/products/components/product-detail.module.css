@@ -548,8 +548,14 @@
   color: var(--color-foreground);
 }
 
+/* Строка уровня входит в единый стек контролов с кнопками:
+   одинаковая ширина, высота и скругление, без сдвигов макета */
 .tierSelectorSlot {
-  margin-top: var(--space-5);
+  margin-top: var(--space-8);
+}
+
+.tierSelectorSlot + .actions {
+  margin-top: var(--space-3);
 }
 
 .priceRow {
