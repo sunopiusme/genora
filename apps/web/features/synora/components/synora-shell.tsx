@@ -116,9 +116,9 @@ export function SynoraShell({
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
       closeSidebar();
     }
-    if (pathname !== "/synora") {
-      router.push("/synora");
-    }
+    /* Всегда переходим на чистый /synora: сбрасываем и другой раздел,
+       и query-параметр ?project= от открытой недавней песочницы. */
+    router.push("/synora");
     requestComposerFocus();
   }
 
@@ -315,7 +315,7 @@ export function SynoraShell({
                       {group.items.map((item) => (
                         <Link
                           key={item}
-                          href="/synora"
+                          href={`/synora?project=${encodeURIComponent(item)}`}
                           className={styles.recentLink}
                         >
                           {item}
