@@ -67,6 +67,33 @@
   box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
+/* Лёгкий подъём обложки под курсором: карточка «отзывается», не меняя
+   композицию списка. Виньетка слегка отступает — брендовое свечение
+   проявляется чуть ярче без дополнительных слоёв. */
+@media (hover: hover) {
+  .cover {
+    transition:
+      transform 0.25s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.25s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  .cover::after {
+    transition: opacity 0.25s ease;
+  }
+
+  .cover:hover {
+    transform: translateY(-0.25rem);
+    box-shadow:
+      inset 0 0 0 1px var(--color-border),
+      0 16px 40px -20px
+        color-mix(in srgb, var(--brand) 45%, rgb(0 0 0 / 0.6));
+  }
+
+  .cover:hover::after {
+    opacity: 0.55;
+  }
+}
+
 .logoTile {
   position: relative;
   z-index: 1;
@@ -225,25 +252,43 @@
   align-self: center;
 }
 
+/* Кнопка «Купить»: в покое — тихая полупрозрачная пилюля, при наведении
+   инвертируется в сплошную белую с тёмным текстом. Один сильный акцент
+   на действии без обводок и дополнительного веса в покое. */
 .action.action {
   height: 2.25rem;
   width: 100%;
   border-radius: 9999px;
   border: none;
-  background-color: rgb(255 255 255 / 0.1);
+  background-color: rgb(255 255 255 / 0.08);
   color: var(--color-foreground);
   font-size: 0.8125rem;
   font-weight: var(--weight-semibold);
+  letter-spacing: 0.01em;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.15s ease;
 }
 
 .action.action:hover {
-  background-color: rgb(255 255 255 / 0.16);
+  background-color: var(--color-primary);
+  color: var(--color-primary-foreground);
 }
 
 .action.action:active {
-  background-color: rgb(255 255 255 / 0.2);
+  background-color: var(--neutral-200);
+  color: var(--color-primary-foreground);
+  transform: scale(0.98);
+}
+
+@media (hover: none) {
+  .action.action:active {
+    background-color: rgb(255 255 255 / 0.18);
+    color: var(--color-foreground);
+  }
 }
 
 @media (max-width: 47.9375rem) {
@@ -303,7 +348,16 @@
     transition: none;
   }
 
-  .cover:active {
+  .cover:active,
+  .cover:hover {
+    transform: none;
+  }
+
+  .action.action {
+    transition: none;
+  }
+
+  .action.action:active {
     transform: none;
   }
 }
