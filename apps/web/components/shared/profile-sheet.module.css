@@ -239,6 +239,17 @@ button.row:focus-visible {
   color: var(--color-foreground-muted);
 }
 
+/* Чип «Скоро» для разделов, которые ещё в разработке */
+.rowSoonChip {
+  flex-shrink: 0;
+  padding: var(--space-px) var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: rgb(255 255 255 / 0.06);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-subtle);
+}
+
 .rowChevron {
   flex-shrink: 0;
   width: 1rem;
