@@ -1,0 +1,25 @@
+/* Дополнительная раскладка композера для площадки «Синора».
+   Базовые стили приходят из app-shell.module.css (.composer прижат
+   к низу с градиентом). Здесь — режим главной страницы /synora:
+   на планшете и десктопе (>= 48rem, когда виден сайдбар как в
+   десктопном приложении) композер центрируется по вертикали,
+   чуть выше середины экрана — комфортный визуальный фокус.
+   На мобильных (< 48rem) остаётся у нижнего края. */
+
+@media (min-width: 48rem) {
+  /* Дублируем класс для приоритета над .composer из app-shell */
+  .composerCentered.composerCentered {
+    position: absolute;
+    inset: auto 0;
+    bottom: auto;
+    top: 44%;
+    transform: translateY(-50%);
+    padding-block: 0;
+  }
+
+  /* Градиентная подложка нижнего композера здесь не нужна */
+  .composerCentered.composerCentered::before,
+  .composerCentered.composerCentered::after {
+    content: none;
+  }
+}

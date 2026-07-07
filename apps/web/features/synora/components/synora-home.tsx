@@ -1,0 +1,39 @@
+import { SynoraLogo } from "@genora/ui";
+import styles from "./synora-home.module.css";
+
+/**
+ * Главный экран площадки «Синора» — пустое состояние нового запроса.
+ *
+ * Виден только на мобильных (< 48rem): фирменный знак и приветствие
+ * центрируются над нижним композером. Текст в двух вариантах:
+ * - без проекта:  «Чем займёмся сегодня?»
+ * - с проектом:   «Продолжим работу над „<название>“?»
+ *
+ * На планшете и десктопе герой скрыт — там показывается только
+ * композер по центру экрана (см. synora-shell.module.css).
+ *
+ * Название проекта приходит из query-параметра ?project= при переходе
+ * из списка недавних песочниц в сайдбаре (см. synora-shell.tsx).
+ */
+export function SynoraHome({ projectName }: { projectName?: string }) {
+  return (
+    <main className={styles.page}>
+      <div className={styles.hero}>
+        {/* Размер знака задаётся в CSS: на мобильных и планшетах он крупнее. */}
+        <SynoraLogo className={styles.logo} width="100%" height="100%" />
+
+        {projectName ? (
+          <h1 className={styles.title}>
+            Продолжим работу над{" "}
+            <span className={styles.projectName}>
+              &laquo;{projectName}&raquo;
+            </span>
+            ?
+          </h1>
+        ) : (
+          <h1 className={styles.title}>Чем займёмся сегодня?</h1>
+        )}
+      </div>
+    </main>
+  );
+}

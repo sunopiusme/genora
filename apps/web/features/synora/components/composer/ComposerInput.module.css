@@ -1,0 +1,1123 @@
+/* ─────────────────────────────────────────
+   Composer input — повторяет композицию
+   референса (Codex). Тёмная монохромная
+   палитра, без цветовых акцентов.
+
+   Геометрия унифицирована с правилами sidebar
+   (ProjectSidebar):
+   • card-radius 24, corner-inset 6,
+     радиус интерактивных пилюль = 24 − 6 = 18
+     (concentric corners по Apple HIG);
+   • pad-x = 16 от края до контента;
+   • иконки 18×18 в колонке 20×20;
+   • первичный текст 0.92rem / 400,
+     вторичный 0.82rem.
+   ───────────────────────────────────────── */
+.root {
+  /* Базовые токены композера. В исходном демо жили в глобальной
+     теме; здесь определяем локально, привязывая к токенам Синоры. */
+  --composer-ink: var(--color-foreground, #ededed);
+  --composer-ink-muted: var(--color-foreground-muted, #a8a8a8);
+  --composer-surface: #202226;
+  --composer-surface-raised: #26282d;
+  --composer-hairline: #353535;
+  --composer-duration-hover: 120ms;
+
+  /* Палитра строго белый/серый, без полупрозрачностей: иконки и
+     обводки — сплошные тона, а не «вымытый» белый по альфе. */
+  --c-line: #353535;
+  --c-line-soft: #2c2c2c;
+  --c-ink: var(--composer-ink);
+  --c-ink-muted: #c2c2c2;
+  --c-ink-subtle: #868686;
+  --c-surface: #26282d;
+  --c-surface-soft: #202226;
+  /* Фон плашек warning/context: на тон темнее карточки
+     (#242424), но светлее sunken (#1a1a1a) — утопленный
+     «ящик из-под» приподнятой карточки, контраст без
+     резкого провала на стыке (рамки у карточки больше нет). */
+  --c-drawer: #191b1f;
+  /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
+     glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
+     с несколькими меню рядом — модели, проекты, plus, плагины —
+     сквозь полупрозрачный слой просвечивали соседние popover'ы,
+     и читалось это как «двойной» интерфейс. Делаем фон сплошным,
+     чтобы dropdown'ы перекрывали друг друга, как обычные слои. */
+  --c-surface-glass: var(--composer-surface-raised);
+
+  /* Геометрические токены — те же, что в sidebar */
+  --c-card-radius: 24px;
+  --c-corner-inset: 6px;
+  --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 18px */
+  --c-pad-x: 16px;
+  --c-icon-col: 20px;
+  --c-gap-icon: 8px;
+
+  width: 100%;
+  /* Ширина — глобальный токен приложения (globals.css). */
+  max-width: var(--composer-width, 44rem);
+  margin: 0 auto;
+  display: grid;
+  gap: 12px;
+  font-family: var(--font-sans), sans-serif;
+  color: var(--c-ink);
+}
+
+/* ── Stack: card + context (bottom) ─ */
+/* Две строки: карточка ввода и нижний drawer
+   с контекстом проекта (.context). */
+.stack {
+  position: relative;
+  display: grid;
+}
+
+/* ── Context row (bottom drawer) ───────── */
+/* x-inset: 0 → радиус = радиусу card.
+   z-index не задаём — DOM-order ставит drawer
+   после .card, так что popover внутри drawer'а
+   автоматически выше карточки. Любой stacking-
+   context здесь обрезал бы внутренние popover-ы. */
+.context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: -16px 0 0;
+  padding: 24px var(--c-pad-x) 12px;
+  border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
+  /* На тон темнее карточки — «ящик из-под» неё, контраст
+     даёт глубину без рамки. */
+  background: var(--c-drawer);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Card (input + toolbar) — graphite island ──
+   Не pure black: на светлом mesh абсолютный #050505 читался как
+   провал. Держим глубокий graphite с сатиновым верхним бликом,
+   тонкой кромкой и облегчённой тенью. */
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 28px var(--c-pad-x) 24px;
+  border-radius: 28px;
+  background:
+    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.14), transparent 54%),
+    linear-gradient(180deg, #22242a 0%, #181a1f 48%, #121419 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.13),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.065),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.72),
+    0 2px 5px rgba(0, 0, 0, 0.42),
+    0 14px 30px -14px rgba(0, 0, 0, 0.72),
+    0 38px 82px -38px rgba(0, 0, 0, 0.68);
+  position: relative;
+  z-index: 1;
+}
+
+.card[data-drag="true"] {
+  background:
+    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.16), transparent 54%),
+    linear-gradient(180deg, #282b31 0%, #1b1e24 52%, #14161b 100%);
+}
+
+.card[data-typing="true"] {
+  background:
+    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.15), transparent 54%),
+    linear-gradient(180deg, #252831 0%, #1a1d24 50%, #13161b 100%);
+}
+
+.card[data-sending="true"] {
+  background:
+    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.13), transparent 54%),
+    linear-gradient(180deg, #222631 0%, #171b23 52%, #12161d 100%);
+  cursor: progress;
+}
+
+/* Скрытый file-input для openFilePicker(). */
+.hiddenFile {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Полоса с превью прикреплённых файлов.
+   Прижимается к углу карточки с inset = corner-inset
+   по обеим осям (concentric corners). Снизу имеет
+   увеличенный bottom-gap (через отрицательный
+   margin-bottom компенсируем gap card-grid). */
+.attachmentsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  /* card.padding ≈ 20 var(--c-pad-x) 16. Отрицательные
+     margin'ы подтягивают ряд к углу карточки;
+     значения округлены по 8pt-сетке. */
+  margin: -12px -12px -8px;
+}
+
+/* ── Drop-overlay при drag-and-drop файла ──
+   Минималистичный стиль композера: ничего
+   нового — только то, что уже живёт в инпуте.
+
+   Никакого стекла, pill'ов, ауры, halo. Оверлей
+   подменяет содержимое card'а на ту же поверхность
+   (та же geometry, тот же row-radius на inset =
+   corner-inset, та же палитра hairline'ов, что у
+   attachment-плиток и mode-chip'ов).
+
+   Композиция: горизонтальная пара icon + label,
+   минус background у иконки. Иконка живёт на той
+   же высоте, что и текст — как unicode-символ
+   рядом со словом. Высота всей композиции
+   ~20px, помещается в дефолтный 1-line card
+   без перекрытия toolbar'а. ── */
+.dropOverlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: var(--c-card-radius);
+  /* Та же поверхность, что у card[data-drag] —
+     оверлей читается как drop-state самой карточки,
+     а не как отдельный модал. */
+  background: var(--c-surface-soft);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 30;
+  animation: dropOverlayIn 140ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Concentric inner ring. Inset = corner-inset (6),
+   радиус = card − 6 = row-radius. Тот же закон,
+   по которому строятся attachment-плитки и
+   mode-chip'ы — оверлей читается как родной
+   элемент композера. */
+.dropOverlay::before {
+  content: "";
+  position: absolute;
+  inset: var(--c-corner-inset);
+  border-radius: var(--c-row-radius);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  pointer-events: none;
+}
+
+.dropOverlayInner {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  max-width: calc(100% - 32px);
+  padding: 0 var(--c-pad-x);
+  animation: dropOverlayContent 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Иконка над текстом, без плитки. Размер
+   увеличен до 18px — так glyph не теряется
+   на пустой поверхности card'а, оставаясь
+   тем же по плотности линий, что и иконки
+   toolbar'а. Цвет — ink-muted, в паре с
+   placeholder-style label под иконкой. */
+.dropOverlayIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--c-ink-muted);
+  flex-shrink: 0;
+}
+
+.dropOverlayIcon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 1.5;
+}
+
+/* Single-line label. Размер и color совпадают с
+   placeholder textarea (через --c-ink-muted),
+   так что переход input → drop-state выглядит
+   как смена строки, а не как «вылез модал». */
+.dropOverlayTitle {
+  font-size: 0.92rem;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--c-ink-muted);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Hint больше не нужен в новой композиции —
+   inline-однострочник самодостаточен. Класс
+   оставлен в DOM на случай будущих state'ов
+   (например, отказ по типу файла). */
+.dropOverlayHint {
+  display: none;
+}
+
+.dropOverlayCopy {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+@keyframes dropOverlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dropOverlayContent {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropOverlay,
+  .dropOverlayInner {
+    animation: none;
+  }
+}
+
+.input {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 400;
+  line-height: 32px;
+  color: var(--c-ink);
+  resize: none;
+  /* v2 — однострочное поле внутри toolbar-flex'а: высота ровно
+     в одну строку (32px, как у пилюль/кнопок ряда), без auto-grow.
+     Длинный промпт прячется горизонтальным overflow'ом, островок
+     остаётся единой строкой как в референсе. */
+  height: 32px;
+  min-height: 32px;
+  max-height: 32px;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  transition: color var(--composer-duration-hover) ease,
+              opacity var(--composer-duration-hover) ease;
+}
+
+.input::-webkit-scrollbar {
+  display: none;
+}
+
+.input:disabled {
+  cursor: progress;
+  opacity: 0.58;
+}
+
+/* Wrapper для textarea. Без position — popover
+   с @-mention позиционируется не от него, а от
+   .card (который relative). Так popover магнитится
+   к верхней кромке всей карточки и не «висит» в
+   фиксированной точке, когда меняется внутренний
+   layout (например появляется ряд вложений). */
+.inputWrap {
+  display: block;
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Mode chip — индикатор активного режима
+   (например, «Планирование»). Стоит в toolbarLeft
+   рядом с permission, той же геометрии:
+   радиус row, padding 6/10, font 0.82.
+   Закрытие — мини-кнопка с крестиком справа. ── */
+.modeChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--c-row-radius);
+  /* Монохром: нейтральная серая плашка вместо системного синего. */
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-ink);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.modeChipIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.modeChipIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.modeChipClose {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: background-color var(--composer-duration-hover) ease,
+              opacity var(--composer-duration-hover) ease;
+}
+
+.modeChipClose:hover {
+  background: rgba(255, 255, 255, 0.12);
+  opacity: 1;
+}
+
+.modeChipClose svg {
+  width: 12px;
+  height: 12px;
+}
+
+.input::placeholder {
+  color: var(--c-ink-subtle);
+}
+
+.input::-webkit-scrollbar {
+  width: 8px;
+}
+
+.input::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+}
+
+.input::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  /* Высота строки фиксирована высотой idle-пилюль
+     (PermissionPicker = 8+20+8 = 36px). Без этого при
+     записи pickers (36px) сменяются на VoiceRecorder и
+     кнопки (32px), и тулбар — а с ним вся карточка —
+     проседал на 4px. min-height держит высоту стабильной,
+     align-items:center центрирует более низкий контент. */
+  min-height: 36px;
+}
+
+.toolbarLeft,
+.toolbarRight {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+/* v2 — единая строка: toolbarLeft ВСЕГДА растягиваетс�� на
+   всё свободное пространство между Plus и правым блоком.
+   В idle внутри неё живёт поле ввода (растягивается до
+   модели/кнопок), в recording — waveform. Так островок
+   остаётся однострочным в обоих состояниях. */
+.toolbarLeft {
+  flex: 1;
+  min-width: 0;
+  /* Больше воздуха между плюсом и полем ввода/waveform, чтобы они
+     не липли друг к другу. */
+  gap: 10px;
+}
+
+/* ── Generic icon button — concentric corner
+   к card, размер согласован с sidebar
+   chromeSysBtn (32×32). ── */
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  color: var(--c-ink-muted);
+  cursor: default;
+}
+
+/* Интерактивные кнопки (кнопка-триггер plus) —
+   круглый hover-фон, читается как ghost-action. */
+button.iconBtn {
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background-color var(--composer-duration-hover) ease,
+              color var(--composer-duration-hover) ease;
+}
+
+button.iconBtn:hover {
+  background: rgba(255, 255, 255, 0.13);
+  color: var(--c-ink);
+}
+
+button.iconBtn[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.17);
+  color: var(--c-ink);
+}
+
+/* Active-state mic во время записи: tonal-fill,
+   secondary visual weight. До этого было primary
+   (белый фон + тёмный glyph) — кнопка визуально
+   спорила с send. Сейчас mic в record-mode —
+   обычная iconBtn с чуть более плотным фоном,
+   send остаётся единственным primary в toolbar'е. */
+button.iconBtn[data-active="true"] {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--c-ink);
+}
+
+button.iconBtn[data-active="true"]:hover {
+  background: rgba(255, 255, 255, 0.19);
+  color: var(--c-ink);
+}
+
+/* Loading-state mic во время processing'а.
+   Внутри сидит SpinnerIcon — крутится через
+   CSS rotate без переполнения paint'ом
+   (transform-only, GPU-friendly). */
+button.iconBtn[data-loading="true"] {
+  cursor: progress;
+}
+
+button.iconBtn[data-loading="true"] svg {
+  animation: spinnerRotate 900ms linear infinite;
+  transform-origin: center;
+}
+
+@keyframes spinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button.iconBtn[data-loading="true"] svg {
+    animation: none;
+  }
+}
+
+.iconBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Permission pill ───────────────────── */
+.permission {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 8px 12px;
+  border-radius: var(--c-row-radius);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: default;
+}
+
+.permissionIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.permissionIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Model chip (5.5 High) ─────────────── */
+.modelChip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--c-gap-icon);
+  padding: 8px 8px 8px 12px;
+  border-radius: var(--c-row-radius);
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: default;
+}
+
+.modelValue {
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.modelLabel {
+  color: var(--c-ink);
+}
+
+/* ── Chevron (общий) ───────────────────── */
+.chevron {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+  align-self: center;
+}
+
+.chevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* ── Send button — squircle, инверсная ─── */
+/* Скруглённый квадрат (row-radius 18 = card 24 − inset 6),
+   concentric с углом карточки — по тому же закону, что
+   permission/model/mode-chip. Уходит от круглой send-кнопки
+   codex/chatgpt, согласуясь с геометрией композера. */
+.sendBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  /* v2: монохромная круглая send-кнопка — белая пилюля с тёмным
+     глифом, без градиентов и цветных glow'ов. */
+  border-radius: 999px;
+  background: var(--c-ink);
+  color: var(--composer-surface);
+  cursor: pointer;
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.sendBtn:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+.sendBtn:disabled,
+.sendBtn[data-disabled="true"] {
+  /* Ghost-пилюля поверх card: лёгкий светлый overlay
+     (а не sunken-фон темнее card, как было раньше) —
+     disabled читается как «слот недоступен», а не
+     как вдавленная в поверхность negative space. */
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.34);
+  cursor: not-allowed;
+}
+
+.sendBtn[data-sending="true"] {
+  cursor: progress;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--composer-surface);
+}
+
+.sendBtn[data-sending="true"] svg {
+  animation: spinnerRotate 900ms linear infinite;
+  transform-origin: center;
+}
+
+.sendBtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sendBtn:not(:disabled):hover {
+    transform: none;
+  }
+
+  .sendBtn[data-sending="true"] svg {
+    animation: none;
+  }
+}
+
+/* ── Footer chips (repo / env / branch) ─ */
+.footChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 8px 12px;
+  border-radius: var(--c-row-radius);
+  font-size: 0.82rem;
+  color: var(--c-ink-muted);
+  cursor: default;
+}
+
+.footIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-subtle);
+}
+
+.footIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Plus dropdown menu ────────────────── */
+/* Обёртка-якорь для плюсика и его меню.
+   Меню скрыто, появляется при :hover.
+   Геометрия наследует токены card-radius
+   и concentric inset, как и остальные части. */
+.plusMenu {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+
+/* ── Tooltip ──────────────────────────────
+   Hint над/под триггером (button, picker), pill
+   в монохромной палитре композера с label'ом
+   слева и опциональным keycap'ом справа.
+   Универсальный компонент — вокруг любого
+   элемента toolbar'а: plus, permission, model,
+   mic, send.
+
+   .tooltipWrap — обёртка-якорь (relative + inline),
+   вокруг trigger'а; tooltip позиционируется от
+   неё через top/bottom + left:50% + translate.
+   data-side управляет тем, с какой стороны
+   рисовать pill (top для toolbarLeft, bottom
+   для context-row если понадобится).
+
+   Появление — 180ms fade + 2px slide в сторону
+   trigger'а. Скрытие мгновенное. ── */
+.tooltipWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.tooltip {
+  position: absolute;
+  left: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 28px;
+  /* По умолчанию padding симметричный — для
+     label-only тултипов (Permission, Model, Mic
+     без shortcut, Send) пилюля стоит ровно. */
+  padding: 4px 16px 8px;
+  /* Используем composer-токены напрямую (не локальные --c-*):
+     Tooltip переиспользуется за пределами .root композера —
+     например, в CopyButton кодового блока, где локальные
+     алиасы недоступны. */
+  border: 1px solid var(--composer-hairline);
+  border-radius: 999px;
+  background: var(--composer-surface-raised);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 20;
+  /* Центрирование по X — через transform,
+     чтобы keyframe мог одновременно сдвигать
+     по Y без конфликта c left:50%. */
+  transform: translateX(-50%);
+}
+
+/* Когда внутри есть keycap, поджимаем правый
+   край: сам keycap несёт «оптическую массу»,
+   и без поджатия pill выглядит «тяжёлым»
+   слева. Селектор :has() ловит и одиночный
+   keycap, и группу. */
+.tooltip:has(.tooltipKbd) {
+  padding: 4px 8px 8px 12px;
+}
+
+.tooltip[data-side="top"] {
+  /* Зазор между триггером и tooltip'ом — 2px: достаточно,
+     чтобы pill не сливался с кнопкой, но без визуального
+     разрыва, который раньше делал hint оторванным. */
+  bottom: calc(100% + 2px);
+  animation: tooltipInTop 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tooltip[data-side="bottom"] {
+  top: calc(100% + 2px);
+  animation: tooltipInBottom 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.tooltipLabel {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  transform: translateY(1px);
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  /* composer-токен напрямую (см. .tooltip). */
+  color: var(--composer-ink);
+  line-height: 1.1;
+}
+
+/* Keycap — компактный rounded-rectangle pill,
+   объединяющий все глифы shortcut'a в один
+   слот (как в Apple Spotlight, Linear). Глифы
+   стоят вплотную, без separator'а — keycap
+   читается как единая клавиша-композиция
+   (например ⌃⇧D = «Control+Shift+D»).
+
+   Геометрия: высота 20, padding 0 4,
+   radius 5. Min-width только для одиночного
+   глифа — иначе подстраивается под содержимое. */
+.tooltipKbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  height: 20px;
+  min-width: 20px;
+  padding: 0 4px;
+  /* composer-токены напрямую (см. .tooltip). */
+  border: 1px solid var(--composer-hairline);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--composer-ink-muted);
+  flex-shrink: 0;
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.tooltipKbd svg {
+  width: 12px;
+  height: 12px;
+  display: block;
+}
+
+@keyframes tooltipInTop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 2px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes tooltipInBottom {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -2px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tooltip {
+    animation: none;
+    transform: translateX(-50%);
+  }
+}
+
+.dropdown {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: -8px;
+  min-width: 200px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень.
+     Без стекла, без верхней -24px тени и без мутного blur-ореола. */
+  background: #1c1c1f;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.55),
+    0 6px 16px rgba(0, 0, 0, 0.42);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 20;
+}
+
+.dropdownGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.dropdownDivider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--c-line-soft);
+}
+
+.dropdownItem {
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.dropdownItem:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.dropdownIcon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.dropdownIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dropdownLabel {
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.dropdownChevron {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink-subtle);
+}
+
+.dropdownChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Plugins-пункт с side-submenu.
+   pluginsTrigger — обёртка-якорь (relative).
+   На hover триггера показываем pluginsSubmenu
+   справа от основного dropdown. ── */
+.pluginsTrigger {
+  position: relative;
+  display: block;
+}
+
+.pluginsSubmenu {
+  position: absolute;
+  /* Открывается вверх: bottom-кромка submenu
+     совпадает с bottom-кромкой строки «Плагины»,
+     submenu растёт вверх. Так оно не уезжает
+     ниже основного dropdown и не накладывается
+     на toolbar/footer карточки. */
+  bottom: calc(0px - var(--c-corner-inset));
+  left: calc(100% + 8px);
+  min-width: 220px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: #1c1c1f;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    0 18px 44px rgba(0, 0, 0, 0.55),
+    0 6px 16px rgba(0, 0, 0, 0.42);
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  /* Поверх всех соседних элементов карточки. */
+  z-index: 20;
+}
+
+/* Невидимый мост: 8px зазор не должен «терять»
+   hover при движении курсора с триггера в submenu. */
+.pluginsSubmenu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -8px;
+  width: 8px;
+}
+
+.pluginsTrigger:hover .pluginsSubmenu,
+.pluginsSubmenu:hover {
+  display: flex;
+}
+
+/* Plugin-item в submenu — карточка с brand-иконкой
+   24×24, label + description. Геометрия совпадает
+   с @-popover, чтобы оба места ощущались как один
+   и тот же реестр плагинов. */
+.pluginItem {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.pluginItem:hover {
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.pluginItemMain {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.pluginItemLabel {
+  font-weight: 500;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
+.pluginItemDesc {
+  font-size: 0.74rem;
+  color: var(--c-ink-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* iOS-style toggle. Невзаимодействующий —
+   состояние держит родительская кнопка через
+   data-on. Шайба сдвигается в активное положение
+   при data-on="true". */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.toggle::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform var(--composer-duration-hover) ease;
+}
+
+.toggle[data-on="true"] {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.toggle[data-on="true"]::after {
+  transform: translateX(12px);
+  background: #141416;
+}
+
+/* ── Адаптация ─────────────────────────── */
+@media (max-width: 560px) {
+  .toolbar {
+    flex-wrap: wrap;
+  }
+  /* На узких экранах поле ввода занимает всю первую строку,
+     а плюс и правые контролы уходят на вторую — иначе textarea
+     сжимается в щёлку между кнопками. display: contents
+     поднимает детей toolbarLeft на уровень .toolbar, чтобы
+     order работал сквозь группу; DOM-порядок не меняем. */
+  .toolbarLeft {
+    display: contents;
+  }
+  .inputWrap {
+    order: -1;
+    flex-basis: 100%;
+    padding-bottom: 6px;
+  }
+  .toolbarRight {
+    margin-left: auto;
+  }
+  .context {
+    gap: 0;
+  }
+  .footChip {
+    padding: 8px 8px;
+    font-size: 0.78rem;
+  }
+  .context {
+    margin: -16px 0 0;
+  }
+}

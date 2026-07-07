@@ -1,0 +1,240 @@
+/* ─────────────────────────────────────────
+   Branch picker — chip-триггер + popover
+   с поиском, списком веток и pinned
+   «Создать ветку…» внизу.
+   ───────────────────────────────────────── */
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--c-gap-icon);
+  padding: 8px 12px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.triggerIcon {
+  display: inline-flex;
+  width: var(--c-icon-col);
+  height: var(--c-icon-col);
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.triggerIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.triggerLabel {
+  white-space: nowrap;
+}
+
+.triggerChevron {
+  display: inline-flex;
+  width: 12px;
+  height: 12px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+}
+
+.triggerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Popover. */
+.popover {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 0;
+  min-width: 280px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface-glass);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    0 12px 32px rgba(0, 0, 0, 0.32),
+    0 -24px 48px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 20;
+}
+
+.popover::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  border-radius: calc(var(--c-card-radius) + 40px);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  -webkit-mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  mask-image: radial-gradient(
+    ellipse closest-side,
+    rgba(0, 0, 0, 0.95) 30%,
+    rgba(0, 0, 0, 0) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+.search {
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: var(--c-row-radius);
+}
+
+.searchIcon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-subtle);
+}
+
+.searchIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+}
+
+.searchInput::placeholder {
+  color: var(--c-ink-subtle);
+}
+
+.sectionTitle {
+  margin: 4px 8px 2px;
+  font-size: 0.78rem;
+  color: var(--c-ink-subtle);
+  letter-spacing: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  /* Минимальная высота для эффекта «пустого
+     пространства снизу», как на референсе.
+     Ограничиваем сверху, чтобы при большом списке
+     включался скролл. */
+  min-height: 240px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+}
+
+.divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--c-line-soft);
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 20px 1fr 16px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.item:hover,
+.item[data-active="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.itemIcon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-ink-muted);
+}
+
+.itemIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.itemLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemCheck {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink);
+}
+
+.itemCheck svg {
+  width: 100%;
+  height: 100%;
+}
+
+.empty {
+  padding: 12px 12px;
+  font-size: 0.82rem;
+  color: var(--c-ink-subtle);
+}

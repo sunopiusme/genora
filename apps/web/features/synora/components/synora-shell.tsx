@@ -14,6 +14,7 @@
  */
 
 import {
+  Suspense,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -29,13 +30,14 @@ import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@features/products";
-import { ComposerBar } from "@/components/shared/composer-bar";
 import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
+import { ComposerInput } from "./composer/ComposerInput";
 import { SYNORA_RECENT_GROUPS } from "../recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
+import synoraStyles from "./synora-shell.module.css";
 
 type NavItem = {
   label: string;
@@ -116,9 +118,9 @@ export function SynoraShell({
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
       closeSidebar();
     }
-    if (pathname !== "/synora") {
-      router.push("/synora");
-    }
+    /* Всегда переходим на чистый /synora: сбрасываем и другой раздел,
+       и query-параметр ?project= от открытой недавней песочницы. */
+    router.push("/synora");
     requestComposerFocus();
   }
 
@@ -315,7 +317,7 @@ export function SynoraShell({
                       {group.items.map((item) => (
                         <Link
                           key={item}
-                          href="/synora"
+                          href={`/synora?project=${encodeURIComponent(item)}`}
                           className={styles.recentLink}
                         >
                           {item}
@@ -364,9 +366,19 @@ export function SynoraShell({
       <div className={styles.main}>
         <div className={styles.content}>
           {children}
-          <div className={styles.composer}>
+          <div
+            className={cn(
+              styles.composer,
+              /* На главной /synora (планшет и десктоп) композер по центру,
+                 чуть выше середины экрана — см. synora-shell.module.css */
+              pathname === "/synora" && synoraStyles.composerCentered,
+            )}
+          >
             <div className={styles.composerInner}>
-              <ComposerBar />
+              {/* Suspense — из-за useSearchParams внутри композера */}
+              <Suspense fallback={null}>
+                <ComposerInput />
+              </Suspense>
             </div>
           </div>
         </div>

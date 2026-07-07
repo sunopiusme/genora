@@ -1,0 +1,222 @@
+"use client";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+import { PROJECTS, findProject } from "./data";
+import {
+  CheckIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  ExistingFolderIcon,
+  FolderIcon,
+  FolderPlusIcon,
+  FolderXIcon,
+  PlusIcon,
+  ProjectFolderIcon,
+  SearchIcon,
+} from "./icons";
+import type { ProjectSelection } from "./types";
+import styles from "./ProjectPicker.module.css";
+
+/* ─────────────────────────────────────────
+   Project picker для composer footer'а.
+
+   Triggers:
+     • Список проектов с поиском
+     • «Добавить проект» (side submenu со
+       сценариями: Start from scratch / Use
+       existing folder)
+     • «Не работать в проекте»
+   ───────────────────────────────────────── */
+
+type Props = {
+  selection: ProjectSelection;
+  onChange: (next: ProjectSelection) => void;
+};
+
+export function ProjectPicker({ selection, onChange }: Props) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const searchRef = useRef<HTMLInputElement | null>(null);
+
+  const openPopover = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const closePopover = useCallback(() => {
+    setOpen(false);
+    setQuery("");
+  }, []);
+
+  const togglePopover = useCallback(() => {
+    if (open) {
+      closePopover();
+      return;
+    }
+    openPopover();
+  }, [closePopover, open, openPopover]);
+
+  useEffect(() => {
+    if (!open) return;
+    const handleClick = (event: MouseEvent) => {
+      if (!wrapRef.current) return;
+      if (wrapRef.current.contains(event.target as Node)) return;
+      closePopover();
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [closePopover, open]);
+
+  useEffect(() => {
+    if (!open) return;
+    /* preventScroll держит viewport на месте: иначе браузер
+       автоматически проматывал страницу к input'у при открытии
+       popover'а (особенно заметно у sticky-композера внизу). */
+    searchRef.current?.focus({ preventScroll: true });
+  }, [open]);
+
+  const filtered = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return PROJECTS;
+    return PROJECTS.filter((p) => p.label.toLowerCase().includes(q));
+  }, [query]);
+
+  const triggerLabel =
+    selection.kind === "none"
+      ? "Без проекта"
+      : findProject(selection.id)?.label ?? "Проект";
+
+  const triggerIcon =
+    selection.kind === "none" ? <FolderXIcon /> : <ProjectFolderIcon />;
+
+  const pick = (id: string) => {
+    onChange({ kind: "project", id });
+    closePopover();
+  };
+
+  return (
+    <div ref={wrapRef} className={styles.wrap}>
+      <button
+        type="button"
+        className={styles.trigger}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={togglePopover}
+      >
+        <span className={styles.triggerIcon} aria-hidden="true">
+          {triggerIcon}
+        </span>
+        <span className={styles.triggerLabel}>{triggerLabel}</span>
+        <span className={styles.triggerChevron} aria-hidden="true">
+          <ChevronDownIcon />
+        </span>
+      </button>
+
+      {open ? (
+        <div className={styles.popover} role="menu">
+          <div className={styles.search}>
+            <span className={styles.searchIcon} aria-hidden="true">
+              <SearchIcon />
+            </span>
+            <input
+              className={styles.searchInput}
+              type="text"
+              placeholder="Поиск проектов"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              ref={searchRef}
+            />
+          </div>
+
+          <div className={styles.list}>
+            {filtered.length === 0 ? (
+              <div className={styles.empty}>Ничего не найдено</div>
+            ) : (
+              filtered.map((project) => {
+                const selected =
+                  selection.kind === "project" && selection.id === project.id;
+                return (
+                  <button
+                    key={project.id}
+                    type="button"
+                    className={styles.item}
+                    data-active={selected}
+                    onClick={() => pick(project.id)}
+                  >
+                    <span className={styles.itemIcon} aria-hidden="true">
+                      {project.kind === "workspace" ? (
+                        <FolderIcon />
+                      ) : (
+                        <ProjectFolderIcon />
+                      )}
+                    </span>
+                    <span className={styles.itemLabel}>{project.label}</span>
+                    {selected ? (
+                      <span className={styles.itemCheck} aria-hidden="true">
+                        <CheckIcon />
+                      </span>
+                    ) : (
+                      <span aria-hidden="true" />
+                    )}
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          <div className={styles.divider} />
+
+          {/* «Добавить проект» с side-submenu. */}
+          <div className={styles.item} data-has-submenu="true" role="menuitem">
+            <span className={styles.itemIcon} aria-hidden="true">
+              <FolderPlusIcon />
+            </span>
+            <span className={styles.itemLabel}>Добавить проект</span>
+            <span className={styles.itemChevron} aria-hidden="true">
+              <ChevronRightIcon />
+            </span>
+            <div className={styles.submenu} role="menu">
+              <button type="button" className={styles.item} role="menuitem">
+                <span className={styles.itemIcon} aria-hidden="true">
+                  <PlusIcon />
+                </span>
+                <span className={styles.itemLabel}>Создать с нуля</span>
+                <span aria-hidden="true" />
+              </button>
+              <button type="button" className={styles.item} role="menuitem">
+                <span className={styles.itemIcon} aria-hidden="true">
+                  <ExistingFolderIcon />
+                </span>
+                <span className={styles.itemLabel}>Открыть папку</span>
+                <span aria-hidden="true" />
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className={styles.item}
+            data-active={selection.kind === "none"}
+            onClick={() => {
+              onChange({ kind: "none" });
+              closePopover();
+            }}
+          >
+            <span className={styles.itemIcon} aria-hidden="true">
+              <FolderXIcon />
+            </span>
+            <span className={styles.itemLabel}>Не работать в проекте</span>
+            {selection.kind === "none" ? (
+              <span className={styles.itemCheck} aria-hidden="true">
+                <CheckIcon />
+              </span>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
