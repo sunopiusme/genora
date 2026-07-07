@@ -139,13 +139,6 @@
   cursor: text;
 }
 
-.nameRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
 .name {
   margin: 0;
   min-width: 0;
@@ -205,6 +198,12 @@
   white-space: nowrap;
 }
 
+.fromLabel {
+  font-size: 0.8125rem;
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-muted);
+}
+
 .amount {
   font-size: 1rem;
   font-weight: var(--weight-semibold);
@@ -217,12 +216,6 @@
   font-size: 0.8125rem;
   font-weight: var(--weight-medium);
   color: var(--color-foreground-muted);
-}
-
-.tierArea {
-  cursor: default;
-  flex-shrink: 0;
-  align-self: center;
 }
 
 /* Кнопка «Купить»: непрозрачные токены поверхностей вместо полупрозрачного
@@ -262,16 +255,6 @@
     gap: 0.625rem;
   }
 
-  /* На узких экранах название и селектор тарифа не помещаются в одну
-     строку: селектор (flex-shrink: 0) забирает ширину под длинное имя
-     тарифа и обрезает название. Складываем их в колонку — название
-     занимает всю ширину карточки, селектор всегда на своей строке ниже. */
-  .nameRow {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.25rem;
-  }
-
   .name {
     font-size: 0.8125rem;
     white-space: normal;
@@ -281,10 +264,6 @@
   .nameButton {
     overflow: visible;
     text-overflow: clip;
-  }
-
-  .tierArea {
-    align-self: flex-start;
   }
 
   /* Названия могут переноситься на разное число строк — прижимаем

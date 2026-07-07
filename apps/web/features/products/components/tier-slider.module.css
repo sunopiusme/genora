@@ -6,13 +6,6 @@
   padding: var(--space-3) var(--space-4);
 }
 
-.tierSliderCompact {
-  composes: tierSlider;
-  --track-height: 1.25rem;
-  padding: var(--space-3);
-  gap: var(--space-2);
-}
-
 .tierEdges {
   display: flex;
   align-items: center;
