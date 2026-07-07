@@ -62,10 +62,10 @@
   height: 100%;
 }
 
-/* Popover. */
+/* Popover. Раскрытие вверх (composer footer) или вниз
+   (десктопный заголовок /synora) — через data-placement. */
 .popover {
   position: absolute;
-  bottom: calc(100% + 8px);
   left: 0;
   min-width: 280px;
   padding: var(--c-corner-inset);
@@ -79,6 +79,14 @@
   flex-direction: column;
   gap: 1px;
   z-index: 20;
+}
+
+.popover[data-placement="up"] {
+  bottom: calc(100% + 8px);
+}
+
+.popover[data-placement="down"] {
+  top: calc(100% + 8px);
 }
 
 .search {
