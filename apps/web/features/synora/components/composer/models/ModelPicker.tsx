@@ -161,47 +161,41 @@ export function ModelPicker({ selection, onChange }: Props) {
   );
 }
 
+/* ─── Иконки — стиль Solar Linear ──────────
+   stroke 1.5, единая шкала с lib/icon.tsx. */
+
+const iconBase = {
+  viewBox: "0 0 24 24",
+  fill: "none" as const,
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+/* Solar alt-arrow-down-linear. */
 function ChevronDown() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m6 9 6 6 6-6" />
+    <svg {...iconBase}>
+      <path d="m19 9-7 6-7-6" />
     </svg>
   );
 }
 
+/* Solar alt-arrow-right-linear. */
 function ChevronRight() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m9 6 6 6-6 6" />
+    <svg {...iconBase}>
+      <path d="m9 5 6 7-6 7" />
     </svg>
   );
 }
 
+/* Solar check-read-linear (одиночная галочка). */
 function CheckIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m5 12 5 5 9-11" />
+    <svg {...iconBase} strokeWidth={1.8}>
+      <path d="m4.5 12.75 4.5 4.5L19.5 6.75" />
     </svg>
   );
 }

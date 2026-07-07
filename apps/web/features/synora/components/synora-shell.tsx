@@ -34,6 +34,7 @@ import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
+import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/ComposerInput";
 import { SYNORA_RECENT_GROUPS } from "../recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
@@ -369,14 +370,18 @@ export function SynoraShell({
           <div
             className={cn(
               styles.composer,
-              /* На главной /synora (планшет и десктоп) композер по центру,
+              /* На главной /synora (планшет и десктоп) композер по цен��ру,
                  чуть выше середины экрана — см. synora-shell.module.css */
               pathname === "/synora" && synoraStyles.composerCentered,
             )}
           >
             <div className={styles.composerInner}>
-              {/* Suspense — из-за useSearchParams внутри композера */}
+              {/* Suspense — из-за useSearchParams внутри композера
+                  и десктопного заголовка */}
               <Suspense fallback={null}>
+                {/* Десктопный заголовок над композером — только на
+                    главной /synora (см. synora-heading.tsx) */}
+                {pathname === "/synora" && <SynoraHeading />}
                 <ComposerInput />
               </Suspense>
             </div>
@@ -387,6 +392,8 @@ export function SynoraShell({
   );
 }
 
+/* Solar siderbar-minimalistic-linear — stroke 1.5,
+   единый стиль с остальными иконками (lib/icon.tsx). */
 function SidebarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -397,13 +404,13 @@ function SidebarIcon() {
         height="17.5"
         rx="3.25"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.5"
         fill="none"
       />
       <path
         d="M8.75 3.75v16.5"
         stroke="currentColor"
-        strokeWidth="1.8"
+        strokeWidth="1.5"
         strokeLinecap="round"
         fill="none"
       />

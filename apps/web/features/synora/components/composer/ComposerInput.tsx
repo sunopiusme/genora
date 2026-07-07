@@ -27,7 +27,7 @@ import { PromptInput } from "./PromptInput";
 import { Tooltip } from "./Tooltip";
 import { useFileDrop } from "./useFileDrop";
 import { BranchPicker } from "./branches/BranchPicker";
-import { DEFAULT_BRANCH } from "./branches/data";
+import { useBranchStore } from "./branches/branch-store";
 import { EnvironmentPicker } from "./environment/EnvironmentPicker";
 import type { EnvironmentMode } from "./environment/types";
 import { ProjectPicker } from "./projects/ProjectPicker";
@@ -66,7 +66,10 @@ export function ComposerInput() {
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_SELECTION);
   const [project, setProject] = useState<ProjectSelection>(DEFAULT_PROJECT);
   const [environment, setEnvironment] = useState<EnvironmentMode>("local");
-  const [branch, setBranch] = useState(DEFAULT_BRANCH);
+  /* Ветка живёт в общем сторе: её также показывает и меняет
+     десктопный заголовок главной /synora (SynoraHeading). */
+  const branch = useBranchStore((state) => state.branch);
+  const setBranch = useBranchStore((state) => state.setBranch);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
   const [inputFocused, setInputFocused] = useState(false);
   const [sending, setSending] = useState(false);
@@ -192,7 +195,7 @@ export function ComposerInput() {
                 </span>
                 <span className={styles.dropOverlayCopy}>
                   <span className={styles.dropOverlayTitle}>
-                    Отпустите, чтобы прикрепить
+                    О��пустите, чтобы прикрепить
                   </span>
                   <span className={styles.dropOverlayHint}>
                     Изображение или аудио до 25 МБ

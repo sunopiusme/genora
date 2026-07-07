@@ -174,7 +174,7 @@
    нового — только то, что уже живёт в инпуте.
 
    Никакого стекла, pill'ов, ауры, halo. Оверлей
-   подменяет содержимое card'а на ту же поверхность
+   подменяет содержимое card'а на ту ж�� поверхность
    (та же geometry, тот же row-radius на inset =
    corner-inset, та же палитра hairline'ов, что у
    attachment-плиток и mode-chip'ов).
@@ -203,7 +203,7 @@
 
 /* Concentric inner ring. Inset = corner-inset (6),
    радиус = card − 6 = row-radius. Тот же закон,
-   по которому строятся attachment-плитки и
+   по которому строятся attachment-плит��и и
    mode-chip'ы — оверлей читается как родной
    элемент композера. */
 .dropOverlay::before {
@@ -997,9 +997,23 @@ button.iconBtn[data-loading="true"] svg {
   width: 8px;
 }
 
-.pluginsTrigger:hover .pluginsSubmenu,
-.pluginsSubmenu:hover {
+/* data-open — закрепление по клику/тапу: работает
+   везде и это единственный способ открыть submenu
+   на тач-устройствах. */
+.pluginsTrigger[data-open="true"] .pluginsSubmenu {
   display: flex;
+}
+
+/* Hover-раскрытие — только там, где есть настоящий
+   hover (мышь/трекпад). На тач-устройствах браузер
+   эмулирует :hover после тапа, и без этой обёртки
+   «залипший» hover не давал закрыть submenu
+   повторным нажатием. */
+@media (hover: hover) {
+  .pluginsTrigger:hover .pluginsSubmenu,
+  .pluginsSubmenu:hover {
+    display: flex;
+  }
 }
 
 /* Plugin-item в submenu — карточка с brand-иконкой
@@ -1049,7 +1063,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 /* iOS-style toggle. Невзаимодействующий —
-   состояние держит родительская кнопка через
+   состояние держит роди��е����ь��кая кнопка через
    data-on. Шайба сдвигается в активно�� положение
    при data-on="true". */
 .toggle {
@@ -1084,13 +1098,33 @@ button.iconBtn[data-loading="true"] svg {
   background: var(--color-primary-foreground);
 }
 
-/* ── Адаптация ─────────────────────────── */
-/* Двухрядная композиция (textarea сверху, контролы
-   снизу) сама решает проблему узкого экрана — поле
-   ввода никогда не делит строку с кнопками. Остаётся
-   поджать паддинги и разрешить перенос контролов,
-   если их сумма всё же шире карточки. */
+/* ── Мобильная вёрстка ─────────────────── */
+/* Мобильный композер не повторяет десктоп:
+   приоритет — тексту. Двухрядная карточка
+   (textarea сверху, контролы снизу) остаётся,
+   но всё вокруг ужимается:
+   • toolbar никогда не переносится — контролы
+     компактные (у модели прячется уровень,
+     см. media-блок ModelPicker);
+   • нижняя панель контекста — одна строка из
+     трёх компактных чипов без переноса;
+   • поповеры пикеров растягиваются на всю
+     ширину композера (media-блоки пикеров). */
 @media (max-width: 560px) {
+  /* Grid-ячейка .stack по умолчанию не уже своего
+     min-content — жёсткий toolbar распирал композер
+     шире вьюпорта. min-width: 0 разрешает сжатие,
+     а сжимаются лейблы чипов (ellipsis ниже и в
+     media-блоках пикеров). */
+  .stack,
+  .card,
+  .toolbar,
+  .toolbarLeft,
+  .toolbarRight,
+  .context {
+    min-width: 0;
+    max-width: 100%;
+  }
   .card {
     padding: 12px;
     gap: 10px;
@@ -1099,17 +1133,58 @@ button.iconBtn[data-loading="true"] svg {
     padding: 2px 4px 0;
   }
   .toolbar {
-    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .toolbarLeft {
+    gap: 6px;
+    flex-shrink: 0;
   }
   .toolbarRight {
-    margin-left: auto;
+    gap: 0;
+    /* Правая группа (доступ + модель + голос +
+       отправка) сжимается за счёт чипа модели. */
+    flex: 0 1 auto;
+  }
+  .sendBtn {
+    margin-left: 2px;
   }
   .context {
+    flex-wrap: nowrap;
     gap: 0;
     margin: -16px 0 0;
+    padding: 22px 10px 10px;
+  }
+  /* Каждый чип может ужиматься: обрезка длинных
+     названий — в media-блоках самих пикеров. */
+  .context > * {
+    min-width: 0;
   }
   .footChip {
     padding: 8px 8px;
     font-size: 0.78rem;
+  }
+  /* Подменю плагинов на десктопе выезжает вправо
+     (left: 100%) — на узком экране оно уходит за
+     край вьюпорта. На мобильном .pluginsTrigger
+     теряет position, якорем становится сам
+     .dropdown, и подменю раскрывается НАД меню
+     на всю его ширину. */
+  .pluginsTrigger {
+    position: static;
+  }
+  .pluginsSubmenu {
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 8px);
+    min-width: 0;
+  }
+  /* Hover-мост слева не нужен — зазор теперь снизу. */
+  .pluginsSubmenu::before {
+    top: auto;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 8px;
   }
 }

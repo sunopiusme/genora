@@ -1,0 +1,84 @@
+/* Десктопный заголовок главной /synora — над центрированным
+   композером. На мобильных (< 48rem) скрыт: там работает герой
+   SynoraHome (synora-home.module.css). */
+
+.heading {
+  /* Токены композера для общего поповера веток (BranchPicker.module.css):
+     заголовок живёт вне .root композера, где они объявлены. */
+  --c-ink: var(--color-foreground);
+  --c-ink-muted: var(--color-foreground-muted);
+  --c-ink-subtle: var(--color-foreground-subtle);
+  --c-line-soft: rgb(255 255 255 / 0.06);
+  --c-card-radius: 24px;
+  --c-corner-inset: 6px;
+  --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
+  --c-gap-icon: 8px;
+  --c-icon-col: 20px;
+  --composer-surface-raised: var(--color-surface-raised, #303030);
+  --composer-hairline: rgb(255 255 255 / 0.08);
+  --composer-duration-hover: 120ms;
+
+  display: none;
+  /* Поповер веток должен перекрывать композер, который идёт
+     следом в DOM: поднимаем заголовок в стек-контексте. */
+  position: relative;
+  z-index: 30;
+  margin: 0 0 var(--space-6);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-2xl);
+  color: var(--color-foreground);
+  text-align: center;
+  text-wrap: balance;
+}
+
+@media (min-width: 48rem) {
+  .heading {
+    display: block;
+  }
+}
+
+/* Серая вводная часть перед названием проекта. */
+.lead {
+  color: var(--color-foreground-subtle);
+}
+
+/* Обёртка нужна как якорь позиционирования поповера. */
+.projectWrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* Название проекта — кнопка без «обвеса»: наследует типографику
+   заголовка, при наведении слегка подсвечивается. */
+.project {
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: var(--color-foreground);
+  cursor: pointer;
+  border-radius: var(--space-1, 0.25rem);
+  transition: opacity 160ms ease;
+}
+
+.project:hover {
+  opacity: 0.85;
+}
+
+.project:focus-visible {
+  outline: 2px solid var(--color-foreground-subtle);
+  outline-offset: 4px;
+}
+
+/* Поповер веток центрируем под названием и возвращаем
+   нормальную типографику вместо унаследованной от h1. */
+.projectWrap :global([role="menu"]) {
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.82rem;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  text-wrap: initial;
+}

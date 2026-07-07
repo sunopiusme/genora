@@ -49,7 +49,7 @@ export function Toast({ message, duration = 4000, onDismiss }: Props) {
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            strokeWidth="2"
+            strokeWidth="1.8"
             strokeLinecap="round"
           >
             <path d="M6 6 18 18M18 6 6 18" />

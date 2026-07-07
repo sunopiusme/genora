@@ -217,3 +217,38 @@
   width: 100%;
   height: 100%;
 }
+
+/* ── Мобильная вёрстка ──
+   Toolbar на узком экране не переносится, поэтому
+   чип модели показывает только имя модели — уровень
+   («Ultracode» и т.п.) скрывается, он виден в
+   поповере. Submenu моделей раскрывается над
+   поповером на его ширину. */
+@media (max-width: 560px) {
+  /* Чип модели — единственный сжимаемый элемент
+     правой группы toolbar'а: имя модели обрезается
+     ellipsis'ом, иконки и кнопки не деформируются. */
+  .wrap {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+  .trigger {
+    gap: 6px;
+    padding: 8px 6px;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .triggerLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .triggerLevel {
+    display: none;
+  }
+  .modelsSubmenu {
+    left: auto;
+    right: calc(0px - var(--c-corner-inset));
+    bottom: calc(100% + 4px);
+    min-width: 200px;
+  }
+}

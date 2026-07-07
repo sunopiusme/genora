@@ -104,9 +104,24 @@ export function PlusDropdown({ planMode, onPlanModeChange, onAttach }: PlusDropd
 }
 
 function PluginsSubmenuItem() {
+  /* На десктопе submenu раскрывается по hover (CSS),
+     но на тач-устройствах hover нет — поэтому клик
+     по «Плагины» закрепляет submenu открытым
+     (data-open + CSS-правило). Повторный клик
+     закрывает. На десктопе клик тоже работает —
+     поведение просто дублирует hover. */
+  const [pinned, setPinned] = useState(false);
+
   return (
-    <div className={styles.pluginsTrigger}>
-      <button type="button" className={styles.dropdownItem} role="menuitem">
+    <div className={styles.pluginsTrigger} data-open={pinned}>
+      <button
+        type="button"
+        className={styles.dropdownItem}
+        role="menuitem"
+        aria-haspopup="menu"
+        aria-expanded={pinned}
+        onClick={() => setPinned((prev) => !prev)}
+      >
         <span className={styles.dropdownIcon}>
           <GridIcon />
         </span>

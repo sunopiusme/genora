@@ -99,68 +99,58 @@ export function PermissionPicker({ level, onChange }: Props) {
   );
 }
 
+/* ─── Иконки — стиль Solar Linear ──────────
+   24×24, stroke 1.5, скруглённая геометрия —
+   единая шкала с lib/icon.tsx. Инлайн-SVG:
+   без сетевых загрузок и мигания. */
+
+const baseProps = {
+  viewBox: "0 0 24 24",
+  fill: "none" as const,
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+};
+
+/* Ладонь «стоп» — стандартный доступ. */
 function HandIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M11 11V5.5a1.5 1.5 0 0 1 3 0V11" />
-      <path d="M14 11V4.5a1.5 1.5 0 0 1 3 0V11" />
-      <path d="M17 11V6.5a1.5 1.5 0 0 1 3 0v8a6 6 0 0 1-6 6h-1a5 5 0 0 1-4-2L6.5 14a1.5 1.5 0 0 1 2.4-1.8L11 14" />
-      <path d="M11 11V8" />
+    <svg {...baseProps}>
+      <path d="M11 11V5.25a1.5 1.5 0 0 1 3 0V11" />
+      <path d="M14 11V4.25a1.5 1.5 0 0 1 3 0V11" />
+      <path d="M17 11V6.25a1.5 1.5 0 0 1 3 0v8.25a6 6 0 0 1-6 6h-1a5 5 0 0 1-4-2l-2.5-4.5a1.5 1.5 0 0 1 2.4-1.8L11 14" />
+      <path d="M11 11V7.75" />
     </svg>
   );
 }
 
+/* Solar shield-check-linear. */
 function ShieldCheckIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z" />
-      <path d="m9 12 2 2 4-4" />
+    <svg {...baseProps}>
+      <path d="M3 10.417c0-3.198 0-4.797.378-5.335c.377-.537 1.88-1.052 4.887-2.081l.573-.196C10.405 2.268 11.188 2 12 2s1.595.268 3.162.805l.573.196c3.007 1.029 4.51 1.544 4.887 2.081C21 5.62 21 7.22 21 10.417v1.574c0 5.638-4.239 8.375-6.899 9.536C13.38 21.842 13.02 22 12 22s-1.38-.158-2.101-.473C7.239 20.365 3 17.63 3 11.991v-1.574Z" />
+      <path d="m9.5 12.4 1.714 1.6L15.5 10" />
     </svg>
   );
 }
 
+/* Solar shield-warning-linear. */
 function ShieldAlertIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.6"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6l-8-3Z" />
-      <path d="M12 8v4" />
-      <circle cx="12" cy="15.2" r="0.6" fill="currentColor" stroke="none" />
+    <svg {...baseProps}>
+      <path d="M3 10.417c0-3.198 0-4.797.378-5.335c.377-.537 1.88-1.052 4.887-2.081l.573-.196C10.405 2.268 11.188 2 12 2s1.595.268 3.162.805l.573.196c3.007 1.029 4.51 1.544 4.887 2.081C21 5.62 21 7.22 21 10.417v1.574c0 5.638-4.239 8.375-6.899 9.536C13.38 21.842 13.02 22 12 22s-1.38-.158-2.101-.473C7.239 20.365 3 17.63 3 11.991v-1.574Z" />
+      <path d="M12 8v4.5" />
+      <circle cx="12" cy="15.75" r="0.5" fill="currentColor" stroke="none" />
     </svg>
   );
 }
 
+/* Solar check-read-linear (одиночная галочка). */
 function CheckIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="m5 12 5 5 9-11" />
+    <svg {...baseProps} strokeWidth={1.8}>
+      <path d="m4.5 12.75 4.5 4.5L19.5 6.75" />
     </svg>
   );
 }

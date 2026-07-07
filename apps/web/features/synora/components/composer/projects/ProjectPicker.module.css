@@ -248,3 +248,49 @@
 .submenu:hover {
   display: flex;
 }
+
+/* ── Мобильная вёрстка ──
+   Чип ужимается (длинное название проекта
+   обрезается), а поповер позиционируется от
+   .stack композера (wrap теряет position) и
+   растягивается на всю его ширину. Боковое
+   submenu раскрывается над поповером —
+   сбоку на узком экране ему нет места. */
+@media (max-width: 560px) {
+  .wrap {
+    position: static;
+    min-width: 0;
+    /* Название проекта — главный текст нижней
+       панели: сжимается последним (shrink 1 против
+       большего показателя у соседей не нужен —
+       у окружения на мобильном остаётся только
+       иконка, у ветки короткое имя). */
+    flex: 0 1 auto;
+  }
+  .trigger {
+    min-width: 0;
+    max-width: 100%;
+    padding: 8px 6px;
+    gap: 6px;
+  }
+  .triggerLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* Шеврон — лишний орнамент на узком экране:
+     чип и так очевидно интерактивен. */
+  .triggerChevron {
+    display: none;
+  }
+  .popover {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+  .submenu {
+    left: var(--c-corner-inset);
+    right: var(--c-corner-inset);
+    bottom: calc(100% + 4px);
+    min-width: 0;
+  }
+}
