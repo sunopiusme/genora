@@ -488,12 +488,16 @@ function LoginGlyph() {
   );
 }
 
-function ProfileMenu({
+export function ProfileMenu({
   isSidebarOpen,
   user,
+  planLabel,
 }: {
   isSidebarOpen: boolean;
   user: AuthUser;
+  /* Подпись плана в триггере и шапке меню; по умолчанию — план Genora.
+     Другие площадки (Синора) передают свою подпись. */
+  planLabel?: string;
 }) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -589,7 +593,9 @@ function ProfileMenu({
             />
             <span className={styles.profileMenuIdentity}>
               <span className={styles.profileMenuName}>{user.name}</span>
-              <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
+              <span className={styles.profileMenuPlan}>
+                {planLabel ?? PROFILE.plan}
+              </span>
             </span>
             <Icon
               icon="solar:alt-arrow-right-linear"
@@ -661,7 +667,9 @@ function ProfileMenu({
           />
           <span className={styles.profileIdentity}>
             <span className={styles.profileName}>{user.name}</span>
-            <span className={styles.profilePlan}>{PROFILE.plan}</span>
+            <span className={styles.profilePlan}>
+              {planLabel ?? PROFILE.plan}
+            </span>
           </span>
           <span className={styles.profileBalance}>
             {formatBalance(PROFILE.balance)}

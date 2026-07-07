@@ -23,12 +23,13 @@ import {
 } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Avatar, SynoraLogo, cn } from "@genora/ui";
+import { SynoraLogo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "@/components/shared/composer-bar";
+import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
@@ -319,7 +320,11 @@ export function SynoraShell({
 
           <div className={styles.sidebarFooter}>
             <div key="profile" className={styles.footerSwap}>
-              <SynoraProfile user={authenticatedUser} />
+              <ProfileMenu
+                isSidebarOpen={isSidebarOpen}
+                user={authenticatedUser}
+                planLabel="Песочница"
+              />
             </div>
           </div>
         </div>
@@ -356,32 +361,6 @@ export function SynoraShell({
         </div>
       </div>
     </div>
-  );
-}
-
-function SynoraProfile({ user }: { user: AuthUser }) {
-  const logout = useAuthStore((state) => state.logout);
-
-  return (
-    <SidebarTooltip label={user.name} isEnabled>
-      <button
-        type="button"
-        className={styles.profile}
-        onClick={logout}
-        aria-label={`${user.name} — выйти`}
-        title="Выйти"
-      >
-        <Avatar
-          name={user.name}
-          size="1.625rem"
-          className={styles.profileAvatar}
-        />
-        <span className={styles.profileIdentity}>
-          <span className={styles.profileName}>{user.name}</span>
-          <span className={styles.profilePlan}>Песочница</span>
-        </span>
-      </button>
-    </SidebarTooltip>
   );
 }
 
