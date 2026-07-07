@@ -223,3 +223,33 @@
   font-size: 0.82rem;
   color: var(--c-ink-subtle);
 }
+
+/* ── Мобильная вёрстка ──
+   Чип компактный, поповер — на всю ширину
+   композера (wrap теряет position, якорем
+   становится .stack). Десктопный заголовок
+   /synora на этих ширинах скрыт, конфликтов
+   с data-placement="down" нет. */
+@media (max-width: 560px) {
+  .wrap {
+    position: static;
+    min-width: 0;
+  }
+  .trigger {
+    min-width: 0;
+    padding: 8px 8px;
+  }
+  .triggerLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .popover {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+  .list {
+    min-height: 0;
+    max-height: 240px;
+  }
+}

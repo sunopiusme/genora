@@ -243,3 +243,33 @@
   font-size: 0.74rem;
   color: var(--c-ink-subtle);
 }
+
+/* ── Мобильная вёрстка ──
+   Тот же приём, что у ProjectPicker: чип
+   компактный, поповер — на всю ширину
+   композера, submenu «Лимит» — над поповером. */
+@media (max-width: 560px) {
+  .wrap {
+    position: static;
+    min-width: 0;
+  }
+  .trigger {
+    min-width: 0;
+    padding: 8px 8px;
+  }
+  .triggerLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .popover {
+    left: 0;
+    right: 0;
+    min-width: 0;
+  }
+  .submenu {
+    left: var(--c-corner-inset);
+    right: var(--c-corner-inset);
+    bottom: calc(100% + 4px);
+    min-width: 0;
+  }
+}
