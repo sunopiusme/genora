@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Icon } from "@/lib/icon";
 import { useAuthStore } from "@/stores/auth-store";
 import { RECENT_GROUPS } from "@/lib/recent-chats";
+import { PageHeader } from "./page-header";
 import { PageScrollArea } from "./page-scroll-area";
 import styles from "./search-view.module.css";
 
@@ -30,15 +31,17 @@ export function SearchView() {
   if (hasHydrated && !user) {
     return (
       <main className={styles.page}>
+        <PageHeader title="Поиск" />
+
         <div className={styles.emptyState}>
           <Icon
             icon="solar:magnifer-linear"
             className={styles.emptyIcon}
             aria-hidden="true"
           />
-          <h1 className={styles.emptyTitle}>Поиск по вашим запросам</h1>
+          <h2 className={styles.emptyTitle}>Поиск по чатам</h2>
           <p className={styles.emptyText}>
-            Войдите, чтобы искать по истории своих чатов и запросов.
+            Войдите, чтобы искать по своим чатам.
           </p>
           <button
             type="button"
@@ -54,11 +57,7 @@ export function SearchView() {
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <h1 className={styles.title}>Поиск</h1>
-        </div>
-      </header>
+      <PageHeader title="Поиск" />
 
       <PageScrollArea className={styles.scroll}>
         <div className={styles.scrollInner}>
@@ -72,17 +71,15 @@ export function SearchView() {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Искать в чатах…"
+              placeholder="Поиск в чатах"
               className={styles.searchInput}
-              aria-label="Поиск по чатам"
+              aria-label="Поиск в чатах"
               autoFocus
             />
           </div>
 
           {groups.length === 0 ? (
-            <p className={styles.noResults}>
-              Ничего не найдено по запросу «{query.trim()}»
-            </p>
+            <p className={styles.noResults}>Ничего не найдено</p>
           ) : (
             groups.map((group) => (
               <section key={group.title} className={styles.group}>

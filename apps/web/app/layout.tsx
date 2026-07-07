@@ -2,7 +2,10 @@ import type { ReactNode } from "react";
 import "./globals.css";
 
 export const metadata = {
-  title: "Genora Pro",
+  title: {
+    default: "Genora Pro",
+    template: "%s · Genora",
+  },
   description: "Магазин подписок на AI-сервисы",
 };
 

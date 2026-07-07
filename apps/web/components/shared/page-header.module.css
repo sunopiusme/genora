@@ -1,0 +1,99 @@
+/* — Единая шапка страниц —
+   Геометрия синхронизирована с сайдбаром (см. app-shell.module.css):
+   на десктопе top = --sidebar-inset (--space-2) + 1.5px поправки на
+   зазор тултип-триггера у toggle-кнопки; бока = --space-3. На мобиле
+   повторяет .mobileFab, чтобы заголовок стоял на уровне FAB. */
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  pointer-events: none;
+  padding-block: calc(var(--space-2) + 1.5px) var(--space-8);
+  padding-inline: var(--space-3);
+}
+
+.header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent 92%);
+}
+
+.header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.92),
+    rgb(0 0 0 / 0.913) 8.1%,
+    rgb(0 0 0 / 0.895) 15.5%,
+    rgb(0 0 0 / 0.863) 22.5%,
+    rgb(0 0 0 / 0.816) 29%,
+    rgb(0 0 0 / 0.757) 35.3%,
+    rgb(0 0 0 / 0.684) 41.2%,
+    rgb(0 0 0 / 0.603) 47.1%,
+    rgb(0 0 0 / 0.513) 52.9%,
+    rgb(0 0 0 / 0.419) 58.8%,
+    rgb(0 0 0 / 0.323) 64.7%,
+    rgb(0 0 0 / 0.23) 71%,
+    rgb(0 0 0 / 0.144) 77.5%,
+    rgb(0 0 0 / 0.073) 84.5%,
+    rgb(0 0 0 / 0.02) 91.9%,
+    transparent 100%
+  );
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  /* Та же высота, что у пункта сайдбара (pad×2 + иконка):
+     вертикальные центры кнопок и hover-пилюль совпадают */
+  min-height: calc(var(--space-2) * 2 + 1.0625rem);
+}
+
+.title {
+  /* Строго по центру шапки независимо от кнопок справа */
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+  white-space: nowrap;
+}
+
+.trailing {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+@media (max-width: 47.9375rem) {
+  .header {
+    /* Та же геометрия, что у .mobileFab (toggle-кнопка сайдбара) */
+    padding-block: calc(var(--space-3) + env(safe-area-inset-top, 0px))
+      var(--space-8);
+    padding-inline: calc(var(--space-3) + env(safe-area-inset-left, 0px))
+      calc(var(--space-3) + env(safe-area-inset-right, 0px));
+  }
+
+  .inner {
+    gap: var(--space-3);
+    /* Высота ряда равна высоте FAB — заголовок центрируется по ней */
+    min-height: 2.75rem;
+    /* Отступ слева под плавающую кнопку сайдбара */
+    padding-left: 2.75rem;
+  }
+}
