@@ -1,0 +1,130 @@
+/* ─────────────────────────────────────────
+   Превью-tile вложения.
+
+   Геометрия по правилу concentric corners:
+   inset тайла от края карточки = --c-corner-inset (6px),
+   радиус тайла = card-radius − inset = 12px.
+   Это должно совпадать с --c-row-radius из
+   ComposerInput (то же 12px).
+
+   Image — квадрат 64×64, обложка через cover.
+   Audio — горизонтальная пилюля.
+   Кнопка ✕ — внутри тайла справа сверху,
+   без hover-scale, без hover-фона.
+   ───────────────────────────────────────── */
+
+.tile {
+  position: relative;
+  flex-shrink: 0;
+  cursor: grab;
+  transition: opacity 120ms ease, transform 160ms ease;
+}
+
+.tile[data-dragging="true"] {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* Drop-target — лёгкий ring вокруг tile, чтобы
+   было видно куда упадёт перетаскиваемое. */
+.tile[data-over="true"]::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--c-row-radius) + 3px);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+
+.imageTile {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--c-row-radius);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.imageTile img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.audioTile {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  /* Подгоняем под высоту image-tile (80px),
+     чтобы вложения разных типов стояли в одном
+     ряду без диссонанса по вертикали. */
+  height: 80px;
+  padding: 12px 16px 12px 12px;
+  border-radius: var(--c-row-radius);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.audioIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-ink);
+  flex-shrink: 0;
+}
+
+.audioIcon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.audioMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.audioName {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--c-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 180px;
+}
+
+.audioSize {
+  font-size: 0.74rem;
+  color: var(--c-ink-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Крестик: внутри тайла, в правом верхнем углу
+   с inset 6px. Без hover-effects — служебная
+   кнопка, не должна привлекать внимание. */
+.remove {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.55);
+  color: var(--c-ink);
+  cursor: pointer;
+}
+
+.remove svg {
+  width: 12px;
+  height: 12px;
+}
