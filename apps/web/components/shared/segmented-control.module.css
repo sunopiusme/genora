@@ -25,9 +25,35 @@
   pointer-events: none;
 }
 
+/* Раскрытие от центра к четырём углам для максимального значения.
+   Анимируется отдельное свойство `scale` (композитный слой),
+   поэтому целочисленная геометрия translateX/width не затрагивается,
+   а текст сегментов лежит слоем выше и остаётся читаемым */
+.thumbBurst {
+  composes: thumb;
+  transition: none;
+  transform-origin: center;
+  animation: burst 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+@keyframes burst {
+  from {
+    scale: 0.35;
+    opacity: 0.35;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .thumb {
     transition: none;
+  }
+
+  .thumbBurst {
+    animation: none;
   }
 }
 

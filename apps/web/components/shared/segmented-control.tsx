@@ -37,6 +37,23 @@ export function SegmentedControl({
     null,
   );
 
+  // При выборе максимального значения ползунок не скользит,
+  // а раскрывается от центра сегмента к четырём углам.
+  // Смена ключа пересоздаёт элемент и перезапускает анимацию.
+  const maxIndex = options.length - 1;
+  const prevIndexRef = useRef(selectedIndex);
+  const [burstKey, setBurstKey] = useState(0);
+
+  useEffect(() => {
+    const prev = prevIndexRef.current;
+    prevIndexRef.current = selectedIndex;
+    if (selectedIndex === maxIndex && prev !== selectedIndex) {
+      setBurstKey((key) => key + 1);
+    }
+  }, [selectedIndex, maxIndex]);
+
+  const isBursting = burstKey > 0 && selectedIndex === maxIndex;
+
   useEffect(() => {
     const track = trackRef.current;
     if (!track) return;
@@ -71,7 +88,8 @@ export function SegmentedControl({
       aria-label={ariaLabel}
     >
       <span
-        className={styles.thumb}
+        key={burstKey}
+        className={isBursting ? styles.thumbBurst : styles.thumb}
         aria-hidden="true"
         style={
           metrics
