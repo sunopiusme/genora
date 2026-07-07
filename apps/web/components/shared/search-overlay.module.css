@@ -196,7 +196,10 @@
   transition: background-color 0.15s ease;
 }
 
-.item:hover {
+/* Подсветка активной опции управляется из компонента (data-active):
+   единое состояние и для клавиатуры (стрелки), и для мыши (hover
+   переводит активность через onMouseMove) — двух подсветок не бывает. */
+.item[data-active] {
   background-color: var(--color-surface);
 }
 
@@ -204,9 +207,12 @@
   outline: none;
 }
 
-.item:focus-visible {
-  outline: 2px solid var(--color-border-strong);
-  outline-offset: -2px;
+.itemEnterHint {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-foreground-subtle);
 }
 
 .itemIcon {

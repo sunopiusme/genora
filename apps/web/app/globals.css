@@ -138,4 +138,17 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* — Блокировка скролла модалками (Radix / react-remove-scroll) —
+   Библиотека компенсирует «исчезающий» скроллбар страницы отступом
+   margin/padding-right на body. Но у нас скроллбар html скрыт
+   (width: 0 / scrollbar-width: none), а прокрутка живёт во внутренних
+   контейнерах с scrollbar-gutter: stable both-edges — компенсировать
+   нечего. В браузерах с классическими скроллбарами этот отступ сжимал
+   body: контент и blur-подложка уезжали влево, а справа проступала
+   полоса фона страницы. Обнуляем компенсацию полностью. */
+body[data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+}
+
 
