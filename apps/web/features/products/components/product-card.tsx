@@ -59,11 +59,8 @@ export function ProductCard({ product, onOpen }: ProductCardProps) {
           </button>
         </h3>
         <p className={styles.price}>
-          {startingPrice.hasMultipleTiers && (
-            <span className={styles.fromLabel}>от</span>
-          )}
-          <span className={styles.amount}>{startingPrice.priceLabel}</span>
-          <span className={styles.period}>в {product.periodLabel}</span>
+          {startingPrice.hasMultipleTiers ? "от " : ""}
+          {startingPrice.priceLabel} в {product.periodLabel}
         </p>
       </div>
       <Button
