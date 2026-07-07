@@ -40,20 +40,20 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Новый запрос",
-    href: "/",
+    href: "/genora",
     icon: "solar:pen-new-square-linear",
     action: "new-request",
   },
   {
     label: "Поиск",
-    href: "/",
+    href: "/genora",
     icon: "solar:magnifer-linear",
     requiresAuth: true,
     action: "search",
   },
   {
     label: "Витрина",
-    href: "/",
+    href: "/genora",
     icon: "solar:shop-2-linear",
   },
   {
@@ -88,40 +88,40 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
       label: "Пополнить",
-      href: "/",
+      href: "/genora",
       icon: "solar:wallet-linear",
       showsBalance: true,
     },
     {
       label: "Улучшить план",
-      href: "/",
+      href: "/genora",
       icon: "solar:star-fall-minimalistic-2-linear",
     },
     {
       label: "Персонализация",
-      href: "/",
+      href: "/genora",
       icon: "solar:magic-stick-3-linear",
     },
     {
       label: "Профиль",
-      href: "/",
+      href: "/genora",
       icon: "solar:user-circle-linear",
     },
     {
       label: "Настройки",
-      href: "/",
+      href: "/genora",
       icon: "solar:settings-linear",
     },
   ],
   [
     {
       label: "Помощь",
-      href: "/",
+      href: "/genora",
       icon: "solar:question-circle-linear",
     },
     {
       label: "Выйти",
-      href: "/",
+      href: "/genora",
       icon: "solar:logout-2-linear",
       isLogout: true,
     },
@@ -167,8 +167,8 @@ export function AppShell({
       openLogin();
       return;
     }
-    if (pathname !== "/") {
-      router.push("/");
+    if (pathname !== "/genora") {
+      router.push("/genora");
     }
     requestComposerFocus();
   }
@@ -378,7 +378,7 @@ export function AppShell({
                         {group.items.map((item) => (
                           <Link
                             key={item}
-                            href="/"
+                            href="/genora"
                             className={styles.recentLink}
                           >
                             {item}
@@ -488,12 +488,16 @@ function LoginGlyph() {
   );
 }
 
-function ProfileMenu({
+export function ProfileMenu({
   isSidebarOpen,
   user,
+  planLabel,
 }: {
   isSidebarOpen: boolean;
   user: AuthUser;
+  /* Подпись плана в триггере и шапке меню; по умолчанию — план Genora.
+     Другие площадки (Синора) передают свою подпись. */
+  planLabel?: string;
 }) {
   const menuId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
@@ -577,7 +581,7 @@ function ProfileMenu({
           style={menuStyle}
         >
           <Link
-            href="/"
+            href="/genora"
             role="menuitem"
             className={styles.profileMenuHeader}
             onClick={() => setIsOpen(false)}
@@ -589,7 +593,9 @@ function ProfileMenu({
             />
             <span className={styles.profileMenuIdentity}>
               <span className={styles.profileMenuName}>{user.name}</span>
-              <span className={styles.profileMenuPlan}>{PROFILE.plan}</span>
+              <span className={styles.profileMenuPlan}>
+                {planLabel ?? PROFILE.plan}
+              </span>
             </span>
             <Icon
               icon="solar:alt-arrow-right-linear"
@@ -661,7 +667,9 @@ function ProfileMenu({
           />
           <span className={styles.profileIdentity}>
             <span className={styles.profileName}>{user.name}</span>
-            <span className={styles.profilePlan}>{PROFILE.plan}</span>
+            <span className={styles.profilePlan}>
+              {planLabel ?? PROFILE.plan}
+            </span>
           </span>
           <span className={styles.profileBalance}>
             {formatBalance(PROFILE.balance)}

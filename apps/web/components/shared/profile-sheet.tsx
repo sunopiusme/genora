@@ -34,19 +34,19 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Персонализация",
         icon: "solar:magic-stick-3-linear",
-        href: "/",
+        href: "/genora",
         hasChevron: true,
       },
       {
         label: "Профиль",
         icon: "solar:user-circle-linear",
-        href: "/",
+        href: "/genora",
         hasChevron: true,
       },
       {
         label: "Настройки",
         icon: "solar:settings-linear",
-        href: "/",
+        href: "/genora",
         hasChevron: true,
       },
     ],
@@ -72,7 +72,7 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Улучшить план",
         icon: "solar:star-fall-minimalistic-2-linear",
-        href: "/",
+        href: "/genora",
         isAccent: true,
       },
     ],
@@ -83,7 +83,7 @@ const SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Помощь",
         icon: "solar:question-circle-linear",
-        href: "/",
+        href: "/genora",
         hasChevron: true,
       },
       {

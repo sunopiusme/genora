@@ -85,7 +85,7 @@ export function SearchOverlay() {
         label: "Новый запрос",
         icon: "solar:pen-new-square-linear",
         run: () => {
-          goTo("/");
+          goTo("/genora");
           requestComposerFocus();
         },
       },
@@ -93,7 +93,7 @@ export function SearchOverlay() {
         id: "action-showcase",
         label: "Витрина",
         icon: "solar:shop-2-linear",
-        run: () => goTo("/"),
+        run: () => goTo("/genora"),
       },
     ];
 
@@ -115,7 +115,7 @@ export function SearchOverlay() {
         id: `chat-${group.title}-${index}`,
         label,
         icon: "solar:chat-round-line-linear",
-        run: () => goTo("/"),
+        run: () => goTo("/genora"),
       }));
       if (items.length > 0) {
         result.push({ title: group.title, items });
