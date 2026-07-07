@@ -78,8 +78,6 @@ export function AuthOverlay() {
     };
   }, []);
 
-  // Keep viewport height in sync with the current view so it animates
-  // as one continuous curve during the crossfade.
   useLayoutEffect(() => {
     const viewport = viewportRef.current;
     const current = currentRef.current;

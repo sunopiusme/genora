@@ -31,7 +31,6 @@ type NavItem = {
   href: string;
   icon: string;
   requiresAuth?: boolean;
-  /** Action items run custom logic instead of plain navigation */
   action?: "new-request";
 };
 
@@ -72,7 +71,6 @@ type ProfileMenuItem = {
   href: string;
   icon: string;
   isLogout?: boolean;
-  /** Show the current balance as a trailing chip on this item */
   showsBalance?: boolean;
 };
 
@@ -144,7 +142,6 @@ export function AppShell({
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
 
   function isNavItemActive(item: NavItem): boolean {
-    // Action items are commands, not destinations — never highlight them
     if (item.action) {
       return false;
     }
@@ -174,10 +171,6 @@ export function AppShell({
   const isAnimatingRef = useRef(false);
   isAnimatingRef.current = isAnimating;
 
-  // While the sidebar width animates, the header moves under a stationary
-  // cursor and fires spurious pointerenter/leave events, which would blink
-  // the logo/toggle swap. Freeze hover during the animation, then re-sync
-  // from the real cursor position once it settles.
   function handleHeaderPointerEnter() {
     if (!isAnimatingRef.current) {
       setIsHeaderHovered(true);
@@ -228,22 +221,16 @@ export function AppShell({
     }
     prevSidebarOpen.current = isSidebarOpen;
     setIsAnimating(true);
-    // Swap toggle -> logo immediately at click time: the crossfade runs in
-    // parallel with the width slide instead of waiting for it to finish.
-    // endSidebarAnimation re-syncs from the real cursor position afterwards.
     setIsHeaderHovered(false);
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
-    // Fallback slightly above the longest CSS run (--sidebar-anim-mobile);
-    // transitionend normally fires first
     animationTimeout.current = setTimeout(() => {
       endSidebarAnimation();
     }, 440);
   }, [isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
-    // Desktop animates width; the mobile drawer animates transform
     if (
       event.target !== event.currentTarget ||
       (event.propertyName !== "width" && event.propertyName !== "transform")
@@ -510,9 +497,6 @@ function ProfileMenu({
       setMenuStyle({
         position: "fixed",
         left: rect.left,
-        // Tight ~4px visual gap to the profile block: its visible pill
-        // starts 5.5px below rect.top (the trigger's hover-pill inset),
-        // so anchor to the pill edge, not the button box
         bottom: window.innerHeight - (rect.top + 5.5) + 4,
       });
       return;

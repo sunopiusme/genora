@@ -44,7 +44,8 @@ export function TierSlider({
   }, [tierIndex, maxIndex, applyFill]);
 
   useEffect(() => {
-    return () => cancelAnimationFrame(gestureRef.current.rafId);
+    const gesture = gestureRef.current;
+    return () => cancelAnimationFrame(gesture.rafId);
   }, []);
 
   const commitNearestTier = useCallback(
