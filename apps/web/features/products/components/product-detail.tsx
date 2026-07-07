@@ -195,18 +195,17 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         </div>
       )}
 
-      <div className={styles.priceCard}>
-        <span className={styles.priceCaption}>Подписка</span>
-        <p className={styles.priceRow}>
-          <span className={styles.amount}>
-            <TierValueTransition
-              text={tier?.priceLabel ?? product.priceLabel}
-              order={tierIndex}
-            />
-          </span>
-          <span className={styles.period}>{product.periodLabel}</span>
-        </p>
-      </div>
+      <p className={styles.priceRow}>
+        <span className={styles.amount}>
+          <TierValueTransition
+            text={tier?.priceLabel ?? product.priceLabel}
+            order={tierIndex}
+          />
+        </span>
+        <span className={styles.period}>{`/ ${product.periodLabel}`}</span>
+      </p>
+
+      <span className={styles.divider} aria-hidden="true" />
 
       <div className={styles.actions}>
         <button type="button" className={styles.primaryAction}>
