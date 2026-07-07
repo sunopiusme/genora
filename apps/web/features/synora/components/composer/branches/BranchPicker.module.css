@@ -234,7 +234,11 @@
   .wrap {
     position: static;
     min-width: 0;
-    flex: 0 1 auto;
+    /* Ветка не сжимается вместе с проектом — иначе
+       от «main» остаётся нечитаемое «m…». Вместо
+       этого её лейбл жёстко ограничен 9ch ниже,
+       а остаток строки отдаём названию проекта. */
+    flex: 0 0 auto;
   }
   .trigger {
     min-width: 0;
@@ -245,6 +249,7 @@
   .triggerLabel {
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 9ch;
   }
   .triggerChevron {
     display: none;
