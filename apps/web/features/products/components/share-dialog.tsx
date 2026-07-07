@@ -83,13 +83,6 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
 
   const apps = [
     {
-      id: "more",
-      label: "Ещё",
-      icon: null,
-      hasIconPadding: false,
-      onClick: handleNativeShare,
-    },
-    {
       id: "telegram",
       label: "Telegram",
       icon: TELEGRAM_ICON,
@@ -119,6 +112,13 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
       onClick: () => {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
+    },
+    {
+      id: "more",
+      label: "Ещё",
+      icon: null,
+      hasIconPadding: false,
+      onClick: handleNativeShare,
     },
   ];
 
