@@ -40,20 +40,20 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   {
     label: "Новый запрос",
-    href: "/",
+    href: "/genora",
     icon: "solar:pen-new-square-linear",
     action: "new-request",
   },
   {
     label: "Поиск",
-    href: "/",
+    href: "/genora",
     icon: "solar:magnifer-linear",
     requiresAuth: true,
     action: "search",
   },
   {
     label: "Витрина",
-    href: "/",
+    href: "/genora",
     icon: "solar:shop-2-linear",
   },
   {
@@ -88,40 +88,40 @@ const PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
       label: "Пополнить",
-      href: "/",
+      href: "/genora",
       icon: "solar:wallet-linear",
       showsBalance: true,
     },
     {
       label: "Улучшить план",
-      href: "/",
+      href: "/genora",
       icon: "solar:star-fall-minimalistic-2-linear",
     },
     {
       label: "Персонализация",
-      href: "/",
+      href: "/genora",
       icon: "solar:magic-stick-3-linear",
     },
     {
       label: "Профиль",
-      href: "/",
+      href: "/genora",
       icon: "solar:user-circle-linear",
     },
     {
       label: "Настройки",
-      href: "/",
+      href: "/genora",
       icon: "solar:settings-linear",
     },
   ],
   [
     {
       label: "Помощь",
-      href: "/",
+      href: "/genora",
       icon: "solar:question-circle-linear",
     },
     {
       label: "Выйти",
-      href: "/",
+      href: "/genora",
       icon: "solar:logout-2-linear",
       isLogout: true,
     },
@@ -167,8 +167,8 @@ export function AppShell({
       openLogin();
       return;
     }
-    if (pathname !== "/") {
-      router.push("/");
+    if (pathname !== "/genora") {
+      router.push("/genora");
     }
     requestComposerFocus();
   }
@@ -378,7 +378,7 @@ export function AppShell({
                         {group.items.map((item) => (
                           <Link
                             key={item}
-                            href="/"
+                            href="/genora"
                             className={styles.recentLink}
                           >
                             {item}
@@ -577,7 +577,7 @@ function ProfileMenu({
           style={menuStyle}
         >
           <Link
-            href="/"
+            href="/genora"
             role="menuitem"
             className={styles.profileMenuHeader}
             onClick={() => setIsOpen(false)}

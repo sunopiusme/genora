@@ -63,7 +63,7 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Genora",
-    href: "/",
+    href: "/genora",
     icon: "solar:shop-2-linear",
     isExternalArea: true,
   },
@@ -224,7 +224,7 @@ export function SynoraShell({
         <div className={styles.sidebarInner}>
           <div className={styles.sidebarHeader}>
             <span className={styles.logo}>
-              <SynoraLogo width="1.25rem" height="1.25rem" />
+              <SynoraLogo width="1.625rem" height="1.625rem" />
             </span>
             <span className={styles.wordmark}>Синора</span>
             <SidebarTooltip
