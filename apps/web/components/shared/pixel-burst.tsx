@@ -76,6 +76,16 @@ const PHOSPHOR_FLOOR = 0.06;
 const HALO_SPREAD = 5;
 const HALO_ALPHA = 0.11;
 
+/* HDR-перегруз: где энергия существенно превышает верхнюю ступень
+   (гребень волны, интерференция с эхом), точка «выгорает» — ядро
+   выбеливается до раскалённого, а вокруг аддитивно разгорается
+   круглый ореол-градиент, как у настоящей лампочки накаливания */
+const HDR_KNEE = 1.0;
+const HDR_RAMP = 0.7;
+const HDR_WHITE_MIX = 0.8;
+const HDR_GLOW_RADIUS = 8;
+const HDR_GLOW_ALPHA = 0.5;
+
 /* Порог включения: половина порядка Байера + половина хэша клетки */
 const BAYER_SHARE = 0.5;
 
@@ -196,7 +206,7 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
             (1 / SUPERELLIPSE_POWER);
           /* Причинность: волна существует только там, куда уже дошла.
-             До клетки на дистанции d первый гребень добирается в момент
+             ��о клетки на дистанции d первый гребень добирается в момент
              waveTime = d — раньше этого волны в клетке просто нет */
           const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
           if (waveTime >= shapeDistance) {
@@ -236,13 +246,17 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
           const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
           const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
 
-          /* Мгновенная яркость клетки в этом кадре */
+          /* Мгновенная яркость клетки в этом кадре.
+             Неограниченный перелёт сверх шкалы — мера HDR-перегруза */
           let intensity = 0;
+          let overdrive = 0;
           if (energy > threshold) {
-            const overshoot = Math.min(1, (energy - threshold) / 0.5);
+            const excess = (energy - threshold) / 0.5;
+            const overshoot = Math.min(1, excess);
             intensity =
               Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS)) /
               BRIGHTNESS_LEVELS;
+            overdrive = smoothstep((excess - HDR_KNEE) / HDR_RAMP);
           }
 
           /* Фосфор: свежая яркость зажигает люминофор, старая гаснет
@@ -273,6 +287,47 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
               HALO_SPREAD,
               HALO_SPREAD,
             );
+          }
+
+          /* HDR: перегруз рисуется аддитивно («lighter») — ореолы
+             соседних раскалённых точек складываются в общее сияние,
+             а ядро выбеливается, как перекалённая нить накаливания */
+          if (overdrive > 0) {
+            const cx = dotX + DOT_SIZE / 2;
+            const cy = dotY + DOT_SIZE / 2;
+            const glowRadius = HDR_GLOW_RADIUS * (0.55 + 0.45 * overdrive);
+            context.globalCompositeOperation = "lighter";
+            const glow = context.createRadialGradient(
+              cx,
+              cy,
+              0,
+              cx,
+              cy,
+              glowRadius,
+            );
+            const glowAlpha = HDR_GLOW_ALPHA * overdrive;
+            glow.addColorStop(
+              0,
+              `rgb(${tint.r} ${tint.g} ${tint.b} / ${glowAlpha.toFixed(3)})`,
+            );
+            glow.addColorStop(1, `rgb(${tint.r} ${tint.g} ${tint.b} / 0)`);
+            context.fillStyle = glow;
+            context.fillRect(
+              cx - glowRadius,
+              cy - glowRadius,
+              glowRadius * 2,
+              glowRadius * 2,
+            );
+            context.globalCompositeOperation = "source-over";
+
+            const whiteShare = HDR_WHITE_MIX * overdrive;
+            const hotR = Math.round(tint.r + (255 - tint.r) * whiteShare);
+            const hotG = Math.round(tint.g + (255 - tint.g) * whiteShare);
+            const hotB = Math.round(tint.b + (255 - tint.b) * whiteShare);
+            const hotAlpha = Math.min(1, alpha + 0.3 * overdrive);
+            context.fillStyle = `rgb(${hotR} ${hotG} ${hotB} / ${hotAlpha.toFixed(3)})`;
+            context.fillRect(dotX, dotY, DOT_SIZE, DOT_SIZE);
+            continue;
           }
 
           context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
