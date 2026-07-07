@@ -1,0 +1,261 @@
+/* Чат-инпут «Синоры»: крупный контейнер с многострочным полем
+   и нижней панелью управления. Единственный акцентный цвет —
+   тёплый янтарный для селектора уровня доступа (сигнал «внимание»,
+   как в референсных агентных композерах). */
+
+.root {
+  --composer-access-accent: #e8833a;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-3) var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  transition: border-color 0.15s ease;
+}
+
+.panel:focus-within {
+  border-color: var(--neutral-500, var(--color-border-strong));
+}
+
+.editor {
+  width: 100%;
+  min-height: 2.5rem;
+  padding: var(--space-1) var(--space-1) 0;
+  background: none;
+  border: none;
+  resize: none;
+  font: inherit;
+  font-size: var(--text-base);
+  line-height: var(--leading-base);
+  color: var(--color-foreground);
+  outline: none;
+  overflow-y: hidden;
+  scrollbar-width: thin;
+}
+
+.editor::placeholder {
+  color: var(--color-foreground-subtle);
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.toolbarGroup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  color: var(--color-foreground-muted);
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.iconButton:hover {
+  background: var(--color-surface-raised);
+  color: var(--color-foreground);
+}
+
+.glyph {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.accessButton,
+.modelButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 2.125rem;
+  padding-inline: var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  white-space: nowrap;
+}
+
+.accessButton {
+  color: var(--composer-access-accent);
+}
+
+.modelButton {
+  color: var(--color-foreground-muted);
+}
+
+.accessButton:hover,
+.modelButton:hover {
+  background: var(--color-surface-raised);
+}
+
+.selectLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chevron {
+  width: 0.875rem;
+  height: 0.875rem;
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  padding: 0;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-full);
+  color: var(--color-primary-foreground);
+  cursor: pointer;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.submit:disabled {
+  background: var(--color-surface-raised);
+  color: var(--color-foreground-subtle);
+  cursor: default;
+}
+
+.submitGlyph {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+/* Выпадающие списки панели */
+
+.selectRoot {
+  position: relative;
+  min-width: 0;
+}
+
+.selectMenu {
+  position: absolute;
+  bottom: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 30;
+  min-width: 16rem;
+  margin: 0;
+  padding: var(--space-1);
+  list-style: none;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0.75rem 2rem rgb(0 0 0 / 0.45);
+}
+
+/* Меню модели прижимаем к правому краю кнопки, чтобы не вылезало за экран */
+.modelButton + .selectMenu,
+.selectRoot:has(.modelButton) .selectMenu {
+  left: auto;
+  right: 0;
+}
+
+.selectOption {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  column-gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  background: none;
+  border: none;
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--color-foreground);
+  cursor: pointer;
+}
+
+.selectOption:hover {
+  background: var(--color-surface-raised);
+}
+
+.selectOptionLabel {
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
+}
+
+.selectOptionHint {
+  grid-column: 1;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--color-foreground-muted);
+}
+
+.selectOptionCheck {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-foreground);
+}
+
+/* Строка контекста песочницы под контейнером */
+
+.contextRow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding-inline: var(--space-1);
+}
+
+.contextChip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 1.75rem;
+  padding-inline: var(--space-2);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  line-height: 1;
+  color: var(--color-foreground-muted);
+  white-space: nowrap;
+}
+
+.contextGlyph {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+}

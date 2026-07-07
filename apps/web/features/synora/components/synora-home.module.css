@@ -1,6 +1,9 @@
-/* Главный экран «Синоры»: знак и приветствие по центру.
-   Цветовая логика совпадает с прежней Dev-иконкой пустого состояния
-   (--color-foreground-subtle), чтобы знак спокойно сидел на фоне. */
+/* Главный экран «Синоры».
+
+   Мобильные (< 48rem): знак и приветствие центрируются в свободной
+   зоне над нижним композером (компенсация — padding-bottom).
+   Планшет и десктоп (>= 48rem): герой скрыт полностью — там только
+   композер по центру экрана (см. synora-shell.module.css). */
 
 .page {
   position: relative;
@@ -15,9 +18,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-4);
+  gap: var(--space-6);
   flex: 1;
-  padding: var(--space-8);
+  padding: var(--space-6);
+  /* Компенсация высоты нижнего композера: группа центрируется
+     в видимой зоне, а не по всей высоте экрана */
+  padding-bottom: calc(var(--space-6) + 9rem);
   text-align: center;
   animation: hero-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -25,17 +31,17 @@
 /* Селектор .hero .logo нужен, чтобы перебить базовый цвет
    из logo.module.css (color: --color-foreground) — иначе знак белый. */
 .hero .logo {
-  width: 4rem;
-  height: 4rem;
+  width: 5.5rem;
+  height: 5.5rem;
   color: var(--color-foreground-subtle);
   flex-shrink: 0;
 }
 
 .title {
   margin: 0;
-  font-size: var(--text-xl);
+  font-size: var(--text-2xl);
   font-weight: var(--weight-semibold);
-  line-height: var(--leading-xl);
+  line-height: var(--leading-2xl);
   color: var(--color-foreground);
   text-wrap: balance;
 }
@@ -44,34 +50,9 @@
   color: var(--color-foreground);
 }
 
-.hint {
-  margin: 0;
-  max-width: 26rem;
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-  color: var(--color-foreground-muted);
-  text-wrap: pretty;
-}
-
-/* Мобильные и планшеты (до 1024px): десктоп не трогаем.
-   Экран лаконичнее — без подсказки, знак и заголовок крупнее. */
-@media (max-width: 63.9375rem) {
+/* Планшет и десктоп: логотип и заголовок не показываем */
+@media (min-width: 48rem) {
   .hero {
-    gap: var(--space-6);
-    padding: var(--space-6);
-  }
-
-  .hero .logo {
-    width: 5.5rem;
-    height: 5.5rem;
-  }
-
-  .title {
-    font-size: var(--text-2xl);
-    line-height: var(--leading-2xl);
-  }
-
-  .hint {
     display: none;
   }
 }
