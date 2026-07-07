@@ -35,15 +35,19 @@
 
 html {
   color-scheme: dark;
-  overflow-y: scroll;
+  /* Прокрутка приложения живёт исключительно во внутренних контейнерах
+     (.page_scroll, сайдбар, шторки) — корню документа скролл не нужен
+     вовсе. Ранее стояло overflow-y: scroll со «скрытым» скроллбаром
+     (::-webkit-scrollbar { width: 0 }), но Safari не позволяет
+     стилизовать скроллбар корня — на macOS с классическими полосами
+     нативный трек проступал у правого края окна. overflow: hidden
+     гарантирует: у корня скроллбара не бывает ни в одном браузере,
+     а заодно react-remove-scroll всегда вычисляет нулевой «гэп»
+     и не пытается компенсировать его сдвигом body. */
+  overflow: hidden;
   overscroll-behavior: none;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-}
-
-html::-webkit-scrollbar {
-  width: 0;
-  background: transparent;
 }
 
 /* — Кастомный scrollbar: Chrome / Edge / Safari (WebKit/Blink) —
@@ -136,6 +140,24 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* — Блокировка скролла модалками (Radix / react-remove-scroll) —
+   Библиотека компенсирует «исчезающий» скроллбар страницы отступом
+   margin/padding-right на body. У нас корень документа не скроллится
+   (html: overflow hidden), прокрутка живёт во внутренних контейнерах
+   со scrollbar-gutter: stable both-edges — компенсировать нечего:
+   этот отступ лишь сжимал body, контент и blur-подложка уезжали влево,
+   а справа проступала полоса фона страницы.
+   Селектор с удвоенным атрибутом ([data-scroll-locked] дважды) даёт
+   специфичность выше, чем у стиля библиотеки: её <style> инжектится
+   в head позже наших CSS-файлов, и при равной специфичности её
+   !important побеждал бы наш. Обнуляем и служебную переменную гэпа,
+   от которой позиционируются fixed-элементы библиотеки. */
+body[data-scroll-locked][data-scroll-locked] {
+  margin-right: 0 !important;
+  padding-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px;
 }
 
 
