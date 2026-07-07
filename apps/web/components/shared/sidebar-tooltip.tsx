@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  useEffect,
   useState,
   type FocusEvent,
   type MouseEvent,
@@ -40,16 +41,44 @@ export function SidebarTooltip({
     });
   }
 
+  /* Показываем тултип по фокусу ТОЛЬКО при навигации с клавиатуры
+  (:focus-visible). Иначе браузер, восстанавливая фокус на кнопке при
+  возврате на вкладку, повторно открывал тултип, и он висел, пока
+  пользователь не наведёт и не уведёт курсор. */
+  function handleFocus(event: FocusEvent<HTMLDivElement>) {
+    if (
+      event.target instanceof HTMLElement &&
+      event.target.matches(":focus-visible")
+    ) {
+      showTooltip(event);
+    }
+  }
+
   function hideTooltip() {
     setPosition(null);
   }
+
+  /* Страховка: прячем тултип при уходе из окна/вкладки, чтобы он
+  не оставался открытым к моменту возврата. */
+  useEffect(() => {
+    if (!position) return;
+    function handleWindowHide() {
+      setPosition(null);
+    }
+    window.addEventListener("blur", handleWindowHide);
+    document.addEventListener("visibilitychange", handleWindowHide);
+    return () => {
+      window.removeEventListener("blur", handleWindowHide);
+      document.removeEventListener("visibilitychange", handleWindowHide);
+    };
+  }, [position]);
 
   return (
     <div
       className={className ? `${styles.trigger} ${className}` : styles.trigger}
       onMouseEnter={showTooltip}
       onMouseLeave={hideTooltip}
-      onFocus={showTooltip}
+      onFocus={handleFocus}
       onBlur={hideTooltip}
     >
       {children}

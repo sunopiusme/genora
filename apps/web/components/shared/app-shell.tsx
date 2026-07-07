@@ -297,7 +297,14 @@ export function AppShell({
               <button
                 type="button"
                 className={styles.sidebarToggle}
-                onClick={toggleSidebar}
+                onClick={(event) => {
+                  toggleSidebar();
+                  /* Снимаем фокус после клика мышью, чтобы браузер
+                  не восстанавливал его (и тултип) при возврате на вкладку. */
+                  if (!event.currentTarget.matches(":focus-visible")) {
+                    event.currentTarget.blur();
+                  }
+                }}
                 aria-label="Переключить меню"
               >
                 <SidebarIcon />
