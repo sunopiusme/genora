@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { SectionPlaceholder } from "@/components/shared/section-placeholder";
 
 export const metadata: Metadata = {
-  title: "Заказы — Genora",
-  description: "История ваших заказов",
+  title: "Заказы",
+  description: "Ваши заказы и покупки",
 };
 
 export default function OrdersPage() {
@@ -11,7 +11,8 @@ export default function OrdersPage() {
     <SectionPlaceholder
       title="Заказы"
       icon="solar:bag-4-linear"
-      description="Здесь будет история ваших покупок и заказов — статусы, чеки и детали оплаты."
+      emptyTitle="Нет заказов"
+      description="Ваши покупки появятся здесь."
     />
   );
 }
