@@ -2,7 +2,6 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -149,13 +148,53 @@
 
 .name {
   margin: 0;
+  min-width: 0;
   font-size: 0.875rem;
   font-weight: var(--weight-medium);
   line-height: 1.35;
   color: var(--color-foreground);
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.nameButton {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Нижняя полоска-подсветка при наведении и фокусе с клавиатуры. */
+.nameButton::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.2s ease;
+}
+
+.nameButton:hover::after,
+.nameButton:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.nameButton:focus-visible {
+  outline: none;
 }
 
 .price {
@@ -225,6 +264,10 @@
   .name {
     font-size: 0.8125rem;
     white-space: normal;
+    overflow: visible;
+  }
+
+  .nameButton {
     overflow: visible;
     text-overflow: clip;
   }

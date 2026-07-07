@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  useEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -16,7 +15,6 @@ import { TierSelector } from "./tier-selector";
 import { TierValueTransition } from "./tier-value-transition";
 
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
-const DOUBLE_CLICK_GRACE_MS = 220;
 
 type ProductCardProps = {
   product: Product;
@@ -25,42 +23,23 @@ type ProductCardProps = {
 };
 
 export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
-  const openGesture = useCardOpenGesture(onOpen);
+  const openGesture = useIntentionalOpen(onOpen);
   const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
   const selectedTier = product.tiers[tierIndex];
 
-  function stopCardGesture(event: MouseEvent | PointerEvent) {
-    event.stopPropagation();
-    openGesture.clearPressStart();
-    openGesture.cancelPendingOpen();
-  }
-
-  function handleCoverClick(event: MouseEvent<HTMLButtonElement>) {
-    event.stopPropagation();
-    openGesture.clearPressStart();
-    openGesture.openImmediately();
-  }
-
-  function handleBuyClick(event: MouseEvent<HTMLButtonElement>) {
-    event.stopPropagation();
-    openGesture.clearPressStart();
-    openGesture.cancelPendingOpen();
+  function handleBuyClick(_event: MouseEvent<HTMLButtonElement>) {
     if (onBuy) {
       onBuy(tierIndex);
     }
   }
 
   return (
-    <article
-      className={styles.card}
-      onPointerDown={openGesture.handlePointerDown}
-      onClick={openGesture.handleCardClick}
-      onDoubleClick={openGesture.cancelPendingOpen}
-    >
+    <article className={styles.card}>
       <button
         type="button"
         className={styles.cover}
-        onClick={handleCoverClick}
+        onPointerDown={openGesture.handlePointerDown}
+        onClick={openGesture.handleClick}
         aria-label={`Открыть ${product.name}`}
         style={
           {
@@ -81,12 +60,17 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
       </button>
       <div className={styles.info}>
         <div className={styles.nameRow}>
-          <h3 className={styles.name}>{product.name}</h3>
-          <span
-            className={styles.tierArea}
-            onPointerDown={stopCardGesture}
-            onClick={stopCardGesture}
-          >
+          <h3 className={styles.name}>
+            <button
+              type="button"
+              className={styles.nameButton}
+              onPointerDown={openGesture.handlePointerDown}
+              onClick={openGesture.handleClick}
+            >
+              {product.name}
+            </button>
+          </h3>
+          <span className={styles.tierArea}>
             <TierSelector
               product={product}
               tierIndex={tierIndex}
@@ -123,37 +107,13 @@ type PressStartPoint = {
   y: number;
 };
 
-function useCardOpenGesture(onOpen: () => void) {
+/**
+ * Открывает детальный просмотр только по намеренному клику: если между
+ * нажатием и отпусканием указатель заметно сместился (перетаскивание,
+ * скролл) или пользователь выделял текст — открытие не срабатывает.
+ */
+function useIntentionalOpen(onOpen: () => void) {
   const pressStartRef = useRef<PressStartPoint | null>(null);
-  const openTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    return () => cancelPendingOpen();
-  }, []);
-
-  function cancelPendingOpen() {
-    if (openTimerRef.current) {
-      clearTimeout(openTimerRef.current);
-      openTimerRef.current = null;
-    }
-  }
-
-  function clearPressStart() {
-    pressStartRef.current = null;
-  }
-
-  function openImmediately() {
-    cancelPendingOpen();
-    onOpen();
-  }
-
-  function scheduleOpenAfterDoubleClickGrace() {
-    cancelPendingOpen();
-    openTimerRef.current = setTimeout(() => {
-      openTimerRef.current = null;
-      onOpen();
-    }, DOUBLE_CLICK_GRACE_MS);
-  }
 
   function handlePointerDown(event: PointerEvent<HTMLElement>) {
     if (event.button !== 0) {
@@ -162,29 +122,30 @@ function useCardOpenGesture(onOpen: () => void) {
     pressStartRef.current = { x: event.clientX, y: event.clientY };
   }
 
-  function handleCardClick(event: MouseEvent<HTMLElement>) {
+  function handleClick(event: MouseEvent<HTMLElement>) {
     const pressStart = pressStartRef.current;
     pressStartRef.current = null;
 
-    if (!pressStart) {
-      return;
-    }
-    if (hasPointerMovedTooFar(pressStart, event)) {
-      return;
-    }
-    if (hasActiveTextSelection()) {
-      return;
+    // Клик с клавиатуры (Enter/Space) не проходит через pointerdown —
+    // считаем его намеренным и открываем сразу.
+    if (event.detail > 0) {
+      if (!pressStart) {
+        return;
+      }
+      if (hasPointerMovedTooFar(pressStart, event)) {
+        return;
+      }
+      if (hasActiveTextSelection()) {
+        return;
+      }
     }
 
-    scheduleOpenAfterDoubleClickGrace();
+    onOpen();
   }
 
   return {
     handlePointerDown,
-    handleCardClick,
-    cancelPendingOpen,
-    clearPressStart,
-    openImmediately,
+    handleClick,
   };
 }
 
