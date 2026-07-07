@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cookies } from "next/headers";
 import { AppShell } from "@/components/shared/app-shell";
+import { SearchOverlay } from "@/components/shared/search-overlay";
 import { AUTH_COOKIE_NAME, AuthOverlay, parseAuthCookie } from "@features/auth";
 
 export default async function AppLayout({
@@ -15,6 +16,7 @@ export default async function AppLayout({
     <>
       <AppShell initialUser={initialUser}>{children}</AppShell>
       <AuthOverlay />
+      <SearchOverlay />
     </>
   );
 }

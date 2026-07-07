@@ -31,7 +31,7 @@ type NavItem = {
   href: string;
   icon: string;
   requiresAuth?: boolean;
-  action?: "new-request";
+  action?: "new-request" | "search";
 };
 
 const NAV_ITEMS: NavItem[] = [
@@ -43,9 +43,10 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: "Поиск",
-    href: "/search",
+    href: "/",
     icon: "solar:magnifer-linear",
     requiresAuth: true,
+    action: "search",
   },
   {
     label: "Витрина",
@@ -132,6 +133,7 @@ export function AppShell({
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
+  const openSearch = useUiStore((state) => state.openSearch);
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const openLogin = useAuthStore((state) => state.openLogin);
@@ -160,6 +162,17 @@ export function AppShell({
       router.push("/");
     }
     requestComposerFocus();
+  }
+
+  function handleSearch() {
+    if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+      closeSidebar();
+    }
+    if (!authenticatedUser) {
+      openLogin();
+      return;
+    }
+    openSearch();
   }
   const [isAnimating, setIsAnimating] = useState(false);
   const [isHeaderHovered, setIsHeaderHovered] = useState(false);
@@ -327,11 +340,15 @@ export function AppShell({
                     label={item.label}
                     isEnabled={!isSidebarOpen}
                   >
-                    {item.action === "new-request" ? (
+                    {item.action ? (
                       <button
                         type="button"
                         className={cn(styles.navLink, styles.navButton)}
-                        onClick={handleNewRequest}
+                        onClick={
+                          item.action === "new-request"
+                            ? handleNewRequest
+                            : handleSearch
+                        }
                       >
                         <Icon icon={item.icon} className={styles.navIcon} />
                         <span className={styles.navLabel}>{item.label}</span>
