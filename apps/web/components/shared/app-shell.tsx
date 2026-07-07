@@ -175,30 +175,13 @@ export function AppShell({
     openSearch();
   }
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isHeaderHovered, setIsHeaderHovered] = useState(false);
   const animationTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const headerRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-  const isAnimatingRef = useRef(false);
-  isAnimatingRef.current = isAnimating;
-
-  function handleHeaderPointerEnter() {
-    if (!isAnimatingRef.current) {
-      setIsHeaderHovered(true);
-    }
-  }
-
-  function handleHeaderPointerLeave() {
-    if (!isAnimatingRef.current) {
-      setIsHeaderHovered(false);
-    }
-  }
 
   function endSidebarAnimation() {
     setIsAnimating(false);
-    setIsHeaderHovered(headerRef.current?.matches(":hover") ?? false);
   }
 
   function handleTouchStart(event: TouchEvent<HTMLElement>) {
@@ -234,7 +217,6 @@ export function AppShell({
     }
     prevSidebarOpen.current = isSidebarOpen;
     setIsAnimating(true);
-    setIsHeaderHovered(false);
     if (animationTimeout.current) {
       clearTimeout(animationTimeout.current);
     }
@@ -302,15 +284,7 @@ export function AppShell({
         onTouchEnd={handleTouchEnd}
       >
         <div className={styles.sidebarInner}>
-          <div
-            ref={headerRef}
-            className={cn(
-              styles.sidebarHeader,
-              isHeaderHovered && styles.sidebarHeaderHovered,
-            )}
-            onPointerEnter={handleHeaderPointerEnter}
-            onPointerLeave={handleHeaderPointerLeave}
-          >
+          <div className={styles.sidebarHeader}>
             <span className={styles.logo}>
               <Logo width="1.25rem" height="1.25rem" />
             </span>
@@ -323,7 +297,14 @@ export function AppShell({
               <button
                 type="button"
                 className={styles.sidebarToggle}
-                onClick={toggleSidebar}
+                onClick={(event) => {
+                  toggleSidebar();
+                  /* Снимаем фокус после клика мышью, чтобы браузер
+                  не восстанавливал его (и тултип) при возврате на вкладку. */
+                  if (!event.currentTarget.matches(":focus-visible")) {
+                    event.currentTarget.blur();
+                  }
+                }}
                 aria-label="Переключить меню"
               >
                 <SidebarIcon />
