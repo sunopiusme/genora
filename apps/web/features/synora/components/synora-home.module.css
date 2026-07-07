@@ -22,7 +22,9 @@
   animation: hero-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.logo {
+/* Селектор .hero .logo нужен, чтобы перебить базовый цвет
+   из logo.module.css (color: --color-foreground) — иначе знак белый. */
+.hero .logo {
   width: 4rem;
   height: 4rem;
   color: var(--color-foreground-subtle);
@@ -59,7 +61,7 @@
     padding: var(--space-6);
   }
 
-  .logo {
+  .hero .logo {
     width: 5.5rem;
     height: 5.5rem;
   }
