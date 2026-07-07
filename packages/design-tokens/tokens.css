@@ -35,6 +35,9 @@
   /* Поверхности, плавающие над чёрным (#000) фоном сайдбара: на чистом
      чёрном тени не читаются, поэтому «высота» передаётся светлотой */
   --color-surface-raised: var(--neutral-750);
+  /* Hover для элементов, уже стоящих на raised-поверхности:
+     ещё одна ступень светлоты вместо обводки */
+  --color-surface-raised-hover: var(--neutral-700);
   --color-border: var(--neutral-800);
   --color-border-strong: var(--neutral-600);
   --color-foreground: var(--neutral-50);
