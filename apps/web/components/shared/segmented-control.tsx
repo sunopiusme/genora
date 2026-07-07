@@ -9,6 +9,9 @@ export type SegmentedControlOption = {
   label: string;
 };
 
+/* Должно совпадать с длительностью transition у .thumb в CSS-модуле */
+const THUMB_TRANSITION_MS = 250;
+
 type SegmentedControlProps = {
   options: SegmentedControlOption[];
   selectedIndex: number;
@@ -41,19 +44,22 @@ export function SegmentedControl({
     null,
   );
 
-  // При выборе максимального значения внутри пилюли проигрывается
-  // пиксельный всплеск: точки расходятся от центра к краям —
-  // тот же пиксельный словарь, что у ползунка в tier-dither.
+  // Пока выбран максимум, внутри пилюли зациклен пиксельный всплеск.
+  // Старт отложен до конца проезда пилюли: волна появляется только
+  // когда ползунок доехал до последнего сегмента.
   const maxIndex = options.length - 1;
-  const prevIndexRef = useRef(selectedIndex);
-  const [burstKey, setBurstKey] = useState(0);
+  const [burstActive, setBurstActive] = useState(false);
 
   useEffect(() => {
-    const prev = prevIndexRef.current;
-    prevIndexRef.current = selectedIndex;
-    if (selectedIndex === maxIndex && prev !== selectedIndex) {
-      setBurstKey((key) => key + 1);
+    if (selectedIndex !== maxIndex) {
+      setBurstActive(false);
+      return;
     }
+    const timerId = window.setTimeout(
+      () => setBurstActive(true),
+      THUMB_TRANSITION_MS + 40,
+    );
+    return () => window.clearTimeout(timerId);
   }, [selectedIndex, maxIndex]);
 
   useEffect(() => {
@@ -103,7 +109,7 @@ export function SegmentedControl({
         }
       >
         <PixelBurst
-          playKey={burstKey}
+          active={burstActive}
           accentColor={accentColor}
           className={styles.burstCanvas}
         />

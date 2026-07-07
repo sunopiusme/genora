@@ -3,8 +3,8 @@
 import { useEffect, useRef } from "react";
 
 type PixelBurstProps = {
-  /** Инкремент перезапускает всплеск */
-  playKey: number;
+  /** Пока true, волна проигрывается по кругу; false очищает канвас */
+  active: boolean;
   /** Фирменный цвет, подмешивается к белому как в TierDither */
   accentColor?: string;
   className?: string;
@@ -18,18 +18,20 @@ const DOT_SIZE = 2.25;
 const BRIGHTNESS_LEVELS = 4;
 const BRAND_MIX = 0.38;
 
-/* Хореография всплеска: фронт расходится от центра к краям,
-   за ним пиксели гаснут — короткая одноразовая волна */
-const BURST_MS = 640;
+/* Хореография зацикленной волны: фронт расходится от центра к краям,
+   гаснет — и после короткой паузы цикл повторяется */
+const WAVE_MS = 900;
+const REST_MS = 500;
+const CYCLE_MS = WAVE_MS + REST_MS;
 const FRONT_CELLS = 7;
 const JITTER_CELLS = 5;
 const FADE_TAIL = 0.45;
 
-export function PixelBurst({ playKey, accentColor, className }: PixelBurstProps) {
+export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
-    if (playKey <= 0) {
+    if (!active) {
       return;
     }
     const canvas = canvasRef.current;
@@ -71,7 +73,13 @@ export function PixelBurst({ playKey, accentColor, className }: PixelBurstProps)
         return;
       }
       context.clearRect(0, 0, width, height);
-      const progress = Math.min(1, elapsedMs / BURST_MS);
+
+      /* Фаза цикла: волна WAVE_MS, затем пауза REST_MS с чистым канвасом */
+      const cycleMs = elapsedMs % CYCLE_MS;
+      if (cycleMs >= WAVE_MS) {
+        return;
+      }
+      const progress = cycleMs / WAVE_MS;
       const eased = 1 - (1 - progress) ** 2.4;
       const frontDistance = eased * halfSpan;
       const globalFade =
@@ -115,13 +123,8 @@ export function PixelBurst({ playKey, accentColor, className }: PixelBurstProps)
       if (startTimeMs < 0) {
         startTimeMs = timeMs;
       }
-      const elapsed = timeMs - startTimeMs;
-      drawFrame(elapsed);
-      if (elapsed < BURST_MS) {
-        frameId = requestAnimationFrame(loop);
-      } else {
-        context?.clearRect(0, 0, width, height);
-      }
+      drawFrame(timeMs - startTimeMs);
+      frameId = requestAnimationFrame(loop);
     }
 
     frameId = requestAnimationFrame(loop);
@@ -130,7 +133,7 @@ export function PixelBurst({ playKey, accentColor, className }: PixelBurstProps)
       cancelAnimationFrame(frameId);
       context.clearRect(0, 0, width, height);
     };
-  }, [playKey, accentColor]);
+  }, [active, accentColor]);
 
   return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
 }
