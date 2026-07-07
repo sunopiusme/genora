@@ -213,14 +213,16 @@
   background-color: var(--color-surface-elevated);
 }
 
-/* Hover is tracked as React state (.sidebarHeaderHovered), not CSS :hover:
-   a single source of truth that never gets force-toggled mid-animation,
-   so the logo/toggle swap can't flicker while the width animates. */
-.sidebarHeaderHovered .logo {
+/* Показ тогла завязан на нативный CSS :hover, а не на React-состояние:
+   события pointerleave не срабатывают при переключении вкладок браузера,
+   из-за чего JS-состояние «залипало». Браузер пересчитывает :hover сам.
+   Во время анимации ширины (.sidebarAnimating) свап отключён, чтобы
+   логотип/тогл не мерцали. */
+.sidebar:not(.sidebarAnimating) .sidebarHeader:hover .logo {
   opacity: 0;
 }
 
-.sidebarHeaderHovered .sidebarToggle {
+.sidebar:not(.sidebarAnimating) .sidebarHeader:hover .sidebarToggle {
   opacity: 1;
   pointer-events: auto;
 }
