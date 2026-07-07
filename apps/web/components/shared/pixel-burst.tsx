@@ -24,8 +24,8 @@ const ALPHA_MIN = 0.12;
 const ALPHA_SPAN = 0.62;
 
 /* Матрица Байера 4x4 — упорядоченный дизеринг вместо случайного шума.
-   Порог каждой клетки фиксирован, поэтому узор всегда собирается
-   одинаково и никакие точки не «летают» по полю */
+   Порог каждой клетки фиксирован в пределах такта, поэтому узор
+   всегда собирается в одном и том же порядке, без «мушек» */
 const BAYER_4 = [
   [0, 8, 2, 10],
   [12, 4, 14, 6],
@@ -33,21 +33,25 @@ const BAYER_4 = [
   [15, 7, 13, 5],
 ];
 
-/* Хореография — единая причинная цепочка на дискретном шаговом отсчёте:
-   1. Ядро в центре накапливает заряд, разгораясь ступень за ступенью.
-   2. На пике из ядра рождается волна и расходится радиально —
-      ровно одно кольцо за один шаг, как развёртка радара.
-   3. Ядро отдаёт энергию и возвращается к дежурному уровню.
-   4. Покой: ядро ровно светится с редким синхронным миганием. */
-const STEP_MS = 55;
+/* Хореография — непрерывное интерференционное поле:
+   - ядро в центре ровно светится (дежурная лампа);
+   - от центра постоянно расходятся кольца — одно кольцо за такт;
+   - от четырёх углов навстречу идут свои фронты в противофазе;
+   - раз в два такта фаза Байера сдвигается на колонку — точки
+     внутри полос «перебегают» строго по кругу, как бегущий огонь
+     на табло. Всё детерминировано, пауз и случайности нет. */
+const STEP_MS = 85;
+const CHASE_EVERY_STEPS = 2;
+
 const CORE_RADIUS_RINGS = 3.2;
-const CHARGE_STEPS = 10;
-const WAVE_FRONT_RINGS = 5;
-const WAVE_BOOST = 0.85;
-const REST_STEPS = 22;
-const IDLE_BLINK_PERIOD_STEPS = 8;
-const CORE_BASE = 0.5;
-const CORE_CHARGE_GAIN = 0.5;
+const CORE_BASE = 0.42;
+const CORE_PULSE = 0.1;
+const CORE_PULSE_PERIOD_STEPS = 8;
+
+const WAVELENGTH_RINGS = 12;
+const FRONT_RINGS = 4;
+const CENTER_WAVE_BOOST = 0.62;
+const CORNER_WAVE_BOOST = 0.38;
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -87,13 +91,35 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
     const centerCol = (columns - 1) / 2;
     const centerRow = (rows - 1) / 2;
     /* Вертикальный шаг сетки больше горизонтального — выравниваем
-       метрику, чтобы ядро и кольца волны были геометрически круглыми */
+       метрику, чтобы кольца волн были геометрически круглыми */
     const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
-    const maxRing = Math.ceil(Math.hypot(centerCol, centerRow * rowAspect));
 
-    /* Полный цикл в шагах: заряд -> развёртка -> покой */
-    const waveSteps = maxRing + WAVE_FRONT_RINGS;
-    const cycleSteps = CHARGE_STEPS + waveSteps + REST_STEPS;
+    /* Источники волн: центр и четыре угла. Угловые фронты идут
+       в противофазе к центральным (сдвиг на полволны), поэтому поле
+       всегда живое: когда центральное кольцо гаснет у края,
+       угловые как раз пробегают середину */
+    const sources = [
+      { col: centerCol, row: centerRow, boost: CENTER_WAVE_BOOST, phase: 0 },
+      { col: 0, row: 0, boost: CORNER_WAVE_BOOST, phase: WAVELENGTH_RINGS / 2 },
+      {
+        col: columns - 1,
+        row: 0,
+        boost: CORNER_WAVE_BOOST,
+        phase: WAVELENGTH_RINGS / 2,
+      },
+      {
+        col: 0,
+        row: rows - 1,
+        boost: CORNER_WAVE_BOOST,
+        phase: WAVELENGTH_RINGS / 2,
+      },
+      {
+        col: columns - 1,
+        row: rows - 1,
+        boost: CORNER_WAVE_BOOST,
+        phase: WAVELENGTH_RINGS / 2,
+      },
+    ];
 
     let frameId = 0;
     let startTimeMs = -1;
@@ -104,57 +130,48 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       }
       context.clearRect(0, 0, width, height);
 
-      const stepIndex = Math.floor(elapsedMs / STEP_MS) % cycleSteps;
+      const step = Math.floor(elapsedMs / STEP_MS);
+      /* Сдвиг фазы Байера — «бегущий огонь»: порядок включения точек
+         циклически перебегает на одну колонку, строго и предсказуемо */
+      const chase = Math.floor(step / CHASE_EVERY_STEPS) % 4;
 
-      /* Фаза заряда: ядро набирает уровень ступень за ступенью */
-      let coreEnergy = CORE_BASE;
-      let frontRing = -1;
-      if (stepIndex < CHARGE_STEPS) {
-        coreEnergy = CORE_BASE + CORE_CHARGE_GAIN * (stepIndex / CHARGE_STEPS);
-      } else if (stepIndex < CHARGE_STEPS + waveSteps) {
-        /* Фаза развёртки: фронт уходит от ядра на одно кольцо за шаг,
-           ядро отдаёт заряд первые несколько шагов */
-        const waveStep = stepIndex - CHARGE_STEPS;
-        frontRing = waveStep;
-        coreEnergy =
-          CORE_BASE +
-          Math.max(0, CORE_CHARGE_GAIN * (1 - waveStep / WAVE_FRONT_RINGS));
-      } else {
-        /* Покой: дежурный уровень с редким синхронным миганием —
-           как контрольная лампа на пульте */
-        const restStep = stepIndex - CHARGE_STEPS - waveSteps;
-        const blink =
-          Math.floor(restStep / IDLE_BLINK_PERIOD_STEPS) % 2 === 0 ? 0 : 0.08;
-        coreEnergy = CORE_BASE + blink;
-      }
+      /* Ядро дышит ступенями: два уровня, как контрольная лампа */
+      const corePulse =
+        Math.floor(step / CORE_PULSE_PERIOD_STEPS) % 2 === 0 ? 0 : CORE_PULSE;
+      const coreEnergy = CORE_BASE + corePulse;
 
       for (let col = 0; col < columns; col++) {
         for (let row = 0; row < rows; row++) {
-          /* Радиальная дистанция от ядра в выровненной метрике */
-          const distance = Math.hypot(
+          let energy = 0;
+
+          /* --- Слой 1: дежурное ядро с плавным спадом --- */
+          const coreDistance = Math.hypot(
             col - centerCol,
             (row - centerRow) * rowAspect,
           );
-
-          /* --- Слой 1: ядро с плавным спадом к границе --- */
-          let energy = 0;
-          if (distance < CORE_RADIUS_RINGS + 1.5) {
+          if (coreDistance < CORE_RADIUS_RINGS + 1.5) {
             const falloff = Math.max(
               0,
-              1 - distance / (CORE_RADIUS_RINGS + 1),
+              1 - coreDistance / (CORE_RADIUS_RINGS + 1),
             );
-            energy = falloff ** 1.4 * coreEnergy;
+            energy += falloff ** 1.4 * coreEnergy;
           }
 
-          /* --- Слой 2: радиальная волна. Кольцо дистанции квантовано,
-             фронт и хвост считаются в целых кольцах — по всей
-             окружности волна синхронна, без случайного дрожания --- */
-          if (frontRing >= 0) {
-            const ring = Math.round(distance);
-            const behind = frontRing - ring;
-            if (behind >= 0 && behind < WAVE_FRONT_RINGS) {
-              const strength = 1 - behind / WAVE_FRONT_RINGS;
-              energy += WAVE_BOOST * strength * strength;
+          /* --- Слой 2: непрерывные кольцевые фронты от источников.
+             Кольцо дистанции квантовано; фронт находится там, где
+             (кольцо - такт) кратно длине волны — и уходит наружу
+             ровно на одно кольцо за такт, синхронно по окружности --- */
+          for (const source of sources) {
+            const ring = Math.round(
+              Math.hypot(col - source.col, (row - source.row) * rowAspect),
+            );
+            const phase =
+              (((ring - step + source.phase) % WAVELENGTH_RINGS) +
+                WAVELENGTH_RINGS) %
+              WAVELENGTH_RINGS;
+            if (phase < FRONT_RINGS) {
+              const strength = 1 - phase / FRONT_RINGS;
+              energy += source.boost * strength * strength;
             }
           }
 
@@ -162,9 +179,11 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             continue;
           }
 
-          /* Фиксированный порог Байера: клетки внутри кольца
-             включаются всегда в одном и том же порядке */
-          const threshold = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
+          /* Порог Байера со сдвигом фазы: внутри полосы точки
+             включаются в фиксированном циклическом порядке —
+             глазу это читается как «перебегание» по сетке */
+          const threshold =
+            (BAYER_4[row % 4][(col + chase) % 4] + 0.5) / 16;
           if (energy <= threshold) {
             continue;
           }

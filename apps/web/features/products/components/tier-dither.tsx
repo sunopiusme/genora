@@ -36,19 +36,17 @@ const REVEAL_STEP_MS = 12;
 const REVEAL_PEN_CELLS = 6;
 const REVEAL_PEN_BOOST = 0.4;
 
-/* Скан-волна: строгий фронт идёт слева направо к отметке «Максимум»,
-   двигаясь дискретными шагами по одной колонке, синхронно по всей высоте */
-const WAVE_DELAY_MS = 500;
-const WAVE_STEP_MS = 42;
-const WAVE_FRONT_CELLS = 9;
-const WAVE_BOOST = 0.55;
-
-/* Прибытие: дойдя до правого края, фронт «отдаёт заряд» —
-   терминальные колонки вспыхивают и гаснут ступенями */
-const TERMINAL_CELLS = 5;
-const FLASH_STEPS = 8;
-const FLASH_BOOST = 0.45;
-const REST_STEPS = 22;
+/* Непрерывное интерференционное поле: от центра полосы и от углов
+   постоянно расходятся кольцевые фронты — одно кольцо за такт,
+   без пауз. Угловые источники идут в противофазе к центральному,
+   поэтому поле всегда живое. Раз в два такта фаза Байера сдвигается
+   на колонку — точки «перебегают» строго по кругу, как бегущий огонь */
+const STEP_MS = 80;
+const CHASE_EVERY_STEPS = 2;
+const WAVELENGTH_RINGS = 16;
+const FRONT_RINGS = 5;
+const CENTER_WAVE_BOOST = 0.5;
+const CORNER_WAVE_BOOST = 0.34;
 
 export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -109,23 +107,44 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       const revealFrontCol = columns - revealStep;
       const isRevealing = revealStep < revealSteps;
 
-      /* --- Фаза 2: скан-цикл. Дискретный шаговый отсчёт:
-         развёртка -> вспышка прибытия -> пауза --- */
-      const revealDoneMs = revealSteps * REVEAL_STEP_MS;
-      const waveTimeMs = timeMs - revealDoneMs - WAVE_DELAY_MS;
-      const sweepSteps = columns - quietCols + WAVE_FRONT_CELLS;
-      const cycleSteps = sweepSteps + FLASH_STEPS + REST_STEPS;
+      /* --- Фаза 2: непрерывное волновое поле на шаговом такте --- */
+      const step = staticMode ? 0 : Math.floor(timeMs / STEP_MS);
+      /* Сдвиг фазы Байера — «бегущий огонь»: порядок включения точек
+         циклически перебегает на одну колонку, строго и предсказуемо */
+      const chase = staticMode ? 0 : Math.floor(step / CHASE_EVERY_STEPS) % 4;
 
-      let frontCol = -1;
-      let flashPhase = -1;
-      if (!staticMode && waveTimeMs >= 0) {
-        const stepIndex = Math.floor(waveTimeMs / WAVE_STEP_MS) % cycleSteps;
-        if (stepIndex < sweepSteps) {
-          frontCol = quietCols + stepIndex;
-        } else if (stepIndex < sweepSteps + FLASH_STEPS) {
-          flashPhase = stepIndex - sweepSteps;
-        }
-      }
+      /* Источники волн: центр активной зоны и четыре угла полосы.
+         Метрика выровнена по шагу сетки, чтобы кольца были круглыми */
+      const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
+      const centerCol = quietCols + (columns - 1 - quietCols) / 2;
+      const centerRow = (rows - 1) / 2;
+      const sources = [
+        { col: centerCol, row: centerRow, boost: CENTER_WAVE_BOOST, phase: 0 },
+        {
+          col: quietCols,
+          row: 0,
+          boost: CORNER_WAVE_BOOST,
+          phase: WAVELENGTH_RINGS / 2,
+        },
+        {
+          col: columns - 1,
+          row: 0,
+          boost: CORNER_WAVE_BOOST,
+          phase: WAVELENGTH_RINGS / 2,
+        },
+        {
+          col: quietCols,
+          row: rows - 1,
+          boost: CORNER_WAVE_BOOST,
+          phase: WAVELENGTH_RINGS / 2,
+        },
+        {
+          col: columns - 1,
+          row: rows - 1,
+          boost: CORNER_WAVE_BOOST,
+          phase: WAVELENGTH_RINGS / 2,
+        },
+      ];
 
       for (let col = 0; col < columns; col++) {
         if (col < revealFrontCol) {
@@ -138,36 +157,41 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
         }
         const presence = Math.min(1, density / 0.12);
 
-        /* Подсветка колонки единая по всей высоте — фронт
-           воспринимается как вертикальная сканирующая линия */
-        let columnBoost = 0;
-
-        if (frontCol >= 0) {
-          const behind = frontCol - col;
-          if (behind >= 0 && behind < WAVE_FRONT_CELLS) {
-            const strength = 1 - behind / WAVE_FRONT_CELLS;
-            columnBoost += WAVE_BOOST * strength * strength;
-          }
-        }
-
-        if (flashPhase >= 0 && col >= columns - TERMINAL_CELLS) {
-          columnBoost += FLASH_BOOST * (1 - flashPhase / FLASH_STEPS);
-        }
-
+        let penBoost = 0;
         if (isRevealing) {
           const penDistance = col - revealFrontCol;
           if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
-            columnBoost +=
-              REVEAL_PEN_BOOST * (1 - penDistance / REVEAL_PEN_CELLS);
+            penBoost = REVEAL_PEN_BOOST * (1 - penDistance / REVEAL_PEN_CELLS);
           }
         }
 
-        const energy = density + columnBoost * presence;
-
         for (let row = 0; row < rows; row++) {
-          /* Фиксированный порог Байера: клетки включаются всегда
-             в одном и том же порядке — узор стабилен и регулярен */
-          const threshold = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
+          /* Кольцевые фронты от источников: фронт находится там, где
+             (кольцо - такт) кратно длине волны — и уходит наружу
+             ровно на одно кольцо за такт, синхронно по окружности */
+          let waveBoost = 0;
+          if (!staticMode) {
+            for (const source of sources) {
+              const ring = Math.round(
+                Math.hypot(col - source.col, (row - source.row) * rowAspect),
+              );
+              const phase =
+                (((ring - step + source.phase) % WAVELENGTH_RINGS) +
+                  WAVELENGTH_RINGS) %
+                WAVELENGTH_RINGS;
+              if (phase < FRONT_RINGS) {
+                const strength = 1 - phase / FRONT_RINGS;
+                waveBoost += source.boost * strength * strength;
+              }
+            }
+          }
+
+          const energy = density + (waveBoost + penBoost) * presence;
+
+          /* Порог Байера со сдвигом фазы: внутри полосы точки
+             включаются в фиксированном циклическом порядке —
+             глазу это читается как «перебегание» по сетке */
+          const threshold = (BAYER_4[row % 4][(col + chase) % 4] + 0.5) / 16;
           if (energy <= threshold) {
             continue;
           }
