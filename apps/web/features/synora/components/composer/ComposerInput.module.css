@@ -174,7 +174,7 @@
    нового — только то, что уже живёт в инпуте.
 
    Никакого стекла, pill'ов, ауры, halo. Оверлей
-   подменяет содержимое card'а на ту же поверхность
+   подменяет содержимое card'а на ту ж�� поверхность
    (та же geometry, тот же row-radius на inset =
    corner-inset, та же палитра hairline'ов, что у
    attachment-плиток и mode-chip'ов).
@@ -1049,7 +1049,7 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 /* iOS-style toggle. Невзаимодействующий —
-   состояние держит родите��ь��кая кнопка через
+   состояние держит родите����ь��кая кнопка через
    data-on. Шайба сдвигается в активно�� положение
    при data-on="true". */
 .toggle {
@@ -1148,5 +1148,29 @@ button.iconBtn[data-loading="true"] svg {
   .footChip {
     padding: 8px 8px;
     font-size: 0.78rem;
+  }
+  /* Подменю плагинов на десктопе выезжает вправо
+     (left: 100%) — на узком экране оно уходит за
+     край вьюпорта. На мобильном .pluginsTrigger
+     теряет position, якорем становится сам
+     .dropdown, и подменю раскрывается НАД меню
+     на всю его ширину. */
+  .pluginsTrigger {
+    position: static;
+  }
+  .pluginsSubmenu {
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 8px);
+    min-width: 0;
+  }
+  /* Hover-мост слева не нужен — зазор теперь снизу. */
+  .pluginsSubmenu::before {
+    top: auto;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 8px;
   }
 }
