@@ -33,25 +33,31 @@ const BAYER_4 = [
   [15, 7, 13, 5],
 ];
 
-/* Хореография — непрерывное интерференционное поле:
-   - ядро в центре ровно светится (дежурная лампа);
-   - от центра постоянно расходятся кольца — одно кольцо за такт;
-   - от четырёх углов навстречу идут свои фронты в противофазе;
-   - раз в два такта фаза Байера сдвигается на колонку — точки
-     внутри полос «перебегают» строго по кругу, как бегущий огонь
-     на табло. Всё детерминировано, пауз и случайности нет. */
-const STEP_MS = 85;
-const CHASE_EVERY_STEPS = 2;
+/* Хореография — три слоя:
+   1) Ядро в центре ровно светится и дышит ступенями (дежурная лампа).
+   2) Тихая подложка — широкие кольца от центра и углов с малым
+      усилением: они лишь перекатывают яркость, не рисуя полос.
+   3) Мерцание-перебегание — хэш назначает каждой клетке личный слот
+      внутри цикла тактов: в свой слот клетка гаснет, в противофазе —
+      вспыхивает. Выглядит случайно, но полностью детерминировано. */
+const STEP_MS = 90;
 
 const CORE_RADIUS_RINGS = 3.2;
 const CORE_BASE = 0.42;
 const CORE_PULSE = 0.1;
 const CORE_PULSE_PERIOD_STEPS = 8;
 
-const WAVELENGTH_RINGS = 12;
-const FRONT_RINGS = 4;
-const CENTER_WAVE_BOOST = 0.62;
-const CORNER_WAVE_BOOST = 0.38;
+const WAVELENGTH_RINGS = 14;
+const FRONT_RINGS = 6;
+const CENTER_WAVE_BOOST = 0.26;
+const CORNER_WAVE_BOOST = 0.16;
+
+const TWINKLE_PERIOD_STEPS = 9;
+const TWINKLE_OFF_DROP = 0.26;
+const TWINKLE_ON_BOOST = 0.22;
+
+/* Порог включения: половина порядка Байера + половина хэша клетки */
+const BAYER_SHARE = 0.5;
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -131,9 +137,6 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       context.clearRect(0, 0, width, height);
 
       const step = Math.floor(elapsedMs / STEP_MS);
-      /* Сдвиг фазы Байера — «бегущий огонь»: порядок включения точек
-         циклически перебегает на одну колонку, строго и предсказуемо */
-      const chase = Math.floor(step / CHASE_EVERY_STEPS) % 4;
 
       /* Ядро дышит ступенями: два уровня, как контрольная лампа */
       const corePulse =
@@ -157,10 +160,8 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             energy += falloff ** 1.4 * coreEnergy;
           }
 
-          /* --- Слой 2: непрерывные кольцевые фронты от источников.
-             Кольцо дистанции квантовано; фронт находится там, где
-             (кольцо - такт) кратно длине волны — и уходит наружу
-             ровно на одно кольцо за такт, синхронно по окружности --- */
+          /* --- Слой 2: тихая подложка — широкие кольцевые фронты
+             от источников, одно кольцо наружу за такт --- */
           for (const source of sources) {
             const ring = Math.round(
               Math.hypot(col - source.col, (row - source.row) * rowAspect),
@@ -175,15 +176,27 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             }
           }
 
+          /* --- Слой 3: мерцание-перебегание. Личный слот клетки:
+             в слот «выкл» проседает, в противофазе — вспыхивает.
+             За такт мигает ~1/9 поля, рассеянная по хэшу --- */
+          const hash = cellHash(col, row);
+          const slot =
+            (step + (hash % TWINKLE_PERIOD_STEPS)) % TWINKLE_PERIOD_STEPS;
+          if (slot === 0) {
+            energy -= TWINKLE_OFF_DROP;
+          } else if (slot === Math.floor(TWINKLE_PERIOD_STEPS / 2)) {
+            energy += TWINKLE_ON_BOOST;
+          }
+
           if (energy <= 0) {
             continue;
           }
 
-          /* Порог Байера со сдвигом фазы: внутри полосы точки
-             включаются в фиксированном циклическом порядке —
-             глазу это читается как «перебегание» по сетке */
-          const threshold =
-            (BAYER_4[row % 4][(col + chase) % 4] + 0.5) / 16;
+          /* Порог — смесь порядка Байера и хэша клетки: россыпь
+             выглядит органично, но каждый порог фиксирован навсегда */
+          const bayer = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
+          const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
+          const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
           if (energy <= threshold) {
             continue;
           }
@@ -221,6 +234,14 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
   }, [active, accentColor]);
 
   return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
+}
+
+/* Целочисленный хэш клетки: стабилен между кадрами, поэтому мерцание
+   детерминировано — никаких «мушек», у каждой клетки свой характер */
+function cellHash(col: number, row: number): number {
+  let h = (col * 374761393 + row * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return (h ^ (h >>> 16)) >>> 0;
 }
 
 type Rgb = { r: number; g: number; b: number };

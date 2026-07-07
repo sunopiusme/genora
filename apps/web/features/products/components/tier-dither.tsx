@@ -36,17 +36,27 @@ const REVEAL_STEP_MS = 12;
 const REVEAL_PEN_CELLS = 6;
 const REVEAL_PEN_BOOST = 0.4;
 
-/* Непрерывное интерференционное поле: от центра полосы и от углов
-   постоянно расходятся кольцевые фронты — одно кольцо за такт,
-   без пауз. Угловые источники идут в противофазе к центральному,
-   поэтому поле всегда живое. Раз в два такта фаза Байера сдвигается
-   на колонку — точки «перебегают» строго по кругу, как бегущий огонь */
-const STEP_MS = 80;
-const CHASE_EVERY_STEPS = 2;
-const WAVELENGTH_RINGS = 16;
-const FRONT_RINGS = 5;
-const CENTER_WAVE_BOOST = 0.5;
-const CORNER_WAVE_BOOST = 0.34;
+/* Два слоя движения:
+   1) Тихая подложка — широкие кольца от центра и углов. Усиление
+      малое, фронт размыт: волны лишь «дышат» плотностью, не рисуя
+      полос — их видно как медленное перекатывание яркости.
+   2) Мерцание-перебегание — каждой клетке хэш назначает личный слот
+      внутри цикла тактов: в свой слот клетка гаснет, в противофазе —
+      вспыхивает. За такт «перебегает» лишь доля клеток, рассеянных
+      по полю. Выглядит случайно, но полностью детерминировано. */
+const STEP_MS = 90;
+const WAVELENGTH_RINGS = 20;
+const FRONT_RINGS = 8;
+const CENTER_WAVE_BOOST = 0.2;
+const CORNER_WAVE_BOOST = 0.13;
+
+const TWINKLE_PERIOD_STEPS = 9;
+const TWINKLE_OFF_DROP = 0.3;
+const TWINKLE_ON_BOOST = 0.24;
+
+/* Порог включения: половина порядка Байера + половина хэша клетки —
+   узор органичный, как россыпь, но пространственно ровный */
+const BAYER_SHARE = 0.5;
 
 export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -109,9 +119,6 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
 
       /* --- Фаза 2: непрерывное волновое поле на шаговом такте --- */
       const step = staticMode ? 0 : Math.floor(timeMs / STEP_MS);
-      /* Сдвиг фазы Байера — «бегущий огонь»: порядок включения точек
-         циклически перебегает на одну колонку, строго и предсказуемо */
-      const chase = staticMode ? 0 : Math.floor(step / CHASE_EVERY_STEPS) % 4;
 
       /* Источники волн: центр активной зоны и четыре угла полосы.
          Метрика выровнена по шагу сетки, чтобы кольца были круглыми */
@@ -166,9 +173,8 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
         }
 
         for (let row = 0; row < rows; row++) {
-          /* Кольцевые фронты от источников: фронт находится там, где
-             (кольцо - такт) кратно длине волны — и уходит наружу
-             ровно на одно кольцо за такт, синхронно по окружности */
+          /* Тихая подложка: широкие кольцевые фронты от источников,
+             уходящие наружу на одно кольцо за такт */
           let waveBoost = 0;
           if (!staticMode) {
             for (const source of sources) {
@@ -186,12 +192,29 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
             }
           }
 
-          const energy = density + (waveBoost + penBoost) * presence;
+          /* Мерцание-перебегание: личный слот клетки внутри цикла.
+             В слот «выкл» клетка проседает, в противофазе — вспыхивает.
+             Рассеяние по хэшу равномерное: за такт мигает ~1/9 поля */
+          const hash = cellHash(col, row);
+          let twinkleBoost = 0;
+          if (!staticMode) {
+            const slot =
+              (step + (hash % TWINKLE_PERIOD_STEPS)) % TWINKLE_PERIOD_STEPS;
+            if (slot === 0) {
+              twinkleBoost = -TWINKLE_OFF_DROP;
+            } else if (slot === Math.floor(TWINKLE_PERIOD_STEPS / 2)) {
+              twinkleBoost = TWINKLE_ON_BOOST;
+            }
+          }
 
-          /* Порог Байера со сдвигом фазы: внутри полосы точки
-             включаются в фиксированном циклическом порядке —
-             глазу это читается как «перебегание» по сетке */
-          const threshold = (BAYER_4[row % 4][(col + chase) % 4] + 0.5) / 16;
+          const energy =
+            density + (waveBoost + twinkleBoost + penBoost) * presence;
+
+          /* Порог — смесь порядка Байера и хэша клетки: россыпь
+             выглядит органично, но каждый порог фиксирован навсегда */
+          const bayer = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
+          const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
+          const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
           if (energy <= threshold) {
             continue;
           }
@@ -273,6 +296,14 @@ function densityProfile(xRatio: number): number {
     return 0.62 - ((xRatio - 0.72) / 0.2) * 0.4;
   }
   return 0.22 * (1 - (xRatio - 0.92) / 0.08);
+}
+
+/* Целочисленный хэш клетки: стабилен между кадрами, поэтому мерцание
+   детерминировано — никаких «мушек», у каждой клетки свой характер */
+function cellHash(col: number, row: number): number {
+  let h = (col * 374761393 + row * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return (h ^ (h >>> 16)) >>> 0;
 }
 
 type Rgb = { r: number; g: number; b: number };
