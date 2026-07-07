@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+  container-type: inline-size;
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -139,10 +140,14 @@
   cursor: text;
 }
 
+/* Типографика масштабируется вместе с самой карточкой (container
+   queries): на узких карточках телефона — компактный кегль, на крупных
+   карточках планшета и десктопа пара «название/цена» растёт вместе
+   с обложкой — как в App Store на iPad/Mac. */
 .name {
   margin: 0;
   min-width: 0;
-  font-size: 0.875rem;
+  font-size: clamp(0.8125rem, 3.5cqi + 0.45rem, 1.0625rem);
   font-weight: var(--weight-medium);
   line-height: 1.35;
   color: var(--color-foreground);
@@ -194,7 +199,7 @@
    и одного цвета — без скачков размера внутри строки. */
 .price {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: clamp(0.75rem, 3cqi + 0.42rem, 0.9375rem);
   font-weight: var(--weight-regular);
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
@@ -242,7 +247,6 @@
   }
 
   .name {
-    font-size: 0.8125rem;
     white-space: normal;
     overflow: visible;
   }
