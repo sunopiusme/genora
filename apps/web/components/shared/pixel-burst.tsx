@@ -35,11 +35,12 @@ const BAYER_4 = [
 
 /* Хореография — три слоя:
    1) Ядро в центре ровно светится и дышит ступенями (дежурная лампа).
-   2) Тихая подложка — широкие кольца от центра и углов с малым
-      усилением: они лишь перекатывают яркость, не рисуя полос.
-   3) Мерцание-перебегание — хэш назначает каждой клетке личный слот
-      внутри цикла тактов: в свой слот клетка гаснет, в противофазе —
-      вспыхивает. Выглядит случайно, но полностью детерминировано. */
+   2) Шейдерная волна: гладкий гребень рождается в центре и плавно
+      расходится к границам. Дистанция измеряется суперэллипсом,
+      поэтому фронт повторяет контур пилюли и достигает всех краёв
+      одновременно — как ripple-шейдер, наложенный на пиксельную сетку.
+   3) Мерцание-перебегание — тонкая подложка: хэш назначает каждой
+      клетке личный слот, в который она гаснет или вспыхивает. */
 const STEP_MS = 90;
 
 const CORE_RADIUS_RINGS = 3.2;
@@ -47,17 +48,24 @@ const CORE_BASE = 0.42;
 const CORE_PULSE = 0.1;
 const CORE_PULSE_PERIOD_STEPS = 8;
 
-const WAVELENGTH_RINGS = 14;
-const FRONT_RINGS = 6;
-const CENTER_WAVE_BOOST = 0.26;
-const CORNER_WAVE_BOOST = 0.16;
+/* Волна: период — время пути гребня от центра до границы;
+   резкость поднимает косинус в степень, сужая гребень до чёткого
+   светового фронта; хвост тянется за гребнем внутрь */
+const WAVE_PERIOD_MS = 2200;
+const WAVE_BOOST = 0.55;
+const WAVE_SHARPNESS = 5;
+/* Показатель суперэллипса: 2 — эллипс, выше — ближе к прямоугольнику
+   со скруглениями, то есть к реальной форме пилюли */
+const SUPERELLIPSE_POWER = 3;
 
 const TWINKLE_PERIOD_STEPS = 9;
-const TWINKLE_OFF_DROP = 0.26;
-const TWINKLE_ON_BOOST = 0.22;
+const TWINKLE_OFF_DROP = 0.2;
+const TWINKLE_ON_BOOST = 0.16;
 
 /* Порог включения: половина порядка Байера + половина хэша клетки */
 const BAYER_SHARE = 0.5;
+
+const TWO_PI = Math.PI * 2;
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -100,32 +108,10 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
        метрику, чтобы кольца волн были геометрически круглыми */
     const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
 
-    /* Источники волн: центр и четыре угла. Угловые фронты идут
-       в противофазе к центральным (сдвиг на полволны), поэтому поле
-       всегда живое: когда центральное кольцо гаснет у края,
-       угловые как раз пробегают середину */
-    const sources = [
-      { col: centerCol, row: centerRow, boost: CENTER_WAVE_BOOST, phase: 0 },
-      { col: 0, row: 0, boost: CORNER_WAVE_BOOST, phase: WAVELENGTH_RINGS / 2 },
-      {
-        col: columns - 1,
-        row: 0,
-        boost: CORNER_WAVE_BOOST,
-        phase: WAVELENGTH_RINGS / 2,
-      },
-      {
-        col: 0,
-        row: rows - 1,
-        boost: CORNER_WAVE_BOOST,
-        phase: WAVELENGTH_RINGS / 2,
-      },
-      {
-        col: columns - 1,
-        row: rows - 1,
-        boost: CORNER_WAVE_BOOST,
-        phase: WAVELENGTH_RINGS / 2,
-      },
-    ];
+    /* Полуоси поля в клетках — для нормировки суперэллипсной
+       дистанции: 0 в центре, ровно 1 на границе пилюли */
+    const halfCols = Math.max(1, centerCol);
+    const halfRows = Math.max(1, centerRow * rowAspect);
 
     let frameId = 0;
     let startTimeMs = -1;
@@ -137,6 +123,8 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       context.clearRect(0, 0, width, height);
 
       const step = Math.floor(elapsedMs / STEP_MS);
+      /* Непрерывное время волны: гладкий ход гребня, как в шейдере */
+      const waveTime = elapsedMs / WAVE_PERIOD_MS;
 
       /* Ядро дышит ступенями: два уровня, как контрольная лампа */
       const corePulse =
@@ -160,21 +148,23 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             energy += falloff ** 1.4 * coreEnergy;
           }
 
-          /* --- Слой 2: тихая подложка — широкие кольцевые фронты
-             от источников, одно кольцо наружу за такт --- */
-          for (const source of sources) {
-            const ring = Math.round(
-              Math.hypot(col - source.col, (row - source.row) * rowAspect),
-            );
-            const phase =
-              (((ring - step + source.phase) % WAVELENGTH_RINGS) +
-                WAVELENGTH_RINGS) %
-              WAVELENGTH_RINGS;
-            if (phase < FRONT_RINGS) {
-              const strength = 1 - phase / FRONT_RINGS;
-              energy += source.boost * strength * strength;
-            }
-          }
+          /* --- Слой 2: шейдерная волна из центра. Дистанция —
+             суперэллипс, повторяющий контур пилюли: фронт рождается
+             в центре и одновременно достигает всех границ кнопки.
+             Профиль гребня — приподнятый косинус в степени:
+             узкий яркий фронт с плавным хвостом позади --- */
+          const nx = Math.abs(col - centerCol) / halfCols;
+          const ny = Math.abs((row - centerRow) * rowAspect) / halfRows;
+          const shapeDistance =
+            (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
+            (1 / SUPERELLIPSE_POWER);
+          const wavePhase = shapeDistance - waveTime;
+          const cyclePhase = wavePhase - Math.floor(wavePhase);
+          const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
+            WAVE_SHARPNESS;
+          /* Лёгкое затухание к границе — энергия волны рассеивается */
+          const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
+          energy += WAVE_BOOST * crest * attenuation;
 
           /* --- Слой 3: мерцание-перебегание. Личный слот клетки:
              в слот «выкл» проседает, в противофазе — вспыхивает.

@@ -37,26 +37,28 @@ const REVEAL_PEN_CELLS = 6;
 const REVEAL_PEN_BOOST = 0.4;
 
 /* Два слоя движения:
-   1) Тихая подложка — широкие кольца от центра и углов. Усиление
-      малое, фронт размыт: волны лишь «дышат» плотностью, не рисуя
-      полос — их видно как медленное перекатывание яркости.
-   2) Мерцание-перебегание — каждой клетке хэш назначает личный слот
-      внутри цикла тактов: в свой слот клетка гаснет, в противофазе —
-      вспыхивает. За такт «перебегает» лишь доля клеток, рассеянных
-      по полю. Выглядит случайно, но полностью детерминировано. */
+   1) Шейдерная волна: гладкий гребень рождается в центре активной
+      зоны и плавно расходится к границам полосы. Дистанция мерится
+      суперэллипсом, поэтому фронт повторяет форму поля и достигает
+      всех краёв одновременно — как ripple-шейдер на пиксельной сетке.
+   2) Мерцание-перебегание — тонкая подложка: каждой клетке хэш
+      назначает личный слот, в который она гаснет или вспыхивает.
+      Выглядит случайно, но полностью детерминировано. */
 const STEP_MS = 90;
-const WAVELENGTH_RINGS = 20;
-const FRONT_RINGS = 8;
-const CENTER_WAVE_BOOST = 0.2;
-const CORNER_WAVE_BOOST = 0.13;
+const WAVE_PERIOD_MS = 2200;
+const WAVE_BOOST = 0.5;
+const WAVE_SHARPNESS = 5;
+const SUPERELLIPSE_POWER = 3;
 
 const TWINKLE_PERIOD_STEPS = 9;
-const TWINKLE_OFF_DROP = 0.3;
-const TWINKLE_ON_BOOST = 0.24;
+const TWINKLE_OFF_DROP = 0.22;
+const TWINKLE_ON_BOOST = 0.18;
 
 /* Порог включения: половина порядка Байера + половина хэша клетки —
    узор органичный, как россыпь, но пространственно ровный */
 const BAYER_SHARE = 0.5;
+
+const TWO_PI = Math.PI * 2;
 
 export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -117,41 +119,18 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       const revealFrontCol = columns - revealStep;
       const isRevealing = revealStep < revealSteps;
 
-      /* --- Фаза 2: непрерывное волновое поле на шаговом такте --- */
+      /* --- Фаза 2: волновое поле. Мерцание идёт по шаговому такту,
+         гребень волны — по непрерывному времени, как в шейдере --- */
       const step = staticMode ? 0 : Math.floor(timeMs / STEP_MS);
+      const waveTime = staticMode ? 0 : timeMs / WAVE_PERIOD_MS;
 
-      /* Источники волн: центр активной зоны и четыре угла полосы.
-         Метрика выровнена по шагу сетки, чтобы кольца были круглыми */
+      /* Центр и полуоси активной зоны — для нормировки суперэллипсной
+         дистанции: 0 в центре поля, ровно 1 на его границах */
       const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
       const centerCol = quietCols + (columns - 1 - quietCols) / 2;
       const centerRow = (rows - 1) / 2;
-      const sources = [
-        { col: centerCol, row: centerRow, boost: CENTER_WAVE_BOOST, phase: 0 },
-        {
-          col: quietCols,
-          row: 0,
-          boost: CORNER_WAVE_BOOST,
-          phase: WAVELENGTH_RINGS / 2,
-        },
-        {
-          col: columns - 1,
-          row: 0,
-          boost: CORNER_WAVE_BOOST,
-          phase: WAVELENGTH_RINGS / 2,
-        },
-        {
-          col: quietCols,
-          row: rows - 1,
-          boost: CORNER_WAVE_BOOST,
-          phase: WAVELENGTH_RINGS / 2,
-        },
-        {
-          col: columns - 1,
-          row: rows - 1,
-          boost: CORNER_WAVE_BOOST,
-          phase: WAVELENGTH_RINGS / 2,
-        },
-      ];
+      const halfCols = Math.max(1, (columns - 1 - quietCols) / 2);
+      const halfRows = Math.max(1, centerRow * rowAspect);
 
       for (let col = 0; col < columns; col++) {
         if (col < revealFrontCol) {
@@ -173,23 +152,22 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
         }
 
         for (let row = 0; row < rows; row++) {
-          /* Тихая подложка: широкие кольцевые фронты от источников,
-             уходящие наружу на одно кольцо за такт */
+          /* Шейдерная волна из центра активной зоны: суперэллипсная
+             дистанция повторяет форму поля, гребень — приподнятый
+             косинус в степени: узкий яркий фронт с плавным хвостом */
           let waveBoost = 0;
           if (!staticMode) {
-            for (const source of sources) {
-              const ring = Math.round(
-                Math.hypot(col - source.col, (row - source.row) * rowAspect),
-              );
-              const phase =
-                (((ring - step + source.phase) % WAVELENGTH_RINGS) +
-                  WAVELENGTH_RINGS) %
-                WAVELENGTH_RINGS;
-              if (phase < FRONT_RINGS) {
-                const strength = 1 - phase / FRONT_RINGS;
-                waveBoost += source.boost * strength * strength;
-              }
-            }
+            const nx = Math.abs(col - centerCol) / halfCols;
+            const ny = Math.abs((row - centerRow) * rowAspect) / halfRows;
+            const shapeDistance =
+              (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
+              (1 / SUPERELLIPSE_POWER);
+            const wavePhase = shapeDistance - waveTime;
+            const cyclePhase = wavePhase - Math.floor(wavePhase);
+            const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
+              WAVE_SHARPNESS;
+            const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
+            waveBoost = WAVE_BOOST * crest * attenuation;
           }
 
           /* Мерцание-перебегание: личный слот клетки внутри цикла.
