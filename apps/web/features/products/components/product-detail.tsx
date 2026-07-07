@@ -10,7 +10,7 @@ import type { Product } from "../types";
 import styles from "./product-detail.module.css";
 import { ShareMenu as ShareDialogMenu } from "./share-dialog";
 import shareStyles from "./share-dialog.module.css";
-import { TierSelector } from "./tier-selector";
+import { TierSegments } from "./tier-segments";
 import { TierValueTransition } from "./tier-value-transition";
 
 const SURFACE_ELEMENT_ID = "showcaseSurface";
@@ -180,6 +180,16 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         </h2>
       </div>
 
+      {hasTiers && tier && (
+        <div className={styles.tierSelectorSlot}>
+          <TierSegments
+            product={product}
+            tierIndex={tierIndex}
+            onTierChange={setTierIndex}
+          />
+        </div>
+      )}
+
       <p className={styles.priceRow}>
         <span className={styles.amount}>
           <TierValueTransition
@@ -189,16 +199,6 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         </span>
         <span className={styles.period}>{`/ ${product.periodLabel}`}</span>
       </p>
-
-      {hasTiers && tier && (
-        <div className={styles.tierSelectorSlot}>
-          <TierSelector
-            product={product}
-            tierIndex={tierIndex}
-            onTierChange={setTierIndex}
-          />
-        </div>
-      )}
 
       <div className={styles.actions}>
         <button type="button" className={styles.primaryAction}>

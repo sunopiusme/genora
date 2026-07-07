@@ -548,18 +548,14 @@
   color: var(--color-foreground);
 }
 
-/* Строка уровня входит в единый стек контролов с кнопками:
-   одинаковая ширина, высота и скругление, без сдвигов макета */
+/* Конфигурация идёт сразу после названия;
+   цена ниже читается как результат выбора */
 .tierSelectorSlot {
-  margin-top: var(--space-8);
-}
-
-.tierSelectorSlot + .actions {
-  margin-top: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .priceRow {
-  margin: var(--space-5) 0 0;
+  margin: var(--space-6) 0 0;
   display: flex;
   align-items: baseline;
   gap: var(--space-2);
