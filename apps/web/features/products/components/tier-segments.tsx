@@ -1,5 +1,6 @@
 "use client";
 
+import { SegmentedControl } from "@/components/shared/segmented-control";
 import type { Product } from "../types";
 import styles from "./tier-segments.module.css";
 
@@ -10,9 +11,8 @@ type TierSegmentsProps = {
 };
 
 /**
- * Сегментированный выбор уровня со скользящим ползунком:
- * все опции видны сразу, активная подсвечивается «пилюлей»,
- * которая плавно переезжает между позициями без сдвигов макета.
+ * Выбор уровня товара: подпись + общий SegmentedControl
+ * со скользящим пиксельно-выровненным ползунком.
  */
 export function TierSegments({
   product,
@@ -26,33 +26,15 @@ export function TierSegments({
       <span className={styles.caption} id={captionId}>
         Уровень
       </span>
-      <div
-        className={styles.track}
-        role="radiogroup"
-        aria-labelledby={captionId}
-        style={
-          {
-            "--count": product.tiers.length,
-            "--index": tierIndex,
-          } as React.CSSProperties
-        }
-      >
-        <span className={styles.thumb} aria-hidden="true" />
-        {product.tiers.map((tier, index) => (
-          <button
-            key={tier.id}
-            type="button"
-            role="radio"
-            aria-checked={index === tierIndex}
-            className={
-              index === tierIndex ? styles.segmentSelected : styles.segment
-            }
-            onClick={() => onTierChange(index)}
-          >
-            {tier.name}
-          </button>
-        ))}
-      </div>
+      <SegmentedControl
+        options={product.tiers.map((tier) => ({
+          id: tier.id,
+          label: tier.name,
+        }))}
+        selectedIndex={tierIndex}
+        onChange={onTierChange}
+        labelledBy={captionId}
+      />
     </div>
   );
 }
