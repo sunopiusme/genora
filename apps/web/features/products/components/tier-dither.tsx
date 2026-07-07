@@ -8,19 +8,47 @@ type TierDitherProps = {
   brandColor: string;
 };
 
+/* Геометрия точечной сетки */
 const CELL_PITCH_X = 3;
 const CELL_PITCH_Y = 4;
 const DOT_SIZE = 2.25;
 const QUIET_LEFT_RATIO = 0.25;
-const BRIGHTNESS_LEVELS = 4;
-const WAVE_PERIOD_MS = 3600;
-const WAVE_FRONT_CELLS = 9;
 const BRAND_MIX = 0.38;
-const REVEAL_MS = 1200;
-const REVEAL_JITTER_CELLS = 8;
+
+/* Дискретная шкала яркости — как у сегментных индикаторов:
+   никакой плавной интерполяции, только фиксированные ступени */
+const BRIGHTNESS_LEVELS = 5;
+const ALPHA_MIN = 0.14;
+const ALPHA_SPAN = 0.7;
+
+/* Матрица Байера 4x4 — упорядоченный дизеринг вместо случайного шума.
+   Каждая клетка имеет фиксированный порог включения, поэтому поле
+   всегда собирается в один и тот же регулярный узор без «мушек» */
+const BAYER_4 = [
+  [0, 8, 2, 10],
+  [12, 4, 14, 6],
+  [3, 11, 1, 9],
+  [15, 7, 13, 5],
+];
+
+/* Проявление: каретка пишет поле справа налево, колонка за колонкой */
+const REVEAL_STEP_MS = 12;
 const REVEAL_PEN_CELLS = 6;
-const WAVE_STEP_MS = 96;
-const WAVE_DELAY_MS = 400;
+const REVEAL_PEN_BOOST = 0.4;
+
+/* Скан-волна: строгий фронт идёт слева направо к отметке «Максимум»,
+   двигаясь дискретными шагами по одной колонке, синхронно по всей высоте */
+const WAVE_DELAY_MS = 500;
+const WAVE_STEP_MS = 42;
+const WAVE_FRONT_CELLS = 9;
+const WAVE_BOOST = 0.55;
+
+/* Прибытие: дойдя до правого края, фронт «отдаёт заряд» —
+   терминальные колонки вспыхивают и гаснут ступенями */
+const TERMINAL_CELLS = 5;
+const FLASH_STEPS = 8;
+const FLASH_BOOST = 0.45;
+const REST_STEPS = 22;
 
 export function TierDither({ isActive, brandColor }: TierDitherProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -60,7 +88,7 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       context?.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
-    function drawFrame(timeMs: number) {
+    function drawFrame(timeMs: number, staticMode: boolean) {
       if (!context || cssWidth === 0 || cssHeight === 0) {
         return;
       }
@@ -70,71 +98,85 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       const rows = Math.max(1, Math.floor(cssHeight / CELL_PITCH_Y));
       const offsetX = (cssWidth - columns * CELL_PITCH_X) / 2;
       const offsetY = (cssHeight - rows * CELL_PITCH_Y) / 2;
+      const quietCols = Math.floor(columns * QUIET_LEFT_RATIO);
 
-      const revealProgress = Math.min(1, timeMs / REVEAL_MS);
-      const eased = 1 - (1 - revealProgress) ** 2.2;
-      const revealFrontCol = columns - eased * (columns + REVEAL_JITTER_CELLS);
-      const isRevealing = revealProgress < 1;
+      /* --- Фаза 1: проявление. Каретка идёт справа налево,
+         открывая по колонке за шаг — как самописец --- */
+      const revealSteps = columns - quietCols;
+      const revealStep = staticMode
+        ? revealSteps
+        : Math.min(revealSteps, Math.floor(timeMs / REVEAL_STEP_MS));
+      const revealFrontCol = columns - revealStep;
+      const isRevealing = revealStep < revealSteps;
 
-      const waveTimeMs = Math.max(0, timeMs - REVEAL_MS - WAVE_DELAY_MS);
-      const steppedTime = Math.floor(waveTimeMs / WAVE_STEP_MS) * WAVE_STEP_MS;
-      const travelCells = columns + WAVE_FRONT_CELLS * 2;
-      const waveProgress = (steppedTime % WAVE_PERIOD_MS) / WAVE_PERIOD_MS;
-      const waveFrontCol = Math.floor(
-        columns + WAVE_FRONT_CELLS - waveProgress * travelCells,
-      );
+      /* --- Фаза 2: скан-цикл. Дискретный шаговый отсчёт:
+         развёртка -> вспышка прибытия -> пауза --- */
+      const revealDoneMs = revealSteps * REVEAL_STEP_MS;
+      const waveTimeMs = timeMs - revealDoneMs - WAVE_DELAY_MS;
+      const sweepSteps = columns - quietCols + WAVE_FRONT_CELLS;
+      const cycleSteps = sweepSteps + FLASH_STEPS + REST_STEPS;
+
+      let frontCol = -1;
+      let flashPhase = -1;
+      if (!staticMode && waveTimeMs >= 0) {
+        const stepIndex = Math.floor(waveTimeMs / WAVE_STEP_MS) % cycleSteps;
+        if (stepIndex < sweepSteps) {
+          frontCol = quietCols + stepIndex;
+        } else if (stepIndex < sweepSteps + FLASH_STEPS) {
+          flashPhase = stepIndex - sweepSteps;
+        }
+      }
 
       for (let col = 0; col < columns; col++) {
+        if (col < revealFrontCol) {
+          continue;
+        }
         const xRatio = col / Math.max(1, columns - 1);
         const density = densityProfile(xRatio);
         if (density <= 0) {
           continue;
         }
         const presence = Math.min(1, density / 0.12);
-        const distance = Math.abs(col - waveFrontCol);
+
+        /* Подсветка колонки единая по всей высоте — фронт
+           воспринимается как вертикальная сканирующая линия */
+        let columnBoost = 0;
+
+        if (frontCol >= 0) {
+          const behind = frontCol - col;
+          if (behind >= 0 && behind < WAVE_FRONT_CELLS) {
+            const strength = 1 - behind / WAVE_FRONT_CELLS;
+            columnBoost += WAVE_BOOST * strength * strength;
+          }
+        }
+
+        if (flashPhase >= 0 && col >= columns - TERMINAL_CELLS) {
+          columnBoost += FLASH_BOOST * (1 - flashPhase / FLASH_STEPS);
+        }
+
+        if (isRevealing) {
+          const penDistance = col - revealFrontCol;
+          if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
+            columnBoost +=
+              REVEAL_PEN_BOOST * (1 - penDistance / REVEAL_PEN_CELLS);
+          }
+        }
+
+        const energy = density + columnBoost * presence;
 
         for (let row = 0; row < rows; row++) {
-          const revealJitter =
-            cellHash(col * 13 + 7, row * 17 + 11) * REVEAL_JITTER_CELLS;
-          if (col < revealFrontCol + revealJitter) {
-            continue;
-          }
-
-          const threshold = cellHash(col, row);
-          const twinklePhase = cellHash(col * 3 + 1, row * 7 + 3);
-          const twinkleSpeed = 0.5 + cellHash(col * 5 + 2, row * 11 + 5) * 0.8;
-          const twinkle =
-            0.11 *
-            Math.sin(
-              (timeMs / 1000) * twinkleSpeed * Math.PI * 2 +
-                twinklePhase * Math.PI * 2,
-            );
-
-          let waveBoost = 0;
-          if (!isRevealing && distance < WAVE_FRONT_CELLS) {
-            const frontStrength = (1 - distance / WAVE_FRONT_CELLS) ** 2;
-            const lottery = cellHash(col * 19 + 3, row * 23 + 13);
-            if (lottery < frontStrength) {
-              waveBoost = 0.75 * frontStrength;
-            }
-          }
-
-          let penBoost = 0;
-          if (isRevealing) {
-            const penDistance = col - revealJitter - revealFrontCol;
-            if (penDistance >= 0 && penDistance < REVEAL_PEN_CELLS) {
-              penBoost = (1 - penDistance / REVEAL_PEN_CELLS) ** 2 * 0.3;
-            }
-          }
-
-          const energy = density + (waveBoost + penBoost + twinkle) * presence;
+          /* Фиксированный порог Байера: клетки включаются всегда
+             в одном и том же порядке — узор стабилен и регулярен */
+          const threshold = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
           if (energy <= threshold) {
             continue;
           }
 
-          const overshoot = Math.min(1, (energy - threshold) / 0.6);
-          const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
-          const alpha = 0.16 + (level / BRIGHTNESS_LEVELS) * 0.72;
+          /* Яркость ступенчатая: чем раньше клетка включилась
+             по порядку Байера, тем выше её уровень */
+          const overshoot = Math.min(1, (energy - threshold) / 0.5);
+          const level = Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS));
+          const alpha = ALPHA_MIN + (level / BRIGHTNESS_LEVELS) * ALPHA_SPAN;
 
           context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
           context.fillRect(
@@ -153,7 +195,7 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       if (startTimeMs < 0) {
         startTimeMs = timeMs;
       }
-      drawFrame(timeMs - startTimeMs);
+      drawFrame(timeMs - startTimeMs, false);
       frameId = requestAnimationFrame(loop);
     }
 
@@ -163,7 +205,7 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       resizeFrameId = requestAnimationFrame(() => {
         syncCanvasSize();
         if (isActive && reducedMotion.matches) {
-          drawFrame(REVEAL_MS);
+          drawFrame(0, true);
         }
       });
     });
@@ -172,7 +214,7 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
 
     if (isActive) {
       if (reducedMotion.matches) {
-        drawFrame(REVEAL_MS);
+        drawFrame(0, true);
       } else {
         frameId = requestAnimationFrame(loop);
       }
@@ -207,11 +249,6 @@ function densityProfile(xRatio: number): number {
     return 0.62 - ((xRatio - 0.72) / 0.2) * 0.4;
   }
   return 0.22 * (1 - (xRatio - 0.92) / 0.08);
-}
-
-function cellHash(col: number, row: number): number {
-  const value = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
-  return value - Math.floor(value);
 }
 
 type Rgb = { r: number; g: number; b: number };
