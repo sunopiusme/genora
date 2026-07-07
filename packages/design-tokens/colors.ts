@@ -42,6 +42,8 @@ export const colors = {
   surfaceElevated: palette.neutral[800],
   // Поверхности над чёрным фоном сайдбара — «высота» через светлоту
   surfaceRaised: palette.neutral[750],
+  // Hover для элементов на raised-поверхности — ступень светлоты вместо обводки
+  surfaceRaisedHover: palette.neutral[700],
   border: palette.neutral[800],
   borderStrong: palette.neutral[600],
   foreground: palette.neutral[50],
