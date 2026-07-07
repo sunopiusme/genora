@@ -203,7 +203,7 @@
   font-weight: var(--weight-regular);
   line-height: 1.35;
   font-variant-numeric: tabular-nums;
-  color: var(--color-foreground-muted);
+  color: var(--color-foreground-secondary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

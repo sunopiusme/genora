@@ -38,6 +38,9 @@
   --color-border: var(--neutral-800);
   --color-border-strong: var(--neutral-600);
   --color-foreground: var(--neutral-50);
+  /* Вторичный текст, который всё же участвует в принятии решения
+     (цена, ключевые подписи): заметно тише заголовка, но ярче muted */
+  --color-foreground-secondary: var(--neutral-300);
   --color-foreground-muted: var(--neutral-400);
   --color-foreground-subtle: var(--neutral-450);
   --color-primary: var(--neutral-0);
