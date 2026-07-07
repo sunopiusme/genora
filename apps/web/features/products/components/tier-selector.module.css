@@ -12,30 +12,25 @@
   padding: var(--space-2) var(--space-4);
   border: none;
   border-radius: var(--radius-full);
-  background-color: transparent;
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.25);
+  background-color: var(--color-surface-elevated);
   font-family: var(--font-sans);
   cursor: pointer;
-  transition:
-    background-color 0.15s ease,
-    box-shadow 0.15s ease;
+  transition: background-color 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tierTrigger:hover {
-  background-color: rgb(255 255 255 / 0.06);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  background-color: var(--color-surface-raised);
 }
 
 .tierTrigger:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.9);
+  box-shadow: 0 0 0 2px var(--color-border-strong);
 }
 
 .tierTriggerOpen {
   composes: tierTrigger;
-  background-color: rgb(255 255 255 / 0.06);
-  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.35);
+  background-color: var(--color-surface-raised);
 }
 
 .tierTriggerCaption {

@@ -206,8 +206,6 @@ function ProductPanel({ product, onAskAssistant }: ProductPanelProps) {
         <span className={styles.period}>{`/ ${product.periodLabel}`}</span>
       </p>
 
-      <span className={styles.divider} aria-hidden="true" />
-
       <div className={styles.actions}>
         <button type="button" className={styles.primaryAction}>
           Купить подписку
