@@ -79,13 +79,12 @@
   min-width: 220px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень,
-     как у ModelPicker. Без стекла и верхней -24px тени. */
-  background: #1c1c1f;
+  /* Сплошная приподнятая поверхность на ступень светлее карточки
+     (токены Геноры), как у ModelPicker. */
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 1px;

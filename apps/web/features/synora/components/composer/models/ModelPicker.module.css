@@ -67,14 +67,12 @@
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  /* Сплошная приподнятая поверхность (светлее чёрной карточки),
-     чёткая волосяная кромка + чистая тень вниз. Без полупрозрачного
-     стекла и без верхней -24px тени, которые мутнили меню. */
-  background: #1c1c1f;
+  /* Сплошная приподнятая поверхность на ступень светлее карточки
+     (elevation светлотой, токены Геноры) + hairline и токен-тень. */
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -150,11 +148,10 @@
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: #1c1c1f;
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: none;
   flex-direction: column;
   gap: 1px;

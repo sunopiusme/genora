@@ -1,7 +1,15 @@
 /* ─────────────────────────────────────────
-   Composer input — повторяет композицию
-   референса (Codex). Тёмная монохромная
-   палитра, без цветовых акцентов.
+   Composer input — карточка в палитре Геноры
+   (см. assistant-bar и UI_STANDARDS.md).
+
+   Цвета — только семантические токены
+   @genora/design-tokens: плоская приподнятая
+   поверхность --color-surface-elevated с тенью
+   --shadow-lg, без градиентов и inset-бликов.
+   Elevation передаётся светлотой («чем темнее
+   фон, тем светлее поверхность»), разделители
+   на raised-поверхностях — белый с альфой
+   0.06–0.08.
 
    Геометрия унифицирована с правилами sidebar
    (ProjectSidebar):
@@ -14,35 +22,32 @@
      вторичный 0.82rem.
    ───────────────────────────────────────── */
 .root {
-  /* Базовые токены композера. В исходном демо жили в глобальной
-     теме; здесь определяем локально, привязывая к токенам Синоры. */
-  --composer-ink: var(--color-foreground, #ededed);
-  --composer-ink-muted: var(--color-foreground-muted, #a8a8a8);
-  --composer-surface: #202226;
-  --composer-surface-raised: #26282d;
-  --composer-hairline: #353535;
+  /* Базовые токены композера — алиасы семантических токенов
+     Геноры. --composer-* используются и за пределами .root
+     (Tooltip в CopyButton), поэтому значения дублируют токены,
+     а не локальные --c-*. */
+  --composer-ink: var(--color-foreground, #fafafa);
+  --composer-ink-muted: var(--color-foreground-muted, #a3a3a3);
+  --composer-surface: var(--color-surface-elevated, #262626);
+  --composer-surface-raised: var(--color-surface-raised, #303030);
+  --composer-hairline: rgb(255 255 255 / 0.08);
   --composer-duration-hover: 120ms;
 
-  /* Палитра строго белый/серый, без полупрозрачностей: иконки и
-     обводки — сплошные тона, а не «вымытый» белый по альфе. */
-  --c-line: #353535;
-  --c-line-soft: #2c2c2c;
-  --c-ink: var(--composer-ink);
-  --c-ink-muted: #c2c2c2;
-  --c-ink-subtle: #868686;
-  --c-surface: #26282d;
-  --c-surface-soft: #202226;
-  /* Фон плашек warning/context: на тон темнее карточки
-     (#242424), но светлее sunken (#1a1a1a) — утопленный
-     «ящик из-под» приподнятой карточки, контраст без
-     резкого провала на стыке (рамки у карточки больше нет). */
-  --c-drawer: #191b1f;
-  /* Сплошной фон для popover'ов: раньше тут жил полупрозрачный
-     glass (rgba(36, 36, 36, 0.72)) с backdrop-filter. На странице
-     с несколькими меню рядом — модели, проекты, plus, плагины —
-     сквозь полупрозрачный слой просвечивали соседние popover'ы,
-     и читалось это как «двойной» интерфейс. Делаем фон сплошным,
-     чтобы dropdown'ы перекрывали друг друга, как обычные слои. */
+  /* Разделители на raised-поверхности — полупрозрачный белый
+     (правило UI_STANDARDS: 0.06–0.08). */
+  --c-line: rgb(255 255 255 / 0.08);
+  --c-line-soft: rgb(255 255 255 / 0.06);
+  --c-ink: var(--color-foreground);
+  --c-ink-muted: var(--color-foreground-muted);
+  --c-ink-subtle: var(--color-foreground-subtle);
+  --c-surface: var(--color-surface-elevated);
+  --c-surface-soft: var(--color-surface);
+  /* Drawer контекста — на ступень темнее карточки
+     («ящик из-под» приподнятой поверхности). */
+  --c-drawer: var(--color-surface);
+  /* Сплошной фон для popover'ов: на ступень светлее карточки
+     (elevation светлотой), перекрывают друг друга как обычные
+     слои — без полупрозрачного стекла. */
   --c-surface-glass: var(--composer-surface-raised);
 
   /* Геометрические токены — те же, что в sidebar */
@@ -102,45 +107,37 @@
   border: 0;
 }
 
-/* ── Card (input + toolbar) — graphite island ──
-   Не pure black: на светлом mesh абсолютный #050505 читался как
-   провал. Держим глубокий graphite с сатиновым верхним бликом,
-   тонкой кромкой и облегчённой тенью. */
+/* ── Card (input + toolbar) — плоская приподнятая
+   поверхность в палитре Геноры (как assistant-bar):
+   сплошной --color-surface-elevated + --shadow-lg.
+   Без градиентов, бликов и inset-кромок; фон карточки
+   не меняется ни при наборе, ни при отправке —
+   состояния передаются контролами, а не поверхностью. */
 .card {
   display: grid;
-  gap: 16px;
-  padding: 28px var(--c-pad-x) 24px;
-  border-radius: 28px;
-  background:
-    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.14), transparent 54%),
-    linear-gradient(180deg, #22242a 0%, #181a1f 48%, #121419 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.13),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.065),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.72),
-    0 2px 5px rgba(0, 0, 0, 0.42),
-    0 14px 30px -14px rgba(0, 0, 0, 0.72),
-    0 38px 82px -38px rgba(0, 0, 0, 0.68);
+  gap: 12px;
+  padding: 16px var(--c-pad-x);
+  border-radius: var(--c-card-radius);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 1;
 }
 
-.card[data-drag="true"] {
-  background:
-    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.16), transparent 54%),
-    linear-gradient(180deg, #282b31 0%, #1b1e24 52%, #14161b 100%);
+/* Фокус — деликатное внутреннее кольцо по правилу
+   разделителей raised-поверхности, без смены фона. */
+.card[data-focus="true"] {
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    var(--shadow-lg);
 }
 
-.card[data-typing="true"] {
-  background:
-    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.15), transparent 54%),
-    linear-gradient(180deg, #252831 0%, #1a1d24 50%, #13161b 100%);
+/* Drag-over — ступень светлее (elevation светлотой). */
+.card[data-drag="true"] {
+  background: var(--composer-surface-raised);
 }
 
 .card[data-sending="true"] {
-  background:
-    radial-gradient(120% 140% at 24% -80%, rgba(255, 255, 255, 0.13), transparent 54%),
-    linear-gradient(180deg, #222631 0%, #171b23 52%, #12161d 100%);
   cursor: progress;
 }
 
@@ -166,10 +163,10 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  /* card.padding ≈ 20 var(--c-pad-x) 16. Отрицательные
-     margin'ы подтягивают ряд к углу карточки;
-     значения округлены по 8pt-сетке. */
-  margin: -12px -12px -8px;
+  /* card.padding = 16 var(--c-pad-x). Отрицательные margin'ы
+     подтягивают ряд к углу карточки с inset = corner-inset (6):
+     16 − 6 = 10. */
+  margin: -10px -10px -4px;
 }
 
 /* ── Drop-overlay при drag-and-drop файла ──
@@ -197,7 +194,7 @@
   /* Та же поверхность, что у card[data-drag] —
      оверлей читается как drop-state самой карточки,
      а не как отдельный модал. */
-  background: var(--c-surface-soft);
+  background: var(--composer-surface-raised);
   overflow: hidden;
   pointer-events: none;
   z-index: 30;
@@ -235,7 +232,7 @@
    увеличен до 18px — так glyph не теряется
    на пустой поверхности card'а, оставаясь
    тем же по плотности линий, что и иконки
-   toolbar'а. Цвет — ink-muted, в паре с
+   toolbar'а. Цве�� — ink-muted, в паре с
    placeholder-style label под иконкой. */
 .dropOverlayIcon {
   display: inline-flex;
@@ -320,26 +317,23 @@
   font-family: inherit;
   font-size: 0.92rem;
   font-weight: 400;
-  line-height: 32px;
+  line-height: 1.5;
   color: var(--c-ink);
   resize: none;
-  /* v2 — однострочное поле внутри toolbar-flex'а: высота ровно
-     в одну строку (32px, как у пилюль/кнопок ряда), без auto-grow.
-     Длинный промпт прячется горизонтальным overflow'ом, островок
-     остаётся единой строкой как в референсе. */
-  height: 32px;
-  min-height: 32px;
-  max-height: 32px;
-  white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
+  /* v3 — многострочное поле на всю ширину карточки: auto-grow
+     (высоту ставит JS по scrollHeight) от одной строки до
+     ~6 строк, дальше вертикальный скролл. Никакого горизонтального
+     overflow — длинный промпт переносится, ничего не обрезается. */
+  min-height: calc(0.92rem * 1.5);
+  max-height: calc(0.92rem * 1.5 * 6);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgb(255 255 255 / 0.16) transparent;
   transition: color var(--composer-duration-hover) ease,
               opacity var(--composer-duration-hover) ease;
-}
-
-.input::-webkit-scrollbar {
-  display: none;
 }
 
 .input:disabled {
@@ -352,11 +346,15 @@
    .card (который relative). Так popover магнитится
    к верхней кромке всей карточки и не «висит» в
    фиксированной точке, когда меняется внутренний
-   layout (например появляется ряд вложений). */
+   layout (например появляется ряд вложений).
+   Верхний ряд карточки: небольшой боковой inset,
+   чтобы первая буква стояла на одной вертикали
+   с глифом plus-кнопки в нижнем ряду. */
 .inputWrap {
   display: block;
-  flex: 1;
+  width: 100%;
   min-width: 0;
+  padding: 4px 6px 0;
 }
 
 /* ── Mode chip — индикатор активного режима
@@ -457,16 +455,13 @@
   gap: 2px;
 }
 
-/* v2 — единая строка: toolbarLeft ВСЕГДА растягиваетс�� на
-   всё свободное пространство между Plus и правым блоком.
-   В idle внутри неё живёт поле ввода (растягивается до
-   модели/кнопок), в recording — waveform. Так островок
-   остаётся однострочным в обоих состояниях. */
+/* toolbarLeft растягивается на всё свободное пространство
+   между Plus и правым блоком: в idle там (опционально)
+   chip режима, в recording — waveform на всю ширину. */
 .toolbarLeft {
   flex: 1;
   min-width: 0;
-  /* Больше воздуха между плюсом и полем ввода/waveform, чтобы они
-     не липли друг к другу. */
+  /* Воздух между плюсом и chip'ом/waveform. */
   gap: 10px;
 }
 
@@ -630,11 +625,12 @@ button.iconBtn[data-loading="true"] svg {
   margin-left: 4px;
   padding: 0;
   border: none;
-  /* v2: монохромная круглая send-кнопка — белая пилюля с тёмным
-     глифом, без градиентов и цветных glow'ов. */
+  /* Primary-кнопка в палитре Геноры — как submit
+     в assistant-bar: --color-primary на --color-
+     primary-foreground, без градиентов и glow'ов. */
   border-radius: 999px;
-  background: var(--c-ink);
-  color: var(--composer-surface);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
   cursor: pointer;
   transition:
     background-color 160ms ease,
@@ -660,8 +656,9 @@ button.iconBtn[data-loading="true"] svg {
 
 .sendBtn[data-sending="true"] {
   cursor: progress;
-  background: rgba(255, 255, 255, 0.78);
-  color: var(--composer-surface);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  opacity: 0.8;
 }
 
 .sendBtn[data-sending="true"] svg {
@@ -880,13 +877,12 @@ button.iconBtn[data-loading="true"] svg {
   min-width: 200px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  /* Сплошная приподнятая поверхность + чёткая кромка и чистая тень.
-     Без стекла, без верхней -24px тени и без мутного blur-ореола. */
-  background: #1c1c1f;
+  /* Сплошная приподнятая поверхность (elevation светлотой,
+     ступень выше карточки) + hairline-кромка и токен-тень. */
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -979,11 +975,10 @@ button.iconBtn[data-loading="true"] svg {
   min-width: 220px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
-  background: #1c1c1f;
+  background: var(--composer-surface-raised);
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.1),
-    0 18px 44px rgba(0, 0, 0, 0.55),
-    0 6px 16px rgba(0, 0, 0, 0.42);
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   display: none;
   flex-direction: column;
   gap: 1px;
@@ -1055,7 +1050,7 @@ button.iconBtn[data-loading="true"] svg {
 
 /* iOS-style toggle. Невзаимодействующий —
    состояние держит родительская кнопка через
-   data-on. Шайба сдвигается в активное положение
+   data-on. Шайба сдвигается в активно�� положение
    при data-on="true". */
 .toggle {
   position: relative;
@@ -1076,48 +1071,45 @@ button.iconBtn[data-loading="true"] svg {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffffff;
+  background: var(--color-foreground);
   transition: transform var(--composer-duration-hover) ease;
 }
 
 .toggle[data-on="true"] {
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--color-primary);
 }
 
 .toggle[data-on="true"]::after {
   transform: translateX(12px);
-  background: #141416;
+  background: var(--color-primary-foreground);
 }
 
 /* ── Адаптация ─────────────────────────── */
+/* Двухрядная композиция (textarea сверху, контролы
+   снизу) сама решает проблему узкого экрана — поле
+   ввода никогда не делит строку с кнопками. Остаётся
+   поджать паддинги и разрешить перенос контролов,
+   если их сумма всё же шире карточки. */
 @media (max-width: 560px) {
-  .toolbar {
-    flex-wrap: wrap;
-  }
-  /* На узких экранах поле ввода занимает всю первую строку,
-     а плюс и правые контролы уходят на вторую — иначе textarea
-     сжимается в щёлку между кнопками. display: contents
-     поднимает детей toolbarLeft на уровень .toolbar, чтобы
-     order работал сквозь группу; DOM-порядок не меняем. */
-  .toolbarLeft {
-    display: contents;
+  .card {
+    padding: 12px;
+    gap: 10px;
   }
   .inputWrap {
-    order: -1;
-    flex-basis: 100%;
-    padding-bottom: 6px;
+    padding: 2px 4px 0;
+  }
+  .toolbar {
+    flex-wrap: wrap;
   }
   .toolbarRight {
     margin-left: auto;
   }
   .context {
     gap: 0;
+    margin: -16px 0 0;
   }
   .footChip {
     padding: 8px 8px;
     font-size: 0.78rem;
-  }
-  .context {
-    margin: -16px 0 0;
   }
 }

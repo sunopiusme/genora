@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import styles from "./ComposerInput.module.css";
 import { MentionPopover } from "./mentions/MentionPopover";
@@ -29,6 +29,18 @@ export function PromptInput({
   const ref = useRef<HTMLTextAreaElement | null>(null);
 
   const mentions = useMentions({ value, caret, focused });
+
+  /* Auto-grow: высота textarea следует за контентом
+     (1..~6 строк, лимит задаёт max-height в CSS —
+     дальше включается вертикальный скролл). Пересчёт
+     и на внешние изменения value (очистка после
+     отправки), поэтому layout-effect, а не onChange. */
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight}px`;
+  }, [value]);
 
   const syncCaret = () => {
     setCaret(ref.current?.selectionStart ?? 0);
