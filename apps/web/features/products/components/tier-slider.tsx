@@ -9,14 +9,12 @@ type TierSliderProps = {
   product: Product;
   tierIndex: number;
   onTierChange: (index: number) => void;
-  compact?: boolean;
 };
 
 export function TierSlider({
   product,
   tierIndex,
   onTierChange,
-  compact = false,
 }: TierSliderProps) {
   const maxIndex = product.tiers.length - 1;
   const isMaxed = tierIndex === maxIndex;
@@ -160,17 +158,15 @@ export function TierSlider({
   return (
     <div
       ref={rootRef}
-      className={compact ? styles.tierSliderCompact : styles.tierSlider}
+      className={styles.tierSlider}
       data-sheet-drag-ignore="true"
       data-maxed={isMaxed || undefined}
       style={{ "--brand": product.brandColor } as React.CSSProperties}
     >
-      {!compact && (
-        <div className={styles.tierEdges} aria-hidden="true">
-          <span>Базовый</span>
-          <span className={styles.tierEdgeMax}>Максимум</span>
-        </div>
-      )}
+      <div className={styles.tierEdges} aria-hidden="true">
+        <span>Базовый</span>
+        <span className={styles.tierEdgeMax}>Максимум</span>
+      </div>
       <div
         ref={trackRef}
         className={styles.tierTrack}

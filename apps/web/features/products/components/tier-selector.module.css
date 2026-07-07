@@ -70,54 +70,6 @@
   transform: rotate(180deg);
 }
 
-.tierInlineTrigger {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.125rem;
-  padding: 0;
-  border: none;
-  background: none;
-  font-family: var(--font-sans);
-  font-size: 0.8125rem;
-  font-weight: var(--weight-medium);
-  color: var(--color-foreground-muted);
-  cursor: pointer;
-  transition: color 0.15s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.tierInlineTrigger:hover {
-  color: var(--color-foreground);
-}
-
-.tierInlineTrigger:focus-visible {
-  outline: none;
-  color: var(--color-foreground);
-  text-decoration: underline;
-  text-underline-offset: 0.1875rem;
-}
-
-.tierInlineTriggerOpen {
-  composes: tierInlineTrigger;
-  color: var(--color-foreground);
-}
-
-.tierInlineChevron {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 1em;
-  height: 1em;
-  font-size: 0.8125rem;
-  transition: transform 0.16s ease;
-}
-
-.tierInlineChevronOpen {
-  composes: tierInlineChevron;
-  transform: rotate(180deg);
-}
-
 /* Панель тарифа в духе Dynamic Island: то же скругление
    var(--radius-2xl), что и у остальных меню, и анимация
    «разрастания» из пилюли триггера */
@@ -137,18 +89,6 @@
   animation: tierMenuIn 0.28s cubic-bezier(0.34, 1.2, 0.64, 1) both;
 }
 
-.tierMenuUp {
-  composes: tierMenu;
-  top: auto;
-  bottom: calc(100% + var(--space-1));
-  transform-origin: bottom center;
-  animation: tierMenuInUp 0.28s cubic-bezier(0.34, 1.2, 0.64, 1) both;
-}
-
-.tierMenuCompact {
-  width: min(15rem, calc(100vw - var(--space-8) * 2));
-}
-
 @keyframes tierMenuIn {
   from {
     opacity: 0;
@@ -163,28 +103,12 @@
   }
 }
 
-@keyframes tierMenuInUp {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(0.5rem) scaleX(0.7) scaleY(0.45);
-  }
-  60% {
-    opacity: 1;
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .tierMenu,
-  .tierMenuUp {
+  .tierMenu {
     animation: none;
   }
 
-  .tierTriggerChevron,
-  .tierInlineChevron {
+  .tierTriggerChevron {
     transition: none;
   }
 }

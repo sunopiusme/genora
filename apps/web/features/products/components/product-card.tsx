@@ -2,7 +2,6 @@
 
 import {
   useRef,
-  useState,
   type CSSProperties,
   type MouseEvent,
   type PointerEvent,
@@ -11,27 +10,17 @@ import { Button } from "@genora/ui";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";
 import styles from "./product-card.module.css";
-import { TierSelector } from "./tier-selector";
-import { TierValueTransition } from "./tier-value-transition";
 
 const CLICK_MOVEMENT_THRESHOLD_PX = 6;
 
 type ProductCardProps = {
   product: Product;
   onOpen: () => void;
-  onBuy?: (tierIndex: number) => void;
 };
 
-export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
+export function ProductCard({ product, onOpen }: ProductCardProps) {
   const openGesture = useIntentionalOpen(onOpen);
-  const [tierIndex, setTierIndex] = useState(product.defaultTierIndex);
-  const selectedTier = product.tiers[tierIndex];
-
-  function handleBuyClick(_event: MouseEvent<HTMLButtonElement>) {
-    if (onBuy) {
-      onBuy(tierIndex);
-    }
-  }
+  const startingPrice = getStartingPrice(product);
 
   return (
     <article className={styles.card}>
@@ -59,47 +48,57 @@ export function ProductCard({ product, onOpen, onBuy }: ProductCardProps) {
         </span>
       </button>
       <div className={styles.info}>
-        <div className={styles.nameRow}>
-          <h3 className={styles.name}>
-            <button
-              type="button"
-              className={styles.nameButton}
-              onPointerDown={openGesture.handlePointerDown}
-              onClick={openGesture.handleClick}
-            >
-              {product.name}
-            </button>
-          </h3>
-          <span className={styles.tierArea}>
-            <TierSelector
-              product={product}
-              tierIndex={tierIndex}
-              onTierChange={setTierIndex}
-              compact
-              placement="up"
-            />
-          </span>
-        </div>
+        <h3 className={styles.name}>
+          <button
+            type="button"
+            className={styles.nameButton}
+            onPointerDown={openGesture.handlePointerDown}
+            onClick={openGesture.handleClick}
+          >
+            {product.name}
+          </button>
+        </h3>
         <p className={styles.price}>
-          <span className={styles.amount}>
-            <TierValueTransition
-              text={selectedTier?.priceLabel ?? product.priceLabel}
-              order={tierIndex}
-            />
-          </span>
-          <span className={styles.period}>в {product.periodLabel}</span>
+          {startingPrice.hasMultipleTiers ? "от " : ""}
+          {startingPrice.priceLabel} в {product.periodLabel}
         </p>
       </div>
       <Button
         variant="primary"
         size="lg"
         className={styles.action}
-        onClick={handleBuyClick}
+        onClick={onOpen}
       >
         Купить
       </Button>
     </article>
   );
+}
+
+type StartingPrice = {
+  priceLabel: string;
+  hasMultipleTiers: boolean;
+};
+
+/**
+ * Карточка витрины показывает минимальную цену («от X ₽») — паттерн
+ * App Store. Выбор конкретного тарифа происходит в детальном просмотре.
+ */
+function getStartingPrice(product: Product): StartingPrice {
+  const hasMultipleTiers = product.tiers.length > 1;
+  if (product.tiers.length === 0) {
+    return { priceLabel: product.priceLabel, hasMultipleTiers };
+  }
+  const cheapestTier = product.tiers.reduce((cheapest, tier) =>
+    parsePriceValue(tier.priceLabel) < parsePriceValue(cheapest.priceLabel)
+      ? tier
+      : cheapest,
+  );
+  return { priceLabel: cheapestTier.priceLabel, hasMultipleTiers };
+}
+
+function parsePriceValue(priceLabel: string): number {
+  return Number(priceLabel.replace(/[^\d]/g, "")) || 0;
 }
 
 type PressStartPoint = {
