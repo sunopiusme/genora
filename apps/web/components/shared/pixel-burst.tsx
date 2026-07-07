@@ -18,21 +18,28 @@ const DOT_SIZE = 2.25;
 const BRIGHTNESS_LEVELS = 4;
 const BRAND_MIX = 0.38;
 
-/* Двухслойная хореография.
-   Слой 1 — «сканирующая матрица»: разреженные пиксели-искатели
-   мягко загораются, и внутри каждого свет обходит квадрат по периметру.
-   Слой 2 — волна: периодически расходится от центра к краям поверх. */
-const SEEKER_WINDOW_MS = 1100;
-const SEEKER_SHARE = 0.16;
-const ORBIT_MS = 1400;
+/* Хореография «пульс из ядра» — единая причинная цепочка:
+   1. Ядро в центре постоянно дышит (медленный вдох-выдох).
+   2. Перед выбросом ядро накапливает энергию и разгорается.
+   3. На пике волна рождается ИЗ ядра и радиально расходится к краям.
+   4. Искатели — разведчики на периферии: тем тише, чем дальше от ядра,
+      внутри каждого свет обходит квадрат по периметру. */
+const CORE_RADIUS_CELLS = 3.2;
+const BREATH_MS = 2600;
+
+const CHARGE_MS = 700;
+const WAVE_MS = 1000;
+const REST_MS = 1500;
+const CYCLE_MS = CHARGE_MS + WAVE_MS + REST_MS;
+
+const SEEKER_WINDOW_MS = 1300;
+const SEEKER_SHARE = 0.12;
+const ORBIT_MS = 1600;
 const ORBIT_RADIUS = 0.75;
 
-const WAVE_MS = 1100;
-const REST_MS = 1700;
-const CYCLE_MS = WAVE_MS + REST_MS;
-const FRONT_CELLS = 7;
-const JITTER_CELLS = 5;
-const FADE_TAIL = 0.45;
+const FRONT_CELLS = 6;
+const JITTER_CELLS = 3;
+const FADE_TAIL = 0.5;
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -70,7 +77,14 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
     const offsetX = (width - columns * CELL_PITCH_X) / 2;
     const offsetY = (height - rows * CELL_PITCH_Y) / 2;
     const centerCol = (columns - 1) / 2;
-    const halfSpan = centerCol + FRONT_CELLS + JITTER_CELLS;
+    const centerRow = (rows - 1) / 2;
+    /* Вертикальный шаг сетки больше горизонтального — выравниваем
+       метрику, чтобы ядро и волна были геометрически круглыми */
+    const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
+    const halfSpan =
+      Math.hypot(centerCol, centerRow * rowAspect) +
+      FRONT_CELLS +
+      JITTER_CELLS;
 
     let frameId = 0;
     let startTimeMs = -1;
@@ -81,12 +95,28 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       }
       context.clearRect(0, 0, width, height);
 
-      /* Фаза волны: WAVE_MS расширения, затем REST_MS,
-         когда работает только матрица искателей */
+      /* Фазы цикла: накопление -> выброс волны -> покой */
       const cycleMs = elapsedMs % CYCLE_MS;
-      const waveProgress = cycleMs < WAVE_MS ? cycleMs / WAVE_MS : -1;
+      const chargeProgress =
+        cycleMs < CHARGE_MS ? cycleMs / CHARGE_MS : -1;
+      const waveProgress =
+        cycleMs >= CHARGE_MS && cycleMs < CHARGE_MS + WAVE_MS
+          ? (cycleMs - CHARGE_MS) / WAVE_MS
+          : -1;
+
+      /* Медленное дыхание ядра; при накоплении оно разгорается,
+         в момент выброса резко отдаёт энергию и затем восстанавливается */
+      const breath =
+        0.5 + 0.5 * Math.sin((elapsedMs / BREATH_MS) * Math.PI * 2);
+      let coreEnergy = 0.45 + 0.2 * breath;
+      if (chargeProgress >= 0) {
+        coreEnergy += chargeProgress ** 1.6 * 0.55;
+      } else if (waveProgress >= 0) {
+        coreEnergy += Math.max(0, 0.55 * (1 - waveProgress * 3));
+      }
+
       const eased =
-        waveProgress >= 0 ? 1 - (1 - waveProgress) ** 2.4 : 0;
+        waveProgress >= 0 ? 1 - (1 - waveProgress) ** 2.6 : 0;
       const frontDistance = eased * halfSpan;
       const waveFade =
         waveProgress > 1 - FADE_TAIL
@@ -98,18 +128,43 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
         (elapsedMs % SEEKER_WINDOW_MS) / SEEKER_WINDOW_MS;
 
       for (let col = 0; col < columns; col++) {
-        const distance = Math.abs(col - centerCol);
         for (let row = 0; row < rows; row++) {
-          /* --- Слой 1: пиксель-искатель --- */
+          /* Радиальная дистанция от ядра в выровненной метрике */
+          const distance = Math.hypot(
+            col - centerCol,
+            (row - centerRow) * rowAspect,
+          );
+
+          /* --- Слой 1: дышащее ядро --- */
+          let coreAlpha = 0;
+          if (distance < CORE_RADIUS_CELLS + 1.5) {
+            const falloff = Math.max(
+              0,
+              1 - distance / (CORE_RADIUS_CELLS + coreEnergy),
+            );
+            /* Лёгкое мерцание внутри ядра, чтобы оно жило */
+            const shimmer =
+              0.75 +
+              0.25 *
+                Math.sin(
+                  elapsedMs / 320 + cellHash(col, row) * Math.PI * 2,
+                );
+            coreAlpha = falloff ** 1.6 * coreEnergy * shimmer * 0.7;
+          }
+
+          /* --- Слой 2: искатели на периферии, тише вдали от ядра --- */
           let seekerAlpha = 0;
           let orbitX = 0;
           let orbitY = 0;
           const pick = cellHash(col * 29 + seekerSlice * 3, row * 23 + 5);
-          if (pick > 1 - SEEKER_SHARE) {
-            /* Мягкое появление и затухание в пределах окна */
+          if (pick > 1 - SEEKER_SHARE && distance > CORE_RADIUS_CELLS) {
             const envelope = Math.sin(Math.PI * seekerPhase);
+            /* Иерархия: чем дальше разведчик от ядра, тем он тише */
+            const hierarchy = Math.max(0.25, 1 - distance / halfSpan);
             seekerAlpha =
-              envelope * (0.1 + 0.2 * cellHash(col + 5, row + 9));
+              envelope *
+              hierarchy *
+              (0.08 + 0.18 * cellHash(col + 5, row + 9));
 
             /* Свет обходит квадрат по периметру внутри ячейки */
             const spin = cellHash(col * 7, row * 3) > 0.5 ? 1 : -1;
@@ -136,7 +191,7 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             }
           }
 
-          /* --- Слой 2: волна от центра --- */
+          /* --- Слой 3: волна, рождённая ядром --- */
           let waveAlpha = 0;
           if (waveProgress >= 0) {
             const jitter =
@@ -146,17 +201,17 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
               const behind = frontDistance - cellFront;
               const frontStrength = Math.max(0, 1 - behind / FRONT_CELLS);
               const threshold = cellHash(col, row);
-              const energy = 0.25 + frontStrength * 0.75;
+              const energy = 0.2 + frontStrength * 0.8;
               if (energy > threshold) {
                 const overshoot = Math.min(1, (energy - threshold) / 0.6);
                 const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
                 waveAlpha =
-                  (0.14 + (level / BRIGHTNESS_LEVELS) * 0.58) * waveFade;
+                  (0.12 + (level / BRIGHTNESS_LEVELS) * 0.55) * waveFade;
               }
             }
           }
 
-          const alpha = Math.min(0.8, seekerAlpha + waveAlpha);
+          const alpha = Math.min(0.8, coreAlpha + seekerAlpha + waveAlpha);
           if (alpha < 0.02) {
             continue;
           }
