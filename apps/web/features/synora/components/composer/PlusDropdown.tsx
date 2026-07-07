@@ -31,8 +31,16 @@ export function PlusDropdown({ planMode, onPlanModeChange, onAttach }: PlusDropd
       if (containerRef.current?.contains(event.target as Node)) return;
       setOpen(false);
     };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+    };
     document.addEventListener("mousedown", closeOnOutsideClick);
-    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeOnOutsideClick);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
   }, [open]);
 
   const handleAttach = () => {
