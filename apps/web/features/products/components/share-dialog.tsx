@@ -2,12 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Logo } from "@genora/ui";
-import {
-  AIRDROP_ICON,
-  IMESSAGE_ICON,
-  MAIL_ICON,
-  TELEGRAM_ICON,
-} from "./share-icons";
+import { IMESSAGE_ICON, MAIL_ICON, TELEGRAM_ICON } from "./share-icons";
 import styles from "./share-dialog.module.css";
 
 const COPIED_RESET_DELAY_MS = 1600;
@@ -25,6 +20,16 @@ function CopyGlyph() {
     >
       <rect x="9" y="9" width="11" height="12" rx="2.5" />
       <path d="M15 9V6.5A2.5 2.5 0 0 0 12.5 4H6.5A2.5 2.5 0 0 0 4 6.5v8A2.5 2.5 0 0 0 6.5 17H9" />
+    </svg>
+  );
+}
+
+function MoreGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="2.1" />
+      <circle cx="12" cy="12" r="2.1" />
+      <circle cx="19" cy="12" r="2.1" />
     </svg>
   );
 }
@@ -63,7 +68,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     }
   };
 
-  const handleAirDrop = async () => {
+  const handleNativeShare = async () => {
     if (!navigator.share) {
       await handleCopy();
       return;
@@ -78,11 +83,11 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
 
   const apps = [
     {
-      id: "airdrop",
-      label: "AirDrop",
-      icon: AIRDROP_ICON,
+      id: "more",
+      label: "Ещё",
+      icon: null,
       hasIconPadding: false,
-      onClick: handleAirDrop,
+      onClick: handleNativeShare,
     },
     {
       id: "telegram",
@@ -139,18 +144,24 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
             className={styles.appButton}
             onClick={app.onClick}
           >
-            <span className={styles.tile}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={app.icon}
-                alt=""
-                className={
-                  app.hasIconPadding
-                    ? `${styles.tileImg} ${styles.tileImgZoom}`
-                    : styles.tileImg
-                }
-              />
-            </span>
+            {app.icon ? (
+              <span className={styles.tile}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={app.icon}
+                  alt=""
+                  className={
+                    app.hasIconPadding
+                      ? `${styles.tileImg} ${styles.tileImgZoom}`
+                      : styles.tileImg
+                  }
+                />
+              </span>
+            ) : (
+              <span className={`${styles.tile} ${styles.tileMore}`}>
+                <MoreGlyph />
+              </span>
+            )}
             <span className={styles.appLabel}>{app.label}</span>
           </button>
         ))}
