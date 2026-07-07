@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
+import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { PRODUCT_CATEGORY_FILTERS } from "../catalog";
 import { useShowcaseStore } from "../stores/showcase-store";
 import type { ShowcaseSort } from "../types";
@@ -97,36 +98,47 @@ export function ShowcaseActions() {
 
   return (
     <div className={styles.actions} ref={rootRef}>
-      <button
-        type="button"
-        className={`${styles.iconButton} ${styles.shareButton}`}
-        onClick={() => {
-          setShareOpen((open) => !open);
-          setMenuOpen(false);
-        }}
-        aria-label="Поделиться"
-        title="Поделиться"
-        aria-haspopup="dialog"
-        aria-expanded={shareOpen}
-        data-active={shareOpen || undefined}
+      <SidebarTooltip
+        label="Поделиться"
+        isEnabled={!shareOpen}
+        placement="bottom"
       >
-        <ShareIcon />
-      </button>
-      <button
-        type="button"
-        className={`${styles.iconButton} ${styles.menuButton}`}
-        onClick={() => {
-          setMenuOpen((open) => !open);
-          setShareOpen(false);
-        }}
-        aria-label="Категории и сортировка"
-        aria-haspopup="menu"
-        aria-expanded={menuOpen}
-        aria-controls={menuId}
-        data-active={menuOpen || undefined}
+        <button
+          type="button"
+          className={`${styles.iconButton} ${styles.shareButton}`}
+          onClick={() => {
+            setShareOpen((open) => !open);
+            setMenuOpen(false);
+          }}
+          aria-label="Поделиться"
+          aria-haspopup="dialog"
+          aria-expanded={shareOpen}
+          data-active={shareOpen || undefined}
+        >
+          <ShareIcon />
+        </button>
+      </SidebarTooltip>
+      <SidebarTooltip
+        label="Категории и сортировка"
+        isEnabled={!menuOpen}
+        placement="bottom"
       >
-        <DotsIcon />
-      </button>
+        <button
+          type="button"
+          className={`${styles.iconButton} ${styles.menuButton}`}
+          onClick={() => {
+            setMenuOpen((open) => !open);
+            setShareOpen(false);
+          }}
+          aria-label="Категории и сортировка"
+          aria-haspopup="menu"
+          aria-expanded={menuOpen}
+          aria-controls={menuId}
+          data-active={menuOpen || undefined}
+        >
+          <DotsIcon />
+        </button>
+      </SidebarTooltip>
 
       {menuOpen && (
         <div className={styles.menu} id={menuId} role="menu">

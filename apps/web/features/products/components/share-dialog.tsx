@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { Logo } from "@genora/ui";
 import {
-  AIRDROP_ICON,
-  IMESSAGE_ICON,
-  MAIL_ICON,
-  TELEGRAM_ICON,
-} from "./share-icons";
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { Logo } from "@genora/ui";
+import { IMESSAGE_ICON, MAIL_ICON, TELEGRAM_ICON } from "./share-icons";
 import styles from "./share-dialog.module.css";
 
 const COPIED_RESET_DELAY_MS = 1600;
@@ -29,25 +30,61 @@ function CopyGlyph() {
   );
 }
 
+function MoreGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <circle cx="5" cy="12" r="2.1" />
+      <circle cx="12" cy="12" r="2.1" />
+      <circle cx="19" cy="12" r="2.1" />
+    </svg>
+  );
+}
+
 type ShareMenuProps = {
   onClose: () => void;
+  /** Заголовок шаринга; по умолчанию — название сервиса */
+  title?: string;
+  /** Ссылка для шаринга; по умолчанию — текущая страница */
+  url?: string;
+  /** Кастомная обложка в шапке (например, логотип товара) */
+  cover?: ReactNode;
 };
 
-export function ShareMenu({ onClose }: ShareMenuProps) {
+const PANEL_VIEWPORT_MARGIN_PX = 12;
+
+export function ShareMenu({ onClose, title, url, cover }: ShareMenuProps) {
   const [isCopied, setIsCopied] = useState(false);
-  const [pageUrl, setPageUrl] = useState("");
+  const [currentPageUrl, setCurrentPageUrl] = useState("");
   const [host, setHost] = useState("");
+  const [shiftX, setShiftX] = useState(0);
+  const panelRef = useRef<HTMLDivElement | null>(null);
   const resetTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    setPageUrl(window.location.href);
+    setCurrentPageUrl(window.location.href);
     setHost(window.location.hostname);
     return () => {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
     };
   }, []);
 
-  const shareTitle = "Genora Pro";
+  /* Не даём панели выходить за края вьюпорта: один раз после
+  монтирования измеряем её положение (сдвиг ещё равен нулю)
+  и при необходимости сдвигаем по горизонтали. */
+  useLayoutEffect(() => {
+    const panelEl = panelRef.current;
+    if (!panelEl) return;
+    const rect = panelEl.getBoundingClientRect();
+    if (rect.left < PANEL_VIEWPORT_MARGIN_PX) {
+      setShiftX(PANEL_VIEWPORT_MARGIN_PX - rect.left);
+    } else if (rect.right > window.innerWidth - PANEL_VIEWPORT_MARGIN_PX) {
+      setShiftX(window.innerWidth - PANEL_VIEWPORT_MARGIN_PX - rect.right);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const shareTitle = title ?? "Genora Pro";
+  const pageUrl = url ?? currentPageUrl;
 
   const handleCopy = async () => {
     try {
@@ -63,7 +100,7 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
     }
   };
 
-  const handleAirDrop = async () => {
+  const handleNativeShare = async () => {
     if (!navigator.share) {
       await handleCopy();
       return;
@@ -77,13 +114,6 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
   };
 
   const apps = [
-    {
-      id: "airdrop",
-      label: "AirDrop",
-      icon: AIRDROP_ICON,
-      hasIconPadding: false,
-      onClick: handleAirDrop,
-    },
     {
       id: "telegram",
       label: "Telegram",
@@ -115,14 +145,33 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
         window.location.href = `mailto:?subject=${encodeURIComponent(shareTitle)}&body=${encodeURIComponent(pageUrl)}`;
       },
     },
+    {
+      id: "more",
+      label: "Ещё",
+      icon: null,
+      hasIconPadding: false,
+      onClick: handleNativeShare,
+    },
   ];
 
   return (
-    <div className={styles.panel} role="dialog" aria-label="Поделиться">
+    <div
+      ref={panelRef}
+      className={styles.panel}
+      style={shiftX !== 0 ? { right: -shiftX } : undefined}
+      role="dialog"
+      aria-label="Поделиться"
+    >
       <div className={styles.header}>
-        <span className={styles.cover} aria-hidden="true">
-          <Logo className={styles.coverLogo} width="1.5rem" height="1.5rem" />
-        </span>
+        {cover ?? (
+          <span className={styles.cover} aria-hidden="true">
+            <Logo
+              className={styles.coverLogo}
+              width="1.5rem"
+              height="1.5rem"
+            />
+          </span>
+        )}
         <div className={styles.headerText}>
           <p className={styles.siteTitle}>{shareTitle}</p>
           <p className={styles.siteHost}>{host}</p>
@@ -139,18 +188,24 @@ export function ShareMenu({ onClose }: ShareMenuProps) {
             className={styles.appButton}
             onClick={app.onClick}
           >
-            <span className={styles.tile}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={app.icon}
-                alt=""
-                className={
-                  app.hasIconPadding
-                    ? `${styles.tileImg} ${styles.tileImgZoom}`
-                    : styles.tileImg
-                }
-              />
-            </span>
+            {app.icon ? (
+              <span className={styles.tile}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={app.icon}
+                  alt=""
+                  className={
+                    app.hasIconPadding
+                      ? `${styles.tileImg} ${styles.tileImgZoom}`
+                      : styles.tileImg
+                  }
+                />
+              </span>
+            ) : (
+              <span className={`${styles.tile} ${styles.tileMore}`}>
+                <MoreGlyph />
+              </span>
+            )}
             <span className={styles.appLabel}>{app.label}</span>
           </button>
         ))}
