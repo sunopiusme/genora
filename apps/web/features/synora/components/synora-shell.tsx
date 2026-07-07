@@ -34,7 +34,7 @@ import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
-import { SynoraComposer } from "./synora-composer";
+import { ComposerInput } from "./composer/ComposerInput";
 import { SYNORA_RECENT_GROUPS } from "../recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
 import synoraStyles from "./synora-shell.module.css";
@@ -377,7 +377,7 @@ export function SynoraShell({
             <div className={styles.composerInner}>
               {/* Suspense — из-за useSearchParams внутри композера */}
               <Suspense fallback={null}>
-                <SynoraComposer />
+                <ComposerInput />
               </Suspense>
             </div>
           </div>

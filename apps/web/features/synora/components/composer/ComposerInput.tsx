@@ -1,22 +1,22 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
+
+import { useComposerStore } from "@features/products";
 
 import styles from "./ComposerInput.module.css";
 import { AttachmentTile } from "./attachments/AttachmentTile";
 import { useAttachments } from "./attachments/useAttachments";
-import { ArrowUpIcon, ClipIcon, CloseIcon, ListChecksIcon, MicIcon, SpinnerIcon, StopIcon } from "./icons";
-import LcdMarquee, { VOICE_DECODE_TOTAL_MS } from "./LcdMarquee";
 import {
-  attachCountTransient,
-  deriveLcdState,
-  fileRejectedTransient,
-  modelTransient,
-  permissionTransient,
-  planModeTransient,
-  useTransient,
-  voiceUnavailableTransient,
-} from "./lcdPanel";
+  ArrowUpIcon,
+  ClipIcon,
+  CloseIcon,
+  ListChecksIcon,
+  MicIcon,
+  SpinnerIcon,
+  StopIcon,
+} from "./icons";
 import { ModelPicker } from "./models/ModelPicker";
 import { DEFAULT_SELECTION } from "./models/data";
 import type { ModelSelection } from "./models/types";
@@ -26,144 +26,119 @@ import { PlusDropdown } from "./PlusDropdown";
 import { PromptInput } from "./PromptInput";
 import { Tooltip } from "./Tooltip";
 import { useFileDrop } from "./useFileDrop";
-import { useTypingPulse } from "./useTypingPulse";
+import { BranchPicker } from "./branches/BranchPicker";
+import { DEFAULT_BRANCH } from "./branches/data";
+import { EnvironmentPicker } from "./environment/EnvironmentPicker";
+import type { EnvironmentMode } from "./environment/types";
+import { ProjectPicker } from "./projects/ProjectPicker";
+import { DEFAULT_PROJECT, findProjectByLabel } from "./projects/data";
+import type { ProjectSelection } from "./projects/types";
+import { Toast } from "./voice/Toast";
 import { VoiceRecorder } from "./voice/VoiceRecorder";
 import { useVoiceWaveform } from "./voice/useVoiceWaveform";
 
-const TRANSIENT_MS = 1700;
-const REJECTED_MS = 2200;
 const SUBMIT_MS = 720;
-const THINK_MS = 6000;
-const READY_MS = 1900;
-/* Распознавание нарочно неторопливое: в LCD волна перетягивается в
-   жидкую сферу, та живёт сердцебиением и в финале схлопывается в
-   точку. Длительность диктует таймлайн самой анимации — один
-   источник правды в LcdMarquee. */
-const VOICE_PROCESSING_MS = VOICE_DECODE_TOTAL_MS;
+const VOICE_PROCESSING_MS = 2400;
+const TOAST_MS = 4000;
 
 type VoiceStage = "idle" | "recording" | "processing";
 
-function useTimerChain() {
-  const idsRef = useRef<number[]>([]);
+/**
+ * Композер Синоры — единый модуль ввода запроса.
+ *
+ * Карточка с textarea (упоминания через @), вложениями
+ * (кнопка «+», drag-and-drop), голосовым вводом и выбором
+ * уровня доступа и модели. Под карточкой — drawer контекста:
+ * проект, окружение запуска и ветка.
+ *
+ * Проект предвыбирается из query-параметра ?project= при
+ * переходе из списка недавних песочниц в сайдбаре
+ * (см. synora-shell.tsx); фокус поля запрашивается через
+ * useComposerStore.focusSignal.
+ */
+export function ComposerInput() {
+  const searchParams = useSearchParams();
+  const focusSignal = useComposerStore((state) => state.focusSignal);
 
-  const cancelAll = useCallback(() => {
-    idsRef.current.forEach((id) => window.clearTimeout(id));
-    idsRef.current = [];
-  }, []);
-
-  const schedule = useCallback((delayMs: number, fn: () => void) => {
-    idsRef.current.push(window.setTimeout(fn, delayMs));
-  }, []);
-
-  useEffect(() => cancelAll, [cancelAll]);
-
-  return { schedule, cancelAll };
-}
-
-type ComposerInputV2Props = {
-  /** Превью-обложка: LCD показывает push-сцену вместо живой статус-панели. */
-  preview?: boolean;
-};
-
-export default function ComposerInputV2({ preview = false }: ComposerInputV2Props) {
   const [prompt, setPrompt] = useState("");
   const [planMode, setPlanMode] = useState(false);
   const [permission, setPermission] = useState<PermissionLevel>("standard");
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_SELECTION);
+  const [project, setProject] = useState<ProjectSelection>(DEFAULT_PROJECT);
+  const [environment, setEnvironment] = useState<EnvironmentMode>("local");
+  const [branch, setBranch] = useState(DEFAULT_BRANCH);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
   const [inputFocused, setInputFocused] = useState(false);
   const [sending, setSending] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const rootRef = useRef<HTMLDivElement | null>(null);
 
   const attachments = useAttachments();
   const fileDrop = useFileDrop(attachments.add);
-  const lcd = useTransient();
-  const sendFlow = useTimerChain();
-  const { pulseRef, registerKeystroke } = useTypingPulse();
 
-  // Один live-буфер амплитуд питает и waveform в toolbar'е,
-  // и радужную волну в LCD-экране.
+  /* Live-буфер амплитуд для waveform в строке записи. */
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
+  /* Переход из сайдбара («недавние песочницы») предвыбирает
+     проект: ссылки передают человекочитаемое название. */
+  const projectParam = searchParams.get("project");
+  useEffect(() => {
+    if (!projectParam) {
+      setProject(DEFAULT_PROJECT);
+      return;
+    }
+    const match = findProjectByLabel(projectParam);
+    setProject(match ? { kind: "project", id: match.id } : DEFAULT_PROJECT);
+  }, [projectParam]);
+
+  /* Запрос фокуса извне (кнопка «Новый запрос» в сайдбаре). */
+  useEffect(() => {
+    if (focusSignal === 0) return;
+    rootRef.current?.querySelector("textarea")?.focus();
+  }, [focusSignal]);
+
   const promptReady = prompt.trim().length > 0;
-  const typing = promptReady && voiceStage === "idle";
-  const canSend = promptReady || attachments.attachments.length > 0 || voiceStage !== "idle";
+  const canSend =
+    promptReady || attachments.attachments.length > 0 || voiceStage !== "idle";
   const canSubmit = canSend && !sending && voiceStage !== "processing";
 
-  const lcdState = deriveLcdState({
-    sending,
-    voiceStage,
-    typing,
-    transient: lcd.transient,
-  });
-
-  const handleSelectionChange = (next: ModelSelection) => {
-    setSelection(next);
-    lcd.show(modelTransient(next), TRANSIENT_MS);
-  };
-
-  const handlePermissionChange = (next: PermissionLevel) => {
-    setPermission(next);
-    lcd.show(permissionTransient(next), TRANSIENT_MS);
-  };
-
-  const handlePlanModeChange = (next: boolean) => {
-    setPlanMode(next);
-    lcd.show(planModeTransient(next), TRANSIENT_MS);
-  };
-
-  const showLcd = lcd.show;
-  const attachCount = attachments.attachments.length;
-
-  useEffect(() => {
-    if (attachCount === 0) return;
-    showLcd(attachCountTransient(attachCount), TRANSIENT_MS);
-  }, [attachCount, showLcd]);
-
-  useEffect(() => {
-    if (attachments.lastRejected.length === 0) return;
-    showLcd(fileRejectedTransient(), REJECTED_MS);
-  }, [attachments.lastRejected, showLcd]);
-
+  /* Голосовой ввод — демо без бэкенда: после остановки записи
+     показываем «обработку» и сообщаем, что распознавание
+     недоступно. */
   useEffect(() => {
     if (voiceStage !== "processing") return;
     const id = window.setTimeout(() => {
       setVoiceStage("idle");
-      showLcd(voiceUnavailableTransient(), REJECTED_MS);
+      setToast("Распознавание речи пока недоступно");
     }, VOICE_PROCESSING_MS);
     return () => window.clearTimeout(id);
-  }, [voiceStage, showLcd]);
+  }, [voiceStage]);
 
   const handleMicToggle = () => {
     if (voiceStage === "idle") setVoiceStage("recording");
     else if (voiceStage === "recording") setVoiceStage("processing");
   };
 
-  const handlePromptChange = (next: string) => {
-    registerKeystroke();
-    setPrompt(next);
-  };
-
-  const handleSubmit = () => {
-    if (!canSubmit) return;
+  const handleSubmit = useCallback(() => {
+    if (sending || voiceStage === "processing") return;
     if (voiceStage === "recording") {
       setVoiceStage("processing");
       return;
     }
+    if (!promptReady && attachments.attachments.length === 0) return;
 
+    /* Песочница пока без бэкенда: имитируем отправку
+       и очищаем композер. */
     setSending(true);
-    lcd.clear();
-    sendFlow.cancelAll();
-    sendFlow.schedule(SUBMIT_MS, () => {
+    window.setTimeout(() => {
       setPrompt("");
       attachments.clear();
       setSending(false);
-      lcd.show({ text: "ДУМАЕТ", mood: "ponder" });
-      sendFlow.schedule(THINK_MS, () => {
-        lcd.show({ text: "ГОТОВО К НОВОЙ ЗАДАЧЕ", mood: "ready" }, READY_MS);
-      });
-    });
-  };
+      rootRef.current?.querySelector("textarea")?.focus();
+    }, SUBMIT_MS);
+  }, [sending, voiceStage, promptReady, attachments]);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -175,7 +150,7 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
         : "Голосовой ввод";
 
   return (
-    <div className={styles.root} aria-label="Демонстрация composer input">
+    <div ref={rootRef} className={styles.root}>
       <input
         ref={fileInputRef}
         type="file"
@@ -184,23 +159,11 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
         className={styles.hiddenFile}
         onChange={(event) => {
           if (event.target.files) attachments.add(event.target.files);
-          // Сброс позволяет выбрать тот же файл повторно после удаления.
+          /* Сброс позволяет выбрать тот же файл повторно после удаления. */
           event.target.value = "";
         }}
       />
       <div className={styles.stack}>
-        <div className={styles.lcdRow} role="status">
-          <LcdMarquee
-            status={lcdState.status}
-            mood={lcdState.mood}
-            tone={lcdState.tone}
-            accessLevel={lcd.transient?.accessLevel}
-            colorMode={lcdState.colorMode}
-            typingPulse={pulseRef}
-            voice={voiceWaveform}
-            scene={preview ? "push" : "status"}
-          />
-        </div>
         <div
           className={styles.card}
           data-drag={fileDrop.dragOver}
@@ -244,7 +207,7 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
             <div className={styles.toolbarLeft}>
               <PlusDropdown
                 planMode={planMode}
-                onPlanModeChange={handlePlanModeChange}
+                onPlanModeChange={setPlanMode}
                 onAttach={openFilePicker}
               />
               {voiceStage !== "idle" ? (
@@ -255,7 +218,7 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
                     value={prompt}
                     disabled={sending}
                     canSubmit={canSubmit}
-                    onValueChange={handlePromptChange}
+                    onValueChange={setPrompt}
                     onFocusChange={setInputFocused}
                     onSubmit={handleSubmit}
                   />
@@ -269,7 +232,7 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
                         type="button"
                         className={styles.modeChipClose}
                         aria-label="Выключить планирование"
-                        onClick={() => handlePlanModeChange(false)}
+                        onClick={() => setPlanMode(false)}
                       >
                         <CloseIcon />
                       </button>
@@ -283,10 +246,10 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
               {voiceStage !== "idle" ? null : (
                 <>
                   <Tooltip label="Уровень доступа">
-                    <PermissionPicker level={permission} onChange={handlePermissionChange} />
+                    <PermissionPicker level={permission} onChange={setPermission} />
                   </Tooltip>
                   <Tooltip label="Выбрать модель">
-                    <ModelPicker selection={selection} onChange={handleSelectionChange} />
+                    <ModelPicker selection={selection} onChange={setSelection} />
                   </Tooltip>
                 </>
               )}
@@ -336,7 +299,22 @@ export default function ComposerInputV2({ preview = false }: ComposerInputV2Prop
             </div>
           </div>
         </div>
+
+        {/* Drawer контекста: проект, окружение запуска, ветка. */}
+        <div className={styles.context}>
+          <ProjectPicker selection={project} onChange={setProject} />
+          <EnvironmentPicker mode={environment} onChange={setEnvironment} />
+          <BranchPicker branch={branch} onChange={setBranch} />
+        </div>
       </div>
+
+      {toast ? (
+        <Toast
+          message={toast}
+          duration={TOAST_MS}
+          onDismiss={() => setToast(null)}
+        />
+      ) : null}
     </div>
   );
 }

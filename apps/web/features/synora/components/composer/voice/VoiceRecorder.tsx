@@ -15,15 +15,12 @@ import type { VoiceWaveform } from "./useVoiceWaveform";
      стримит, timer тикает;
    • "processing" — после нажатия Stop:
      waveform приглушается, timer заменяется
-     на «Обработка…» с animated dots. Через
-     ~1.2s родитель ComposerInput вернёт
-     idle-state и покажет демо-статус в LCD.
+     на «Обработка…» с animated dots. Затем
+     родитель ComposerInput вернёт idle-state.
 
    Сам микрофонный хук (useVoiceWaveform) живёт
-   в ComposerInput: тот же live-буфер питает и
-   эту waveform в toolbar'е, и радужную волну
-   в LCD-экране (LcdMarquee) — один источник
-   правды для голосовой энергии.
+   в ComposerInput — единый источник правды
+   для голосовой энергии.
    ───────────────────────────────────────── */
 
 type Stage = "recording" | "processing";
