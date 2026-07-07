@@ -23,6 +23,8 @@
 }
 
 .logo {
+  width: 4rem;
+  height: 4rem;
   color: var(--color-foreground-subtle);
   flex-shrink: 0;
 }
@@ -47,6 +49,29 @@
   line-height: var(--leading-sm);
   color: var(--color-foreground-muted);
   text-wrap: pretty;
+}
+
+/* Мобильные и планшеты (до 1024px): десктоп не трогаем.
+   Экран лаконичнее — без подсказки, знак и заголовок крупнее. */
+@media (max-width: 63.9375rem) {
+  .hero {
+    gap: var(--space-6);
+    padding: var(--space-6);
+  }
+
+  .logo {
+    width: 5.5rem;
+    height: 5.5rem;
+  }
+
+  .title {
+    font-size: var(--text-2xl);
+    line-height: var(--leading-2xl);
+  }
+
+  .hint {
+    display: none;
+  }
 }
 
 @keyframes hero-enter {

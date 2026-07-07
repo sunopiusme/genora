@@ -17,7 +17,8 @@ export function SynoraHome({ projectName }: { projectName?: string }) {
   return (
     <main className={styles.page}>
       <div className={styles.hero}>
-        <SynoraLogo className={styles.logo} width="4rem" height="4rem" />
+        {/* Размер знака задаётся в CSS: на мобильных и планшетах он крупнее. */}
+        <SynoraLogo className={styles.logo} width="100%" height="100%" />
 
         {projectName ? (
           <h1 className={styles.title}>
