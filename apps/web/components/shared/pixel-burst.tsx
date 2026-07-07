@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 
 type PixelBurstProps = {
-  /** Пока true, волна проигрывается по кругу; false очищает канвас */
+  /** Пока true, цикл проигрывается по кругу; false очищает канвас */
   active: boolean;
   /** Фирменный цвет, подмешивается к белому как в TierDither */
   accentColor?: string;
@@ -11,35 +11,98 @@ type PixelBurstProps = {
 };
 
 /* Тот же пиксельный словарь, что у эффекта в tier-dither:
-   квадратные точки на фиксированной сетке с hash-порогами */
+   квадратные точки на фиксированной сетке */
 const CELL_PITCH_X = 3;
 const CELL_PITCH_Y = 4;
 const DOT_SIZE = 2.25;
-const BRIGHTNESS_LEVELS = 4;
 const BRAND_MIX = 0.38;
 
-/* Хореография «пульс из ядра» — единая причинная цепочка:
-   1. Ядро в центре постоянно дышит (медленный вдох-выдох).
-   2. Перед выбросом ядро накапливает энергию и разгорается.
-   3. На пике волна рождается ИЗ ядра и радиально расходится к краям.
-   4. Искатели — разведчики на периферии: тем тише, чем дальше от ядра,
-      внутри каждого свет обходит квадрат по периметру. */
-const CORE_RADIUS_CELLS = 3.2;
-const BREATH_MS = 2600;
+/* Дискретная шкала яркости — фиксированные ступени,
+   без плавной интерполяции, как у сегментных индикаторов */
+const BRIGHTNESS_LEVELS = 5;
+const ALPHA_MIN = 0.12;
+const ALPHA_SPAN = 0.62;
 
-const CHARGE_MS = 700;
-const WAVE_MS = 1000;
-const REST_MS = 1500;
-const CYCLE_MS = CHARGE_MS + WAVE_MS + REST_MS;
+/* Матрица Байера 4x4 — упорядоченный дизеринг вместо случайного шума.
+   Порог каждой клетки фиксирован в пределах такта, поэтому узор
+   всегда собирается в одном и том же порядке, без «мушек» */
+const BAYER_4 = [
+  [0, 8, 2, 10],
+  [12, 4, 14, 6],
+  [3, 11, 1, 9],
+  [15, 7, 13, 5],
+];
 
-const SEEKER_WINDOW_MS = 1300;
-const SEEKER_SHARE = 0.12;
-const ORBIT_MS = 1600;
-const ORBIT_RADIUS = 0.75;
+/* Хореография — три слоя:
+   1) Ядро в центре ровно светится и дышит ступенями (дежурная лампа).
+   2) Шейдерная волна: гладкий гребень рождается в центре и плавно
+      расходится к границам. Дистанция измеряется суперэллипсом,
+      поэтому фронт повторяет контур пилюли и достигает всех краёв
+      одновременно — как ripple-шейдер, наложенный на пиксельную сетку.
+   3) Мерцание-перебегание — тонкая подложка: хэш назначает каждой
+      клетке личный слот, в который она гаснет или вспыхивает. */
+const STEP_MS = 90;
 
-const FRONT_CELLS = 6;
-const JITTER_CELLS = 3;
-const FADE_TAIL = 0.5;
+const CORE_RADIUS_RINGS = 3.2;
+const CORE_BASE = 0.42;
+const CORE_PULSE = 0.1;
+const CORE_PULSE_PERIOD_STEPS = 8;
+
+/* Волна: период — время пути гребня от центра до границы;
+   резкость поднимает косинус в степень, сужая гребень до чёткого
+   светового фронта; хвост тянется за гребнем внутрь */
+const WAVE_PERIOD_MS = 2200;
+const WAVE_BOOST = 0.55;
+const WAVE_SHARPNESS = 5;
+/* Показатель суперэллипса: 2 — эллипс, выше — ближе к прямоугольнику
+   со скруглениями, то есть к реальной форме пилюли */
+const SUPERELLIPSE_POWER = 3;
+
+const TWINKLE_PERIOD_STEPS = 9;
+const TWINKLE_OFF_DROP = 0.2;
+const TWINKLE_ON_BOOST = 0.16;
+
+/* Волна-эхо: отражённый от границ фронт бежит обратно к центру.
+   Там, где эхо встречается с прямой волной, вспыхивает интерференция */
+const ECHO_BOOST = 0.3;
+const ECHO_SHARPNESS = 6;
+
+/* Фосфорное послесвечение: клетка гаснет не мгновенно, а ступенями,
+   как люминофор ЭЛТ — за гребнем тянется угасающий след */
+const PHOSPHOR_DECAY = 0.86;
+const PHOSPHOR_FLOOR = 0.06;
+
+/* Bloom: самые яркие клетки получают мягкий ореол вокруг точки */
+const HALO_SPREAD = 5;
+const HALO_ALPHA = 0.11;
+
+/* HDR-перегруз: где энергия существенно превышает верхнюю ступень
+   (гребень волны, интерференция с эхом), точка «выгорает» — ядро
+   выбеливается до раскалённого, а вокруг аддитивно разгорается
+   круглый ореол-градиент, как у настоящей лампочки накаливания */
+const HDR_KNEE = 1.0;
+const HDR_RAMP = 0.7;
+const HDR_WHITE_MIX = 0.8;
+const HDR_GLOW_RADIUS = 8;
+const HDR_GLOW_ALPHA = 0.5;
+
+/* Порог включения: половина порядка Байера + половина хэша клетки */
+const BAYER_SHARE = 0.5;
+
+/* Плавный запуск: всё поле разгорается smoothstep-конвертом из
+   центра — ядро зажигается первым, края подтягиваются следом */
+const INTRO_MS = 1200;
+/* Эхо подключается только после того, как первая волна дошла до
+   границы (waveTime = 1), и нарастает постепенно */
+const ECHO_RAMP_WAVES = 0.6;
+
+const TWO_PI = Math.PI * 2;
+
+/* Классический smoothstep: плавные производные на обоих концах */
+function smoothstep(t: number): number {
+  const x = Math.min(1, Math.max(0, t));
+  return x * x * (3 - 2 * x);
+}
 
 export function PixelBurst({ active, accentColor, className }: PixelBurstProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -79,12 +142,17 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
     const centerCol = (columns - 1) / 2;
     const centerRow = (rows - 1) / 2;
     /* Вертикальный шаг сетки больше горизонтального — выравниваем
-       метрику, чтобы ядро и волна были геометрически круглыми */
+       метрику, чтобы кольца волн были геометрически круглыми */
     const rowAspect = CELL_PITCH_Y / CELL_PITCH_X;
-    const halfSpan =
-      Math.hypot(centerCol, centerRow * rowAspect) +
-      FRONT_CELLS +
-      JITTER_CELLS;
+
+    /* Полуоси поля в клетках — для нормировки суперэллипсной
+       дистанции: 0 в центре, ровно 1 на границе пилюли */
+    const halfCols = Math.max(1, centerCol);
+    const halfRows = Math.max(1, centerRow * rowAspect);
+
+    /* Буфер люминофора: запоминает яркость каждой клетки между
+       кадрами и гасит её ступенями — след тянется за волной */
+    const phosphor = new Float32Array(columns * rows);
 
     let frameId = 0;
     let startTimeMs = -1;
@@ -95,140 +163,175 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
       }
       context.clearRect(0, 0, width, height);
 
-      /* Фазы цикла: накопление -> выброс волны -> покой */
-      const cycleMs = elapsedMs % CYCLE_MS;
-      const chargeProgress =
-        cycleMs < CHARGE_MS ? cycleMs / CHARGE_MS : -1;
-      const waveProgress =
-        cycleMs >= CHARGE_MS && cycleMs < CHARGE_MS + WAVE_MS
-          ? (cycleMs - CHARGE_MS) / WAVE_MS
-          : -1;
+      const step = Math.floor(elapsedMs / STEP_MS);
+      /* Непрерывное время волны: гладкий ход гребня, как в шейдере */
+      const waveTime = elapsedMs / WAVE_PERIOD_MS;
 
-      /* Медленное дыхание ядра; при накоплении оно разгорается,
-         в момент выброса резко отдаёт энергию и затем восстанавливается */
-      const breath =
-        0.5 + 0.5 * Math.sin((elapsedMs / BREATH_MS) * Math.PI * 2);
-      let coreEnergy = 0.45 + 0.2 * breath;
-      if (chargeProgress >= 0) {
-        coreEnergy += chargeProgress ** 1.6 * 0.55;
-      } else if (waveProgress >= 0) {
-        coreEnergy += Math.max(0, 0.55 * (1 - waveProgress * 3));
-      }
+      /* Конверт запуска: 0 -> 1 за INTRO_MS, гасит всё поле в начале */
+      const intro = smoothstep(elapsedMs / INTRO_MS);
+      /* Эхо включается, лишь когда первая волна дошла до границы,
+         и набирает силу постепенно — причинность соблюдена */
+      const echoGain = smoothstep((waveTime - 1) / ECHO_RAMP_WAVES);
 
-      const eased =
-        waveProgress >= 0 ? 1 - (1 - waveProgress) ** 2.6 : 0;
-      const frontDistance = eased * halfSpan;
-      const waveFade =
-        waveProgress > 1 - FADE_TAIL
-          ? 1 - (waveProgress - (1 - FADE_TAIL)) / FADE_TAIL
-          : 1;
-
-      const seekerSlice = Math.floor(elapsedMs / SEEKER_WINDOW_MS);
-      const seekerPhase =
-        (elapsedMs % SEEKER_WINDOW_MS) / SEEKER_WINDOW_MS;
+      /* Ядро дышит ступенями: два уровня, как контрольная лампа */
+      const corePulse =
+        Math.floor(step / CORE_PULSE_PERIOD_STEPS) % 2 === 0 ? 0 : CORE_PULSE;
+      const coreEnergy = (CORE_BASE + corePulse) * intro;
 
       for (let col = 0; col < columns; col++) {
         for (let row = 0; row < rows; row++) {
-          /* Радиальная дистанция от ядра в выровненной метрике */
-          const distance = Math.hypot(
+          let energy = 0;
+
+          /* --- Слой 1: дежурное ядро с плавным спадом --- */
+          const coreDistance = Math.hypot(
             col - centerCol,
             (row - centerRow) * rowAspect,
           );
-
-          /* --- Слой 1: дышащее ядро --- */
-          let coreAlpha = 0;
-          if (distance < CORE_RADIUS_CELLS + 1.5) {
+          if (coreDistance < CORE_RADIUS_RINGS + 1.5) {
             const falloff = Math.max(
               0,
-              1 - distance / (CORE_RADIUS_CELLS + coreEnergy),
+              1 - coreDistance / (CORE_RADIUS_RINGS + 1),
             );
-            /* Лёгкое мерцание внутри ядра, чтобы оно жило */
-            const shimmer =
-              0.75 +
-              0.25 *
-                Math.sin(
-                  elapsedMs / 320 + cellHash(col, row) * Math.PI * 2,
-                );
-            coreAlpha = falloff ** 1.6 * coreEnergy * shimmer * 0.7;
+            energy += falloff ** 1.4 * coreEnergy;
           }
 
-          /* --- Слой 2: искатели на периферии, тише вдали от ядра --- */
-          let seekerAlpha = 0;
-          let orbitX = 0;
-          let orbitY = 0;
-          const pick = cellHash(col * 29 + seekerSlice * 3, row * 23 + 5);
-          if (pick > 1 - SEEKER_SHARE && distance > CORE_RADIUS_CELLS) {
-            const envelope = Math.sin(Math.PI * seekerPhase);
-            /* Иерархия: чем дальше разведчик от ядра, тем он тише */
-            const hierarchy = Math.max(0.25, 1 - distance / halfSpan);
-            seekerAlpha =
-              envelope *
-              hierarchy *
-              (0.08 + 0.18 * cellHash(col + 5, row + 9));
-
-            /* Свет обходит квадрат по периметру внутри ячейки */
-            const spin = cellHash(col * 7, row * 3) > 0.5 ? 1 : -1;
-            const orbit =
-              (((elapsedMs / ORBIT_MS) * spin + cellHash(col, row * 11)) %
-                1 +
-                1) %
-              1;
-            const segment = Math.floor(orbit * 4);
-            const along = orbit * 4 - segment;
-            const r = ORBIT_RADIUS * envelope;
-            if (segment === 0) {
-              orbitX = -r + along * 2 * r;
-              orbitY = -r;
-            } else if (segment === 1) {
-              orbitX = r;
-              orbitY = -r + along * 2 * r;
-            } else if (segment === 2) {
-              orbitX = r - along * 2 * r;
-              orbitY = r;
-            } else {
-              orbitX = -r;
-              orbitY = r - along * 2 * r;
-            }
+          /* --- Слой 2: шейдерная волна из центра. Дистанция —
+             суперэллипс, повторяющий контур пилюли: фронт рождается
+             в центре и одновременно достигает всех границ кнопки.
+             Профиль гребня — приподнятый косинус в степени:
+             узкий яркий фронт с плавным хвостом позади --- */
+          const nx = Math.abs(col - centerCol) / halfCols;
+          const ny = Math.abs((row - centerRow) * rowAspect) / halfRows;
+          const shapeDistance =
+            (nx ** SUPERELLIPSE_POWER + ny ** SUPERELLIPSE_POWER) **
+            (1 / SUPERELLIPSE_POWER);
+          /* Причинность: волна существует только там, куда уже дошла.
+             ��о клетки на дистанции d первый гребень добирается в момент
+             waveTime = d — раньше этого волны в клетке просто нет */
+          const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
+          if (waveTime >= shapeDistance) {
+            const wavePhase = shapeDistance - waveTime;
+            const cyclePhase = wavePhase - Math.floor(wavePhase);
+            const crest = ((Math.cos(TWO_PI * cyclePhase) + 1) / 2) **
+              WAVE_SHARPNESS;
+            energy += WAVE_BOOST * crest * attenuation;
           }
 
-          /* --- Слой 3: волна, рождённая ядром --- */
-          let waveAlpha = 0;
-          if (waveProgress >= 0) {
-            const jitter =
-              cellHash(col * 13 + 7, row * 17 + 11) * JITTER_CELLS;
-            const cellFront = distance + jitter;
-            if (cellFront <= frontDistance) {
-              const behind = frontDistance - cellFront;
-              const frontStrength = Math.max(0, 1 - behind / FRONT_CELLS);
-              const threshold = cellHash(col, row);
-              const energy = 0.2 + frontStrength * 0.8;
-              if (energy > threshold) {
-                const overshoot = Math.min(1, (energy - threshold) / 0.6);
-                const level = Math.ceil(overshoot * BRIGHTNESS_LEVELS);
-                waveAlpha =
-                  (0.12 + (level / BRIGHTNESS_LEVELS) * 0.55) * waveFade;
-              }
-            }
+          /* Эхо: фронт, отражённый от границ, бежит обратно к центру.
+             Появляется лишь после первого касания границы (echoGain)
+             и встречаясь с прямой волной даёт интерференционную вспышку */
+          if (echoGain > 0) {
+            const echoPhase = shapeDistance + waveTime;
+            const echoCycle = echoPhase - Math.floor(echoPhase);
+            const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
+              ECHO_SHARPNESS;
+            energy += ECHO_BOOST * echoGain * echoCrest * attenuation;
           }
 
-          const alpha = Math.min(0.8, coreAlpha + seekerAlpha + waveAlpha);
-          if (alpha < 0.02) {
+          /* --- Слой 3: мерцание-перебегание. Личный слот клетки:
+             в слот «выкл» проседает, в противофазе — вспыхивает.
+             За такт мигает ~1/9 поля, рассеянная по хэшу --- */
+          const hash = cellHash(col, row);
+          const slot =
+            (step + (hash % TWINKLE_PERIOD_STEPS)) % TWINKLE_PERIOD_STEPS;
+          if (slot === 0) {
+            energy -= TWINKLE_OFF_DROP * intro;
+          } else if (slot === Math.floor(TWINKLE_PERIOD_STEPS / 2)) {
+            energy += TWINKLE_ON_BOOST * intro;
+          }
+
+          /* Порог — смесь порядка Байера и хэша клетки: россыпь
+             выглядит органично, но каждый порог фиксирован навсегда */
+          const bayer = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
+          const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
+          const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
+
+          /* Мгновенная яркость клетки в этом кадре.
+             Неограниченный перелёт сверх шкалы — мера HDR-перегруза */
+          let intensity = 0;
+          let overdrive = 0;
+          if (energy > threshold) {
+            const excess = (energy - threshold) / 0.5;
+            const overshoot = Math.min(1, excess);
+            intensity =
+              Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS)) /
+              BRIGHTNESS_LEVELS;
+            overdrive = smoothstep((excess - HDR_KNEE) / HDR_RAMP);
+          }
+
+          /* Фосфор: свежая яркость зажигает люминофор, старая гаснет
+             экспоненциально — за фронтом остаётся угасающий след */
+          const cellIndex = col * rows + row;
+          const remembered = phosphor[cellIndex] * PHOSPHOR_DECAY;
+          const lit = Math.max(intensity, remembered);
+          phosphor[cellIndex] = lit;
+          if (lit < PHOSPHOR_FLOOR) {
+            continue;
+          }
+
+          /* Квантуем итог в ступени — послесвечение тоже дискретное */
+          const level = Math.max(1, Math.round(lit * BRIGHTNESS_LEVELS));
+          const alpha = ALPHA_MIN + (level / BRIGHTNESS_LEVELS) * ALPHA_SPAN;
+
+          const dotX =
+            offsetX + col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2;
+          const dotY =
+            offsetY + row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2;
+
+          /* Bloom: максимально яркие клетки светятся ореолом */
+          if (level >= BRIGHTNESS_LEVELS) {
+            context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${HALO_ALPHA})`;
+            context.fillRect(
+              dotX - (HALO_SPREAD - DOT_SIZE) / 2,
+              dotY - (HALO_SPREAD - DOT_SIZE) / 2,
+              HALO_SPREAD,
+              HALO_SPREAD,
+            );
+          }
+
+          /* HDR: перегруз рисуется аддитивно («lighter») — ореолы
+             соседних раскалённых точек складываются в общее сияние,
+             а ядро выбеливается, как перекалённая нить накаливания */
+          if (overdrive > 0) {
+            const cx = dotX + DOT_SIZE / 2;
+            const cy = dotY + DOT_SIZE / 2;
+            const glowRadius = HDR_GLOW_RADIUS * (0.55 + 0.45 * overdrive);
+            context.globalCompositeOperation = "lighter";
+            const glow = context.createRadialGradient(
+              cx,
+              cy,
+              0,
+              cx,
+              cy,
+              glowRadius,
+            );
+            const glowAlpha = HDR_GLOW_ALPHA * overdrive;
+            glow.addColorStop(
+              0,
+              `rgb(${tint.r} ${tint.g} ${tint.b} / ${glowAlpha.toFixed(3)})`,
+            );
+            glow.addColorStop(1, `rgb(${tint.r} ${tint.g} ${tint.b} / 0)`);
+            context.fillStyle = glow;
+            context.fillRect(
+              cx - glowRadius,
+              cy - glowRadius,
+              glowRadius * 2,
+              glowRadius * 2,
+            );
+            context.globalCompositeOperation = "source-over";
+
+            const whiteShare = HDR_WHITE_MIX * overdrive;
+            const hotR = Math.round(tint.r + (255 - tint.r) * whiteShare);
+            const hotG = Math.round(tint.g + (255 - tint.g) * whiteShare);
+            const hotB = Math.round(tint.b + (255 - tint.b) * whiteShare);
+            const hotAlpha = Math.min(1, alpha + 0.3 * overdrive);
+            context.fillStyle = `rgb(${hotR} ${hotG} ${hotB} / ${hotAlpha.toFixed(3)})`;
+            context.fillRect(dotX, dotY, DOT_SIZE, DOT_SIZE);
             continue;
           }
 
           context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
-          context.fillRect(
-            offsetX +
-              col * CELL_PITCH_X +
-              (CELL_PITCH_X - DOT_SIZE) / 2 +
-              orbitX,
-            offsetY +
-              row * CELL_PITCH_Y +
-              (CELL_PITCH_Y - DOT_SIZE) / 2 +
-              orbitY,
-            DOT_SIZE,
-            DOT_SIZE,
-          );
+          context.fillRect(dotX, dotY, DOT_SIZE, DOT_SIZE);
         }
       }
     }
@@ -252,9 +355,12 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
   return <canvas ref={canvasRef} className={className} aria-hidden="true" />;
 }
 
+/* Целочисленный хэш клетки: стабилен между кадрами, поэтому мерцание
+   детерминировано — никаких «мушек», у каждой клетки свой характер */
 function cellHash(col: number, row: number): number {
-  const value = Math.sin(col * 127.1 + row * 311.7) * 43758.5453;
-  return value - Math.floor(value);
+  let h = (col * 374761393 + row * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return (h ^ (h >>> 16)) >>> 0;
 }
 
 type Rgb = { r: number; g: number; b: number };
