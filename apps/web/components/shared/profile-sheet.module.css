@@ -184,8 +184,19 @@
   border-top: 1px solid var(--color-border);
 }
 
+button.row {
+  width: 100%;
+  border: none;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
 a.row:hover,
-a.row:focus-visible {
+a.row:focus-visible,
+button.row:hover,
+button.row:focus-visible {
   outline: none;
   background-color: rgb(255 255 255 / 0.06);
 }

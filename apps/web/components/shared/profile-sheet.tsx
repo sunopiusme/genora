@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import Link from "next/link";
 import { Avatar } from "@genora/ui";
 import { Icon } from "@/lib/icon";
+import { useAuthStore } from "@/stores/auth-store";
 import { PROFILE, formatBalance } from "@features/profile";
 import styles from "./profile-sheet.module.css";
 
@@ -16,8 +17,9 @@ type SheetRow = {
   value?: string;
   detail?: string;
   href?: string;
-  accent?: boolean;
-  chevron?: boolean;
+  isAccent?: boolean;
+  hasChevron?: boolean;
+  isLogout?: boolean;
 };
 
 type SheetSection = {
@@ -33,19 +35,19 @@ const SHEET_SECTIONS: SheetSection[] = [
         label: "Персонализация",
         icon: "solar:magic-stick-3-linear",
         href: "/",
-        chevron: true,
+        hasChevron: true,
       },
       {
         label: "Профиль",
         icon: "solar:user-circle-linear",
         href: "/",
-        chevron: true,
+        hasChevron: true,
       },
       {
         label: "Настройки",
         icon: "solar:settings-linear",
         href: "/",
-        chevron: true,
+        hasChevron: true,
       },
     ],
   },
@@ -71,7 +73,7 @@ const SHEET_SECTIONS: SheetSection[] = [
         label: "Улучшить план",
         icon: "solar:star-fall-minimalistic-2-linear",
         href: "/",
-        accent: true,
+        isAccent: true,
       },
     ],
   },
@@ -82,12 +84,12 @@ const SHEET_SECTIONS: SheetSection[] = [
         label: "Помощь",
         icon: "solar:question-circle-linear",
         href: "/",
-        chevron: true,
+        hasChevron: true,
       },
       {
         label: "Выйти",
         icon: "solar:logout-2-linear",
-        href: "/",
+        isLogout: true,
       },
     ],
   },
@@ -208,19 +210,26 @@ function SheetRowItem({
   row: SheetRow;
   onNavigate: () => void;
 }) {
+  const logout = useAuthStore((state) => state.logout);
+
+  function handleLogout() {
+    logout();
+    onNavigate();
+  }
+
   const content = (
     <>
       <span className={styles.rowMain}>
         <Icon
           icon={row.icon}
-          className={row.accent ? styles.rowGlyphAccent : styles.rowGlyph}
+          className={row.isAccent ? styles.rowGlyphAccent : styles.rowGlyph}
           aria-hidden="true"
         />
-        <span className={row.accent ? styles.rowLabelAccent : styles.rowLabel}>
+        <span className={row.isAccent ? styles.rowLabelAccent : styles.rowLabel}>
           {row.label}
         </span>
         {row.value && <span className={styles.rowValue}>{row.value}</span>}
-        {row.chevron && (
+        {row.hasChevron && (
           <Icon
             icon="solar:alt-arrow-right-linear"
             className={styles.rowChevron}
@@ -231,6 +240,14 @@ function SheetRowItem({
       {row.detail && <span className={styles.rowDetail}>{row.detail}</span>}
     </>
   );
+
+  if (row.isLogout) {
+    return (
+      <button type="button" className={styles.row} onClick={handleLogout}>
+        {content}
+      </button>
+    );
+  }
 
   if (row.href) {
     return (
