@@ -269,6 +269,38 @@
   background-color: var(--color-surface);
 }
 
+/* Стрелка «вверх и в сторону» у пунктов-переходов на другие площадки
+   (например, «Синора»): появляется только при ховере, обозначая переход */
+.navExternalArrow {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--color-foreground-muted);
+  opacity: 0;
+  transform: translate(-0.125rem, 0.125rem);
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.navLink:hover .navExternalArrow,
+.navLink:focus-visible .navExternalArrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* В свёрнутой рельсе подписи скрыты — стрелке там негде жить */
+.shell:not(.shellOpen) .navExternalArrow {
+  display: none;
+}
+
+@media (max-width: 47.9375rem) {
+  .shell:not(.shellOpen) .navExternalArrow {
+    display: block;
+  }
+}
+
 /* Reset native button chrome when a nav item is rendered as <button>
    ("Новый запрос" is a command, not a destination) */
 .navButton {
