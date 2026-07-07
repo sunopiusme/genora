@@ -85,4 +85,37 @@
   .page[data-detail-open] .scroll {
     filter: none;
   }
+
+  /* — Мобайл: нативный вид, как в iOS-приложении —
+     Убираем всю «десктопную» геометрию скроллбара: и симметричный
+     резерв gutter (8px × 2), и боковые поля контейнера (--space-2 × 2).
+     Вместе они съедали по 24px с каждой стороны, из-за чего сетка
+     товаров была на 16px уже композера и кнопок шапки. Скроллбар
+     на тач-устройствах скрываем целиком — прокрутка жестом, полоса
+     не выступает у края, как и в нативных приложениях. */
+  .scroll {
+    margin-inline: 0;
+    scrollbar-gutter: auto;
+    scrollbar-width: none;
+  }
+
+  .scroll::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  /* Боковые отступы контента = композеру и шапке-FAB:
+     --space-4 (16px) + safe-area — единая линия краёв сверху донизу.
+     Верхний отступ привязан к фактической высоте ряда шапки
+     (--space-3 + FAB 2.75rem, см. page-header.module.css) с учётом
+     safe-area-inset-top (чёлка/Dynamic Island) + зазор --space-4 —
+     тот же ритм, что у iOS между navigation bar и контентом. */
+  .scrollInner {
+    max-width: none;
+    padding-inline: calc(var(--space-4) + env(safe-area-inset-left, 0px))
+      calc(var(--space-4) + env(safe-area-inset-right, 0px));
+    padding-top: calc(
+      var(--space-3) + env(safe-area-inset-top, 0px) + 2.75rem + var(--space-4)
+    );
+  }
 }
