@@ -62,6 +62,20 @@ const TWINKLE_PERIOD_STEPS = 9;
 const TWINKLE_OFF_DROP = 0.2;
 const TWINKLE_ON_BOOST = 0.16;
 
+/* Волна-эхо: отражённый от границ фронт бежит обратно к центру.
+   Там, где эхо встречается с прямой волной, вспыхивает интерференция */
+const ECHO_BOOST = 0.3;
+const ECHO_SHARPNESS = 6;
+
+/* Фосфорное послесвечение: клетка гаснет не мгновенно, а ступенями,
+   как люминофор ЭЛТ — за гребнем тянется угасающий след */
+const PHOSPHOR_DECAY = 0.86;
+const PHOSPHOR_FLOOR = 0.06;
+
+/* Bloom: самые яркие клетки получают мягкий ореол вокруг точки */
+const HALO_SPREAD = 5;
+const HALO_ALPHA = 0.11;
+
 /* Порог включения: половина порядка Байера + половина хэша клетки */
 const BAYER_SHARE = 0.5;
 
@@ -112,6 +126,10 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
        дистанции: 0 в центре, ровно 1 на границе пилюли */
     const halfCols = Math.max(1, centerCol);
     const halfRows = Math.max(1, centerRow * rowAspect);
+
+    /* Буфер люминофора: запоминает яркость каждой клетки между
+       кадрами и гасит её ступенями — след тянется за волной */
+    const phosphor = new Float32Array(columns * rows);
 
     let frameId = 0;
     let startTimeMs = -1;
@@ -166,6 +184,14 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
           const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
           energy += WAVE_BOOST * crest * attenuation;
 
+          /* Эхо: фронт, отражённый от границ, бежит обратно к центру.
+             Встречаясь с прямой волной, даёт интерференционную вспышку */
+          const echoPhase = shapeDistance + waveTime;
+          const echoCycle = echoPhase - Math.floor(echoPhase);
+          const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
+            ECHO_SHARPNESS;
+          energy += ECHO_BOOST * echoCrest * attenuation;
+
           /* --- Слой 3: мерцание-перебегание. Личный слот клетки:
              в слот «выкл» проседает, в противофазе — вспыхивает.
              За такт мигает ~1/9 поля, рассеянная по хэшу --- */
@@ -178,31 +204,53 @@ export function PixelBurst({ active, accentColor, className }: PixelBurstProps) 
             energy += TWINKLE_ON_BOOST;
           }
 
-          if (energy <= 0) {
-            continue;
-          }
-
           /* Порог — смесь порядка Байера и хэша клетки: россыпь
              выглядит органично, но каждый порог фиксирован навсегда */
           const bayer = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
           const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
           const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
-          if (energy <= threshold) {
+
+          /* Мгновенная яркость клетки в этом кадре */
+          let intensity = 0;
+          if (energy > threshold) {
+            const overshoot = Math.min(1, (energy - threshold) / 0.5);
+            intensity =
+              Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS)) /
+              BRIGHTNESS_LEVELS;
+          }
+
+          /* Фосфор: свежая яркость зажигает люминофор, старая гаснет
+             экспоненциально — за фронтом остаётся угасающий след */
+          const cellIndex = col * rows + row;
+          const remembered = phosphor[cellIndex] * PHOSPHOR_DECAY;
+          const lit = Math.max(intensity, remembered);
+          phosphor[cellIndex] = lit;
+          if (lit < PHOSPHOR_FLOOR) {
             continue;
           }
 
-          /* Ступенчатая яркость по порядку включения */
-          const overshoot = Math.min(1, (energy - threshold) / 0.5);
-          const level = Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS));
+          /* Квантуем итог в ступени — послесвечение тоже дискретное */
+          const level = Math.max(1, Math.round(lit * BRIGHTNESS_LEVELS));
           const alpha = ALPHA_MIN + (level / BRIGHTNESS_LEVELS) * ALPHA_SPAN;
 
+          const dotX =
+            offsetX + col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2;
+          const dotY =
+            offsetY + row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2;
+
+          /* Bloom: максимально яркие клетки светятся ореолом */
+          if (level >= BRIGHTNESS_LEVELS) {
+            context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${HALO_ALPHA})`;
+            context.fillRect(
+              dotX - (HALO_SPREAD - DOT_SIZE) / 2,
+              dotY - (HALO_SPREAD - DOT_SIZE) / 2,
+              HALO_SPREAD,
+              HALO_SPREAD,
+            );
+          }
+
           context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
-          context.fillRect(
-            offsetX + col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2,
-            offsetY + row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2,
-            DOT_SIZE,
-            DOT_SIZE,
-          );
+          context.fillRect(dotX, dotY, DOT_SIZE, DOT_SIZE);
         }
       }
     }

@@ -54,6 +54,20 @@ const TWINKLE_PERIOD_STEPS = 9;
 const TWINKLE_OFF_DROP = 0.22;
 const TWINKLE_ON_BOOST = 0.18;
 
+/* Волна-эхо: отражённый от границ фронт бежит обратно к центру,
+   интерферируя с прямой волной */
+const ECHO_BOOST = 0.26;
+const ECHO_SHARPNESS = 6;
+
+/* Фосфорное послесвечение: клетка гаснет ступенями, как люминофор
+   ЭЛТ — за гребнем тянется угасающий след */
+const PHOSPHOR_DECAY = 0.86;
+const PHOSPHOR_FLOOR = 0.06;
+
+/* Bloom: самые яркие клетки получают мягкий ореол вокруг точки */
+const HALO_SPREAD = 5;
+const HALO_ALPHA = 0.1;
+
 /* Порог включения: половина порядка Байера + половина хэша клетки —
    узор органичный, как россыпь, но пространственно ровный */
 const BAYER_SHARE = 0.5;
@@ -79,6 +93,10 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
     let frameId = 0;
     let cssWidth = 0;
     let cssHeight = 0;
+
+    /* Буфер люминофора: яркость клеток между кадрами.
+       Пересоздаётся лениво при изменении размеров сетки */
+    let phosphor = new Float32Array(0);
 
     function syncCanvasSize() {
       if (!canvas) {
@@ -109,6 +127,10 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
       const offsetX = (cssWidth - columns * CELL_PITCH_X) / 2;
       const offsetY = (cssHeight - rows * CELL_PITCH_Y) / 2;
       const quietCols = Math.floor(columns * QUIET_LEFT_RATIO);
+
+      if (phosphor.length !== columns * rows) {
+        phosphor = new Float32Array(columns * rows);
+      }
 
       /* --- Фаза 1: проявление. Каретка идёт справа налево,
          открывая по колонке за шаг — как самописец --- */
@@ -168,6 +190,14 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
               WAVE_SHARPNESS;
             const attenuation = 1 - 0.35 * Math.min(1, shapeDistance);
             waveBoost = WAVE_BOOST * crest * attenuation;
+
+            /* Эхо: отражённый фронт бежит обратно к центру,
+               интерферируя с прямой волной */
+            const echoPhase = shapeDistance + waveTime;
+            const echoCycle = echoPhase - Math.floor(echoPhase);
+            const echoCrest = ((Math.cos(TWO_PI * echoCycle) + 1) / 2) **
+              ECHO_SHARPNESS;
+            waveBoost += ECHO_BOOST * echoCrest * attenuation;
           }
 
           /* Мерцание-перебегание: личный слот клетки внутри цикла.
@@ -193,23 +223,48 @@ export function TierDither({ isActive, brandColor }: TierDitherProps) {
           const bayer = (BAYER_4[row % 4][col % 4] + 0.5) / 16;
           const jitter = ((hash >>> 8) & 0xffff) / 0x10000;
           const threshold = bayer * BAYER_SHARE + jitter * (1 - BAYER_SHARE);
-          if (energy <= threshold) {
+
+          /* Мгновенная яркость клетки в этом кадре */
+          let intensity = 0;
+          if (energy > threshold) {
+            const overshoot = Math.min(1, (energy - threshold) / 0.5);
+            intensity =
+              Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS)) /
+              BRIGHTNESS_LEVELS;
+          }
+
+          /* Фосфор: свежая яркость зажигает люминофор, старая гаснет
+             экспоненциально — за фронтом остаётся угасающий след */
+          const cellIndex = col * rows + row;
+          const remembered = phosphor[cellIndex] * PHOSPHOR_DECAY;
+          const lit = staticMode ? intensity : Math.max(intensity, remembered);
+          phosphor[cellIndex] = lit;
+          if (lit < PHOSPHOR_FLOOR) {
             continue;
           }
 
-          /* Яркость ступенчатая: чем раньше клетка включилась
-             по порядку Байера, тем выше её уровень */
-          const overshoot = Math.min(1, (energy - threshold) / 0.5);
-          const level = Math.max(1, Math.ceil(overshoot * BRIGHTNESS_LEVELS));
+          /* Квантуем итог в ступени — послесвечение тоже дискретное */
+          const level = Math.max(1, Math.round(lit * BRIGHTNESS_LEVELS));
           const alpha = ALPHA_MIN + (level / BRIGHTNESS_LEVELS) * ALPHA_SPAN;
 
+          const dotX =
+            offsetX + col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2;
+          const dotY =
+            offsetY + row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2;
+
+          /* Bloom: максимально яркие клетки светятся ореолом */
+          if (level >= BRIGHTNESS_LEVELS) {
+            context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${HALO_ALPHA})`;
+            context.fillRect(
+              dotX - (HALO_SPREAD - DOT_SIZE) / 2,
+              dotY - (HALO_SPREAD - DOT_SIZE) / 2,
+              HALO_SPREAD,
+              HALO_SPREAD,
+            );
+          }
+
           context.fillStyle = `rgb(${tint.r} ${tint.g} ${tint.b} / ${alpha.toFixed(3)})`;
-          context.fillRect(
-            offsetX + col * CELL_PITCH_X + (CELL_PITCH_X - DOT_SIZE) / 2,
-            offsetY + row * CELL_PITCH_Y + (CELL_PITCH_Y - DOT_SIZE) / 2,
-            DOT_SIZE,
-            DOT_SIZE,
-          );
+          context.fillRect(dotX, dotY, DOT_SIZE, DOT_SIZE);
         }
       }
     }
