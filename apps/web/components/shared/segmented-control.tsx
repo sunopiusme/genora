@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { PixelBurst } from "./pixel-burst";
 import styles from "./segmented-control.module.css";
 
 export type SegmentedControlOption = {
@@ -15,6 +16,8 @@ type SegmentedControlProps = {
   /** id элемента с подписью для aria-labelledby */
   labelledBy?: string;
   ariaLabel?: string;
+  /** Фирменный цвет для пиксельного всплеска на максимальном значении */
+  accentColor?: string;
 };
 
 /**
@@ -31,15 +34,16 @@ export function SegmentedControl({
   onChange,
   labelledBy,
   ariaLabel,
+  accentColor,
 }: SegmentedControlProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [metrics, setMetrics] = useState<{ left: number; width: number } | null>(
     null,
   );
 
-  // При выборе максимального значения ползунок не скользит,
-  // а раскрывается от центра сегмента к четырём углам.
-  // Смена ключа пересоздаёт элемент и перезапускает анимацию.
+  // При выборе максимального значения внутри пилюли проигрывается
+  // пиксельный всплеск: точки расходятся от центра к краям —
+  // тот же пиксельный словарь, что у ползунка в tier-dither.
   const maxIndex = options.length - 1;
   const prevIndexRef = useRef(selectedIndex);
   const [burstKey, setBurstKey] = useState(0);
@@ -51,8 +55,6 @@ export function SegmentedControl({
       setBurstKey((key) => key + 1);
     }
   }, [selectedIndex, maxIndex]);
-
-  const isBursting = burstKey > 0 && selectedIndex === maxIndex;
 
   useEffect(() => {
     const track = trackRef.current;
@@ -88,8 +90,7 @@ export function SegmentedControl({
       aria-label={ariaLabel}
     >
       <span
-        key={burstKey}
-        className={isBursting ? styles.thumbBurst : styles.thumb}
+        className={styles.thumb}
         aria-hidden="true"
         style={
           metrics
@@ -100,7 +101,13 @@ export function SegmentedControl({
               }
             : { opacity: 0 }
         }
-      />
+      >
+        <PixelBurst
+          playKey={burstKey}
+          accentColor={accentColor}
+          className={styles.burstCanvas}
+        />
+      </span>
       {options.map((option, index) => (
         <button
           key={option.id}

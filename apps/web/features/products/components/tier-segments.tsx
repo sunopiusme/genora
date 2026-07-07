@@ -34,6 +34,7 @@ export function TierSegments({
         selectedIndex={tierIndex}
         onChange={onTierChange}
         labelledBy={captionId}
+        accentColor={product.brandColor}
       />
     </div>
   );
