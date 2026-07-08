@@ -184,16 +184,13 @@
   opacity: 1;
 }
 
-.sidebarToggleWrap {
-  /* No transform here: a transformed ancestor would become the containing
-     block for the fixed-position tooltip and shift it off-screen */
+.sidebarHeader .sidebarToggleWrap {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   display: flex;
   align-items: center;
-  /* Slide with the width animation instead of teleporting left <-> right */
   transition: left var(--sidebar-anim) var(--sidebar-ease);
 }
 
@@ -542,7 +539,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико������������ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико��������������ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
