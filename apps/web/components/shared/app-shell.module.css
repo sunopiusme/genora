@@ -123,6 +123,48 @@
   padding-block: var(--space-2);
 }
 
+/* — Миниатюрный скроллбар сайдбара —
+   Глобальные 8px с 4px-«нитью» громоздки для узкой колонки: контент
+   сайдбара переполняется едва-едва, ползунок растягивается почти на
+   всю высоту и выглядит сплошной полосой. Здесь полоса аллоцирует
+   4px, видимая нить — 2px (прозрачная рамка 1px + content-box),
+   в покое ползунок невидим и проявляется только при наведении на
+   сайдбар — как overlay-скролл в macOS. min-height сброшен: у едва
+   переполненного списка ползунок и так длинный, глобальный лимит
+   2rem тут ничего не спасает. */
+.sidebarScroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebarScroll::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  background-clip: content-box;
+  border: 1px solid transparent;
+  min-height: 0;
+}
+
+.sidebarScroll:hover::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-width: 1px;
+}
+
+.sidebarScroll::-webkit-scrollbar-thumb:active {
+  background-color: var(--scrollbar-thumb-active);
+}
+
+/* Firefox: тонкая полоса, ползунок появляется на hover сайдбара
+   (паритет с WebKit-веткой выше). */
+@supports not selector(::-webkit-scrollbar) {
+  .sidebarScroll {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+
+  .sidebarScroll:hover {
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+}
+
 .sidebarHeader {
   position: relative;
   display: flex;
@@ -290,7 +332,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой р����льсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р������льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
