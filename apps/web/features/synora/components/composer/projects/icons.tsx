@@ -12,9 +12,9 @@ export function FolderIcon() {
   return <Icon icon="solar:folder-linear" />;
 }
 
-/* Folder с «биркой» — активный проект. */
+/* Folder с файлами — активный проект. */
 export function ProjectFolderIcon() {
-  return <Icon icon="solar:folder-tag-linear" />;
+  return <Icon icon="solar:folder-with-files-linear" />;
 }
 
 export function FolderPlusIcon() {
@@ -23,7 +23,7 @@ export function FolderPlusIcon() {
 
 /* Folder с крестиком — «без проекта». */
 export function FolderXIcon() {
-  return <Icon icon="solar:folder-x-linear" />;
+  return <Icon icon="solar:folder-error-linear" />;
 }
 
 export function PlusIcon() {

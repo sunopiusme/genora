@@ -90,35 +90,40 @@ const SOLAR_ICONS: Record<string, string> = {
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M6 18L18 6m0 0H9m9 0v9"/>',
 
   /* ── Иконки композера (chat input) ──────
-     Solar Linear + производные bold-stroke.
-     Зарегистрированы здесь же, чтобы весь ввод
-     (тулбар, меню «+», project picker) рендерился
-     из одного offline-реестра — как sidebar,
+     Подлинные пути из библиотеки Solar (Iconify,
+     api.iconify.design/solar) — та же семья, что
+     и sidebar. Зарегистрированы здесь же, чтобы
+     весь ввод (тулбар, меню «+», project picker)
+     рендерился из одного offline-реестра:
      мгновенно при SSR и без мерцания. */
   "microphone-2-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.75" width="6" height="11.5" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1"/><path d="M12 19v2.25"/></g>',
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 8a5 5 0 0 1 10 0v3a5 5 0 0 1-10 0z"/><path stroke-linecap="round" d="M13.5 8H17m-3.5 3H17M7 8h2m-2 3h2m11-1v1a8 8 0 1 1-16 0v-1m8 9v3"/></g>',
+  "checklist-minimalistic-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12c0-4.714 0-7.071 1.464-8.536C4.93 2 7.286 2 12 2s7.071 0 8.535 1.464C22 4.93 22 7.286 22 12s0 7.071-1.465 8.535C19.072 22 16.714 22 12 22s-7.071 0-8.536-1.465C2 19.072 2 16.714 2 12Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 15.8L7.143 17L10 14M6 8.8L7.143 10L10 7"/><path stroke-linecap="round" d="M13 9h5m-5 7h5"/></g>',
+  "widget-linear":
+    '<path fill="none" stroke="currentColor" stroke-width="1.5" d="M2.5 6.5c0-1.886 0-2.828.586-3.414S4.614 2.5 6.5 2.5s2.828 0 3.414.586s.586 1.528.586 3.414s0 2.828-.586 3.414s-1.528.586-3.414.586s-2.828 0-3.414-.586S2.5 8.386 2.5 6.5Zm11 11c0-1.886 0-2.828.586-3.414s1.528-.586 3.414-.586s2.828 0 3.414.586s.586 1.528.586 3.414s0 2.828-.586 3.414s-1.528.586-3.414.586s-2.828 0-3.414-.586s-.586-1.528-.586-3.414Zm-11 0c0-1.886 0-2.828.586-3.414S4.614 13.5 6.5 13.5s2.828 0 3.414.586s.586 1.528.586 3.414s0 2.828-.586 3.414s-1.528.586-3.414.586s-2.828 0-3.414-.586S2.5 19.386 2.5 17.5Zm11-11c0-1.886 0-2.828.586-3.414S15.614 2.5 17.5 2.5s2.828 0 3.414.586s.586 1.528.586 3.414s0 2.828-.586 3.414s-1.528.586-3.414.586s-2.828 0-3.414-.586S13.5 8.386 13.5 6.5Z"/>',
+  "folder-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M18 10h-5"/><path d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77q.119.105.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/></g>',
+  "folder-with-files-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M18 10h-5"/><path d="M10 3h6.5c.464 0 .697 0 .892.026a3 3 0 0 1 2.582 2.582c.026.195.026.428.026.892"/><path d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77q.119.105.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/></g>',
+  "add-folder-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" d="M10 14h2m0 0h2m-2 0v2m0-2v-2"/><path d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77q.119.105.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/></g>',
+  "folder-error-linear":
+    '<g fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77q.119.105.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"/><path stroke-linecap="round" d="m10.5 15l3-3m0 3l-3-3"/></g>',
+
+  /* Производные состояния (не входят в Solar):
+     построены на геометрии Solar — stroke 1.5/2,
+     round caps, та же сетка 24. */
   "stop-bold":
     '<rect x="7" y="7" width="10" height="10" rx="2" fill="currentColor"/>',
   "spinner-bold-stroke":
     '<g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8" opacity="0.18"/><path d="M20 12a8 8 0 0 1-8 8"/></g>',
-  "checklist-minimalistic-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 1.5 1.5L8 5"/><path d="m4 13 1.5 1.5L8 11"/><path d="m4 20 1.5 1.5L8 18"/><path d="M11.5 6.5H20"/><path d="M11.5 13.5H20"/><path d="M11.5 20.5H20"/></g>',
-  "widget-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></g>',
   "slash-bold-stroke":
     '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M16 7 8 17"/>',
   "plus-linear":
     '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5" d="M12 5v14M5 12h14"/>',
   "check-single-linear":
-    '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="m4.5 12.75 4.5 4.5L19.5 6.75"/>',
-  "folder-linear":
-    '<path fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h.643c.981 0 1.472 0 1.911.183c.44.183.786.53 1.48 1.224L15 6.37c.694.694 1.04 1.04 1.48 1.223c.439.183.93.183 1.911.183h.859c1.712 0 2.569 0 3.104.535c.646.646.646 1.526.646 3.688c0 3.771 0 5.657-1.172 6.829C20.657 20 18.771 20 15 20H10c-3.771 0-5.657 0-6.828-1.171C2 17.657 2 15.771 2 12Z"/>',
-  "folder-tag-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h.643c.981 0 1.472 0 1.911.183c.44.183.786.53 1.48 1.224L15 6.37c.694.694 1.04 1.04 1.48 1.223c.439.183.93.183 1.911.183h.859c1.712 0 2.569 0 3.104.535c.646.646.646 1.526.646 3.688c0 3.771 0 5.657-1.172 6.829C20.657 20 18.771 20 15 20H10c-3.771 0-5.657 0-6.828-1.171C2 17.657 2 15.771 2 12Z"/><path d="M8 12.5v4"/><path d="M8 12.5h2.5"/></g>',
-  "add-folder-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h.643c.981 0 1.472 0 1.911.183c.44.183.786.53 1.48 1.224L15 6.37c.694.694 1.04 1.04 1.48 1.223c.439.183.93.183 1.911.183h.859c1.712 0 2.569 0 3.104.535c.646.646.646 1.526.646 3.688c0 3.771 0 5.657-1.172 6.829C20.657 20 18.771 20 15 20H10c-3.771 0-5.657 0-6.828-1.171C2 17.657 2 15.771 2 12Z"/><path d="M12 11v5"/><path d="M9.5 13.5h5"/></g>',
-  "folder-x-linear":
-    '<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12c0-3.771 0-5.657 1.172-6.828S6.229 4 10 4h.643c.981 0 1.472 0 1.911.183c.44.183.786.53 1.48 1.224L15 6.37c.694.694 1.04 1.04 1.48 1.223c.439.183.93.183 1.911.183h.859c1.712 0 2.569 0 3.104.535c.646.646.646 1.526.646 3.688c0 3.771 0 5.657-1.172 6.829C20.657 20 18.771 20 15 20H10c-3.771 0-5.657 0-6.828-1.171C2 17.657 2 15.771 2 12Z"/><path d="m10.25 11.75 3.5 3.5"/><path d="m13.75 11.75-3.5 3.5"/></g>',
+    '<path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m4.5 12.75 4.5 4.5L19.5 6.75"/>',
 };
 
 for (const [name, body] of Object.entries(SOLAR_ICONS)) {
