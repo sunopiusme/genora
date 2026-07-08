@@ -182,6 +182,9 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
+  const hasInitializedSidebar = useUiStore(
+    (state) => state.hasInitializedSidebar,
+  );
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const openSearch = useUiStore((state) => state.openSearch);
@@ -333,7 +336,13 @@ export function AppShell({
   }, [closeSidebar]);
 
   return (
-    <div className={cn(styles.shell, isSidebarOpen && styles.shellOpen)}>
+    <div
+      className={cn(
+        styles.shell,
+        isSidebarOpen && styles.shellOpen,
+        !hasInitializedSidebar && styles.shellPreInit,
+      )}
+    >
       <aside
         className={cn(
           styles.sidebar,

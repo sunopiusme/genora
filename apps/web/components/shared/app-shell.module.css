@@ -1119,6 +1119,31 @@
   .shellOpen .main {
     transform: translateX(var(--sidebar-expanded-width));
   }
+
+  /* До инициализации sidebar (initSidebar) store хранит десктопный
+     дефолт «открыт», чтобы SSR-разметка сразу рисовала раскрытый sidebar
+     на десктопе. На мобильных до инициализации drawer принудительно
+     скрыт, кнопка-FAB видна, а контент не сдвинут — без переходов,
+     чтобы снятие класса не запускало анимацию. */
+  .shellPreInit .sidebar {
+    transform: translateX(-100%);
+    transition: none;
+  }
+
+  .shellPreInit .main {
+    transform: none;
+    transition: none;
+  }
+
+  .shellPreInit .backdrop {
+    display: none;
+  }
+
+  .shellPreInit .mobileFab {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 }
 
 @media (min-width: 48rem) {
