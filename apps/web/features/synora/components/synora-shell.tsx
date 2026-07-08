@@ -36,7 +36,7 @@ import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/ComposerInput";
-import { SYNORA_RECENT_GROUPS } from "../recent-sandboxes";
+import { SYNORA_PROJECT_GROUPS } from "../recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
 import synoraStyles from "./synora-shell.module.css";
 
@@ -311,17 +311,32 @@ export function SynoraShell({
               </nav>
 
               <div className={styles.section}>
-                {SYNORA_RECENT_GROUPS.map((group) => (
-                  <div key={group.title} className={styles.subsection}>
-                    <p className={styles.sectionTitle}>{group.title}</p>
+                {/* Список проектов: работа идёт через GitHub без
+                    локального репозитория, поэтому проект помечен
+                    иконкой ветки, а под ним — чаты этой ветки. */}
+                {SYNORA_PROJECT_GROUPS.map((project) => (
+                  <div key={project.name} className={styles.subsection}>
+                    <div className={styles.projectRow}>
+                      <Icon
+                        icon="solar:branch-linear"
+                        className={styles.projectIcon}
+                        aria-hidden="true"
+                      />
+                      <span className={styles.projectName}>
+                        {project.name}
+                      </span>
+                    </div>
                     <nav className={styles.recents}>
-                      {group.items.map((item) => (
+                      {project.chats.map((chat) => (
                         <Link
-                          key={item}
-                          href={`/synora?project=${encodeURIComponent(item)}`}
-                          className={styles.recentLink}
+                          key={chat}
+                          href={`/synora?project=${encodeURIComponent(project.name)}`}
+                          className={cn(
+                            styles.recentLink,
+                            styles.recentLinkNested,
+                          )}
                         >
-                          {item}
+                          {chat}
                         </Link>
                       ))}
                     </nav>
@@ -370,7 +385,7 @@ export function SynoraShell({
           <div
             className={cn(
               styles.composer,
-              /* На главной /synora (планшет и десктоп) композер по цен��ру,
+              /* На главной /synora (планшет и десктоп) композер по цен���ру,
                  чуть выше середины экрана — см. synora-shell.module.css */
               pathname === "/synora" && synoraStyles.composerCentered,
             )}

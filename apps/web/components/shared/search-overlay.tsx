@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogTitle } from "@genora/ui";
 import { Icon } from "@/lib/icon";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore } from "@/stores/auth-store";
-import { RECENT_GROUPS } from "@/lib/recent-chats";
+import { PROJECT_GROUPS } from "@/lib/recent-chats";
 import { useComposerStore } from "@features/products";
 import styles from "./search-overlay.module.css";
 
@@ -106,19 +106,19 @@ export function SearchOverlay() {
       result.push({ title: "Действия", items: filteredActions });
     }
 
-    for (const group of RECENT_GROUPS) {
+    for (const project of PROJECT_GROUPS) {
       const items = (
         trimmed
-          ? group.items.filter((item) => matches(item, trimmed))
-          : group.items
+          ? project.chats.filter((chat) => matches(chat, trimmed))
+          : project.chats
       ).map<ResultItem>((label, index) => ({
-        id: `chat-${group.title}-${index}`,
+        id: `chat-${project.name}-${index}`,
         label,
         icon: "solar:chat-round-line-linear",
         run: () => goTo("/genora"),
       }));
       if (items.length > 0) {
-        result.push({ title: group.title, items });
+        result.push({ title: project.name, items });
       }
     }
 

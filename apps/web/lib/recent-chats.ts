@@ -1,24 +1,30 @@
-export type RecentGroup = {
-  title: string;
-  items: string[];
+/**
+ * Проекты сайдбара Genora: работа идёт через GitHub без локального
+ * репозитория, поэтому каждый проект — ветка репозитория (иконка
+ * ветки в сайдбаре), а внутри — чаты, привязанные к этой ветке.
+ */
+
+export type ProjectGroup = {
+  /* Название проекта — имя ветки GitHub. */
+  name: string;
+  /* Чаты, ведущиеся в контексте этой ветки. */
+  chats: string[];
 };
 
-export const RECENT_GROUPS: RecentGroup[] = [
+export const PROJECT_GROUPS: ProjectGroup[] = [
   {
-    title: "Сегодня",
-    items: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
+    name: "main",
+    chats: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
   },
   {
-    title: "Вчера",
-    items: ["Промпты для генерации изображений", "Сравнить Claude и Gemini"],
+    name: "feat/checkout",
+    chats: ["Оплата подписки не прошла", "Сравнить Claude и Gemini"],
   },
   {
-    title: "Последние 7 дней",
-    items: [
+    name: "feat/showcase",
+    chats: [
+      "Промпты для генерации изображений",
       "Midjourney для дизайна",
-      "Материалы для обучения модели",
-      "Доступ к GitHub Copilot",
-      "Оплата подписки не прошла",
       "Что выбрать для кода",
     ],
   },

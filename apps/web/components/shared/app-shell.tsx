@@ -17,7 +17,7 @@ import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
-import { RECENT_GROUPS } from "@/lib/recent-chats";
+import { PROJECT_GROUPS } from "@/lib/recent-chats";
 import { PROFILE, formatBalance } from "@features/profile";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
@@ -423,17 +423,32 @@ export function AppShell({
 
               {authenticatedUser && (
                 <div className={styles.section}>
-                  {RECENT_GROUPS.map((group) => (
-                    <div key={group.title} className={styles.subsection}>
-                      <p className={styles.sectionTitle}>{group.title}</p>
+                  {/* Список проектов: работа идёт через GitHub без
+                      локального репозитория, поэтому проект — ветка
+                      (иконка ветки), а под ним — чаты этой ветки. */}
+                  {PROJECT_GROUPS.map((project) => (
+                    <div key={project.name} className={styles.subsection}>
+                      <div className={styles.projectRow}>
+                        <Icon
+                          icon="solar:branch-linear"
+                          className={styles.projectIcon}
+                          aria-hidden="true"
+                        />
+                        <span className={styles.projectName}>
+                          {project.name}
+                        </span>
+                      </div>
                       <nav className={styles.recents}>
-                        {group.items.map((item) => (
+                        {project.chats.map((chat) => (
                           <Link
-                            key={item}
+                            key={chat}
                             href="/genora"
-                            className={styles.recentLink}
+                            className={cn(
+                              styles.recentLink,
+                              styles.recentLinkNested,
+                            )}
                           >
-                            {item}
+                            {chat}
                           </Link>
                         ))}
                       </nav>

@@ -1,27 +1,37 @@
 /**
- * Недавние песочницы «Синоры» — аналог RECENT_GROUPS у Genora
+ * Проекты сайдбара «Синоры» — аналог PROJECT_GROUPS у Genora
  * (lib/recent-chats.ts), но со своим контентом площадки.
+ *
+ * Работа идёт через GitHub без локального репозитория, поэтому
+ * каждый проект — ветка репозитория (иконка ветки в сайдбаре),
+ * а внутри — чаты, привязанные к этой ветке. Названия проектов
+ * зеркалят каталог composer'а (composer/projects/data.ts):
+ * ссылка ?project= из сайдбара и выбор в picker'е ведут
+ * к одному и тому же контексту.
  */
 
-export type RecentGroup = {
-  title: string;
-  items: string[];
+export type ProjectGroup = {
+  /* Название проекта — совпадает с label в каталоге проектов. */
+  name: string;
+  /* Чаты, ведущиеся в контексте этого проекта. */
+  chats: string[];
 };
 
-export const SYNORA_RECENT_GROUPS: RecentGroup[] = [
+export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
   {
-    title: "Сегодня",
-    items: [
-      "Парсер CSV на TypeScript",
-      "Компонент таблицы с сортировкой",
-    ],
+    name: "Парсер CSV на TypeScript",
+    chats: ["Разбор кавычек и экранирования", "Стриминг больших файлов"],
   },
   {
-    title: "Вчера",
-    items: [
-      "REST API на Express",
+    name: "Компонент таблицы с сортировкой",
+    chats: ["Сортировка по нескольким колонкам", "Виртуализация строк"],
+  },
+  {
+    name: "REST API на Express",
+    chats: [
+      "Валидация входных данных",
+      "JWT-авторизация",
       "Скрипт миграции базы данных",
-      "Анимация загрузчика на CSS",
     ],
   },
 ];
