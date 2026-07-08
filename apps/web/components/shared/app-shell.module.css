@@ -542,7 +542,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико��ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -643,25 +643,27 @@
   stroke-width: 1.8;
 }
 
+/* Заголовок строки проекта — ветка GitHub напротив иконки;
+   моноширинный, как принято для имён веток. */
 .projectName {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  font-family: var(--font-mono, monospace);
   color: var(--color-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Ветка проекта внизу списка чатов: тот же размер текста, что
-   у названия проекта (--text-sm), приглушённый цвет; левый отступ
-   повторяет .recentLinkNested — текст на одном уровне с чатами. */
-.projectBranch {
+/* Название проекта внизу списка чатов: тот же размер текста,
+   что у заголовка-ветки (--text-sm), приглушённый цвет; левый
+   отступ повторяет .recentLinkNested — на одном уровне с чатами. */
+.projectCaption {
   margin: 0;
   padding: var(--space-1) var(--sidebar-item-pad) var(--space-1)
     calc(var(--sidebar-item-pad) + var(--sidebar-icon-size) + var(--space-2));
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  font-family: var(--font-mono, monospace);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -688,7 +690,9 @@
 .recentLink {
   padding: 0.5rem var(--sidebar-item-pad);
   border-radius: var(--radius-lg);
-  font-size: 0.8125rem;
+  /* Тот же стиль текста, что у заголовка строки проекта
+     (.projectName): размер, насыщенность и цвет совпадают. */
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
   text-decoration: none;

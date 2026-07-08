@@ -70,7 +70,10 @@ export function SidebarProjects({
                   className={styles.projectIcon}
                   aria-hidden="true"
                 />
-                <span className={styles.projectName}>{project.name}</span>
+                {/* Заголовок напротив иконки — ветка GitHub: работа
+                    идёт без локального репозитория, ветка и есть
+                    рабочий контекст проекта. */}
+                <span className={styles.projectName}>{project.branch}</span>
                 {/* Шеврон виден при наведении; у свёрнутого проекта —
                     всегда, как напоминание о скрытых чатах. */}
                 <Icon
@@ -108,10 +111,10 @@ export function SidebarProjects({
                 ))}
               </nav>
             )}
-            {/* Ветка GitHub внизу чатов — виден и проект, и ветка;
-                текст на одном уровне с чатами, размер как у названия. */}
-            <p className={styles.projectBranch} title={`Ветка ${project.branch}`}>
-              {project.branch}
+            {/* Название проекта внизу чатов — виден и проект,
+                и ветка; текст на одном уровне с чатами. */}
+            <p className={styles.projectCaption} title={project.name}>
+              {project.name}
             </p>
           </div>
         );
