@@ -118,8 +118,8 @@
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  /* Симметричный резерв под скроллбар — контент шторки по центру */
-  scrollbar-gutter: stable both-edges;
+  /* Без both-edges: двойной резерв под скроллбар сжимал контент на узких экранах */
+  scrollbar-gutter: stable;
   padding: calc(var(--space-8) + env(safe-area-inset-top, 0px)) var(--space-4)
     calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
 }
@@ -217,8 +217,8 @@ button.row:focus-visible {
 }
 
 .rowLabel {
-  flex: 1;
-  min-width: 0;
+  /* Подпись не сжимается: усечению подлежит значение справа, а не подпись */
+  flex: 1 0 auto;
   font-size: var(--text-base);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
@@ -230,7 +230,11 @@ button.row:focus-visible {
 }
 
 .rowValue {
-  flex-shrink: 0;
+  /* Длинные значения (email) усекаются в троеточие, а не ломают строку */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: var(--text-sm);
   color: var(--color-foreground-muted);
 }

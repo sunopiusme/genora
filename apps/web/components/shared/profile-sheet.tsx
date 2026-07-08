@@ -58,9 +58,11 @@ const GENORA_SHEET_SECTIONS: SheetSection[] = [
         value: formatBalance(PROFILE.balance),
       },
       {
+        /* Email в одну строку со значением справа: длинный адрес
+           усекается в троеточие вместо переноса на вторую строку. */
         label: "Email",
         icon: "solar:letter-linear",
-        detail: PROFILE.email,
+        value: PROFILE.email,
       },
       {
         label: "Подписка",
@@ -131,7 +133,7 @@ const SYNORA_SHEET_SECTIONS: SheetSection[] = [
       {
         label: "Email",
         icon: "solar:letter-linear",
-        detail: PROFILE.email,
+        value: PROFILE.email,
       },
       {
         label: "Профиль",
