@@ -123,6 +123,22 @@
   padding-block: var(--space-2);
 }
 
+/* — Сайдбар без видимого скроллбара —
+   Контент сайдбара переполняется едва-едва, поэтому любой ползунок
+   растягивается почти на всю высоту и читается как случайная
+   линия-обводка у края (пробовали 4px и 3px — одинаково плохо).
+   Для узкой колонки честнее скрыть полосу совсем: прокрутка
+   колесом, трекпадом и свайпом работает как прежде, а границу
+   переполнения снизу и так показывает маска затухания списка. */
+.sidebarScroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Firefox + запасной вариант для остальных движков. */
+.sidebarScroll {
+  scrollbar-width: none;
+}
+
 .sidebarHeader {
   position: relative;
   display: flex;
@@ -290,7 +306,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой рельсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р������льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -504,28 +520,90 @@
   color: var(--color-foreground-subtle);
 }
 
-/* Строка проекта в списке проектов: иконка ветки + название.
-   Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
-   на одной вертикали с иконками навигации, а название прижато
-   к иконке с тем же зазором, что и подписи пунктов навигации.
-   Кнопка: клик сворачивает/разворачивает чаты проекта. */
+/* Строка проекта: контейнер для кнопки сворачивания и кнопки
+   «Новый чат». Подсветка и появление контролов — при наведении
+   на всю строку или фокусе внутри неё. */
 .projectRow {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
   width: 100%;
-  padding: 0.5rem var(--sidebar-item-pad);
   overflow: hidden;
-  background: none;
-  border: none;
   border-radius: var(--radius-lg);
-  cursor: pointer;
-  text-align: left;
   transition: background-color 0.15s ease;
 }
 
-.projectRow:hover {
+/* :has(:focus-visible) вместо :focus-within: после клика мышью
+   фокус остаётся на кнопке сворачивания, и :focus-within держал
+   «Новый чат» видимым навсегда; :focus-visible срабатывает только
+   при клавиатурной навигации — баг уходит, доступность остаётся. */
+.projectRow:hover,
+.projectRow:has(:focus-visible) {
   background-color: var(--color-surface);
+}
+
+/* Кнопка сворачивания: иконка ветки + название + шеврон.
+   Паддинги и gap повторяют .navLink, поэтому ико������ка ветки стоит
+   на одной вертикали с иконками навигации, а название прижато
+   к иконке с тем же зазором, что и подписи пунктов навигации. */
+.projectToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem var(--sidebar-item-pad);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* «Новый чат»: скрыт, появляется при наведении на строку проекта
+   или фокусе с клавиатуры; открывает окно площадки с контекстом
+   соответствующего проекта. В скрытом состоянии схлопнут по
+   ширине (а не opacity с резервом места), чтобы название проекта
+   не обрезалось, пока кнопка не нужна; при этом ссылка остаётся
+   в табе — фокус на ней раскрывает её чер��з :focus-within. */
+.projectNewChat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  max-width: 0;
+  margin-right: 0;
+  padding: var(--space-1) 0;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  color: var(--color-foreground);
+  background-color: var(--color-surface-raised);
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.projectRow:hover .projectNewChat,
+.projectRow:has(:focus-visible) .projectNewChat {
+  max-width: 8rem;
+  margin-right: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.projectNewChat:hover {
+  background-color: var(--color-surface-raised-hover);
+}
+
+.projectNewChatIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
 }
 
 /* Шеврон сворачивания: скрыт, появляется при наведении на строку
@@ -544,7 +622,7 @@
 }
 
 .projectRow:hover .projectChevron,
-.projectRow:focus-visible .projectChevron {
+.projectRow:has(:focus-visible) .projectChevron {
   opacity: 1;
 }
 
@@ -560,18 +638,37 @@
   color: var(--color-foreground);
 }
 
-/* Тот же утолщённый штрих, что и у .navIcon — единый вес иконок */
+/* Тот же утолщённый штрих, что и у .navIcon — е��иный вес иконок */
 .projectIcon * {
   stroke-width: 1.8;
 }
 
+/* Заголовок строки проекта — ветка GitHub напротив иконки;
+   моноширинный, как принято для имён веток. */
 .projectName {
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  font-family: var(--font-mono, monospace);
   color: var(--color-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Название проекта внизу списка чатов: это такой же общий чат,
+   как и остальные строки, поэтому цвет — тот же белый
+   (--color-foreground), как в референсе iOS; левый отступ
+   повторяет .recentLinkNested — на одном уровне с чатами. */
+.projectCaption {
+  margin: 0;
+  padding: var(--space-1) var(--sidebar-item-pad) var(--space-1)
+    calc(var(--sidebar-item-pad) + var(--sidebar-icon-size) + var(--space-2));
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-foreground);
 }
 
 .subsection {
@@ -594,7 +691,9 @@
 .recentLink {
   padding: 0.5rem var(--sidebar-item-pad);
   border-radius: var(--radius-lg);
-  font-size: 0.8125rem;
+  /* Тот же стиль текста, что у заголовка строки проекта
+     (.projectName): размер, насыщенность и цвет совпадают. */
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
   text-decoration: none;
@@ -1089,11 +1188,24 @@
   height: var(--sidebar-icon-size);
 }
 
+/* Элементы мобильного макета (референс iOS): на десктопе скрыты —
+   профиль живёт в футере, новый чат — в навигации. */
+.sidebarHeaderProfile,
+.sidebarChatFab {
+  display: none;
+}
+
 @media (max-width: 47.9375rem) {
   .shell {
-    --sidebar-expanded-width: min(80vw, 18.75rem);
+    /* Дровер раскрывается на весь экран, как нативный сайдбар
+       iOS (референс — ChatGPT): без «частичного» открытия с
+       полоской контента справа. */
+    --sidebar-expanded-width: 100vw;
     --sidebar-inset: var(--space-3);
     --sidebar-touch-target: 2.75rem;
+    /* Плотность списка чатов: строки ниже пунктов навигации,
+       как в референсе — навигация крупная, чаты компактнее. */
+    --sidebar-chat-target: 2.375rem;
   }
 
   .mobileFab {
@@ -1120,10 +1232,17 @@
   }
 
   .sidebarInner {
+    /* Якорь для плавающей кнопки «Чат» (absolute внизу справа). */
+    position: relative;
+    /* Отступы повторяют safe-area iOS: контент не заезжает под
+       чёлку и домашний индикатор — как в нативном приложении. */
     padding-top: calc(var(--sidebar-inset) + env(safe-area-inset-top, 0px));
     padding-bottom: calc(
       var(--sidebar-inset) + env(safe-area-inset-bottom, 0px)
     );
+    /* Полноэкранный дровер: линия-граница у правого края экрана
+       выглядела бы случайной чертой — убираем. */
+    border-right: none;
   }
 
   .sidebarHeader {
@@ -1169,9 +1288,22 @@
   .recentLink {
     display: flex;
     align-items: center;
-    min-height: var(--sidebar-touch-target);
+    min-height: var(--sidebar-chat-target);
     padding-block: 0;
     font-size: var(--text-sm);
+  }
+
+  /* Название проекта внизу чатов — та же плотность, что у чатов. */
+  .projectCaption {
+    display: flex;
+    align-items: center;
+    min-height: var(--sidebar-chat-target);
+    padding-block: 0;
+  }
+
+  /* Плотнее вертикальный ритм секций проектов. */
+  .subsection {
+    margin-top: var(--space-2);
   }
 
   .profile {
@@ -1181,6 +1313,80 @@
   .profileIdentity {
     opacity: 1;
     transition: none;
+  }
+
+  /* — Макет по референсу iOS: аватарка в шапке, «Чат» внизу — */
+
+  /* Профиль-футер скрыт: аватар переехал в шапку. Кнопка «Войти»
+     (неавторизованный Genora) остаётся — у неё нет этого класса. */
+  .footerSwapProfile {
+    display: none;
+  }
+
+  /* Аватарка в шапке: только круглый аватар, без имени, плана
+     и баланса — как в референсе. Тап открывает шторку профиля.
+     margin-left: auto прижимает аватар (и тумблер за ним)
+     к правому краю шапки. */
+  .sidebarHeaderProfile {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Тумблер меню позиционирован абсолютно у правого края —
+       резервируем под него место, чтобы аватар не перекрывался. */
+    margin-right: 2.5rem;
+  }
+
+  /* Внутри шапки корень профиля не должен растягиваться на всю
+     ширину, как в футере. */
+  .sidebarHeaderProfile .profileRoot {
+    width: auto;
+  }
+
+  .sidebarHeaderProfile .profile {
+    min-height: 0;
+    padding: var(--space-1);
+    background: none;
+    border: none;
+  }
+
+  .sidebarHeaderProfile .profile::before {
+    display: none;
+  }
+
+  .sidebarHeaderProfile .profileIdentity,
+  .sidebarHeaderProfile .profileBalance {
+    display: none;
+  }
+
+  /* Плавающая пилюля «Чат» внизу справа: инверсные цвета
+     (светлая кнопка на тёмном сайдбаре), над safe-area. */
+  .sidebarChatFab {
+    position: absolute;
+    right: var(--space-4);
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.875rem 1.375rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    font-family: inherit;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+  }
+
+  .sidebarChatFab:active {
+    transform: scale(0.97);
+  }
+
+  .sidebarChatFabIcon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   .section {

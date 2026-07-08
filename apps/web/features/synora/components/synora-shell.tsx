@@ -251,6 +251,16 @@ export function SynoraShell({
               <SynoraLogo width="1.625rem" height="1.625rem" />
             </span>
             <span className={styles.wordmark}>Синора</span>
+            {/* Мобильный макет по референсу iOS: аватарка в шапке
+                справа (на десктопе скрыта — профиль там в футере). */}
+            <div className={styles.sidebarHeaderProfile}>
+              <ProfileMenu
+                isSidebarOpen={isSidebarOpen}
+                user={authenticatedUser}
+                planLabel="Песочница"
+                area="synora"
+              />
+            </div>
             <SidebarTooltip
               label={isSidebarOpen ? "Свернуть меню" : "Развернуть меню"}
               isEnabled={!isAnimating}
@@ -329,13 +339,20 @@ export function SynoraShell({
                   chatHref={(project) =>
                     `/synora?project=${encodeURIComponent(project.name)}`
                   }
+                  newChatHref={(project) =>
+                    `/synora?project=${encodeURIComponent(project.name)}`
+                  }
                 />
               </div>
             </div>
           </div>
 
           <div className={styles.sidebarFooter}>
-            <div key="profile" className={styles.footerSwap}>
+            {/* На мобильном профиль-футер скрыт — аватар в шапке. */}
+            <div
+              key="profile"
+              className={cn(styles.footerSwap, styles.footerSwapProfile)}
+            >
               <ProfileMenu
                 isSidebarOpen={isSidebarOpen}
                 user={authenticatedUser}
@@ -344,6 +361,21 @@ export function SynoraShell({
               />
             </div>
           </div>
+
+          {/* Плавающая кнопка нового чата внизу справа — по
+              референсу iOS; видна только на мобильном. */}
+          <button
+            type="button"
+            className={styles.sidebarChatFab}
+            onClick={handleNewRequest}
+          >
+            <Icon
+              icon="solar:pen-new-square-linear"
+              className={styles.sidebarChatFabIcon}
+              aria-hidden="true"
+            />
+            Чат
+          </button>
         </div>
       </aside>
 
