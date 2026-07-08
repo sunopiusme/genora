@@ -65,6 +65,8 @@ export type ModelSelection = {
 
 export type PermissionLevel = "standard" | "review" | "full";
 
+export type VoiceStage = "idle" | "recording" | "processing";
+
 export type ProjectKind = "workspace" | "project";
 
 export type Project = {

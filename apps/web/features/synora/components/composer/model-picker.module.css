@@ -1,0 +1,197 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  z-index: 10;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 400;
+  color: var(--c-ink);
+  cursor: pointer;
+  transition: background-color var(--composer-duration-hover) ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.triggerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.triggerIcon img,
+.triggerIcon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.triggerLabel {
+  color: var(--c-ink);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.triggerLevel {
+  color: var(--c-ink-muted);
+  white-space: nowrap;
+}
+
+.triggerChevron {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+  margin-left: 2px;
+  color: var(--c-ink-subtle);
+}
+
+.triggerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+.providers {
+
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
+  position: absolute;
+  bottom: calc(100% + 8px);
+  right: 0;
+
+  min-width: 280px;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+
+  background: var(--composer-surface-raised);
+  box-shadow:
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 20;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.sectionTitle {
+  margin: 4px 8px 2px;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--c-ink-subtle);
+  letter-spacing: 0;
+}
+
+.divider {
+  height: 1px;
+  margin: 4px 8px;
+  background: var(--c-line-soft);
+}
+
+.modelRow {
+  display: grid;
+  grid-template-columns: 16px 1fr 16px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.modelRow[data-active="true"] {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.modelIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.modelIcon img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.modelLabel {
+  white-space: nowrap;
+}
+
+.checkIcon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--c-ink);
+}
+
+.checkIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 560px) {
+
+  .wrap {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+  .trigger {
+    gap: 6px;
+    padding: 8px 6px;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .triggerLabel {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .triggerLevel {
+    display: none;
+  }
+
+  .providers {
+    min-width: min(280px, calc(100vw - 24px));
+    max-width: calc(100vw - 24px);
+  }
+}
+
+@media (max-width: 420px) {
+  .trigger {
+    gap: 0;
+    padding: 8px;
+  }
+  .triggerLabel,
+  .triggerChevron {
+    display: none;
+  }
+}

@@ -1,0 +1,37 @@
+.recorder {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+  min-width: 0;
+  padding: 0 4px 0 8px;
+}
+
+.waveform {
+  flex: 1;
+  height: 24px;
+  min-width: 0;
+  position: relative;
+}
+
+.canvas {
+  display: block;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+
+  will-change: transform;
+  pointer-events: none;
+}
+
+.timer {
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+}
