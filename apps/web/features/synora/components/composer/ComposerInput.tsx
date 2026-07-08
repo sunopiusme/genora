@@ -30,8 +30,7 @@ import { useBranchStore } from "./branches/branch-store";
 import { EnvironmentPicker } from "./environment/EnvironmentPicker";
 import type { EnvironmentMode } from "./environment/types";
 import { ProjectPicker } from "./projects/ProjectPicker";
-import { DEFAULT_PROJECT, findProjectByLabel } from "./projects/data";
-import type { ProjectSelection } from "./projects/types";
+import { useProjectStore } from "./projects/project-store";
 import { Toast } from "./voice/Toast";
 import { VoiceRecorder } from "./voice/VoiceRecorder";
 import { useVoiceWaveform } from "./voice/useVoiceWaveform";
@@ -63,7 +62,11 @@ export function ComposerInput() {
   const [planMode, setPlanMode] = useState(false);
   const [permission, setPermission] = useState<PermissionLevel>("standard");
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_SELECTION);
-  const [project, setProject] = useState<ProjectSelection>(DEFAULT_PROJECT);
+  /* Проект живёт в общем сторе: его же читают заголовки главной
+     /synora («Название»), а смена проекта переключает и ветку. */
+  const project = useProjectStore((state) => state.selection);
+  const setProject = useProjectStore((state) => state.setSelection);
+  const syncProjectFromQuery = useProjectStore((state) => state.syncFromQuery);
   const [environment, setEnvironment] = useState<EnvironmentMode>("local");
   /* Ветка живёт в общем сторе: её также показывает и меняет
      десктопный заголовок главной /synora (SynoraHeading). */
@@ -83,16 +86,12 @@ export function ComposerInput() {
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
   /* Переход из сайдбара («недавние песочницы») предвыбирает
-     проект: ссылки передают человекочитаемое название. */
+     проект: ссылки передают человекочитаемое название. Стор сам
+     резолвит его в проект и переключает ветку. */
   const projectParam = searchParams.get("project");
   useEffect(() => {
-    if (!projectParam) {
-      setProject(DEFAULT_PROJECT);
-      return;
-    }
-    const match = findProjectByLabel(projectParam);
-    setProject(match ? { kind: "project", id: match.id } : DEFAULT_PROJECT);
-  }, [projectParam]);
+    syncProjectFromQuery(projectParam);
+  }, [projectParam, syncProjectFromQuery]);
 
   /* Запрос фокуса извне (кнопка «Новый запрос» в сайдбаре). */
   useEffect(() => {

@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 
 import { BranchPopover } from "./composer/branches/BranchPopover";
 import { useBranchStore } from "./composer/branches/branch-store";
+import { useProjectStore } from "./composer/projects/project-store";
+import { findProject } from "./composer/projects/data";
 import styles from "./synora-heading.module.css";
 
 /**
@@ -20,12 +22,20 @@ import styles from "./synora-heading.module.css";
  * useBranchStore.
  *
  * На мобильных (< 48rem) заголовок скрыт — там работает герой
- * SynoraHome. Название проекта приходит из query-параметра
- * ?project= (переход из «недавних песочниц» в сайдбаре).
+ * SynoraHome. Название читается из общего стора проекта: выбор в
+ * picker'е композера и переход по ?project= из сайдбара меняют
+ * заголовок синхронно. До первой синхронизации стора используется
+ * query-параметр — так заголовок не мигает при загрузке.
  */
 export function SynoraHeading() {
   const searchParams = useSearchParams();
-  const projectName = searchParams.get("project")?.trim() || undefined;
+  const paramName = searchParams.get("project")?.trim() || undefined;
+
+  const selection = useProjectStore((state) => state.selection);
+  const hasSynced = useProjectStore((state) => state.hasSynced);
+  const storeName =
+    selection.kind === "project" ? findProject(selection.id)?.label : undefined;
+  const projectName = hasSynced ? storeName : paramName;
 
   const branch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
