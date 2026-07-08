@@ -61,6 +61,10 @@
 
 /* Popover. */
 .popover {
+  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   bottom: calc(100% + 8px);
   left: 0;
@@ -224,6 +228,10 @@
 
 /* Submenu «Добавить проект». */
 .submenu {
+  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   bottom: calc(0px - var(--c-corner-inset));
   left: calc(100% + 8px);

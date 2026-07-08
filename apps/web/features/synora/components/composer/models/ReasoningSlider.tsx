@@ -203,6 +203,11 @@ export function ReasoningSlider({
             type="button"
             tabIndex={-1}
             className={index === levelIndex ? styles.stopActive : styles.stop}
+            style={
+              {
+                "--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
+              } as React.CSSProperties
+            }
             onClick={() => onLevelChange(index)}
           >
             {level.label}

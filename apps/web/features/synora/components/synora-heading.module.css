@@ -12,6 +12,9 @@
   --c-card-radius: 24px;
   --c-corner-inset: 6px;
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
+  /* Концентричная пара радиусов popover'ов — как в ComposerInput. */
+  --c-pop-radius: 18px;
+  --c-pop-row-radius: calc(var(--c-pop-radius) - var(--c-corner-inset)); /* 12px */
   --c-gap-icon: 8px;
   --c-icon-col: 20px;
   --composer-surface-raised: var(--color-surface-raised, #303030);

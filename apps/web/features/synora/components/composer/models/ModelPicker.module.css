@@ -3,8 +3,9 @@
    с двумя секциями (Reasoning + Model).
 
    Геометрия наследует токены ComposerInput:
-   радиус card-radius (18) для оболочки,
-   row-radius (12) для интерактивных строк.
+   триггер — row-radius композера; popover —
+   концентричная пара pop-radius (18) для
+   оболочки и pop-row-radius (12) для строк.
    ───────────────────────────────────────── */
 
 .wrap {
@@ -64,10 +65,18 @@
    вверх от правого края триггера и целиком
    помещается на экране: подменю больше нет. */
 .providers {
+  /* Концентричные радиусы popover'а: оболочка 18,
+     строки 12 — радиус строки + inset = радиус оболочки. */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  min-width: 280px;
+  /* Ширина — под пять подписей стопов ползунка, выровненных
+     по позициям стопов (см. ReasoningSlider): при 280px
+     подписи «Max» и «Ultracode» сталкивались. */
+  min-width: 340px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность на ступень светлее карточки
@@ -168,6 +177,6 @@
   }
   /* Поповер не шире вьюпорта минус отступы. */
   .providers {
-    min-width: min(280px, calc(100vw - 24px));
+    min-width: min(340px, calc(100vw - 24px));
   }
 }
