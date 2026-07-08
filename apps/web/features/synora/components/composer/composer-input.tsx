@@ -52,7 +52,7 @@ export function ComposerInput() {
   const project = useProjectStore((state) => state.selection);
   const setProject = useProjectStore((state) => state.setSelection);
   const syncProjectFromQuery = useProjectStore((state) => state.syncFromQuery);
-  const [environment, setEnvironment] = useState<EnvironmentMode>("local");
+  const [environment, setEnvironment] = useState<EnvironmentMode>("sandbox");
   const branch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");

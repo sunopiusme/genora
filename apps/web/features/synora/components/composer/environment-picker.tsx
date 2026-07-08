@@ -19,7 +19,7 @@ const OPTIONS: Array<{
   Icon: React.ComponentType;
   disabled?: boolean;
 }> = [
-  { id: "local", label: "Локально", Icon: MonitorIcon },
+  { id: "sandbox", label: "Песочница", Icon: CubeIcon },
   { id: "worktree", label: "Новый worktree", Icon: GitForkIcon },
   { id: "cloud", label: "Отправить в облако", Icon: CloudOffIcon, disabled: true },
 ];
@@ -137,11 +137,12 @@ const baseProps = {
   strokeLinejoin: "round" as const,
 };
 
-function MonitorIcon() {
+function CubeIcon() {
   return (
     <svg {...baseProps}>
-      <path d="M2 10c0-2.828 0-4.243.879-5.121C3.757 4 5.172 4 8 4h8c2.828 0 4.243 0 5.121.879C22 5.757 22 7.172 22 10v1c0 2.828 0 4.243-.879 5.121C20.243 17 18.828 17 16 17H8c-2.828 0-4.243 0-5.121-.879C2 15.243 2 13.828 2 11v-1Z" />
-      <path d="M8.5 21h7M12 17v4" />
+      <path d="M12 2.5 20.5 7v10L12 21.5 3.5 17V7L12 2.5Z" />
+      <path d="M3.5 7 12 11.5 20.5 7" />
+      <path d="M12 11.5v10" />
     </svg>
   );
 }

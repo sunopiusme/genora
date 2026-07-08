@@ -542,7 +542,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико����������ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико������������ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -606,28 +606,21 @@
   flex-shrink: 0;
 }
 
-/* Шеврон сворачивания: скрыт, появляется при наведении на строку
-   проекта или фокусе с клавиатуры; у свёрнутого проекта виден
-   всегда и развёрнут остриём к названию (повёрнут на -90°). */
 .projectChevron {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
   margin-left: auto;
   color: var(--color-foreground-subtle);
-  opacity: 0;
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .projectRow:hover .projectChevron,
 .projectRow:has(:focus-visible) .projectChevron {
-  opacity: 1;
+  color: var(--color-foreground-muted);
 }
 
 .projectChevronCollapsed {
-  opacity: 1;
   transform: rotate(-90deg);
 }
 

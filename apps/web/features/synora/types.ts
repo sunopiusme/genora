@@ -9,7 +9,7 @@ export type Attachment = {
   size: number;
 };
 
-export type EnvironmentMode = "local" | "worktree" | "cloud";
+export type EnvironmentMode = "sandbox" | "worktree" | "cloud";
 
 export type MentionKind = "plugin" | "file";
 

@@ -7,13 +7,13 @@ import {
   CheckIcon,
   ChevronDownIcon,
   ChevronRightIcon,
-  ExistingFolderIcon,
-  FolderIcon,
-  FolderPlusIcon,
-  FolderXIcon,
+  GithubIcon,
+  NoProjectIcon,
   PlusIcon,
-  ProjectFolderIcon,
+  RepoIcon,
+  RepoPlusIcon,
   SearchIcon,
+  WorkspaceIcon,
 } from "./project-icons";
 import type { ProjectSelection } from "../../types";
 import styles from "./project-picker.module.css";
@@ -74,7 +74,7 @@ export function ProjectPicker({ selection, onChange }: Props) {
       : findProject(selection.id)?.label ?? "Проект";
 
   const triggerIcon =
-    selection.kind === "none" ? <FolderXIcon /> : <ProjectFolderIcon />;
+    selection.kind === "none" ? <NoProjectIcon /> : <RepoIcon />;
 
   const pick = (id: string) => {
     onChange({ kind: "project", id });
@@ -132,9 +132,9 @@ export function ProjectPicker({ selection, onChange }: Props) {
                   >
                     <span className={styles.itemIcon} aria-hidden="true">
                       {project.kind === "workspace" ? (
-                        <FolderIcon />
+                        <WorkspaceIcon />
                       ) : (
-                        <ProjectFolderIcon />
+                        <RepoIcon />
                       )}
                     </span>
                     <span className={styles.itemLabel}>{project.label}</span>
@@ -155,7 +155,7 @@ export function ProjectPicker({ selection, onChange }: Props) {
 
           <div className={styles.item} data-has-submenu="true" role="menuitem">
             <span className={styles.itemIcon} aria-hidden="true">
-              <FolderPlusIcon />
+              <RepoPlusIcon />
             </span>
             <span className={styles.itemLabel}>Добавить проект</span>
             <span className={styles.itemChevron} aria-hidden="true">
@@ -171,9 +171,9 @@ export function ProjectPicker({ selection, onChange }: Props) {
               </button>
               <button type="button" className={styles.item} role="menuitem">
                 <span className={styles.itemIcon} aria-hidden="true">
-                  <ExistingFolderIcon />
+                  <GithubIcon />
                 </span>
-                <span className={styles.itemLabel}>Открыть папку</span>
+                <span className={styles.itemLabel}>Подключить репозиторий</span>
                 <span aria-hidden="true" />
               </button>
             </div>
@@ -189,7 +189,7 @@ export function ProjectPicker({ selection, onChange }: Props) {
             }}
           >
             <span className={styles.itemIcon} aria-hidden="true">
-              <FolderXIcon />
+              <NoProjectIcon />
             </span>
             <span className={styles.itemLabel}>Не работать в проекте</span>
             {selection.kind === "none" ? (
