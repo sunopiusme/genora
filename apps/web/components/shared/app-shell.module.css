@@ -486,6 +486,18 @@
   pointer-events: auto;
 }
 
+/* Заголовок секции сайдбара (используется списком проектов). */
+.sectionTitle {
+  margin: 0;
+  padding: var(--space-1) var(--sidebar-item-pad);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--color-foreground-subtle);
+}
+
 /* Строка проекта в списке проектов: иконка ветки + название.
    Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
    на одной вертикали с иконками навигации, а название прижато

@@ -3,20 +3,29 @@ import type { Project, ProjectSelection } from "./types";
 /* ─────────────────────────────────────────
    Каталог проектов composer'а Синоры.
 
-   Список зеркалит недавние песочницы из
-   сайдбара (recent-sandboxes.ts): выбор
-   проекта здесь и переход по ссылке из
-   сайдбара ведут к одному и тому же
-   контексту.
+   Самостоятельный список: сайдбар ведёт
+   собственный список проектов
+   (recent-sandboxes.ts). Ссылки из сайдбара
+   резолвятся по названию (findProjectByLabel),
+   при отсутствии совпадения выбор проекта
+   просто сбрасывается на DEFAULT_PROJECT.
    ───────────────────────────────────────── */
 
 export const PROJECTS: Project[] = [
   { id: "workspaces", label: "Песочницы", kind: "workspace" },
-  { id: "genora-web", label: "Веб-приложение Genora", kind: "project" },
-  { id: "synora-composer", label: "Composer Синоры", kind: "project" },
-  { id: "products-showcase", label: "Витрина продуктов", kind: "project" },
-  { id: "ui-kit", label: "UI-кит @genora/ui", kind: "project" },
-  { id: "e2e-tests", label: "E2E-тесты интерфейса", kind: "project" },
+  { id: "csv-parser", label: "Парсер CSV на TypeScript", kind: "project" },
+  {
+    id: "sortable-table",
+    label: "Компонент таблицы с сортировкой",
+    kind: "project",
+  },
+  { id: "express-api", label: "REST API на Express", kind: "project" },
+  {
+    id: "db-migration",
+    label: "Скрипт миграции базы данных",
+    kind: "project",
+  },
+  { id: "css-loader", label: "Анимация загрузчика на CSS", kind: "project" },
 ];
 
 /* По умолчанию проект не выбран: новый запрос начинается

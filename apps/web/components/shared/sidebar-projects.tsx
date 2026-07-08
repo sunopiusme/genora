@@ -35,6 +35,8 @@ export function SidebarProjects({ projects, chatHref }: SidebarProjectsProps) {
 
   return (
     <>
+      {/* Заголовок секции — как у остальных секций сайдбара. */}
+      <p className={styles.sectionTitle}>Проекты</p>
       {projects.map((project) => {
         const isCollapsed = Boolean(collapsed[project.name]);
         return (
