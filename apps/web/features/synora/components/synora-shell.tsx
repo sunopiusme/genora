@@ -21,7 +21,6 @@ import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
-import { ActivityPanel } from "./activity-panel";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/composer-input";
@@ -387,7 +386,6 @@ export function SynoraShell({
               <Suspense fallback={null}>
                 {pathname === "/synora" && <SynoraHeading />}
                 <ComposerInput />
-                {pathname === "/synora" && <ActivityPanel />}
               </Suspense>
             </div>
           </div>

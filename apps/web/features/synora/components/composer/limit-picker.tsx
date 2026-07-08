@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
+import { ActivityPanel } from "../activity-panel";
 import styles from "./limit-picker.module.css";
 
 const USAGE_PERCENT = 62;
@@ -70,6 +71,9 @@ export function LimitPicker() {
               />
             </div>
             <div className={styles.usageMeta}>{USAGE_RESET_LABEL}</div>
+          </div>
+          <div className={styles.activity}>
+            <ActivityPanel />
           </div>
         </div>
       ) : null}

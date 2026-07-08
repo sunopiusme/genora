@@ -1,12 +1,7 @@
 .panel {
   width: 100%;
-  max-width: var(--composer-width, 44rem);
-  margin: var(--space-3) auto 0;
   display: grid;
   gap: var(--space-3);
-  padding: var(--space-4) 18px;
-  border-radius: 28px;
-  background: var(--color-surface);
   font-family: var(--font-sans), sans-serif;
 }
 
@@ -111,8 +106,4 @@
   color: var(--color-foreground-subtle);
 }
 
-@media (min-width: 48rem) {
-  .stats {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
+
