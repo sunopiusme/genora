@@ -7,7 +7,6 @@ import {
   ChevronRightIcon,
   ClipIcon,
   GridIcon,
-  ListChecksIcon,
   PlusIcon,
   SlashIcon,
 } from "./icons";
@@ -16,12 +15,10 @@ import { PluginIcon } from "./mentions/PluginIcon";
 import { Tooltip } from "./Tooltip";
 
 type PlusDropdownProps = {
-  planMode: boolean;
-  onPlanModeChange: (next: boolean) => void;
   onAttach: () => void;
 };
 
-export function PlusDropdown({ planMode, onPlanModeChange, onAttach }: PlusDropdownProps) {
+export function PlusDropdown({ onAttach }: PlusDropdownProps) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLSpanElement | null>(null);
 
@@ -75,22 +72,6 @@ export function PlusDropdown({ planMode, onPlanModeChange, onAttach }: PlusDropd
                 <ClipIcon />
               </span>
               <span className={styles.dropdownLabel}>Прикрепить файл</span>
-            </button>
-          </div>
-          <div className={styles.dropdownDivider} />
-          <div className={styles.dropdownGroup}>
-            <button
-              type="button"
-              className={styles.dropdownItem}
-              role="menuitemcheckbox"
-              aria-checked={planMode}
-              onClick={() => onPlanModeChange(!planMode)}
-            >
-              <span className={styles.dropdownIcon}>
-                <ListChecksIcon />
-              </span>
-              <span className={styles.dropdownLabel}>Планирование</span>
-              <span className={styles.toggle} data-on={planMode} />
             </button>
           </div>
           <div className={styles.dropdownDivider} />
