@@ -10,14 +10,18 @@ import styles from "./EnvironmentPicker.module.css";
 
    Опции «Запуск в»: локально, новый worktree,
    Codex web (ext-link), облако (disabled).
-   Внизу — submenu «Лимит» с прогресс-баром
-   использования.
+   Внизу — встроенный блок «Лимит» с прогрессом
+   использования и сроком сброса.
    ───────────────────────────────────────── */
 
 type Props = {
   mode: EnvironmentMode;
   onChange: (next: EnvironmentMode) => void;
 };
+
+/* Демо-данные использования лимита (бэкенда пока нет). */
+const USAGE_PERCENT = 62;
+const USAGE_RESET_LABEL = "Сбросится через 3 дня";
 
 const OPTIONS: Array<{
   id: EnvironmentMode;
@@ -103,30 +107,34 @@ export function EnvironmentPicker({ mode, onChange }: Props) {
 
           <div className={styles.divider} />
 
-          <div className={styles.item} data-has-submenu="true" role="menuitem">
-            <span className={styles.itemIcon} aria-hidden="true">
-              <GaugeIcon />
-            </span>
-            <span className={styles.itemLabel}>Лимит</span>
-            <span className={styles.itemSuffix} aria-hidden="true">
-              <ChevronRightIcon />
-            </span>
-            <div className={styles.submenu} role="menu">
-              <div className={styles.usageRow}>
-                <div className={styles.usageHeader}>
-                  <span>Использовано</span>
-                  <span className={styles.usageValue}>62%</span>
-                </div>
-                <div className={styles.usageBar}>
-                  <div
-                    className={styles.usageFill}
-                    style={{ width: "62%" }}
-                  />
-                </div>
-                <div className={styles.usageMeta}>
-                  Сбросится через 3 дня
-                </div>
+          {/* Блок «Лимит» — встроен в поповер, а не спрятан
+              в hover-submenu: работает на тач-устройствах и
+              ничего не перекрывает. Композиция строки — та же
+              сетка, что у пунктов меню (icon / label / value),
+              под ней прогресс и срок сброса в текстовой колонке. */}
+          <div className={styles.usage}>
+            <div className={styles.usageHeader}>
+              <span className={styles.usageIcon} aria-hidden="true">
+                <GaugeIcon />
+              </span>
+              <span className={styles.usageLabel}>Лимит</span>
+              <span className={styles.usageValue}>{USAGE_PERCENT}%</span>
+            </div>
+            <div className={styles.usageBody}>
+              <div
+                className={styles.usageBar}
+                role="progressbar"
+                aria-label="Использование лимита"
+                aria-valuenow={USAGE_PERCENT}
+                aria-valuemin={0}
+                aria-valuemax={100}
+              >
+                <div
+                  className={styles.usageFill}
+                  style={{ width: `${USAGE_PERCENT}%` }}
+                />
               </div>
+              <div className={styles.usageMeta}>{USAGE_RESET_LABEL}</div>
             </div>
           </div>
         </div>
@@ -198,15 +206,6 @@ function ChevronDownIcon() {
   return (
     <svg {...baseProps}>
       <path d="m19 9-7 6-7-6" />
-    </svg>
-  );
-}
-
-/* Solar alt-arrow-right-linear. */
-function ChevronRightIcon() {
-  return (
-    <svg {...baseProps}>
-      <path d="m9 5 6 7-6 7" />
     </svg>
   );
 }

@@ -149,20 +149,6 @@
   text-overflow: ellipsis;
 }
 
-.itemSuffix {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  align-items: center;
-  justify-content: center;
-  color: var(--c-ink-subtle);
-}
-
-.itemSuffix svg {
-  width: 100%;
-  height: 100%;
-}
-
 .itemCheck {
   display: inline-flex;
   width: 16px;
@@ -175,61 +161,63 @@
   height: 100%;
 }
 
-/* Submenu для «Лимит» — сбоку. */
-.submenu {
-  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
-  --c-card-radius: var(--c-pop-radius);
-  --c-row-radius: var(--c-pop-row-radius);
-
-  position: absolute;
-  bottom: calc(0px - var(--c-corner-inset));
-  left: calc(100% + 8px);
-  min-width: 240px;
-  padding: var(--c-corner-inset);
-  border-radius: var(--c-card-radius);
-  /* Сплошная приподнятая поверхность (токены Геноры), без стекла. */
-  background: var(--composer-surface-raised);
-  box-shadow:
-    0 0 0 1px var(--composer-hairline),
-    var(--shadow-lg);
-  display: none;
+/* ── Блок «Лимит» — встроен в низ поповера ──
+   Никакого hover-submenu: секция всегда видна,
+   доступна на тач-устройствах и ничего не
+   перекрывает. Заголовок повторяет сетку .item
+   (icon 20 / label / value), поэтому блок
+   читается как родная строка меню, а не как
+   отдельное окно. Прогресс и срок сброса
+   выровнены по текстовой колонке. */
+.usage {
+  display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 21;
-}
-
-.submenu::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -8px;
-  width: 8px;
-}
-
-.item[data-has-submenu="true"]:hover .submenu,
-.submenu:hover {
-  display: flex;
-}
-
-.usageRow {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 8px 8px;
+  padding: 8px 8px 10px;
 }
 
 .usageHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-size: 0.78rem;
+  display: grid;
+  grid-template-columns: 20px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+}
+
+.usageIcon {
+  display: inline-flex;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
   color: var(--c-ink-muted);
 }
 
+.usageIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.usageLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .usageValue {
-  color: var(--c-ink);
-  font-weight: 500;
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Тело блока — в текстовой колонке заголовка
+   (отступ = icon-col 20 + gap 12), той же
+   вертикали, что и подписи пунктов меню. */
+.usageBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-left: 32px;
 }
 
 .usageBar {
@@ -242,7 +230,9 @@
 
 .usageFill {
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(255, 255, 255, 0.55);
   border-radius: 999px;
 }
@@ -255,7 +245,8 @@
 /* ── Мобильная вёрстка ──
    Тот же приём, что у ProjectPicker: чип
    компактный, поповер — на всю ширину
-   композера, submenu «Лимит» — над поповером. */
+   композера. Блок «Лимит» встроен в поповер,
+   отдельных правил ему не нужно. */
 @media (max-width: 560px) {
   .wrap {
     position: static;
@@ -285,12 +276,6 @@
   .popover {
     left: 0;
     right: 0;
-    min-width: 0;
-  }
-  .submenu {
-    left: var(--c-corner-inset);
-    right: var(--c-corner-inset);
-    bottom: calc(100% + 4px);
     min-width: 0;
   }
 }
