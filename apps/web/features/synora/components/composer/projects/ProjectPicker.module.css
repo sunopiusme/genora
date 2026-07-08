@@ -78,13 +78,18 @@
   z-index: 20;
 }
 
-/* Поиск-инпут сверху. */
+/* Поиск-инпут сверху. Геометрия — один в один
+   со строкой .item (те же grid-колонки, gap и
+   padding), чтобы лупа и текст стояли на одной
+   вертикальной оси с иконками и названиями
+   проектов, а сама строка поиска читалась как
+   часть списка, а не отдельный элемент. */
 .search {
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 20px 1fr 16px;
   align-items: center;
   gap: 12px;
-  padding: 8px 12px;
+  padding: 8px 8px;
   border-radius: var(--c-row-radius);
 }
 
@@ -110,6 +115,7 @@
   background: transparent;
   font-family: inherit;
   font-size: 0.82rem;
+  line-height: inherit;
   color: var(--c-ink);
 }
 
