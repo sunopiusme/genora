@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 
 import type { PermissionLevel } from "./types";
+import { FullAccessDialog } from "./FullAccessDialog";
 import styles from "./PermissionPicker.module.css";
 
 /* ─────────────────────────────────────────
@@ -29,8 +30,13 @@ const OPTIONS: Array<{
   { id: "full", label: "Полный доступ", Icon: ShieldAlertIcon },
 ];
 
+/* Ключ sessionStorage: подтверждение полного доступа спрашиваем
+   один раз за сессию вкладки. */
+const FULL_ACCESS_CONFIRMED_KEY = "synora-full-access-confirmed";
+
 export function PermissionPicker({ level, onChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const wrapRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -75,11 +81,18 @@ export function PermissionPicker({ level, onChange }: Props) {
                 data-level={option.id}
                 data-active={selected}
                 onClick={() => {
+                  setOpen(false);
+                  /* Полный доступ при первом выборе за сессию требует
+                     подтверждения в модалке; после подтверждения — сразу. */
+                  if (
+                    option.id === "full" &&
+                    level !== "full" &&
+                    sessionStorage.getItem(FULL_ACCESS_CONFIRMED_KEY) !== "1"
+                  ) {
+                    setConfirming(true);
+                    return;
+                  }
                   onChange(option.id);
-                  /* При выборе полного доступа поповер остаётся открытым,
-                     чтобы предупреждение о работе без подтверждений было
-                     видно сразу, а не при следующем открытии. */
-                  if (option.id !== "full") setOpen(false);
                 }}
               >
                 <span className={styles.optionIcon} aria-hidden="true">
@@ -96,18 +109,17 @@ export function PermissionPicker({ level, onChange }: Props) {
               </button>
             );
           })}
-          {level === "full" ? (
-            <div className={styles.warningNote} role="note">
-              <span className={styles.warningIcon} aria-hidden="true">
-                <ShieldAlertIcon />
-              </span>
-              <span className={styles.warningText}>
-                Агент сможет выполнять команды и изменять репозиторий без
-                подтверждения каждого действия.
-              </span>
-            </div>
-          ) : null}
         </div>
+      ) : null}
+      {confirming ? (
+        <FullAccessDialog
+          onAccept={() => {
+            sessionStorage.setItem(FULL_ACCESS_CONFIRMED_KEY, "1");
+            setConfirming(false);
+            onChange("full");
+          }}
+          onDecline={() => setConfirming(false)}
+        />
       ) : null}
     </div>
   );

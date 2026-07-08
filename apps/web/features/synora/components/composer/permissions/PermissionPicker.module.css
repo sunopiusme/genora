@@ -171,40 +171,6 @@
   color: var(--c-warning);
 }
 
-/* ── Предупреждение о мобильных платформах ──
-   Плашка под списком уровней: полный доступ на iPhone и других
-   мобильных ОС может быть ограничен системой. */
-.warningNote {
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 12px;
-  align-items: start;
-  margin-top: 1px;
-  padding: 10px 12px;
-  border-radius: var(--c-row-radius);
-  background: color-mix(in srgb, var(--c-warning) 12%, transparent);
-  color: var(--c-warning);
-}
-
-.warningIcon {
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  align-items: center;
-  justify-content: center;
-}
-
-.warningIcon svg {
-  width: 18px;
-  height: 18px;
-}
-
-.warningText {
-  font-size: 0.76rem;
-  line-height: 1.45;
-  text-wrap: pretty;
-}
-
 /* На узких экранах триггер стоит у правого края тулбара —
    поповер привязываем к правому краю, чтобы он не обрезался
    границей вьюпорта, а пункты не переносились. */

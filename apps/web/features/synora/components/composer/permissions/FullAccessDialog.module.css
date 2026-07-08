@@ -1,0 +1,182 @@
+/* ─────────────────────────────────────────
+   Модалка подтверждения полного доступа.
+   Десктоп — центрированная панель до 700px,
+   мобильные — нижняя шторка на всю ширину.
+   ───────────────────────────────────────── */
+
+.overlay {
+  --c-warning: #e8935a;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  animation: overlayIn 160ms ease both;
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  max-width: 700px;
+  padding: 24px;
+  border-radius: 20px;
+  background: var(--composer-surface-raised, #202020);
+  box-shadow:
+    0 0 0 1px var(--composer-hairline, rgba(255, 255, 255, 0.08)),
+    0 24px 64px rgba(0, 0, 0, 0.5);
+  animation: dialogIn 180ms ease both;
+}
+
+.iconBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--c-warning) 14%, transparent);
+  color: var(--c-warning);
+}
+
+.iconBadge svg {
+  width: 24px;
+  height: 24px;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--c-ink, #ececec);
+  text-wrap: balance;
+}
+
+.description {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--c-ink-muted, #9a9a9a);
+  text-wrap: pretty;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.declineBtn,
+.acceptBtn {
+  padding: 9px 16px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+
+.declineBtn {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--c-ink, #ececec);
+}
+
+.declineBtn:hover {
+  background: rgba(255, 255, 255, 0.13);
+}
+
+.acceptBtn {
+  background: var(--c-warning);
+  color: #1a1208;
+}
+
+.acceptBtn:hover {
+  background: color-mix(in srgb, var(--c-warning) 88%, #fff);
+}
+
+.acceptBtn:focus-visible,
+.declineBtn:focus-visible {
+  outline: 2px solid var(--c-warning);
+  outline-offset: 2px;
+}
+
+@keyframes overlayIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes dialogIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ── Мобильные: нижняя шторка ──
+   Панель прижата к низу, на всю ширину, кнопки в столбик
+   (основное действие сверху), с учётом safe-area iOS. */
+@media (max-width: 560px) {
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .dialog {
+    max-width: none;
+    border-radius: 20px 20px 0 0;
+    padding: 20px 20px calc(20px + env(safe-area-inset-bottom, 0px));
+    animation: sheetIn 220ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .declineBtn,
+  .acceptBtn {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+@keyframes sheetIn {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .dialog {
+    animation: none;
+  }
+}
