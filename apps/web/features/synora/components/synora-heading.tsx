@@ -66,7 +66,7 @@ export function SynoraHeading() {
   }
 
   return (
-    <h1 className={styles.heading}>
+    <h1 className={styles.heading} data-open={open}>
       <span className={styles.lead}>Продолжим</span>{" "}
       <span ref={wrapRef} className={styles.projectWrap}>
         <button
