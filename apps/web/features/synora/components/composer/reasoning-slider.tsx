@@ -159,9 +159,13 @@ export function ReasoningSlider({
     >
       <div className={styles.header}>
         <span className={styles.headerLabel}>
-          Effort <span className={styles.headerValue}>{currentLevel?.label}</span>
+          Глубина{" "}
+          <span className={styles.headerValue}>{currentLevel?.label}</span>
         </span>
-        <span className={styles.headerHint} title="Чем выше effort, тем дольше и глубже модель рассуждает">
+        <span
+          className={styles.headerHint}
+          title="Чем выше глубина, тем дольше и тщательнее модель рассуждает"
+        >
           <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
             <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.25" />
             <path
@@ -172,19 +176,19 @@ export function ReasoningSlider({
             />
             <circle cx="8" cy="11.2" r="0.75" fill="currentColor" />
           </svg>
-          <span className={styles.srOnly}>Что такое effort</span>
+          <span className={styles.srOnly}>Что такое глубина рассуждения</span>
         </span>
       </div>
       <div className={styles.ends} aria-hidden="true">
-        <span>Faster</span>
-        <span>Smarter</span>
+        <span>Быстрее</span>
+        <span>Умнее</span>
       </div>
       <div
         ref={trackRef}
         className={styles.track}
         role="slider"
         tabIndex={0}
-        aria-label="Уровень reasoning"
+        aria-label="Глубина рассуждения"
         aria-valuemin={0}
         aria-valuemax={maxIndex}
         aria-valuenow={levelIndex}

@@ -106,7 +106,7 @@ export function ModelPicker({ selection, onChange }: Props) {
 
           <div className={styles.divider} />
 
-          <div className={styles.sectionTitle}>Model</div>
+          <div className={styles.sectionTitle}>Модель</div>
           <div className={styles.section}>
             <div className={styles.modelRow} data-active="true" role="menuitem">
               <span className={styles.modelIcon} aria-hidden="true">

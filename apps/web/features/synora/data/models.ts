@@ -1,11 +1,11 @@
 import type { ModelSelection, Provider, ReasoningLevel } from "../types";
 
 const FABLE_5_LEVELS: ReasoningLevel[] = [
-  { id: "low", label: "Low" },
-  { id: "medium", label: "Medium" },
-  { id: "high", label: "High" },
-  { id: "max", label: "Max" },
-  { id: "ultracode", label: "Ultracode" },
+  { id: "low", label: "Лёгкий" },
+  { id: "medium", label: "Средний" },
+  { id: "high", label: "Высокий" },
+  { id: "max", label: "Максимум" },
+  { id: "ultracode", label: "Ультракод" },
 ];
 
 export const PROVIDERS: Provider[] = [
