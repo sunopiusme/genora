@@ -131,7 +131,10 @@ const GENORA_PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
 const SYNORA_PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
   [
     {
-      label: "Тариф и лимиты",
+      /* Короткая подпись «Тариф» вместо «Тариф и лимиты»: пункт должен
+         помещаться в одну строку, а лимиты — следствие тарифа и будут
+         показаны внутри самого раздела. */
+      label: "Тариф",
       icon: "solar:card-2-linear",
     },
     {
@@ -146,7 +149,9 @@ const SYNORA_PROFILE_MENU_GROUPS: ProfileMenuItem[][] = [
       icon: "solar:user-circle-linear",
     },
     {
-      label: "Настройки песочницы",
+      /* «Настройки» без уточнения «песочницы»: контекст ясен из меню
+         Синоры, а короткая подпись гарантированно помещается в строку. */
+      label: "Настройки",
       icon: "solar:settings-linear",
     },
   ],
