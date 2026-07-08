@@ -7,7 +7,7 @@ import { Icon } from "@/lib/icon";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore } from "@/stores/auth-store";
 import { PROJECT_GROUPS } from "@/lib/recent-chats";
-import { useComposerStore } from "@features/products";
+import { useComposerStore } from "@/stores/composer-store";
 import styles from "./search-overlay.module.css";
 
 /* Единая модель результата: и быстрые действия, и чаты сводятся к
