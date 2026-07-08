@@ -32,6 +32,7 @@ import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@features/products";
 import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
+import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
@@ -314,34 +315,12 @@ export function SynoraShell({
                 {/* Список проектов: работа идёт через GitHub без
                     локального репозитория, поэтому проект помечен
                     иконкой ветки, а под ним — чаты этой ветки. */}
-                {SYNORA_PROJECT_GROUPS.map((project) => (
-                  <div key={project.name} className={styles.subsection}>
-                    <div className={styles.projectRow}>
-                      <Icon
-                        icon="solar:branch-linear"
-                        className={styles.projectIcon}
-                        aria-hidden="true"
-                      />
-                      <span className={styles.projectName}>
-                        {project.name}
-                      </span>
-                    </div>
-                    <nav className={styles.recents}>
-                      {project.chats.map((chat) => (
-                        <Link
-                          key={chat}
-                          href={`/synora?project=${encodeURIComponent(project.name)}`}
-                          className={cn(
-                            styles.recentLink,
-                            styles.recentLinkNested,
-                          )}
-                        >
-                          {chat}
-                        </Link>
-                      ))}
-                    </nav>
-                  </div>
-                ))}
+                <SidebarProjects
+                  projects={SYNORA_PROJECT_GROUPS}
+                  chatHref={(project) =>
+                    `/synora?project=${encodeURIComponent(project.name)}`
+                  }
+                />
               </div>
             </div>
           </div>

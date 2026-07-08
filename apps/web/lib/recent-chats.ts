@@ -11,21 +11,23 @@ export type ProjectGroup = {
   chats: string[];
 };
 
+/* Ветки отражают реальные проекты монорепы genora:
+   веб-приложение Genora, composer «Синоры» и витрина продуктов. */
 export const PROJECT_GROUPS: ProjectGroup[] = [
   {
     name: "main",
-    chats: ["Не приходит код подтверждения", "Подписка на ChatGPT"],
+    chats: ["Не приходит код подтверждения", "Ошибка гидрации на главной"],
   },
   {
-    name: "feat/checkout",
-    chats: ["Оплата подписки не прошла", "Сравнить Claude и Gemini"],
+    name: "feat/synora-composer",
+    chats: ["Picker проектов и веток", "Загрузка файлов в песочницу"],
   },
   {
-    name: "feat/showcase",
+    name: "feat/products-showcase",
     chats: [
-      "Промпты для генерации изображений",
-      "Midjourney для дизайна",
-      "Что выбрать для кода",
+      "Карточки товаров на витрине",
+      "Анимация появления секций",
+      "Адаптив витрины на мобильных",
     ],
   },
 ];

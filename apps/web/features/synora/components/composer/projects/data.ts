@@ -12,11 +12,11 @@ import type { Project, ProjectSelection } from "./types";
 
 export const PROJECTS: Project[] = [
   { id: "workspaces", label: "Песочницы", kind: "workspace" },
-  { id: "csv-parser", label: "Парсер CSV на TypeScript", kind: "project" },
-  { id: "sortable-table", label: "Компонент таблицы с сортировкой", kind: "project" },
-  { id: "express-api", label: "REST API на Express", kind: "project" },
-  { id: "db-migration", label: "Скрипт миграции базы данных", kind: "project" },
-  { id: "css-loader", label: "Анимация загрузчика на CSS", kind: "project" },
+  { id: "genora-web", label: "Веб-приложение Genora", kind: "project" },
+  { id: "synora-composer", label: "Composer Синоры", kind: "project" },
+  { id: "products-showcase", label: "Витрина продуктов", kind: "project" },
+  { id: "ui-kit", label: "UI-кит @genora/ui", kind: "project" },
+  { id: "e2e-tests", label: "E2E-тесты интерфейса", kind: "project" },
 ];
 
 /* По умолчанию проект не выбран: новый запрос начинается

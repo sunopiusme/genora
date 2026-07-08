@@ -18,6 +18,7 @@ import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
 import { PROJECT_GROUPS } from "@/lib/recent-chats";
+import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { PROFILE, formatBalance } from "@features/profile";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
@@ -426,34 +427,10 @@ export function AppShell({
                   {/* Список проектов: работа идёт через GitHub без
                       локального репозитория, поэтому проект — ветка
                       (иконка ветки), а под ним — чаты этой ветки. */}
-                  {PROJECT_GROUPS.map((project) => (
-                    <div key={project.name} className={styles.subsection}>
-                      <div className={styles.projectRow}>
-                        <Icon
-                          icon="solar:branch-linear"
-                          className={styles.projectIcon}
-                          aria-hidden="true"
-                        />
-                        <span className={styles.projectName}>
-                          {project.name}
-                        </span>
-                      </div>
-                      <nav className={styles.recents}>
-                        {project.chats.map((chat) => (
-                          <Link
-                            key={chat}
-                            href="/genora"
-                            className={cn(
-                              styles.recentLink,
-                              styles.recentLinkNested,
-                            )}
-                          >
-                            {chat}
-                          </Link>
-                        ))}
-                      </nav>
-                    </div>
-                  ))}
+                  <SidebarProjects
+                    projects={PROJECT_GROUPS}
+                    chatHref={() => "/genora"}
+                  />
                 </div>
               )}
             </div>

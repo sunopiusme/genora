@@ -290,7 +290,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой р��льсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р����льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -489,13 +489,50 @@
 /* Строка проекта в списке проектов: иконка ветки + название.
    Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
-   к иконке с тем же зазором, что и подписи пунктов навигации. */
+   к иконке с тем же зазором, что и подписи пунктов навигации.
+   Кнопка: клик сворачивает/разворачивает чаты проекта. */
 .projectRow {
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  width: 100%;
   padding: 0.5rem var(--sidebar-item-pad);
   overflow: hidden;
+  background: none;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+}
+
+.projectRow:hover {
+  background-color: var(--color-surface);
+}
+
+/* Шеврон сворачивания: скрыт, появляется при наведении на строку
+   проекта или фокусе с клавиатуры; у свёрнутого проекта виден
+   всегда и развёрнут остриём к названию (повёрнут на -90°). */
+.projectChevron {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  margin-left: auto;
+  color: var(--color-foreground-subtle);
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.projectRow:hover .projectChevron,
+.projectRow:focus-visible .projectChevron {
+  opacity: 1;
+}
+
+.projectChevronCollapsed {
+  opacity: 1;
+  transform: rotate(-90deg);
 }
 
 .projectIcon {
