@@ -1,6 +1,10 @@
 import { create } from "zustand";
 
 type UiStore = {
+  /* По умолчанию true: SSR-разметка сразу рисует раскрытый sidebar
+     (десктопный дефолт), без «доезжания» после гидратации. На мобильных
+     drawer до инициализации прячется CSS-классом shellPreInit, а
+     initSidebar затем выставляет корректное состояние до первой отрисовки. */
   isSidebarOpen: boolean;
   /* Базовое состояние sidebar задаётся один раз при первом монтировании
      оболочки (открыт на десктопе, скрыт на мобильных). Флаг не даёт
@@ -17,7 +21,7 @@ type UiStore = {
 };
 
 export const useUiStore = create<UiStore>((set) => ({
-  isSidebarOpen: false,
+  isSidebarOpen: true,
   hasInitializedSidebar: false,
   isSearchOpen: false,
   initSidebar: (isOpen) =>

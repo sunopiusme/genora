@@ -12,9 +12,9 @@ import {
   ArrowUpIcon,
   ClipIcon,
   ListChecksIcon,
-  MicIcon,
+  // MicIcon, — микрофон временно скрыт
   SpinnerIcon,
-  StopIcon,
+  // StopIcon, — микрофон временно скрыт
 } from "./icons";
 import { ModelPicker } from "./models/ModelPicker";
 import { DEFAULT_SELECTION } from "./models/data";
@@ -117,10 +117,12 @@ export function ComposerInput() {
     return () => window.clearTimeout(id);
   }, [voiceStage]);
 
+  /* Микрофон временно скрыт (см. закомментированную кнопку в toolbarRight).
   const handleMicToggle = () => {
     if (voiceStage === "idle") setVoiceStage("recording");
     else if (voiceStage === "recording") setVoiceStage("processing");
   };
+  */
 
   const handleSubmit = useCallback(() => {
     if (sending || voiceStage === "processing") return;
@@ -143,12 +145,14 @@ export function ComposerInput() {
 
   const openFilePicker = () => fileInputRef.current?.click();
 
+  /* Микрофон временно скрыт (см. закомментированную кнопку в toolbarRight).
   const micLabel =
     voiceStage === "recording"
       ? "Остановить запись"
       : voiceStage === "processing"
         ? "Обработка"
         : "Голосовой ввод";
+  */
 
   return (
     <div ref={rootRef} className={styles.root}>
@@ -250,6 +254,8 @@ export function ComposerInput() {
                   </Tooltip>
                 </>
               )}
+              {/* Микрофон временно скрыт: голосовой ввод пока недоступен.
+                  Вернуть — раскомментировать блок ниже.
               <Tooltip
                 label={micLabel}
                 shortcut={
@@ -280,6 +286,7 @@ export function ComposerInput() {
                   )}
                 </button>
               </Tooltip>
+              */}
               <Tooltip label="Отправить">
                 <button
                   type="button"

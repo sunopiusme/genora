@@ -7,6 +7,9 @@
   position: relative;
   display: inline-flex;
   z-index: 10;
+  /* Предупреждающий оранжевый — тёплый тон в палитре Синоры
+     (родственен эмблеме Claude #D97757), читаем на тёмном фоне. */
+  --c-warning: #e8935a;
 }
 
 /* v2 — компактный значок-ладонь: только иконка, без текста и
@@ -35,6 +38,19 @@
 .trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.075);
   color: var(--c-ink);
+}
+
+/* Оранжевый предупреждающий акцент: полный доступ — рискованный
+   режим, триггер постоянно подсвечен, пока уровень активен. */
+.trigger[data-level="full"],
+.trigger[data-level="full"]:hover,
+.trigger[data-level="full"][aria-expanded="true"] {
+  color: var(--c-warning);
+}
+
+.trigger[data-level="full"]:hover,
+.trigger[data-level="full"][aria-expanded="true"] {
+  background: color-mix(in srgb, var(--c-warning) 14%, transparent);
 }
 
 
@@ -81,6 +97,7 @@
   bottom: calc(100% + 8px);
   left: 0;
   min-width: 220px;
+  max-width: min(280px, calc(100vw - 24px));
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность на ступень светлее карточки
@@ -145,4 +162,21 @@
 .checkIcon svg {
   width: 100%;
   height: 100%;
+}
+
+/* Выбранный «Полный доступ» — оранжевые иконка, текст и галочка. */
+.option[data-level="full"][data-active="true"] .optionIcon,
+.option[data-level="full"][data-active="true"] .optionLabel,
+.option[data-level="full"][data-active="true"] .checkIcon {
+  color: var(--c-warning);
+}
+
+/* На узких экранах триггер стоит у правого края тулбара —
+   поповер привязываем к правому краю, чтобы он не обрезался
+   границей вьюпорта, а пункты не переносились. */
+@media (max-width: 480px) {
+  .popover {
+    left: auto;
+    right: -84px;
+  }
 }

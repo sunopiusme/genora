@@ -97,7 +97,10 @@
   flex-wrap: wrap;
   gap: 4px;
   margin: -16px 0 0;
-  padding: 24px var(--c-pad-x) 12px;
+  /* Верхние 16px из 24px скрыты под карточкой (margin -16px),
+     видимый зазор над чипами = 8px — нижний padding уравнен
+     с ним, чтобы строка не выглядела «тяжёлой» снизу. */
+  padding: 24px var(--c-pad-x) 8px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
   /* На тон темнее карточки — «ящик из-под» неё, контраст
      даёт глубину без рамки. */
@@ -180,7 +183,7 @@
    нового — только то, что уже живёт в инпуте.
 
    Никакого стекла, pill'ов, ауры, halo. Оверлей
-   под��еняет содержимое card'а на ту ж�� поверхность
+   под����еняет содержимое card'а на ту ж�� поверхность
    (та же geometry, тот же row-radius на inset =
    corner-inset, та же палитра hairline'ов, что у
    attachment-плиток и mode-chip'ов).
@@ -533,6 +536,9 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: baseline;
   gap: var(--c-gap-icon);
+  /* Дополнительный воздух слева отделяет чип модели от кнопки
+     уровня доступа («рука») — иначе она читается как часть чипа. */
+  margin-left: 4px;
   padding: 8px 8px 8px 12px;
   border-radius: var(--c-row-radius);
   font-size: 0.82rem;
@@ -1009,7 +1015,7 @@ button.iconBtn[data-loading="true"] svg {
    • нижняя панель контекста — одна строка из
      трёх компактных чипов без переноса;
    • поповеры пикеров растягиваются на всю
-     ширину композе��а (media-блоки пикеров). */
+     ширину композе���а (media-блоки пикеров). */
 @media (max-width: 560px) {
   /* Grid-ячейка .stack по умолчанию не уже своего
      min-content — жёсткий toolbar распирал композер
@@ -1063,7 +1069,9 @@ button.iconBtn[data-loading="true"] svg {
     flex-wrap: nowrap;
     gap: 0;
     margin: 0 0 -16px;
-    padding: 10px 10px 22px;
+    /* Нижние 16px из 24px скрыты под карточкой (margin -16px),
+       видимый зазор под чипами = 8px — верхний padding уравнен. */
+    padding: 8px 10px 24px;
     border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
     /* Инверсия стекинга относительно десктопа: drawer теперь
        НАД карточкой, и поповеры карточки (например, выбор

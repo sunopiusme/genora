@@ -290,7 +290,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой рельсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р��льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -436,6 +436,12 @@
 .footerSwap {
   position: relative;
   z-index: 2;
+}
+
+/* Fade-анимация применяется только при реальной смене блока
+   (логин ↔ профиль) после первоначальной загрузки. На первом
+   рендере страницы блок показывается сразу, без мерцания. */
+.footerSwapAnimate {
   animation: footerSwapIn var(--sidebar-fade) var(--sidebar-ease) both;
 }
 
@@ -588,7 +594,7 @@
 
 .profileMenuFlyout {
   transform-origin: left bottom;
-  /* Флайаут висит над контентной областью (не над профилем),
+  /* Флайаут висит над контентной областью (не ��ад профилем),
      поэтому тень здесь уместна и ничего не затемняет в сайдбаре */
   box-shadow: var(--shadow-lg);
   animation: profileMenuFlyoutIn 0.16s ease both;
@@ -1119,6 +1125,31 @@
   .shellOpen .main {
     transform: translateX(var(--sidebar-expanded-width));
   }
+
+  /* До инициализации sidebar (initSidebar) store хранит десктопный
+     дефолт «открыт», чтобы SSR-разметка сразу рисовала раскрытый sidebar
+     на десктопе. На мобильных до инициализации drawer принудительно
+     скрыт, кнопка-FAB видна, а контент не сдвинут — без переходов,
+     чтобы снятие класса не запускало анимацию. */
+  .shellPreInit .sidebar {
+    transform: translateX(-100%);
+    transition: none;
+  }
+
+  .shellPreInit .main {
+    transform: none;
+    transition: none;
+  }
+
+  .shellPreInit .backdrop {
+    display: none;
+  }
+
+  .shellPreInit .mobileFab {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 }
 
 @media (min-width: 48rem) {
@@ -1144,7 +1175,7 @@
   }
 
   .backdrop,
-  .footerSwap {
+  .footerSwapAnimate {
     animation: none;
   }
 }
