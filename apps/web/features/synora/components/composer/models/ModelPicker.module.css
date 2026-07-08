@@ -73,10 +73,9 @@
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  /* Ширина — под пять подписей стопов ползунка, выровненных
-     по позициям стопов (см. ReasoningSlider): при 280px
-     подписи «Max» и «Ultracode» сталкивались. */
-  min-width: 340px;
+  /* Компактная ширина — подписей у стопов больше нет
+     (текущий уровень показан в заголовке «Effort»). */
+  min-width: 280px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность на ступень светлее карточки
@@ -177,6 +176,6 @@
   }
   /* Поповер не шире вьюпорта минус отступы. */
   .providers {
-    min-width: min(340px, calc(100vw - 24px));
+    min-width: min(280px, calc(100vw - 24px));
   }
 }

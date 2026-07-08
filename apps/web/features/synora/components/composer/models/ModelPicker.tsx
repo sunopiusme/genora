@@ -77,7 +77,7 @@ export function ModelPicker({ selection, onChange }: Props) {
       </button>
       {open ? (
         <div className={styles.providers} role="menu">
-          <div className={styles.sectionTitle}>Reasoning</div>
+          {/* Заголовок «Effort {уровень}» рендерит сам слайдер — по референсу. */}
           <ReasoningSlider
             levels={current.model.levels}
             levelIndex={levelIndex}

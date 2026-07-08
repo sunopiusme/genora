@@ -9,8 +9,13 @@ import styles from "./ReasoningSlider.module.css";
    TierSlider (features/products/tier-slider):
    pointer-drag по треку c rAF-троттлингом,
    снэп к ближайшему стопу, точки-стопы на
-   треке, стрелки/Home/End с клавиатуры и
-   кликабельные подписи стопов снизу.
+   треке, стрелки/Home/End с клавиатуры.
+
+   Разметка — по референсу: заголовок
+   «Effort {уровень}» с иконкой-подсказкой,
+   статичные подписи Faster/Smarter над
+   треком; подписей у каждого стопа нет —
+   текущий уровень виден в заголовке.
 
    Визуально — монохром композера (--c-* токены),
    без brand-цвета и dither-эффекта: ползунок
@@ -162,6 +167,28 @@ export function ReasoningSlider({
 
   return (
     <div ref={rootRef} className={styles.slider}>
+      <div className={styles.header}>
+        <span className={styles.headerLabel}>
+          Effort <span className={styles.headerValue}>{currentLevel?.label}</span>
+        </span>
+        <span className={styles.headerHint} title="Чем выше effort, тем дольше и глубже модель рассуждает">
+          <svg viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.25" stroke="currentColor" strokeWidth="1.25" />
+            <path
+              d="M6.4 6.2c.1-.9.8-1.5 1.7-1.5.9 0 1.6.6 1.6 1.4 0 .7-.4 1-.9 1.4-.5.3-.8.6-.8 1.2v.2"
+              stroke="currentColor"
+              strokeWidth="1.25"
+              strokeLinecap="round"
+            />
+            <circle cx="8" cy="11.2" r="0.75" fill="currentColor" />
+          </svg>
+          <span className={styles.srOnly}>Что такое effort</span>
+        </span>
+      </div>
+      <div className={styles.ends} aria-hidden="true">
+        <span>Faster</span>
+        <span>Smarter</span>
+      </div>
       <div
         ref={trackRef}
         className={styles.track}
@@ -195,24 +222,6 @@ export function ReasoningSlider({
           ))}
         </div>
         <span className={styles.thumb} />
-      </div>
-      <div className={styles.stops} aria-hidden="true">
-        {levels.map((level, index) => (
-          <button
-            key={level.id}
-            type="button"
-            tabIndex={-1}
-            className={index === levelIndex ? styles.stopActive : styles.stop}
-            style={
-              {
-                "--pos": `${maxIndex > 0 ? (index / maxIndex) * 100 : 0}%`,
-              } as React.CSSProperties
-            }
-            onClick={() => onLevelChange(index)}
-          >
-            {level.label}
-          </button>
-        ))}
       </div>
     </div>
   );
