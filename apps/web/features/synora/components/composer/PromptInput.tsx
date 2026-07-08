@@ -12,7 +12,6 @@ type PromptInputProps = {
   disabled: boolean;
   canSubmit: boolean;
   onValueChange: (next: string) => void;
-  onFocusChange: (focused: boolean) => void;
   onSubmit: () => void;
 };
 
@@ -21,7 +20,6 @@ export function PromptInput({
   disabled,
   canSubmit,
   onValueChange,
-  onFocusChange,
   onSubmit,
 }: PromptInputProps) {
   const [caret, setCaret] = useState(0);
@@ -116,14 +114,8 @@ export function PromptInput({
         onKeyUp={syncCaret}
         onClick={syncCaret}
         onKeyDown={handleKeyDown}
-        onFocus={() => {
-          setFocused(true);
-          onFocusChange(true);
-        }}
-        onBlur={() => {
-          setFocused(false);
-          onFocusChange(false);
-        }}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
         placeholder="Что агент должен изменить?"
         rows={1}
         aria-label="Промпт"

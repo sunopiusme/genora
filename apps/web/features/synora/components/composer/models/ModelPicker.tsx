@@ -2,27 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { PROVIDERS, findModel, findProvider } from "./data";
-import type { ModelSelection, ProviderId } from "./types";
+import { findModel } from "./data";
+import type { ModelSelection } from "./types";
+import { ReasoningSlider } from "./ReasoningSlider";
 import styles from "./ModelPicker.module.css";
 
 /* ─────────────────────────────────────────
-   Объединённый model+reasoning picker.
+   Model + reasoning picker.
 
-   Единственный триггер в тулбаре показывает
-   имя модели и текущий reasoning-уровень
-   (например «GPT 5.4 High» или «Opus 4.8 Ultracode»).
+   Триггер в тулбаре показывает имя модели и
+   текущий уровень («Fable 5 High»).
 
    В popover'е:
-     1. Секция «Reasoning» — список уровней
-        выбранной модели, с галочкой у активного.
-        Набор уровней зависит от модели (см. data.ts):
-        Opus 4.8 — единственный с ultracode, у GPT —
-        xHigh, у haiku — усечённый набор.
-     2. Секция «Model» — текущая модель строкой
-        с chevron справа; на hover открывает
-        submenu со списком всех моделей всех
-        провайдеров.
+     1. Секция «Reasoning» — ползунок уровней
+        (механика tier-slider из products):
+        drag по треку, снэп к стопам, подписи
+        стопов кликабельны.
+     2. Секция «Model» — единственная модель
+        Fable 5 с галочкой. Подменю нет —
+        popover фиксированной ширины у правого
+        края триггера и никогда не уходит за
+        границы экрана (прошлый submenu
+        открывался вправо и обрезался).
    ───────────────────────────────────────── */
 
 type Props = {
@@ -46,34 +47,17 @@ export function ModelPicker({ selection, onChange }: Props) {
   }, [open]);
 
   const current = findModel(selection);
-  const provider = findProvider(selection.providerId);
-  if (!current || !provider) return null;
+  if (!current) return null;
 
-  // Имя модели в чипе триггера: для GPT показываем
-  // полное «GPT 5.4» (с пробелом, см. data.ts) — иначе
-  // короткое «5.4» нечитаемо и непонятно, что за провайдер.
-  // Для Claude — полное «Opus 4.8», оно и так компактное.
-  const triggerModelLabel = current.model.label;
+  const levelIndex = Math.max(
+    0,
+    current.model.levels.findIndex((l) => l.id === selection.levelId),
+  );
 
-  // При смене модели — откатываем level, если у новой
-  // модели этого уровня нет (напр. ultracode есть только
-  // у Opus 4.8, xHigh — только у Codex).
-  const pickModel = (providerId: ProviderId, modelId: string) => {
-    const next = findProvider(providerId);
-    if (!next) return;
-    const target = next.models.find((m) => m.id === modelId);
-    if (!target) return;
-    const stillValid = target.levels.some((l) => l.id === selection.levelId);
-    onChange({
-      providerId,
-      modelId,
-      levelId: stillValid ? selection.levelId : target.defaultLevelId,
-    });
-    setOpen(false);
-  };
-
-  const pickLevel = (levelId: string) => {
-    onChange({ ...selection, levelId });
+  const pickLevelIndex = (index: number) => {
+    const level = current.model.levels[index];
+    if (!level || level.id === selection.levelId) return;
+    onChange({ ...selection, levelId: level.id });
   };
 
   return (
@@ -85,7 +69,7 @@ export function ModelPicker({ selection, onChange }: Props) {
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
       >
-        <span className={styles.triggerLabel}>{triggerModelLabel}</span>
+        <span className={styles.triggerLabel}>{current.model.label}</span>
         <span className={styles.triggerLevel}>{current.level?.label}</span>
         <span className={styles.triggerChevron} aria-hidden="true">
           <ChevronDown />
@@ -94,65 +78,21 @@ export function ModelPicker({ selection, onChange }: Props) {
       {open ? (
         <div className={styles.providers} role="menu">
           <div className={styles.sectionTitle}>Reasoning</div>
-          <div className={styles.section}>
-            {current.model.levels.map((level) => {
-              const selected = level.id === selection.levelId;
-              return (
-                <button
-                  key={level.id}
-                  type="button"
-                  className={`${styles.modelRow} ${styles.levelRow}`}
-                  data-active={selected}
-                  onClick={() => pickLevel(level.id)}
-                >
-                  <span className={styles.modelLabel}>{level.label}</span>
-                  {selected ? (
-                    <span className={styles.checkIcon} aria-hidden="true">
-                      <CheckIcon />
-                    </span>
-                  ) : (
-                    <span aria-hidden="true" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          <ReasoningSlider
+            levels={current.model.levels}
+            levelIndex={levelIndex}
+            onLevelChange={pickLevelIndex}
+          />
 
           <div className={styles.divider} />
 
+          <div className={styles.sectionTitle}>Model</div>
           <div className={styles.section}>
-            <div className={styles.providerRow} data-active="true" role="menuitem">
-              <span className={styles.providerLabel}>{current.model.label}</span>
-              <span className={styles.providerChevron} aria-hidden="true">
-                <ChevronRight />
+            <div className={styles.modelRow} data-active="true" role="menuitem">
+              <span className={styles.modelLabel}>{current.model.label}</span>
+              <span className={styles.checkIcon} aria-hidden="true">
+                <CheckIcon />
               </span>
-              <div className={styles.modelsSubmenu} role="menu">
-                <div className={styles.sectionTitle}>Model</div>
-                {PROVIDERS.flatMap((p) => p.models.map((m) => ({ p, m }))).map(
-                  ({ p, m }) => {
-                    const selected =
-                      p.id === selection.providerId && m.id === selection.modelId;
-                    return (
-                      <button
-                        key={`${p.id}-${m.id}`}
-                        type="button"
-                        className={`${styles.modelRow} ${styles.levelRow}`}
-                        data-active={selected}
-                        onClick={() => pickModel(p.id, m.id)}
-                      >
-                        <span className={styles.modelLabel}>{m.label}</span>
-                        {selected ? (
-                          <span className={styles.checkIcon} aria-hidden="true">
-                            <CheckIcon />
-                          </span>
-                        ) : (
-                          <span aria-hidden="true" />
-                        )}
-                      </button>
-                    );
-                  },
-                )}
-              </div>
             </div>
           </div>
         </div>
@@ -182,19 +122,10 @@ function ChevronDown() {
   );
 }
 
-/* Solar alt-arrow-right-linear. */
-function ChevronRight() {
-  return (
-    <svg {...iconBase}>
-      <path d="m9 5 6 7-6 7" />
-    </svg>
-  );
-}
-
 /* Solar check-read-linear (одиночная галочка). */
 function CheckIcon() {
   return (
-    <svg {...iconBase} strokeWidth={1.8}>
+    <svg {...iconBase}>
       <path d="m4.5 12.75 4.5 4.5L19.5 6.75" />
     </svg>
   );

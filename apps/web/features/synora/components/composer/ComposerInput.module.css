@@ -13,8 +13,8 @@
 
    Геометрия унифицирована с правилами sidebar
    (ProjectSidebar):
-   • card-radius 24, corner-inset 6,
-     радиус интерактивных пилюль = 24 − 6 = 18
+   • card-radius 28, corner-inset 6,
+     радиус интерактивных пилюль = 28 − 6 = 22
      (concentric corners по Apple HIG);
    • pad-x = 16 от края до контента;
    • иконки 18×18 в колонке 20×20;
@@ -50,10 +50,12 @@
      слои — без полупрозрачного стекла. */
   --c-surface-glass: var(--composer-surface-raised);
 
-  /* Геометрические токены — те же, что в sidebar */
-  --c-card-radius: 24px;
+  /* Геометрические токены — те же, что в sidebar.
+     Card-radius увеличен до 28 — более округлая, «мягкая»
+     карточка; радиус пилюль следует за ним автоматически. */
+  --c-card-radius: 28px;
   --c-corner-inset: 6px;
-  --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 18px */
+  --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 22px */
   --c-pad-x: 16px;
   --c-icon-col: 20px;
   --c-gap-icon: 8px;
@@ -124,13 +126,10 @@
   z-index: 1;
 }
 
-/* Фокус — деликатное внутреннее кольцо по правилу
-   разделителей raised-поверхности, без смены фона. */
-.card[data-focus="true"] {
-  box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.08),
-    var(--shadow-lg);
-}
+/* Фокус — без визуальной обводки: карточка не меняет
+   ни фон, ни тень при наборе. Курсор в textarea и
+   активные контролы сами сообщают о фокусе; кольцо
+   убрано намеренно по требованиям дизайна. */
 
 /* Drag-over — ступень светлее (elevation светлотой). */
 .card[data-drag="true"] {
@@ -357,65 +356,13 @@
   padding: 4px 6px 0;
 }
 
-/* ── Mode chip — индикатор активного режима
-   (например, «Планирование»). Стоит в toolbarLeft
-   рядом с permission, той же геометрии:
-   радиус row, padding 6/10, font 0.82.
-   Закрытие — мини-кнопка с крестиком справа. ── */
-.modeChip {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--c-gap-icon);
-  padding: 8px 8px 8px 12px;
-  border-radius: var(--c-row-radius);
-  /* Монохром: нейтральная серая плашка вместо системного синего. */
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--c-ink);
-  font-size: 0.82rem;
-  font-weight: 400;
-  line-height: 1;
-}
-
-.modeChipIcon {
-  display: inline-flex;
-  width: var(--c-icon-col);
-  height: var(--c-icon-col);
-  align-items: center;
-  justify-content: center;
-  color: inherit;
-}
-
-.modeChipIcon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.modeChipClose {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: inherit;
-  cursor: pointer;
-  opacity: 0.7;
-  transition: background-color var(--composer-duration-hover) ease,
-              opacity var(--composer-duration-hover) ease;
-}
-
-.modeChipClose:hover {
-  background: rgba(255, 255, 255, 0.12);
-  opacity: 1;
-}
-
-.modeChipClose svg {
-  width: 12px;
-  height: 12px;
-}
+/* Режим планирования — постоянная кнопка-тоггл
+   .iconBtn в toolbarLeft (ComposerInput.tsx):
+   активное состояние даёт tonal-fill через
+   button.iconBtn[data-active="true"] — тот же
+   паттерн, что и mic во время записи. Отдельных
+   стилей чипа больше нет: ничего не появляется
+   и не исчезает, layout тулбара стабилен. */
 
 .input::placeholder {
   color: var(--c-ink-subtle);
@@ -443,7 +390,7 @@
      (PermissionPicker = 8+20+8 = 36px). Без этого при
      записи pickers (36px) сменяются на VoiceRecorder и
      кнопки (32px), и тулбар — а с ним вся карточка —
-     проседал на 4px. min-height держит высоту стабильной,
+     проседал на 4px. min-height де��жит высоту стабильной,
      align-items:center центрирует более низкий контент. */
   min-height: 36px;
 }
@@ -455,7 +402,7 @@
   gap: 2px;
 }
 
-/* toolbarLeft растягивается на всё свободное пространство
+/* toolbarLeft рас��ягивается на всё свободное пр��странство
    между Plus и правым блоком: в idle там (опционально)
    chip режима, в recording — waveform на всю ширину. */
 .toolbarLeft {
@@ -720,22 +667,21 @@ button.iconBtn[data-loading="true"] svg {
 
 
 /* ── Tooltip ──────────────────────────────
-   Hint над/под триггером (button, picker), pill
-   в монохромной палитре композера с label'ом
-   слева и опциональным keycap'ом справа.
-   Универсальный компонент — вокруг любого
-   элемента toolbar'а: plus, permission, model,
-   mic, send.
+   Hint над/под триггером (button, picker).
+   Визуальный стиль унифицирован с tooltip'ом
+   sidebar'а (sidebar-tooltip.module.css):
+   компактный rounded-rect на --neutral-850,
+   hairline-рамка, text-xs / semibold, быстрое
+   появление 120ms ease-out. Один UI-pattern
+   тултипов на всё приложение.
 
    .tooltipWrap — обёртка-якорь (relative + inline),
    вокруг trigger'а; tooltip позиционируется от
    неё через top/bottom + left:50% + translate.
-   data-side управляет тем, с какой стороны
-   рисовать pill (top для toolbarLeft, bottom
-   для context-row если понадобится).
+   data-side управляет стороной появления
+   (top для toolbarLeft, bottom при необходимости).
 
-   Появление — 180ms fade + 2px slide в сторону
-   trigger'а. Скрытие мгновенное. ── */
+   Скрытие мгновенное. ── */
 .tooltipWrap {
   position: relative;
   display: inline-flex;
@@ -747,20 +693,20 @@ button.iconBtn[data-loading="true"] svg {
   left: 50%;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 28px;
-  /* По умолчанию padding симметричный — для
-     label-only тултипов (Permission, Model, Mic
-     без shortcut, Send) пилюля стоит ровно. */
-  padding: 4px 16px 8px;
-  /* Используем composer-токены напрямую (не локальные --c-*):
-     Tooltip переиспользуется за пределами .root композера —
-     например, в CopyButton кодового блока, где локальные
-     алиасы недоступны. */
-  border: 1px solid var(--composer-hairline);
-  border-radius: 999px;
-  background: var(--composer-surface-raised);
+  gap: 6px;
+  /* Глобальные токены (не локальные --c-*): Tooltip
+     переиспользуется за пределами .root композера —
+     например, в CopyButton кодового блока. Значения
+     совпадают со стилем sidebar-tooltip. */
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--neutral-850);
+  box-shadow: var(--shadow-md);
+  color: var(--neutral-0);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-xs);
   white-space: nowrap;
   pointer-events: none;
   z-index: 20;
@@ -770,81 +716,56 @@ button.iconBtn[data-loading="true"] svg {
   transform: translateX(-50%);
 }
 
-/* Когда внутри есть keycap, поджимаем правый
-   край: сам keycap несёт «оптическую массу»,
-   и без поджатия pill выглядит «тяжёлым»
-   слева. Селектор :has() ловит и одиночный
-   keycap, и группу. */
-.tooltip:has(.tooltipKbd) {
-  padding: 4px 8px 8px 12px;
-}
-
 .tooltip[data-side="top"] {
-  /* Зазор между триггером и tooltip'ом — 2px: достаточно,
-     чтобы pill не сливался с кнопкой, но без визуального
-     разрыва, который раньше делал hint оторванным. */
-  bottom: calc(100% + 2px);
-  animation: tooltipInTop 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  bottom: calc(100% + 6px);
+  animation: tooltipInTop 0.12s ease-out both;
 }
 
 .tooltip[data-side="bottom"] {
-  top: calc(100% + 2px);
-  animation: tooltipInBottom 180ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  top: calc(100% + 6px);
+  animation: tooltipInBottom 0.12s ease-out both;
 }
 
+/* Label наследует типографику пилюли — стиль
+   задан на .tooltip, как в sidebar-tooltip. */
 .tooltipLabel {
   display: inline-flex;
   align-items: center;
-  min-height: 20px;
-  transform: translateY(1px);
-  font-size: 0.78rem;
-  font-weight: 500;
-  letter-spacing: -0.005em;
-  /* composer-токен напрямую (см. .tooltip). */
-  color: var(--composer-ink);
-  line-height: 1.1;
+  color: inherit;
 }
 
-/* Keycap — компактный rounded-rectangle pill,
-   объединяющий все глифы shortcut'a в один
-   слот (как в Apple Spotlight, Linear). Глифы
-   стоят вплотную, без separator'а — keycap
-   читается как единая клавиша-композиция
-   (например ⌃⇧D = «Control+Shift+D»).
-
-   Геометрия: высота 20, padding 0 4,
-   radius 5. Min-width только для одиночного
-   глифа — иначе подстраивается под содержимое. */
+/* Keycap — компактный слот shortcut'а справа от
+   label'а. Тише самого label'а: muted-цвет, без
+   собственной плашки — только hairline-контур,
+   чтобы не спорить с текстом. */
 .tooltipKbd {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 1px;
-  height: 20px;
-  min-width: 20px;
-  padding: 0 4px;
-  /* composer-токены напрямую (см. .tooltip). */
-  border: 1px solid var(--composer-hairline);
-  border-radius: 5px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--composer-ink-muted);
+  height: 16px;
+  min-width: 16px;
+  padding: 0 3px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-foreground-muted);
   flex-shrink: 0;
   font-family: inherit;
-  font-size: 0.74rem;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: var(--weight-medium, 500);
   line-height: 1;
 }
 
 .tooltipKbd svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
   display: block;
 }
 
 @keyframes tooltipInTop {
   from {
     opacity: 0;
-    transform: translate(-50%, 2px);
+    transform: translate(-50%, 0.25rem);
   }
   to {
     opacity: 1;
@@ -855,7 +776,7 @@ button.iconBtn[data-loading="true"] svg {
 @keyframes tooltipInBottom {
   from {
     opacity: 0;
-    transform: translate(-50%, -2px);
+    transform: translate(-50%, -0.25rem);
   }
   to {
     opacity: 1;
@@ -1018,7 +939,7 @@ button.iconBtn[data-loading="true"] svg {
 
 /* Plugin-item в submenu — карточка с brand-иконкой
    24×24, label + description. Геометрия совпадает
-   с @-popover, чтобы оба места ощущались как один
+   с @-popover, чтобы оба места ощущ��лись как один
    и тот же реестр плагинов. */
 .pluginItem {
   display: grid;
@@ -1060,42 +981,6 @@ button.iconBtn[data-loading="true"] svg {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* iOS-style toggle. Невзаимодействующий —
-   состояние держит роди��е����ь��кая кнопка через
-   data-on. Шайба сдвигается в активно�� положение
-   при data-on="true". */
-.toggle {
-  position: relative;
-  display: inline-block;
-  width: 28px;
-  height: 16px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  flex-shrink: 0;
-  transition: background-color var(--composer-duration-hover) ease;
-}
-
-.toggle::after {
-  content: "";
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-foreground);
-  transition: transform var(--composer-duration-hover) ease;
-}
-
-.toggle[data-on="true"] {
-  background: var(--color-primary);
-}
-
-.toggle[data-on="true"]::after {
-  transform: translateX(12px);
-  background: var(--color-primary-foreground);
 }
 
 /* ── Мобильная вёрстка ─────────────────── */

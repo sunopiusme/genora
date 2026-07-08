@@ -11,7 +11,6 @@ import { useAttachments } from "./attachments/useAttachments";
 import {
   ArrowUpIcon,
   ClipIcon,
-  CloseIcon,
   ListChecksIcon,
   MicIcon,
   SpinnerIcon,
@@ -71,7 +70,6 @@ export function ComposerInput() {
   const branch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
-  const [inputFocused, setInputFocused] = useState(false);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -170,7 +168,6 @@ export function ComposerInput() {
         <div
           className={styles.card}
           data-drag={fileDrop.dragOver}
-          data-focus={inputFocused}
           data-sending={sending}
           aria-busy={sending}
           {...fileDrop.handlers}
@@ -213,34 +210,32 @@ export function ComposerInput() {
             disabled={sending}
             canSubmit={canSubmit}
             onValueChange={setPrompt}
-            onFocusChange={setInputFocused}
             onSubmit={handleSubmit}
           />
 
           <div className={styles.toolbar} data-recording={voiceStage !== "idle"}>
             <div className={styles.toolbarLeft}>
-              <PlusDropdown
-                planMode={planMode}
-                onPlanModeChange={setPlanMode}
-                onAttach={openFilePicker}
-              />
+              <PlusDropdown onAttach={openFilePicker} />
+              {/* Планирование — постоянная кнопка-тоггл рядом с «+»:
+                  всегда на месте, при активации получает tonal-fill
+                  (data-active, как mic во время записи). Ничего не
+                  появляется и не исчезает — layout стабилен. */}
+              <Tooltip
+                label={planMode ? "Выключить планирование" : "Планирование"}
+              >
+                <button
+                  type="button"
+                  className={styles.iconBtn}
+                  data-active={planMode}
+                  aria-label="Режим планирования"
+                  aria-pressed={planMode}
+                  onClick={() => setPlanMode((prev) => !prev)}
+                >
+                  <ListChecksIcon />
+                </button>
+              </Tooltip>
               {voiceStage !== "idle" ? (
                 <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
-              ) : planMode ? (
-                <span className={styles.modeChip}>
-                  <span className={styles.modeChipIcon} aria-hidden="true">
-                    <ListChecksIcon />
-                  </span>
-                  Планирование
-                  <button
-                    type="button"
-                    className={styles.modeChipClose}
-                    aria-label="Выключить планирование"
-                    onClick={() => setPlanMode(false)}
-                  >
-                    <CloseIcon />
-                  </button>
-                </span>
               ) : null}
             </div>
 
