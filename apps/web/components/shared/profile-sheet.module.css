@@ -230,11 +230,15 @@ button.row:focus-visible {
 }
 
 .rowValue {
-  /* Длинные значения (email) усекаются в троеточие, а не ломают строку */
+  /* Длинные значения (email) усекаются в троеточие, а не ломают строку.
+     Ограничение ширины оставляет «воздух» после подписи: без него email
+     заполнял строку вплотную и группа выглядела перекошенной. */
   min-width: 0;
+  max-width: 55%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  text-align: right;
   font-size: var(--text-sm);
   color: var(--color-foreground-muted);
 }
