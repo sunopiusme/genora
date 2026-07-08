@@ -110,7 +110,6 @@ export function AuthOverlay() {
         <DialogTitle className={styles.srOnly}>
           {view === "login" ? "Вход в Genora" : "Подтверждение почты"}
         </DialogTitle>
-        <span className={styles.grabber} aria-hidden="true" />
         <button
           type="button"
           className={cn(

@@ -1,31 +1,30 @@
+import { SYNORA_PROJECT_GROUPS } from "../../../recent-sandboxes";
 import type { Project, ProjectSelection } from "./types";
 
 /* ─────────────────────────────────────────
    Каталог проектов composer'а Синоры.
 
-   Самостоятельный список: сайдбар ведёт
-   собственный список проектов
-   (recent-sandboxes.ts). Ссылки из сайдбара
-   резолвятся по названию (findProjectByLabel),
-   при отсутствии совпадения выбор проекта
-   просто сбрасывается на DEFAULT_PROJECT.
+   Единый источник данных — SYNORA_PROJECT_GROUPS
+   (recent-sandboxes.ts): те же проекты и ветки,
+   что и в сайдбаре. Список picker'а строится из
+   него, поэтому сайдбар, поле «Название» и
+   раздел «Ветка» всегда синхронны.
+
+   id проекта — его ветка GitHub: она уникальна
+   и стабильна (работа идёт через GitHub без
+   локального репозитория).
    ───────────────────────────────────────── */
 
 export const PROJECTS: Project[] = [
   { id: "workspaces", label: "Песочницы", kind: "workspace" },
-  { id: "csv-parser", label: "Парсер CSV на TypeScript", kind: "project" },
-  {
-    id: "sortable-table",
-    label: "Компонент таблицы с сортировкой",
-    kind: "project",
-  },
-  { id: "express-api", label: "REST API на Express", kind: "project" },
-  {
-    id: "db-migration",
-    label: "Скрипт миграции базы данных",
-    kind: "project",
-  },
-  { id: "css-loader", label: "Анимация загрузчика на CSS", kind: "project" },
+  ...SYNORA_PROJECT_GROUPS.map(
+    (group): Project => ({
+      id: group.branch,
+      label: group.name,
+      kind: "project",
+      branch: group.branch,
+    }),
+  ),
 ];
 
 /* По умолчанию проект не выбран: новый запрос начинается

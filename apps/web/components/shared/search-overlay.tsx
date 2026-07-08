@@ -179,7 +179,6 @@ export function SearchOverlay() {
         overlayClassName={styles.overlay}
       >
         <DialogTitle className={styles.srOnly}>Поиск по чатам</DialogTitle>
-        <span className={styles.grabber} aria-hidden="true" />
 
         <div className={styles.searchField}>
           <Icon

@@ -90,19 +90,6 @@
   border: 0;
 }
 
-.grabber {
-  display: none;
-  position: absolute;
-  top: 0.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 2.25rem;
-  height: 0.3125rem;
-  border-radius: var(--radius-full);
-  background-color: rgb(255 255 255 / 0.28);
-  pointer-events: none;
-}
-
 .searchField {
   flex-shrink: 0;
   display: flex;
@@ -274,10 +261,6 @@
 
   .content.content[data-state="closed"] {
     animation: searchSheetOut 0.28s cubic-bezier(0.4, 0, 1, 1) both;
-  }
-
-  .grabber {
-    display: block;
   }
 
   .searchField {

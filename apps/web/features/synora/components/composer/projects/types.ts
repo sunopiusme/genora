@@ -12,6 +12,9 @@ export type Project = {
   id: string;
   label: string;
   kind: ProjectKind;
+  /* Ветка GitHub проекта — та же, что показана в сайдбаре.
+     У workspace-записей ветки нет. */
+  branch?: string;
 };
 
 export type ProjectSelection =
