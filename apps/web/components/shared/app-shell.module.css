@@ -290,7 +290,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой рельсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р��льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -504,28 +504,86 @@
   color: var(--color-foreground-subtle);
 }
 
-/* Строка проекта в списке проектов: иконка ветки + название.
-   Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
-   на одной вертикали с иконками навигации, а название прижато
-   к иконке с тем же зазором, что и подписи пунктов навигации.
-   Кнопка: клик сворачивает/разворачивает чаты проекта. */
+/* Строка проекта: контейнер для кнопки сворачивания и кнопки
+   «Новый чат». Подсветка и появление контролов — при наведении
+   на всю строку или фокусе внутри неё. */
 .projectRow {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
   width: 100%;
-  padding: 0.5rem var(--sidebar-item-pad);
   overflow: hidden;
-  background: none;
-  border: none;
   border-radius: var(--radius-lg);
-  cursor: pointer;
-  text-align: left;
   transition: background-color 0.15s ease;
 }
 
-.projectRow:hover {
+.projectRow:hover,
+.projectRow:focus-within {
   background-color: var(--color-surface);
+}
+
+/* Кнопка сворачивания: иконка ветки + название + шеврон.
+   Паддинги и gap повторяют .navLink, поэтому иконка ветки стоит
+   на одной вертикали с иконками навигации, а название прижато
+   к иконке с тем же зазором, что и подписи пунктов навигации. */
+.projectToggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem var(--sidebar-item-pad);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+/* «Новый чат»: скрыт, появляется при наведении на строку проекта
+   или фокусе с клавиатуры; открывает окно площадки с контекстом
+   соответствующего проекта. В скрытом состоянии схлопнут по
+   ширине (а не opacity с резервом места), чтобы название проекта
+   не обрезалось, пока кнопка не нужна; при этом ссылка остаётся
+   в табе — фокус на ней раскрывает её через :focus-within. */
+.projectNewChat {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex-shrink: 0;
+  max-width: 0;
+  margin-right: 0;
+  padding: var(--space-1) 0;
+  overflow: hidden;
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  color: var(--color-foreground);
+  background-color: var(--color-surface-raised);
+  text-decoration: none;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.projectRow:hover .projectNewChat,
+.projectRow:focus-within .projectNewChat {
+  max-width: 8rem;
+  margin-right: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.projectNewChat:hover {
+  background-color: var(--color-surface-raised-hover);
+}
+
+.projectNewChatIcon {
+  width: 0.875rem;
+  height: 0.875rem;
+  flex-shrink: 0;
 }
 
 /* Шеврон сворачивания: скрыт, появляется при наведении на строку
@@ -544,7 +602,7 @@
 }
 
 .projectRow:hover .projectChevron,
-.projectRow:focus-visible .projectChevron {
+.projectRow:focus-within .projectChevron {
   opacity: 1;
 }
 
@@ -560,7 +618,7 @@
   color: var(--color-foreground);
 }
 
-/* Тот же утолщённый штрих, что и у .navIcon — единый вес иконок */
+/* Тот же утолщённый штрих, что и у .navIcon — е��иный вес иконок */
 .projectIcon * {
   stroke-width: 1.8;
 }

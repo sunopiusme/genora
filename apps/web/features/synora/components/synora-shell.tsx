@@ -329,6 +329,9 @@ export function SynoraShell({
                   chatHref={(project) =>
                     `/synora?project=${encodeURIComponent(project.name)}`
                   }
+                  newChatHref={(project) =>
+                    `/synora?project=${encodeURIComponent(project.name)}`
+                  }
                 />
               </div>
             </div>

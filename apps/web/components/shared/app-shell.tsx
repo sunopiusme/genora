@@ -452,6 +452,7 @@ export function AppShell({
                   <SidebarProjects
                     projects={PROJECT_GROUPS}
                     chatHref={() => "/genora"}
+                    newChatHref={() => "/genora"}
                   />
                 </div>
               )}
