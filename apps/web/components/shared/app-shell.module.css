@@ -542,7 +542,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико��ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико����ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -655,9 +655,10 @@
   text-overflow: ellipsis;
 }
 
-/* Название проекта внизу списка чатов: тот же размер текста,
-   что у заголовка-ветки (--text-sm), приглушённый цвет; левый
-   отступ повторяет .recentLinkNested — на одном уровне с чатами. */
+/* Название проекта внизу списка чатов: это такой же общий чат,
+   как и остальные строки, поэтому цвет — тот же белый
+   (--color-foreground), как в референсе iOS; левый отступ
+   повторяет .recentLinkNested — на одном уровне с чатами. */
 .projectCaption {
   margin: 0;
   padding: var(--space-1) var(--sidebar-item-pad) var(--space-1)
@@ -667,7 +668,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--color-foreground-subtle);
+  color: var(--color-foreground);
 }
 
 .subsection {
@@ -1189,9 +1190,15 @@
 
 @media (max-width: 47.9375rem) {
   .shell {
-    --sidebar-expanded-width: min(80vw, 18.75rem);
+    /* Дровер раскрывается на весь экран, как нативный сайдбар
+       iOS (референс — ChatGPT): без «частичного» открытия с
+       полоской контента справа. */
+    --sidebar-expanded-width: 100vw;
     --sidebar-inset: var(--space-3);
     --sidebar-touch-target: 2.75rem;
+    /* Плотность списка чатов: строки ниже пунктов навигации,
+       как в референсе — навигация крупная, чаты компактнее. */
+    --sidebar-chat-target: 2.375rem;
   }
 
   .mobileFab {
@@ -1218,10 +1225,15 @@
   }
 
   .sidebarInner {
+    /* Отступы повторяют safe-area iOS: контент не заезжает под
+       чёлку и домашний индикатор — как в нативном приложении. */
     padding-top: calc(var(--sidebar-inset) + env(safe-area-inset-top, 0px));
     padding-bottom: calc(
       var(--sidebar-inset) + env(safe-area-inset-bottom, 0px)
     );
+    /* Полноэкранный дровер: линия-граница у правого края экрана
+       выглядела бы случайной чертой — убираем. */
+    border-right: none;
   }
 
   .sidebarHeader {
@@ -1267,9 +1279,22 @@
   .recentLink {
     display: flex;
     align-items: center;
-    min-height: var(--sidebar-touch-target);
+    min-height: var(--sidebar-chat-target);
     padding-block: 0;
     font-size: var(--text-sm);
+  }
+
+  /* Название проекта внизу чатов — та же плотность, что у чатов. */
+  .projectCaption {
+    display: flex;
+    align-items: center;
+    min-height: var(--sidebar-chat-target);
+    padding-block: 0;
+  }
+
+  /* Плотнее вертикальный ритм секций проектов. */
+  .subsection {
+    margin-top: var(--space-2);
   }
 
   .profile {
