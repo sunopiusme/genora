@@ -47,15 +47,10 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: calc(100dvh - 2.5rem);
+  /* Шторка занимает весь экран: без зазора и полоски сверху */
+  height: 100dvh;
   margin-top: auto;
-  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
-  border: 1px solid rgb(255 255 255 / 0.12);
-  border-bottom: none;
   background-color: var(--color-surface);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 0.06),
-    0 -24px 64px -20px rgb(0 0 0 / 0.8);
   overflow: hidden;
   animation: sheetIn 0.5s cubic-bezier(0.33, 1, 0.68, 1) both;
 }
@@ -82,7 +77,8 @@
 
 .controls {
   position: absolute;
-  top: var(--space-3);
+  /* Учитываем вырез/статус-бар: кнопка не прячется под ним на весь экран */
+  top: calc(var(--space-3) + env(safe-area-inset-top, 0px));
   right: var(--space-3);
   z-index: 2;
 }
@@ -124,7 +120,7 @@
   overscroll-behavior: contain;
   /* Симметричный резерв под скроллбар — контент шторки по центру */
   scrollbar-gutter: stable both-edges;
-  padding: var(--space-8) var(--space-4)
+  padding: calc(var(--space-8) + env(safe-area-inset-top, 0px)) var(--space-4)
     calc(var(--space-8) + env(safe-area-inset-bottom, 0px));
 }
 
