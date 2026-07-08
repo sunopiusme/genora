@@ -36,19 +36,23 @@
 }
 
 /* Brand-эмблема модели в чипе. На самых узких экранах
-   остаётся единственным содержимым триггера. */
+   остаётся единственным содержимым триггера.
+   Контейнер 20px — колонка иконки как у соседних чипов
+   (ветка/окружение: .triggerIcon svg 20px); сама эмблема
+   18px — заливной логотип оптически тяжелее контурных
+   Solar-иконок, поэтому 18px визуально равен их 20px. */
 .triggerIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 
 .triggerIcon img {
-  width: 100%;
-  height: 100%;
+  width: 18px;
+  height: 18px;
   display: block;
 }
 
@@ -63,10 +67,12 @@
   white-space: nowrap;
 }
 
+/* Шеврон: 14px — золотая середина между прежними 12px
+   (терялся рядом с 18px-эмблемой) и 16px-иконками строк. */
 .triggerChevron {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   margin-left: 2px;
   color: var(--c-ink-subtle);
 }

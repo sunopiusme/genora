@@ -113,7 +113,7 @@ export function ModelPicker({ selection, onChange }: Props) {
         {/* Brand-эмблема модели (Claude / theSVG.org) — на самых
             узких экранах остаётся единственным содержимым чипа. */}
         <span className={styles.triggerIcon} aria-hidden="true">
-          <img src="/brands/claude.svg" alt="" width={16} height={16} />
+          <img src="/brands/claude.svg" alt="" width={18} height={18} />
         </span>
         <span className={styles.triggerLabel}>{current.model.label}</span>
         <span className={styles.triggerLevel}>{current.level?.label}</span>
