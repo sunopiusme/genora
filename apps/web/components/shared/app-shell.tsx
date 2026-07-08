@@ -20,7 +20,7 @@ import { Icon } from "@/lib/icon";
 import { PROJECT_GROUPS } from "@/lib/recent-chats";
 import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { PROFILE, formatBalance } from "@features/profile";
-import { useComposerStore } from "@features/products";
+import { useComposerStore } from "@/stores/composer-store";
 import { ComposerBar } from "./composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
@@ -462,7 +462,7 @@ export function AppShell({
               {authenticatedUser && (
                 <div className={styles.section}>
                   {/* Список проектов: работа идёт через GitHub без
-                      локального репозитория, поэтому проект — ветка
+                      л��кального репозитория, поэтому проект — ветка
                       (иконка ветки), а под ним — чаты этой ветки. */}
                   <SidebarProjects
                     projects={PROJECT_GROUPS}

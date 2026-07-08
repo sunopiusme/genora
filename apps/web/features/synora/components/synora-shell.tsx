@@ -1,18 +1,5 @@
 "use client";
 
-/**
- * Оболочка площадки «Синора» — архитектурная копия AppShell (Genora),
- * адаптированная под площадку-песочницу:
- * - логотип и вордмарк «Синора» вместо Genora;
- * - навигация без витрины и подписок: «Новый запрос», «Поиск», «Плагины»;
- * - обратный переход на Genora с той же стрелкой-индикатором;
- * - доступ только после авторизации (см. layout /synora).
- *
- * Стили переиспользуются из app-shell.module.css: обе площадки живут
- * в одной платформе и должны выглядеть идентично. При будущем переезде
- * внутрь Genora достаточно будет перенести эту папку.
- */
-
 import {
   Suspense,
   useEffect,
@@ -29,15 +16,15 @@ import { SynoraLogo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
-import { useComposerStore } from "@features/products";
+import { useComposerStore } from "@/stores/composer-store";
 import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
-import { ComposerInput } from "./composer/ComposerInput";
-import { SYNORA_PROJECT_GROUPS } from "../recent-sandboxes";
+import { ComposerInput } from "./composer/composer-input";
+import { SYNORA_PROJECT_GROUPS } from "../data/recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
 import synoraStyles from "./synora-shell.module.css";
 
@@ -103,9 +90,6 @@ export function SynoraShell({
   const prevSidebarOpen = useRef(isSidebarOpen);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
-  /* Базовое состояние интерфейса: на десктопе sidebar развёрнут
-     по умолчанию, на мобильных остаётся скрытым (overlay по кнопке).
-     Синхронно с AppShell — см. комментарий там. */
   useLayoutEffect(() => {
     const isDesktop = !window.matchMedia(MOBILE_MEDIA_QUERY).matches;
     useUiStore.getState().initSidebar(isDesktop);
@@ -123,8 +107,6 @@ export function SynoraShell({
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
       closeSidebar();
     }
-    /* Всегда переходим на чистый /synora: сбрасываем и другой раздел,
-       и query-параметр ?project= от открытой недавней песочницы. */
     router.push("/synora");
     requestComposerFocus();
   }
@@ -251,8 +233,6 @@ export function SynoraShell({
               <SynoraLogo width="1.625rem" height="1.625rem" />
             </span>
             <span className={styles.wordmark}>Синора</span>
-            {/* Мобильный макет по референсу iOS: аватарка в шапке
-                справа (на десктопе скрыта — профиль там в футере). */}
             <div className={styles.sidebarHeaderProfile}>
               <ProfileMenu
                 isSidebarOpen={isSidebarOpen}
@@ -331,9 +311,6 @@ export function SynoraShell({
               </nav>
 
               <div className={styles.section}>
-                {/* Список проектов: работа идёт через GitHub без
-                    локального репозитория, поэтому проект помечен
-                    иконкой ветки, а под ним — чаты этой ветки. */}
                 <SidebarProjects
                   projects={SYNORA_PROJECT_GROUPS}
                   chatHref={(project) =>
@@ -348,7 +325,6 @@ export function SynoraShell({
           </div>
 
           <div className={styles.sidebarFooter}>
-            {/* На мобильном профиль-футер скрыт — аватар в шапке. */}
             <div
               key="profile"
               className={cn(styles.footerSwap, styles.footerSwapProfile)}
@@ -362,8 +338,6 @@ export function SynoraShell({
             </div>
           </div>
 
-          {/* Плавающая кнопка нового чата внизу справа — по
-              референсу iOS; видна только на мобильном. */}
           <button
             type="button"
             className={styles.sidebarChatFab}
@@ -405,17 +379,11 @@ export function SynoraShell({
           <div
             className={cn(
               styles.composer,
-              /* На главной /synora (планшет и десктоп) композер по цен���ру,
-                 чуть выше середины экрана — см. synora-shell.module.css */
               pathname === "/synora" && synoraStyles.composerCentered,
             )}
           >
             <div className={styles.composerInner}>
-              {/* Suspense — из-за useSearchParams внутри композера
-                  и десктопного заголовка */}
               <Suspense fallback={null}>
-                {/* Десктопный заголовок над композером — только на
-                    главной /synora (см. synora-heading.tsx) */}
                 {pathname === "/synora" && <SynoraHeading />}
                 <ComposerInput />
               </Suspense>
@@ -427,8 +395,6 @@ export function SynoraShell({
   );
 }
 
-/* Solar siderbar-minimalistic-linear — stroke 1.5,
-   единый стиль с остальными иконками (lib/icon.tsx). */
 function SidebarIcon() {
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">

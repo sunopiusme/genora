@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Icon } from "@/lib/icon";
-import { useComposerStore } from "../stores/composer-store";
+import { useComposerStore } from "@/stores/composer-store";
 import { useMobileViewport } from "../hooks/use-mobile-viewport";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import type { Product } from "../types";

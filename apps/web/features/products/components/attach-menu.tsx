@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { Icon } from "@/lib/icon";
-import { useComposerStore } from "../stores/composer-store";
+import { useComposerStore } from "@/stores/composer-store";
 import { getBrandLogoCssUrl } from "../brand-logos";
 import { getFeaturedProducts } from "../catalog";
 import type { Product } from "../types";

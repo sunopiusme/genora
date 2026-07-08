@@ -1,0 +1,116 @@
+.popover {
+
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
+  position: absolute;
+
+  bottom: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  padding: var(--c-corner-inset);
+  border-radius: var(--c-card-radius);
+
+  background: var(--composer-surface-raised);
+  box-shadow:
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
+  z-index: 5;
+
+  overflow: visible;
+}
+
+.scroller {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+}
+
+.scroller::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scroller::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 3px;
+}
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.groupTitle {
+  margin: 4px 8px 2px;
+  font-size: 0.74rem;
+  color: var(--c-ink-subtle);
+  letter-spacing: 0;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 8px;
+  border: none;
+  border-radius: var(--c-row-radius);
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--c-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.item:hover,
+.item[data-active="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.itemMain {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+}
+
+.itemLabel {
+  font-weight: 500;
+  color: var(--c-ink);
+  white-space: nowrap;
+}
+
+.itemDesc {
+  color: var(--c-ink-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.fileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--c-ink-subtle);
+}
+
+.fileIcon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.empty {
+  padding: 12px 12px;
+  font-size: 0.82rem;
+  color: var(--c-ink-subtle);
+}

@@ -1,0 +1,83 @@
+.layer {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 16px 0 8px;
+  border-radius: 999px;
+
+  background: var(--color-danger-surface, #2a1212);
+  border: 1px solid rgb(239 68 68 / 0.22);
+  box-shadow: var(--shadow-md, 0 4px 12px 0 rgba(0, 0, 0, 0.32));
+  color: var(--color-danger-foreground, #fecaca);
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  pointer-events: auto;
+  animation: toastIn 380ms cubic-bezier(0.22, 1.2, 0.36, 1) both;
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.06);
+  color: var(--color-danger-foreground, #fecaca);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--composer-duration-hover) ease,
+    color var(--composer-duration-hover) ease;
+}
+
+.close:hover {
+  background: rgb(255 255 255 / 0.12);
+  color: var(--color-foreground, #fafafa);
+}
+
+.close svg {
+  width: 12px;
+  height: 12px;
+}
+
+.text {
+  line-height: 1;
+}
+
+@keyframes toastIn {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.92);
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}

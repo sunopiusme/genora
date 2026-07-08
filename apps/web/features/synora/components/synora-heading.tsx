@@ -3,30 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-import { BranchPopover } from "./composer/branches/BranchPopover";
-import { useBranchStore } from "./composer/branches/branch-store";
-import { useProjectStore } from "./composer/projects/project-store";
-import { findProject } from "./composer/projects/data";
+import { BranchPopover } from "./composer/branch-popover";
 import styles from "./synora-heading.module.css";
+import { findProject } from "../data/projects";
+import { useBranchStore } from "../stores/branch-store";
+import { useProjectStore } from "../stores/project-store";
 
-/**
- * Десктопный заголовок главной /synora — над центрированным композером.
- *
- * Два варианта (аналог героя на мобильных, см. synora-home.tsx):
- * - без проекта:  «Что создадим?»
- * - с проектом:   серое «Продолжим» + белое название проекта.
- *
- * Название проекта — единственный интерактивный элемент: по клику
- * открывается общий поповер веток (BranchPopover), тот же, что
- * в drawer'е композера. Состояние ветки синхронизировано через
- * useBranchStore.
- *
- * На мобильных (< 48rem) заголовок скрыт — там работает герой
- * SynoraHome. Название читается из общего стора проекта: выбор в
- * picker'е композера и переход по ?project= из сайдбара меняют
- * заголовок синхронно. До первой синхронизации стора используется
- * query-параметр — так заголовок не мигает при загрузке.
- */
 export function SynoraHeading() {
   const searchParams = useSearchParams();
   const paramName = searchParams.get("project")?.trim() || undefined;
@@ -47,7 +29,6 @@ export function SynoraHeading() {
     setOpen(false);
   }, []);
 
-  /* Закрытие по клику вне поповера и по Escape. */
   useEffect(() => {
     if (!open) return;
     const handleClick = (event: MouseEvent) => {
@@ -66,7 +47,6 @@ export function SynoraHeading() {
     };
   }, [closePopover, open]);
 
-  /* Смена проекта закрывает открытый поповер. */
   useEffect(() => {
     setOpen(false);
   }, [projectName]);

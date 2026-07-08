@@ -1,10 +1,5 @@
-/* Десктопный заголовок главной /synora — над центрированным
-   композером. На мобильных (< 48rem) скрыт: там работает герой
-   SynoraHome (synora-home.module.css). */
-
 .heading {
-  /* Токены композера для общего поповера веток (BranchPicker.module.css):
-     заголовок живёт вне .root композера, где они объявлены. */
+
   --c-ink: var(--color-foreground);
   --c-ink-muted: var(--color-foreground-muted);
   --c-ink-subtle: var(--color-foreground-subtle);
@@ -12,9 +7,9 @@
   --c-card-radius: 24px;
   --c-corner-inset: 6px;
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
-  /* Концентричная пара радиусов popover'ов — как в ComposerInput. */
+
   --c-pop-radius: 18px;
-  --c-pop-row-radius: calc(var(--c-pop-radius) - var(--c-corner-inset)); /* 12px */
+  --c-pop-row-radius: calc(var(--c-pop-radius) - var(--c-corner-inset));
   --c-gap-icon: 8px;
   --c-icon-col: 20px;
   --composer-surface-raised: var(--color-surface-raised, #303030);
@@ -38,28 +33,19 @@
   }
 }
 
-/* Заголовок поднимается над композером (который идёт следом
-   в DOM) ТОЛЬКО пока открыт его собственный поповер веток.
-   Постоянный z-index здесь нельзя: закрытый заголовок
-   перекрывал бы поповеры самого композера, раскрывающиеся
-   вверх — текст «Что создадим?» просвечивал сквозь них. */
 .heading[data-open="true"] {
   z-index: 30;
 }
 
-/* Серая вводная часть перед названием проекта. */
 .lead {
   color: var(--color-foreground-subtle);
 }
 
-/* Обёртка нужна как якорь позиционирования поповера. */
 .projectWrap {
   position: relative;
   display: inline-block;
 }
 
-/* Название проекта — кнопка без «обвеса»: наследует типографику
-   заголовка, при наведении слегка подсвечивается. */
 .project {
   padding: 0;
   border: none;
@@ -80,8 +66,6 @@
   outline-offset: 4px;
 }
 
-/* Поповер веток центрируем под названием и возвращаем
-   нормальную типографику вместо унаследованной от h1. */
 .projectWrap :global([role="menu"]) {
   left: 50%;
   transform: translateX(-50%);

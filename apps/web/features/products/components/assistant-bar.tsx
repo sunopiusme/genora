@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import { PROFILE } from "@features/profile";
 import { Icon } from "@/lib/icon";
 import { useAuthStore } from "@/stores/auth-store";
-import { useComposerStore } from "../stores/composer-store";
+import { useComposerStore } from "@/stores/composer-store";
 import { AttachMenu } from "./attach-menu";
 import { MentionMenu, getMentionItems, type MentionItem } from "./mention-menu";
 import styles from "./assistant-bar.module.css";
