@@ -1,0 +1,118 @@
+.panel {
+  width: 100%;
+  max-width: var(--composer-width, 44rem);
+  margin: var(--space-3) auto 0;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4) 18px;
+  border-radius: 28px;
+  background: var(--color-surface);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-muted);
+}
+
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.filter {
+  padding: var(--space-1) var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-subtle);
+  cursor: pointer;
+  transition:
+    color 120ms ease,
+    background 120ms ease;
+}
+
+.filter:hover {
+  color: var(--color-foreground-muted);
+}
+
+.filter[data-active="true"] {
+  background: var(--color-surface-elevated);
+  color: var(--color-foreground);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.stat {
+  display: grid;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: rgb(255 255 255 / 0.04);
+}
+
+.statLabel {
+  font-size: var(--text-xs);
+  color: var(--color-foreground-subtle);
+}
+
+.statValue {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--color-foreground);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--activity-columns), 1fr);
+  gap: 3px;
+}
+
+.cell {
+  aspect-ratio: 1;
+  border-radius: 20%;
+  background: rgb(255 255 255 / 0.05);
+}
+
+.cell[data-level="1"] {
+  background: color-mix(in srgb, var(--color-warm) 28%, transparent);
+}
+
+.cell[data-level="2"] {
+  background: color-mix(in srgb, var(--color-warm) 56%, transparent);
+}
+
+.cell[data-level="3"] {
+  background: var(--color-warm);
+}
+
+.legend {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-foreground-subtle);
+}
+
+@media (min-width: 48rem) {
+  .stats {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
