@@ -183,6 +183,9 @@ export function AppShell({
   const pathname = usePathname();
   const router = useRouter();
   const isSidebarOpen = useUiStore((state) => state.isSidebarOpen);
+  const hasInitializedSidebar = useUiStore(
+    (state) => state.hasInitializedSidebar,
+  );
   const closeSidebar = useUiStore((state) => state.closeSidebar);
   const toggleSidebar = useUiStore((state) => state.toggleSidebar);
   const openSearch = useUiStore((state) => state.openSearch);
@@ -194,6 +197,19 @@ export function AppShell({
   const navItems = authenticatedUser
     ? NAV_ITEMS
     : NAV_ITEMS.filter((item) => !item.requiresAuth);
+
+  /* Fade-анимация нижнего блока (логин ↔ профиль) должна срабатывать
+     только при реальной смене блока после первоначальной загрузки.
+     Запоминаем стартовый вариант; как только он поменялся хотя бы раз —
+     дальше анимируем все свапы. Без этого блок «моргал» при каждом
+     обновлении страницы. */
+  const footerVariant = authenticatedUser ? "profile" : "login";
+  const initialFooterVariant = useRef(footerVariant);
+  const hasFooterSwapped = useRef(false);
+  if (footerVariant !== initialFooterVariant.current) {
+    hasFooterSwapped.current = true;
+  }
+  const animateFooterSwap = hasFooterSwapped.current;
 
   function isNavItemActive(item: NavItem): boolean {
     if (item.action) {
@@ -334,7 +350,13 @@ export function AppShell({
   }, [closeSidebar]);
 
   return (
-    <div className={cn(styles.shell, isSidebarOpen && styles.shellOpen)}>
+    <div
+      className={cn(
+        styles.shell,
+        isSidebarOpen && styles.shellOpen,
+        !hasInitializedSidebar && styles.shellPreInit,
+      )}
+    >
       <aside
         className={cn(
           styles.sidebar,
@@ -438,17 +460,29 @@ export function AppShell({
 
           <div className={styles.sidebarFooter}>
             {authenticatedUser ? (
-              <div key="profile" className={styles.footerSwap}>
-                <ProfileMenu
-                  isSidebarOpen={isSidebarOpen}
-                  user={authenticatedUser}
-                />
-              </div>
-            ) : (
-              <div key="login" className={styles.footerSwap}>
-                <LoginButton isSidebarOpen={isSidebarOpen} />
-              </div>
-            )}
+            <div
+              key="profile"
+              className={cn(
+                styles.footerSwap,
+                animateFooterSwap && styles.footerSwapAnimate,
+              )}
+            >
+              <ProfileMenu
+                isSidebarOpen={isSidebarOpen}
+                user={authenticatedUser}
+              />
+            </div>
+          ) : (
+            <div
+              key="login"
+              className={cn(
+                styles.footerSwap,
+                animateFooterSwap && styles.footerSwapAnimate,
+              )}
+            >
+              <LoginButton isSidebarOpen={isSidebarOpen} />
+            </div>
+          )}
           </div>
         </div>
       </aside>

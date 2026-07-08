@@ -50,7 +50,9 @@
   flex-shrink: 0;
 }
 
-.triggerIcon img {
+/* svg — инлайновый ClaudeLogo (после ухода от img из /public). */
+.triggerIcon img,
+.triggerIcon svg {
   width: 18px;
   height: 18px;
   display: block;
