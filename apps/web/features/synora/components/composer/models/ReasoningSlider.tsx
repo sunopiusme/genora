@@ -1,8 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import { PixelBurst } from "@/components/shared/pixel-burst";
 import type { ReasoningLevel } from "./types";
 import styles from "./ReasoningSlider.module.css";
+
+/* Оранжевый акцент дизеринга на максимуме — цвет
+   пиксельного персонажа из референса. */
+const MAX_DITHER_ACCENT = "#ff8a5c";
 
 /* ─────────────────────────────────────────
    Ползунок уровня reasoning — перенос механики
@@ -17,10 +22,10 @@ import styles from "./ReasoningSlider.module.css";
    треком; подписей у каждого стопа нет —
    текущий уровень виден в заголовке.
 
-   Визуально — монохром композера (--c-* токены),
-   без brand-цвета и dither-эффекта: ползунок
-   живёт в popover'е model-пикера и не должен
-   спорить с его поверхностью.
+   Визуально — монохром композера (--c-* токены);
+   единственный цветовой акцент — пиксельный
+   дизеринг заливки (PixelBurst) на максимальном
+   уровне, как у tier-slider при data-maxed.
    ───────────────────────────────────────── */
 
 type ReasoningSliderProps = {
@@ -165,8 +170,14 @@ export function ReasoningSlider({
     }
   }
 
+  const isMaxed = levelIndex === maxIndex;
+
   return (
-    <div ref={rootRef} className={styles.slider}>
+    <div
+      ref={rootRef}
+      className={styles.slider}
+      data-maxed={isMaxed || undefined}
+    >
       <div className={styles.header}>
         <span className={styles.headerLabel}>
           Effort <span className={styles.headerValue}>{currentLevel?.label}</span>
@@ -208,7 +219,15 @@ export function ReasoningSlider({
         onKeyDown={handleKeyDown}
       >
         <div className={styles.trackInner}>
-          <div className={styles.fill} />
+          <div className={styles.fill}>
+            {/* Пиксельный дизеринг заливки на максимуме —
+                как у tier-slider при data-maxed. */}
+            <PixelBurst
+              active={isMaxed}
+              accentColor={MAX_DITHER_ACCENT}
+              className={styles.dither}
+            />
+          </div>
           {levels.map((level, index) => (
             <span
               key={level.id}
