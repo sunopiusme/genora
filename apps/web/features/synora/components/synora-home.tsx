@@ -11,7 +11,8 @@ import styles from "./synora-home.module.css";
  * Виден только на мобильных (< 48rem): фирменный знак и приветствие
  * центрируются над нижним композером. Текст в двух вариантах:
  * - без проекта:  «Чем займёмся сегодня?»
- * - с проектом:   «Продолжим работу над „<название>“?»
+ * - с проектом:   «Продолжим работу над <название>» — без кавычек
+ *   и без вопросительного знака: это утверждение, а не вопрос.
  *
  * На планшете и десктопе герой скрыт — там показывается только
  * композер по центру экрана (см. synora-shell.module.css).
@@ -37,7 +38,7 @@ export function SynoraHome({ projectName }: { projectName?: string }) {
         {name ? (
           <h1 className={styles.title}>
             Продолжим работу над{" "}
-            <span className={styles.projectName}>&laquo;{name}&raquo;</span>?
+            <span className={styles.projectName}>{name}</span>
           </h1>
         ) : (
           <h1 className={styles.title}>Чем займёмся сегодня?</h1>

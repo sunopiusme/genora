@@ -3,10 +3,10 @@
 /**
  * Список проектов сайдбара — общий для Genora и «Синоры».
  *
- * Работа идёт через GitHub без локального репозитория, поэтому
- * проект помечен иконкой ветки, а под ним — чаты этой ветки.
- * При наведении на строку проекта появляется шеврон: клик
- * сворачивает/разворачивает список чатов проекта.
+ * Заголовок папки — название проекта; под ним подписью — рабочая
+ * ветка GitHub (работа идёт без локального репозитория), ниже —
+ * чаты этой ветки. При наведении на строку проекта появляется
+ * шеврон: клик сворачивает/разворачивает список чатов.
  */
 
 import { useState } from "react";
@@ -66,14 +66,13 @@ export function SidebarProjects({
                 }
               >
                 <Icon
-                  icon="solar:branch-linear"
+                  icon="solar:folder-linear"
                   className={styles.projectIcon}
                   aria-hidden="true"
                 />
-                {/* Заголовок напротив иконки — ветка GitHub: работа
-                    идёт без локального репозитория, ветка и есть
-                    рабочий контекст проекта. */}
-                <span className={styles.projectName}>{project.branch}</span>
+                {/* Заголовок папки — название проекта; рабочая ветка
+                    показана подписью под ним. */}
+                <span className={styles.projectName}>{project.name}</span>
                 {/* Шеврон виден при наведении; у свёрнутого проекта —
                     всегда, как напоминание о скрытых чатах. */}
                 <Icon
@@ -98,6 +97,20 @@ export function SidebarProjects({
                 Новый чат
               </Link>
             </div>
+            {/* Рабочая ветка GitHub — вторичная подпись под названием:
+                работа идёт без локального репозитория, ветка и есть
+                рабочий контекст проекта. */}
+            <p
+              className={styles.projectCaption}
+              title={`Ветка ${project.branch}`}
+            >
+              <Icon
+                icon="solar:branch-linear"
+                className={styles.projectCaptionIcon}
+                aria-hidden="true"
+              />
+              {project.branch}
+            </p>
             {!isCollapsed && (
               <nav className={styles.recents}>
                 {project.chats.map((chat) => (
@@ -111,11 +124,6 @@ export function SidebarProjects({
                 ))}
               </nav>
             )}
-            {/* Название проекта внизу чатов — виден и проект,
-                и ветка; текст на одном уровне с чатами. */}
-            <p className={styles.projectCaption} title={project.name}>
-              {project.name}
-            </p>
           </div>
         );
       })}

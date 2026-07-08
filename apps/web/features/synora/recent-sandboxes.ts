@@ -23,28 +23,31 @@ export type ProjectGroup = {
   chats: string[];
 };
 
-/* Названия — из каталога проектов composer'а (data.ts):
-   прежние звучали как темы чатов, а не проекты; совпадение
-   с label гарантирует, что «Новый чат» из сайдбара откроется
-   с уже выбранным контекстом проекта в picker'е. */
+/* Реалистичный кейс: работа над существующим монорепозиторием
+   Genora (apps/web — Genora и Synora, packages — общий UI-кит).
+   Проект = часть монорепы со своей рабочей веткой, чаты — реальные
+   задачи, которые в этих ветках велись. */
 export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
   {
-    name: "Парсер CSV на TypeScript",
-    branch: "feat/csv-parser",
-    chats: ["Разбор кавычек и экранирования", "Стриминг больших файлов"],
-  },
-  {
-    name: "Компонент таблицы с сортировкой",
-    branch: "feat/sortable-table",
-    chats: ["Сортировка по нескольким колонкам", "Виртуализация строк"],
-  },
-  {
-    name: "REST API на Express",
-    branch: "feat/express-api",
+    name: "Genora — веб-клиент",
+    branch: "v0/mobile-profile-layout",
     chats: [
-      "Валидация входных данных",
-      "JWT-авторизация",
-      "Пагинация списков",
+      "Шторка профиля на мобильных",
+      "Единый радиус модальных окон",
+      "Усечение email в строке профиля",
     ],
+  },
+  {
+    name: "Synora — песочницы",
+    branch: "feat/composer-projects",
+    chats: [
+      "Синхронизация проекта и ветки",
+      "Picker проектов в композере",
+    ],
+  },
+  {
+    name: "UI-кит @genora/ui",
+    branch: "feat/design-tokens",
+    chats: ["Токены радиусов и теней"],
   },
 ];
