@@ -357,21 +357,22 @@
 }
 
 /* ── Mode chip — индикатор активного режима
-   (например, «Планирование»). Минималистичный:
-   без заливки, только hairline-контур и muted-цвет —
-   чип читается как «тихая» метка состояния, а не
-   как кнопка. Появление — короткий fade, без
-   масштабных эффектов. Закрытие — мини-кнопка
+   (например, «Планирование»). Тональная заливка
+   без рамки: мягкая полупрозрачная плашка — как
+   активный элемент в sidebar. Полный ink-цвет
+   текста, чтобы режим оставался заметным, но без
+   контура и «шумных» эффектов. Появление —
+   короткий fade. Закрытие — мини-кнопка
    с крестиком справа. ── */
 .modeChip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 6px 6px 10px;
-  border: 1px solid var(--c-line);
+  border: none;
   border-radius: var(--c-row-radius);
-  background: transparent;
-  color: var(--c-ink-muted);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--c-ink);
   font-size: 0.8rem;
   font-weight: 400;
   line-height: 1;
@@ -470,7 +471,7 @@
   gap: 2px;
 }
 
-/* toolbarLeft растягивается на всё свободное пространство
+/* toolbarLeft растягивается на всё свободное пр��странство
    между Plus и правым блоком: в idle там (опционально)
    chip режима, в recording — waveform на всю ширину. */
 .toolbarLeft {
