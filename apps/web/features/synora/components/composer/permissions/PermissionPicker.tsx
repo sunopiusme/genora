@@ -77,7 +77,7 @@ export function PermissionPicker({ level, onChange }: Props) {
                 onClick={() => {
                   onChange(option.id);
                   /* При выборе полного доступа поповер остаётся открытым,
-                     чтобы предупреждение о мобильных платформах было
+                     чтобы предупреждение о работе без подтверждений было
                      видно сразу, а не при следующем открытии. */
                   if (option.id !== "full") setOpen(false);
                 }}
@@ -102,8 +102,8 @@ export function PermissionPicker({ level, onChange }: Props) {
                 <ShieldAlertIcon />
               </span>
               <span className={styles.warningText}>
-                На iPhone и других мобильных платформах полный доступ может
-                быть ограничен системой.
+                Агент сможет выполнять команды и изменять репозиторий без
+                подтверждения каждого действия.
               </span>
             </div>
           ) : null}
