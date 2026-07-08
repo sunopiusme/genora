@@ -58,13 +58,16 @@
   height: 100%;
 }
 
-/* Popover. Содержит секции: Reasoning, divider,
-   текущая модель → submenu Model. */
+/* Popover. Содержит секции: Reasoning (ползунок),
+   divider, Model (единственная Fable 5). Ширина —
+   под подписи пяти стопов ползунка; открывается
+   вверх от правого края триггера и целиком
+   помещается на экране: подменю больше нет. */
 .providers {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  min-width: 200px;
+  min-width: 280px;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
   /* Сплошная приподнятая поверхность на ступень светлее карточки
@@ -100,79 +103,7 @@
   background: var(--c-line-soft);
 }
 
-/* Строка-триггер для submenu (текущая модель). */
-.providerRow {
-  position: relative;
-  display: grid;
-  grid-template-columns: 1fr 16px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 8px;
-  border: none;
-  border-radius: var(--c-row-radius);
-  background: transparent;
-  font-family: inherit;
-  font-size: 0.82rem;
-  color: var(--c-ink);
-  cursor: pointer;
-  text-align: left;
-}
-
-.providerRow:hover,
-.providerRow[data-active="true"] {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.providerLabel {
-  white-space: nowrap;
-}
-
-.providerChevron {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  color: var(--c-ink-subtle);
-}
-
-.providerChevron svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Submenu со списком моделей всех провайдеров. */
-.modelsSubmenu {
-  position: absolute;
-  bottom: calc(0px - var(--c-corner-inset));
-  left: calc(100% + 8px);
-  min-width: 200px;
-  padding: var(--c-corner-inset);
-  border-radius: var(--c-card-radius);
-  background: var(--composer-surface-raised);
-  box-shadow:
-    0 0 0 1px var(--composer-hairline),
-    var(--shadow-lg);
-  display: none;
-  flex-direction: column;
-  gap: 1px;
-  z-index: 21;
-}
-
-.modelsSubmenu::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: -8px;
-  width: 8px;
-}
-
-.providerRow:hover .modelsSubmenu,
-.modelsSubmenu:hover {
-  display: flex;
-}
-
-/* Универсальная строка для уровня и модели. */
+/* Строка модели. */
 .modelRow {
   display: grid;
   grid-template-columns: 1fr 16px;
@@ -190,16 +121,8 @@
   text-align: left;
 }
 
-.modelRow:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
 .modelRow[data-active="true"] {
   background: rgba(255, 255, 255, 0.07);
-}
-
-.levelRow {
-  /* keep base */
 }
 
 .modelLabel {
@@ -221,9 +144,7 @@
 /* ── Мобильная вёрстка ──
    Toolbar на узком экране не переносится, поэтому
    чип модели показывает только имя модели — уровень
-   («Ultracode» и т.п.) скрывается, он виден в
-   поповере. Submenu моделей раскрывается над
-   поповером на его ширину. */
+   («High» и т.п.) скрывается, он виден в поповере. */
 @media (max-width: 560px) {
   /* Чип модели — единственный сжимаемый элемент
      правой группы toolbar'а: имя модели обрезается
@@ -245,10 +166,8 @@
   .triggerLevel {
     display: none;
   }
-  .modelsSubmenu {
-    left: auto;
-    right: calc(0px - var(--c-corner-inset));
-    bottom: calc(100% + 4px);
-    min-width: 200px;
+  /* Поповер не шире вьюпорта минус отступы. */
+  .providers {
+    min-width: min(280px, calc(100vw - 24px));
   }
 }

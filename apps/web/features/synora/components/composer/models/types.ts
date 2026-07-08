@@ -1,17 +1,15 @@
 /* ─────────────────────────────────────────
    Типы для model picker.
 
-   Provider — agentic-инструмент (Claude Code,
-   Codex). Внутри каждого — несколько моделей,
-   и у каждой модели свой набор уровней
-   reasoning. У Claude старшие модели (opus,
-   sonnet) умеют max, opus 4.8 — единственный
-   с ultracode. У Codex верхний уровень — xHigh.
-   Selection хранит обе вершины: какую модель
-   выбрали и на каком уровне reasoning.
+   Единственный провайдер — Fable, единственная
+   модель — Fable 5. Уровни reasoning упорядочены
+   от слабого к сильному и выбираются ползунком
+   (по паттерну tier-slider из products): позиция
+   на треке = индекс уровня. Selection хранит
+   модель и активный уровень.
    ───────────────────────────────────────── */
 
-export type ProviderId = "claude-code" | "codex";
+export type ProviderId = "fable";
 
 export type ReasoningLevel = {
   id: string;
