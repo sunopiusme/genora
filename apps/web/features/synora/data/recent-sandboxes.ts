@@ -2,7 +2,7 @@ import type { ProjectGroup } from "../types";
 
 export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
   {
-    name: "Genora — веб-клиент",
+    name: "Genora",
     branch: "v0/mobile-profile-layout",
     chats: [
       "Шторка профиля на мобильных",
@@ -11,7 +11,7 @@ export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
     ],
   },
   {
-    name: "Synora — песочницы",
+    name: "Synora",
     branch: "feat/composer-projects",
     chats: [
       "Синхронизация проекта и ветки",
@@ -19,7 +19,7 @@ export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
     ],
   },
   {
-    name: "UI-кит @genora/ui",
+    name: "@genora/ui",
     branch: "feat/design-tokens",
     chats: ["Токены радиусов и теней"],
   },

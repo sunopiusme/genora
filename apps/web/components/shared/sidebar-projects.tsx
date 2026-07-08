@@ -3,10 +3,11 @@
 /**
  * Список проектов сайдбара — общий для Genora и «Синоры».
  *
- * Заголовок папки — название проекта; под ним подписью — рабочая
- * ветка GitHub (работа идёт без локального репозитория), ниже —
- * чаты этой ветки. При наведении на строку проекта появляется
- * шеврон: клик сворачивает/разворачивает список чатов.
+ * Строка проекта — единое целое: иконка ветки, бренд проекта и его
+ * рабочая ветка GitHub одной строкой и одним размером (работа идёт
+ * с репозиторием GitHub, без локальных папок). Ниже — чаты этой
+ * ветки. При наведении на строку появляется шеврон: клик
+ * сворачивает/разворачивает список чатов.
  */
 
 import { useState } from "react";
@@ -51,7 +52,7 @@ export function SidebarProjects({
         return (
           <div key={project.name} className={styles.subsection}>
             {/* Строка проекта: слева — кнопка сворачивания (иконка
-                ветки + название + шеврон), справа — «Новый чат»,
+                ветки + бренд + ветка + шеврон), справа — «Новый чат»,
                 появляющийся при наведении на строку. */}
             <div className={styles.projectRow}>
               <button
@@ -65,14 +66,22 @@ export function SidebarProjects({
                     : "Скрыть чаты проекта"
                 }
               >
+                {/* Иконка ветки вместо папки: работа идёт с веткой
+                    GitHub, а не с локальной папкой. */}
                 <Icon
-                  icon="solar:folder-linear"
+                  icon="solar:branch-linear"
                   className={styles.projectIcon}
                   aria-hidden="true"
                 />
-                {/* Заголовок папки — название проекта; рабочая ветка
-                    показана подписью под ним. */}
+                {/* Бренд проекта и его рабочая ветка — единое целое
+                    одного размера; ветка приглушена цветом. */}
                 <span className={styles.projectName}>{project.name}</span>
+                <span
+                  className={styles.projectBranch}
+                  title={`Ветка ${project.branch}`}
+                >
+                  {project.branch}
+                </span>
                 {/* Шеврон виден при наведении; у свёрнутого проекта —
                     всегда, как напоминание о скрытых чатах. */}
                 <Icon
@@ -97,20 +106,6 @@ export function SidebarProjects({
                 Новый чат
               </Link>
             </div>
-            {/* Рабочая ветка GitHub — вторичная подпись под названием:
-                работа идёт без локального репозитория, ветка и есть
-                рабочий контекст проекта. */}
-            <p
-              className={styles.projectCaption}
-              title={`Ветка ${project.branch}`}
-            >
-              <Icon
-                icon="solar:branch-linear"
-                className={styles.projectCaptionIcon}
-                aria-hidden="true"
-              />
-              {project.branch}
-            </p>
             {!isCollapsed && (
               <nav className={styles.recents}>
                 {project.chats.map((chat) => (

@@ -542,7 +542,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико������ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико��������ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -643,41 +643,31 @@
   stroke-width: 1.8;
 }
 
-/* Заголовок строки проекта — ветка GitHub напротив иконки;
-   моноширинный, как принято для имён веток. */
+/* Бренд проекта — заголовок строки; ветка рядом набрана тем же
+   размером, поэтому строка читается как единое целое. */
 .projectName {
+  flex-shrink: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  font-family: var(--font-mono, monospace);
   color: var(--color-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Рабочая ветка GitHub — вторичная подпись под названием проекта:
-   приглушённый цвет и моноширинный шрифт (как имя ветки в Git);
-   левый отступ повторяет .recentLinkNested — на одном уровне
-   с чатами. */
-.projectCaption {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0 var(--sidebar-item-pad) var(--space-1)
-    calc(var(--sidebar-item-pad) + var(--sidebar-icon-size) + var(--space-2));
-  font-size: var(--text-xs);
+/* Рабочая ветка GitHub — в одной строке с брендом и тем же
+   размером; отличается только приглушённым цветом и моноширинным
+   шрифтом (как имя ветки в Git). Усечение достаётся ветке, чтобы
+   бренд проекта оставался читаемым целиком. */
+.projectBranch {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   font-family: var(--font-mono, monospace);
+  color: var(--color-foreground-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--color-foreground-muted);
-}
-
-.projectCaptionIcon {
-  flex-shrink: 0;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .subsection {
@@ -1302,12 +1292,6 @@
     font-size: var(--text-sm);
   }
 
-  /* Подпись ветки некликабельна — высокая touch-цель не нужна,
-     достаточно компактной строки под названием проекта. */
-  .projectCaption {
-    padding-block: 0 var(--space-1);
-  }
-
   /* Плотнее вертикальный ритм секций проектов. */
   .subsection {
     margin-top: var(--space-2);
@@ -1418,7 +1402,7 @@
     transform: translateX(var(--sidebar-expanded-width));
   }
 
-  /* До инициализации sidebar (initSidebar) store хранит десктопный
+  /* До инициа��изации sidebar (initSidebar) store хранит десктопный
      дефолт «открыт», чтобы SSR-разметка сразу рисовала раскрытый sidebar
      на десктопе. На мобильных до инициализации drawer принудительно
      скрыт, кнопка-FAB видна, а контент не сдвинут — без переходов,
