@@ -100,7 +100,9 @@ const SYNORA_SHEET_SECTIONS: SheetSection[] = [
     title: "Песочница",
     rows: [
       {
-        label: "Тариф и лимиты",
+        /* Короткая подпись «Тариф»: пункт помещается в одну строку,
+           лимиты будут показаны внутри самого раздела. */
+        label: "Тариф",
         icon: "solar:card-2-linear",
         isSoon: true,
       },
@@ -110,7 +112,9 @@ const SYNORA_SHEET_SECTIONS: SheetSection[] = [
         isSoon: true,
       },
       {
-        label: "Настройки песочницы",
+        /* «Настройки» без уточнения «песочницы»: контекст ясен из
+           заголовка секции, короткая подпись помещается в строку. */
+        label: "Настройки",
         icon: "solar:settings-linear",
         isSoon: true,
       },
