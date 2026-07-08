@@ -71,7 +71,6 @@ export function ComposerInput() {
   const branch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
-  const [inputFocused, setInputFocused] = useState(false);
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -170,7 +169,6 @@ export function ComposerInput() {
         <div
           className={styles.card}
           data-drag={fileDrop.dragOver}
-          data-focus={inputFocused}
           data-sending={sending}
           aria-busy={sending}
           {...fileDrop.handlers}
@@ -213,7 +211,6 @@ export function ComposerInput() {
             disabled={sending}
             canSubmit={canSubmit}
             onValueChange={setPrompt}
-            onFocusChange={setInputFocused}
             onSubmit={handleSubmit}
           />
 
