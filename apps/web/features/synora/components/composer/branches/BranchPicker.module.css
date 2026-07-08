@@ -65,6 +65,10 @@
 /* Popover. Раскрытие вверх (composer footer) или вниз
    (десктопный заголовок /synora) — через data-placement. */
 .popover {
+  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   left: 0;
   min-width: 280px;

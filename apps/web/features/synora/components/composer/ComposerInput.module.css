@@ -56,6 +56,13 @@
   --c-card-radius: 28px;
   --c-corner-inset: 6px;
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset)); /* 22px */
+  /* Радиусы popover'ов/dropdown'ов — концентричная пара:
+     оболочка 18, строки 18 − corner-inset = 12. Строки меню
+     (~30px высотой) слишком низкие для row-radius 22 — браузер
+     обрезал бы его до половины высоты, и вложенное скругление
+     переставало быть концентричным внешнему. */
+  --c-pop-radius: 18px;
+  --c-pop-row-radius: calc(var(--c-pop-radius) - var(--c-corner-inset)); /* 12px */
   --c-pad-x: 16px;
   --c-icon-col: 20px;
   --c-gap-icon: 8px;
@@ -792,6 +799,10 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .dropdown {
+  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   bottom: calc(100% + 8px);
   left: -8px;
@@ -885,6 +896,10 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .pluginsSubmenu {
+  /* Концентричные радиусы popover'а (оболочка 18, строки 12). */
+  --c-card-radius: var(--c-pop-radius);
+  --c-row-radius: var(--c-pop-row-radius);
+
   position: absolute;
   /* Открывается вверх: bottom-кромка submenu
      совпадает с bottom-кромкой строки «Плагины»,
