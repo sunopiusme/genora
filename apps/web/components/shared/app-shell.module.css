@@ -123,45 +123,20 @@
   padding-block: var(--space-2);
 }
 
-/* — Миниатюрный скроллбар сайдбара —
-   Глобальные 8px с 4px-«нитью» громоздки для узкой колонки: контент
-   сайдбара переполняется едва-едва, ползунок растягивается почти на
-   всю высоту и выглядит сплошной полосой. Здесь полоса аллоцирует
-   всего 3px, и нить занимает её целиком — без прозрачных рамок,
-   поэтому прижата вплотную к боку сайдбара. В покое ползунок
-   невидим и проявляется только при наведении на сайдбар — как
-   overlay-скролл в macOS. min-height сброшен: у едва переполненного
-   списка ползунок и так длинный, глобальный лимит 2rem тут ничего
-   не спасает. */
+/* — Сайдбар без видимого скроллбара —
+   Контент сайдбара переполняется едва-едва, поэтому любой ползунок
+   растягивается почти на всю высоту и читается как случайная
+   линия-обводка у края (пробовали 4px и 3px — одинаково плохо).
+   Для узкой колонки честнее скрыть полосу совсем: прокрутка
+   колесом, трекпадом и свайпом работает как прежде, а границу
+   переполнения снизу и так показывает маска затухания списка. */
 .sidebarScroll::-webkit-scrollbar {
-  width: 3px;
+  display: none;
 }
 
-.sidebarScroll::-webkit-scrollbar-thumb {
-  background-color: transparent;
-  border-radius: 3px;
-  min-height: 0;
-}
-
-.sidebarScroll:hover::-webkit-scrollbar-thumb {
-  background-color: var(--scrollbar-thumb);
-}
-
-.sidebarScroll::-webkit-scrollbar-thumb:active {
-  background-color: var(--scrollbar-thumb-active);
-}
-
-/* Firefox: тонкая полоса, ползунок появляется на hover сайдбара
-   (паритет с WebKit-веткой выше). */
-@supports not selector(::-webkit-scrollbar) {
-  .sidebarScroll {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-  }
-
-  .sidebarScroll:hover {
-    scrollbar-color: var(--scrollbar-thumb) transparent;
-  }
+/* Firefox + запасной вариант для остальных движков. */
+.sidebarScroll {
+  scrollbar-width: none;
 }
 
 .sidebarHeader {
