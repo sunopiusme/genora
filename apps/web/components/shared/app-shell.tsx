@@ -17,7 +17,8 @@ import { Avatar, Logo, cn } from "@genora/ui";
 import { useUiStore } from "@/stores/ui-store";
 import { useAuthStore, type AuthUser } from "@/stores/auth-store";
 import { Icon } from "@/lib/icon";
-import { RECENT_GROUPS } from "@/lib/recent-chats";
+import { PROJECT_GROUPS } from "@/lib/recent-chats";
+import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { PROFILE, formatBalance } from "@features/profile";
 import { useComposerStore } from "@features/products";
 import { ComposerBar } from "./composer-bar";
@@ -445,22 +446,13 @@ export function AppShell({
 
               {authenticatedUser && (
                 <div className={styles.section}>
-                  {RECENT_GROUPS.map((group) => (
-                    <div key={group.title} className={styles.subsection}>
-                      <p className={styles.sectionTitle}>{group.title}</p>
-                      <nav className={styles.recents}>
-                        {group.items.map((item) => (
-                          <Link
-                            key={item}
-                            href="/genora"
-                            className={styles.recentLink}
-                          >
-                            {item}
-                          </Link>
-                        ))}
-                      </nav>
-                    </div>
-                  ))}
+                  {/* Список проектов: работа идёт через GitHub без
+                      локального репозитория, поэтому проект — ветка
+                      (иконка ветки), а под ним — чаты этой ветки. */}
+                  <SidebarProjects
+                    projects={PROJECT_GROUPS}
+                    chatHref={() => "/genora"}
+                  />
                 </div>
               )}
             </div>

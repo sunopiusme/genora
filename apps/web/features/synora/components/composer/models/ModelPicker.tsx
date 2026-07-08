@@ -115,7 +115,9 @@ export function ModelPicker({ selection, onChange }: Props) {
             запроса (img из /public мерцал при обновлении страницы).
             На самых узких экранах остаётся единственным содержимым чипа. */}
         <span className={styles.triggerIcon} aria-hidden="true">
-          <ClaudeLogo size={16} />
+          {/* 18px — наш размер эмблемы (оптически равен 20px контурных
+              иконок соседних чипов), инлайновый ClaudeLogo — из main. */}
+          <ClaudeLogo size={18} />
         </span>
         <span className={styles.triggerLabel}>{current.model.label}</span>
         <span className={styles.triggerLevel}>{current.level?.label}</span>

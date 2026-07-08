@@ -32,11 +32,12 @@ import { Icon } from "@/lib/icon";
 import { useComposerStore } from "@features/products";
 import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
+import { SidebarProjects } from "@/components/shared/sidebar-projects";
 import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/ComposerInput";
-import { SYNORA_RECENT_GROUPS } from "../recent-sandboxes";
+import { SYNORA_PROJECT_GROUPS } from "../recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
 import synoraStyles from "./synora-shell.module.css";
 
@@ -320,22 +321,15 @@ export function SynoraShell({
               </nav>
 
               <div className={styles.section}>
-                {SYNORA_RECENT_GROUPS.map((group) => (
-                  <div key={group.title} className={styles.subsection}>
-                    <p className={styles.sectionTitle}>{group.title}</p>
-                    <nav className={styles.recents}>
-                      {group.items.map((item) => (
-                        <Link
-                          key={item}
-                          href={`/synora?project=${encodeURIComponent(item)}`}
-                          className={styles.recentLink}
-                        >
-                          {item}
-                        </Link>
-                      ))}
-                    </nav>
-                  </div>
-                ))}
+                {/* Список проектов: работа идёт через GitHub без
+                    локального репозитория, поэтому проект помечен
+                    иконкой ветки, а под ним — чаты этой ветки. */}
+                <SidebarProjects
+                  projects={SYNORA_PROJECT_GROUPS}
+                  chatHref={(project) =>
+                    `/synora?project=${encodeURIComponent(project.name)}`
+                  }
+                />
               </div>
             </div>
           </div>
@@ -379,7 +373,7 @@ export function SynoraShell({
           <div
             className={cn(
               styles.composer,
-              /* На главной /synora (планшет и десктоп) композер по цен��ру,
+              /* На главной /synora (планшет и десктоп) композер по цен���ру,
                  чуть выше середины экрана — см. synora-shell.module.css */
               pathname === "/synora" && synoraStyles.composerCentered,
             )}
