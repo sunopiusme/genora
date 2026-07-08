@@ -542,7 +542,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико����ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико������ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -1188,6 +1188,13 @@
   height: var(--sidebar-icon-size);
 }
 
+/* Элементы мобильного макета (референс iOS): на десктопе скрыты —
+   профиль живёт в футере, новый чат — в навигации. */
+.sidebarHeaderProfile,
+.sidebarChatFab {
+  display: none;
+}
+
 @media (max-width: 47.9375rem) {
   .shell {
     /* Дровер раскрывается на весь экран, как нативный сайдбар
@@ -1225,6 +1232,8 @@
   }
 
   .sidebarInner {
+    /* Якорь для плавающей кнопки «Чат» (absolute внизу справа). */
+    position: relative;
     /* Отступы повторяют safe-area iOS: контент не заезжает под
        чёлку и домашний индикатор — как в нативном приложении. */
     padding-top: calc(var(--sidebar-inset) + env(safe-area-inset-top, 0px));
@@ -1304,6 +1313,80 @@
   .profileIdentity {
     opacity: 1;
     transition: none;
+  }
+
+  /* — Макет по референсу iOS: аватарка в шапке, «Чат» внизу — */
+
+  /* Профиль-футер скрыт: аватар переехал в шапку. Кнопка «Войти»
+     (неавторизованный Genora) остаётся — у неё нет этого класса. */
+  .footerSwapProfile {
+    display: none;
+  }
+
+  /* Аватарка в шапке: только круглый аватар, без имени, плана
+     и баланса — как в референсе. Тап открывает шторку профиля.
+     margin-left: auto прижимает аватар (и тумблер за ним)
+     к правому краю шапки. */
+  .sidebarHeaderProfile {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    /* Тумблер меню позиционирован абсолютно у правого края —
+       резервируем под него место, чтобы аватар не перекрывался. */
+    margin-right: 2.5rem;
+  }
+
+  /* Внутри шапки корень профиля не должен растягиваться на всю
+     ширину, как в футере. */
+  .sidebarHeaderProfile .profileRoot {
+    width: auto;
+  }
+
+  .sidebarHeaderProfile .profile {
+    min-height: 0;
+    padding: var(--space-1);
+    background: none;
+    border: none;
+  }
+
+  .sidebarHeaderProfile .profile::before {
+    display: none;
+  }
+
+  .sidebarHeaderProfile .profileIdentity,
+  .sidebarHeaderProfile .profileBalance {
+    display: none;
+  }
+
+  /* Плавающая пилюля «Чат» внизу справа: инверсные цвета
+     (светлая кнопка на тёмном сайдбаре), над safe-area. */
+  .sidebarChatFab {
+    position: absolute;
+    right: var(--space-4);
+    bottom: calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.875rem 1.375rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    font-family: inherit;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+  }
+
+  .sidebarChatFab:active {
+    transform: scale(0.97);
+  }
+
+  .sidebarChatFabIcon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   .section {

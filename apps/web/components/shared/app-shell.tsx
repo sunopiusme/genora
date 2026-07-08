@@ -373,6 +373,16 @@ export function AppShell({
               <Logo width="1.25rem" height="1.25rem" />
             </span>
             <span className={styles.wordmark}>Genora</span>
+            {/* Мобильный макет по референсу iOS: аватарка в шапке
+                справа (на десктопе скрыта — профиль там в футере). */}
+            {authenticatedUser && (
+              <div className={styles.sidebarHeaderProfile}>
+                <ProfileMenu
+                  isSidebarOpen={isSidebarOpen}
+                  user={authenticatedUser}
+                />
+              </div>
+            )}
             <SidebarTooltip
               label={isSidebarOpen ? "Свернуть меню" : "Развернуть меню"}
               isEnabled={!isAnimating}
@@ -465,6 +475,9 @@ export function AppShell({
               key="profile"
               className={cn(
                 styles.footerSwap,
+                /* На мобильном профиль-футер скрыт (аватар в шапке);
+                   кнопка «Войти» ниже остаётся видимой всегда. */
+                styles.footerSwapProfile,
                 animateFooterSwap && styles.footerSwapAnimate,
               )}
             >
@@ -485,6 +498,21 @@ export function AppShell({
             </div>
           )}
           </div>
+
+          {/* Плавающая кнопка нового чата внизу справа — по
+              референсу iOS; видна только на мобильном. */}
+          <button
+            type="button"
+            className={styles.sidebarChatFab}
+            onClick={handleNewRequest}
+          >
+            <Icon
+              icon="solar:pen-new-square-linear"
+              className={styles.sidebarChatFabIcon}
+              aria-hidden="true"
+            />
+            Чат
+          </button>
         </div>
       </aside>
 
