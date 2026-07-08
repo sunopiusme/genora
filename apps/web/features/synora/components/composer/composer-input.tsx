@@ -29,7 +29,11 @@ import { useAttachments } from "../../hooks/use-attachments";
 import { useFileDrop } from "../../hooks/use-file-drop";
 import { useVoiceWaveform } from "../../hooks/use-voice-waveform";
 import { useBranchStore } from "../../stores/branch-store";
-import { useProjectStore } from "../../stores/project-store";
+import {
+  branchForSelection,
+  selectionFromQuery,
+  useProjectStore,
+} from "../../stores/project-store";
 import type {
   ModelSelection,
   PermissionLevel,
@@ -48,11 +52,19 @@ export function ComposerInput() {
   const [planMode, setPlanMode] = useState(false);
   const [permission, setPermission] = useState<PermissionLevel>("standard");
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_SELECTION);
-  const project = useProjectStore((state) => state.selection);
+  const storeProject = useProjectStore((state) => state.selection);
+  const hasSyncedProject = useProjectStore((state) => state.hasSynced);
   const setProject = useProjectStore((state) => state.setSelection);
   const syncProjectFromQuery = useProjectStore((state) => state.syncFromQuery);
-  const branch = useBranchStore((state) => state.branch);
+  const storeBranch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
+
+  const projectParam = searchParams.get("project");
+  const querySelection = selectionFromQuery(projectParam);
+  const project = hasSyncedProject ? storeProject : querySelection;
+  const branch = hasSyncedProject
+    ? storeBranch
+    : branchForSelection(querySelection);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -65,7 +77,6 @@ export function ComposerInput() {
 
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
-  const projectParam = searchParams.get("project");
   useEffect(() => {
     syncProjectFromQuery(projectParam);
   }, [projectParam, syncProjectFromQuery]);

@@ -7,7 +7,11 @@ import { BranchPopover } from "./composer/branch-popover";
 import styles from "./synora-heading.module.css";
 import { findProject } from "../data/projects";
 import { useBranchStore } from "../stores/branch-store";
-import { useProjectStore } from "../stores/project-store";
+import {
+  branchForSelection,
+  selectionFromQuery,
+  useProjectStore,
+} from "../stores/project-store";
 
 export function SynoraHeading() {
   const searchParams = useSearchParams();
@@ -19,8 +23,11 @@ export function SynoraHeading() {
     selection.kind === "project" ? findProject(selection.id)?.label : undefined;
   const projectName = hasSynced ? storeName : paramName;
 
-  const branch = useBranchStore((state) => state.branch);
+  const storeBranch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
+  const branch = hasSynced
+    ? storeBranch
+    : branchForSelection(selectionFromQuery(paramName ?? null));
 
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLSpanElement | null>(null);
