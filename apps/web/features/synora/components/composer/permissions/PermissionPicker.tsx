@@ -76,7 +76,10 @@ export function PermissionPicker({ level, onChange }: Props) {
                 data-active={selected}
                 onClick={() => {
                   onChange(option.id);
-                  setOpen(false);
+                  /* При выборе полного доступа поповер остаётся открытым,
+                     чтобы предупреждение о мобильных платформах было
+                     видно сразу, а не при следующем открытии. */
+                  if (option.id !== "full") setOpen(false);
                 }}
               >
                 <span className={styles.optionIcon} aria-hidden="true">
@@ -93,6 +96,17 @@ export function PermissionPicker({ level, onChange }: Props) {
               </button>
             );
           })}
+          {level === "full" ? (
+            <div className={styles.warningNote} role="note">
+              <span className={styles.warningIcon} aria-hidden="true">
+                <ShieldAlertIcon />
+              </span>
+              <span className={styles.warningText}>
+                На iPhone и других мобильных платформах полный доступ может
+                быть ограничен системой.
+              </span>
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>
