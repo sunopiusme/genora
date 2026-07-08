@@ -127,25 +127,24 @@
    Глобальные 8px с 4px-«нитью» громоздки для узкой колонки: контент
    сайдбара переполняется едва-едва, ползунок растягивается почти на
    всю высоту и выглядит сплошной полосой. Здесь полоса аллоцирует
-   4px, видимая нить — 2px (прозрачная рамка 1px + content-box),
-   в покое ползунок невидим и проявляется только при наведении на
-   сайдбар — как overlay-скролл в macOS. min-height сброшен: у едва
-   переполненного списка ползунок и так длинный, глобальный лимит
-   2rem тут ничего не спасает. */
+   всего 3px, и нить занимает её целиком — без прозрачных рамок,
+   поэтому прижата вплотную к боку сайдбара. В покое ползунок
+   невидим и проявляется только при наведении на сайдбар — как
+   overlay-скролл в macOS. min-height сброшен: у едва переполненного
+   списка ползунок и так длинный, глобальный лимит 2rem тут ничего
+   не спасает. */
 .sidebarScroll::-webkit-scrollbar {
-  width: 4px;
+  width: 3px;
 }
 
 .sidebarScroll::-webkit-scrollbar-thumb {
   background-color: transparent;
-  background-clip: content-box;
-  border: 1px solid transparent;
+  border-radius: 3px;
   min-height: 0;
 }
 
 .sidebarScroll:hover::-webkit-scrollbar-thumb {
   background-color: var(--scrollbar-thumb);
-  border-width: 1px;
 }
 
 .sidebarScroll::-webkit-scrollbar-thumb:active {
