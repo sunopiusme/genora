@@ -290,7 +290,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой р��льсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р����льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -516,8 +516,12 @@
   transition: background-color 0.15s ease;
 }
 
+/* :has(:focus-visible) вместо :focus-within: после клика мышью
+   фокус остаётся на кнопке сворачивания, и :focus-within держал
+   «Новый чат» видимым навсегда; :focus-visible срабатывает только
+   при клавиатурной навигации — баг уходит, доступность остаётся. */
 .projectRow:hover,
-.projectRow:focus-within {
+.projectRow:has(:focus-visible) {
   background-color: var(--color-surface);
 }
 
@@ -543,7 +547,7 @@
    соответствующего проекта. В скрытом состоянии схлопнут по
    ширине (а не opacity с резервом места), чтобы название проекта
    не обрезалось, пока кнопка не нужна; при этом ссылка остаётся
-   в табе — фокус на ней раскрывает её через :focus-within. */
+   в табе — фокус на ней раскрывает её чер��з :focus-within. */
 .projectNewChat {
   display: inline-flex;
   align-items: center;
@@ -568,7 +572,7 @@
 }
 
 .projectRow:hover .projectNewChat,
-.projectRow:focus-within .projectNewChat {
+.projectRow:has(:focus-visible) .projectNewChat {
   max-width: 8rem;
   margin-right: var(--space-2);
   padding: var(--space-1) var(--space-2);
@@ -602,7 +606,7 @@
 }
 
 .projectRow:hover .projectChevron,
-.projectRow:focus-within .projectChevron {
+.projectRow:has(:focus-visible) .projectChevron {
   opacity: 1;
 }
 
@@ -630,6 +634,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Ветка проекта внизу списка чатов: тот же размер текста, что
+   у названия проекта (--text-sm), приглушённый цвет; левый отступ
+   повторяет .recentLinkNested — текст на одном уровне с чатами. */
+.projectBranch {
+  margin: 0;
+  padding: var(--space-1) var(--sidebar-item-pad) var(--space-1)
+    calc(var(--sidebar-item-pad) + var(--sidebar-icon-size) + var(--space-2));
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  font-family: var(--font-mono, monospace);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--color-foreground-subtle);
 }
 
 .subsection {

@@ -17,6 +17,8 @@ import styles from "./app-shell.module.css";
 
 export type SidebarProject = {
   name: string;
+  /* Ветка GitHub, в которой ведётся работа над проектом. */
+  branch: string;
   chats: string[];
 };
 
@@ -106,6 +108,11 @@ export function SidebarProjects({
                 ))}
               </nav>
             )}
+            {/* Ветка GitHub внизу чатов — виден и проект, и ветка;
+                текст на одном уровне с чатами, размер как у названия. */}
+            <p className={styles.projectBranch} title={`Ветка ${project.branch}`}>
+              {project.branch}
+            </p>
           </div>
         );
       })}

@@ -13,6 +13,8 @@
 export type ProjectGroup = {
   /* Название проекта — совпадает с label в каталоге проектов. */
   name: string;
+  /* Ветка GitHub, в которой ведётся работа над проектом. */
+  branch: string;
   /* Чаты, ведущиеся в контексте этого проекта. */
   chats: string[];
 };
@@ -24,14 +26,17 @@ export type ProjectGroup = {
 export const SYNORA_PROJECT_GROUPS: ProjectGroup[] = [
   {
     name: "Парсер CSV на TypeScript",
+    branch: "feat/csv-parser",
     chats: ["Разбор кавычек и экранирования", "Стриминг больших файлов"],
   },
   {
     name: "Компонент таблицы с сортировкой",
+    branch: "feat/sortable-table",
     chats: ["Сортировка по нескольким колонкам", "Виртуализация строк"],
   },
   {
     name: "REST API на Express",
+    branch: "feat/express-api",
     chats: [
       "Валидация входных данных",
       "JWT-авторизация",
