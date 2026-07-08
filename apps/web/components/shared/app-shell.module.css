@@ -290,7 +290,7 @@
   transform: translate(0, 0);
 }
 
-/* В свёрнутой рельсе подписи скрыты — стрелке там негде жить */
+/* В свёрнутой р��льсе подписи скрыты — стрелке там негде жить */
 .shell:not(.shellOpen) .navExternalArrow {
   display: none;
 }
@@ -436,6 +436,12 @@
 .footerSwap {
   position: relative;
   z-index: 2;
+}
+
+/* Fade-анимация применяется только при реальной смене блока
+   (логин ↔ профиль) после первоначальной загрузки. На первом
+   рендере страницы блок показывается сразу, без мерцания. */
+.footerSwapAnimate {
   animation: footerSwapIn var(--sidebar-fade) var(--sidebar-ease) both;
 }
 
@@ -588,7 +594,7 @@
 
 .profileMenuFlyout {
   transform-origin: left bottom;
-  /* Флайаут висит над контентной областью (не над профилем),
+  /* Флайаут висит над контентной областью (не ��ад профилем),
      поэтому тень здесь уместна и ничего не затемняет в сайдбаре */
   box-shadow: var(--shadow-lg);
   animation: profileMenuFlyoutIn 0.16s ease both;
@@ -1169,7 +1175,7 @@
   }
 
   .backdrop,
-  .footerSwap {
+  .footerSwapAnimate {
     animation: none;
   }
 }
