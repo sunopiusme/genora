@@ -14,7 +14,7 @@ import {
   ListChecksIcon,
   SpinnerIcon,
 } from "./composer-icons";
-import { EnvironmentPicker } from "./environment-picker";
+import { LimitPicker } from "./limit-picker";
 import { MicButton, VOICE_INPUT_ENABLED } from "./mic-button";
 import { ModelPicker } from "./model-picker";
 import { PermissionPicker } from "./permission-picker";
@@ -31,7 +31,6 @@ import { useVoiceWaveform } from "../../hooks/use-voice-waveform";
 import { useBranchStore } from "../../stores/branch-store";
 import { useProjectStore } from "../../stores/project-store";
 import type {
-  EnvironmentMode,
   ModelSelection,
   PermissionLevel,
   VoiceStage,
@@ -52,7 +51,6 @@ export function ComposerInput() {
   const project = useProjectStore((state) => state.selection);
   const setProject = useProjectStore((state) => state.setSelection);
   const syncProjectFromQuery = useProjectStore((state) => state.syncFromQuery);
-  const [environment, setEnvironment] = useState<EnvironmentMode>("sandbox");
   const branch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
@@ -229,8 +227,8 @@ export function ComposerInput() {
 
         <div className={styles.context}>
           <ProjectPicker selection={project} onChange={setProject} />
-          <EnvironmentPicker mode={environment} onChange={setEnvironment} />
           <BranchPicker branch={branch} onChange={setBranch} />
+          <LimitPicker />
         </div>
       </div>
 

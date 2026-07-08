@@ -68,6 +68,18 @@ export function SynoraHeading() {
           onClick={() => setOpen((prev) => !prev)}
         >
           {projectName}
+          <span className={styles.projectChevron} aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m19 9-7 6-7-6" />
+            </svg>
+          </span>
         </button>
         {open ? (
           <BranchPopover

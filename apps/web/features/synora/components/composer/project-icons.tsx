@@ -5,7 +5,7 @@ export function WorkspaceIcon() {
 }
 
 export function RepoIcon() {
-  return <Icon icon="solar:code-square-linear" />;
+  return <Icon icon="solar:github-mark" />;
 }
 
 export function RepoPlusIcon() {
@@ -21,7 +21,7 @@ export function PlusIcon() {
 }
 
 export function GithubIcon() {
-  return <Icon icon="solar:link-round-angle-linear" />;
+  return <Icon icon="solar:github-mark" />;
 }
 
 export function SearchIcon() {
