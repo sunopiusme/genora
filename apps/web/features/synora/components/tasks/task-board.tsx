@@ -5,12 +5,22 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
-  useDraggable,
+  closestCorners,
   useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import type { DragEndEvent, DragStartEvent } from "@dnd-kit/core";
+import type {
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { useTaskStore } from "../../stores/task-store";
@@ -30,7 +40,7 @@ function isTaskStatus(value: unknown): value is TaskStatus {
 
 export function TaskBoard() {
   const tasks = useTaskStore((state) => state.tasks);
-  const moveTaskToStatus = useTaskStore((state) => state.moveTaskToStatus);
+  const moveTask = useTaskStore((state) => state.moveTask);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
 
   const sensors = useSensors(
@@ -41,15 +51,39 @@ export function TaskBoard() {
 
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? null;
 
+  function resolveDropTarget(overId: string): {
+    status: TaskStatus;
+    targetId?: string;
+  } | null {
+    if (isTaskStatus(overId)) {
+      return { status: overId };
+    }
+    const overTask = tasks.find((task) => task.id === overId);
+    return overTask ? { status: overTask.status, targetId: overTask.id } : null;
+  }
+
   function handleDragStart(event: DragStartEvent) {
     setActiveTaskId(String(event.active.id));
   }
 
+  function handleDragOver(event: DragOverEvent) {
+    if (!event.over) {
+      return;
+    }
+    const target = resolveDropTarget(String(event.over.id));
+    if (target) {
+      moveTask(String(event.active.id), target.status, target.targetId);
+    }
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     setActiveTaskId(null);
-    const targetStatus = event.over?.id;
-    if (isTaskStatus(targetStatus)) {
-      moveTaskToStatus(String(event.active.id), targetStatus);
+    if (!event.over) {
+      return;
+    }
+    const target = resolveDropTarget(String(event.over.id));
+    if (target) {
+      moveTask(String(event.active.id), target.status, target.targetId);
     }
   }
 
@@ -59,7 +93,9 @@ export function TaskBoard() {
 
       <DndContext
         sensors={sensors}
+        collisionDetection={closestCorners}
         onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveTaskId(null)}
       >
@@ -84,42 +120,44 @@ export function TaskBoard() {
 }
 
 function TaskColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) {
-  const { setNodeRef, isOver } = useDroppable({ id: status });
+  const { setNodeRef } = useDroppable({ id: status });
 
   return (
-    <section
-      ref={setNodeRef}
-      className={styles.column}
-      data-drop-active={isOver || undefined}
-      aria-label={TASK_STATUS_LABELS[status]}
-    >
+    <section className={styles.column} aria-label={TASK_STATUS_LABELS[status]}>
       <header className={styles.columnHeader}>
         <h2 className={styles.columnTitle}>{TASK_STATUS_LABELS[status]}</h2>
         <span className={styles.columnCount}>{tasks.length}</span>
       </header>
-      {tasks.length === 0 ? (
-        <p className={styles.columnEmpty}>Нет задач</p>
-      ) : (
-        <ul className={styles.cardList}>
-          {tasks.map((task) => (
-            <DraggableTaskCard key={task.id} task={task} />
-          ))}
-        </ul>
-      )}
+      <SortableContext
+        items={tasks.map((task) => task.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {tasks.length === 0 ? (
+          <p ref={setNodeRef} className={styles.columnEmpty}>
+            Перетащите задачу сюда
+          </p>
+        ) : (
+          <ul ref={setNodeRef} className={styles.cardList}>
+            {tasks.map((task) => (
+              <SortableTaskCard key={task.id} task={task} />
+            ))}
+          </ul>
+        )}
+      </SortableContext>
     </section>
   );
 }
 
-function DraggableTaskCard({ task }: { task: Task }) {
-  const { setNodeRef, attributes, listeners, isDragging } = useDraggable({
-    id: task.id,
-  });
+function SortableTaskCard({ task }: { task: Task }) {
+  const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
+    useSortable({ id: task.id });
 
   return (
     <li
       ref={setNodeRef}
       className={styles.cardSlot}
       data-dragging={isDragging || undefined}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
       {...attributes}
       {...listeners}
     >
@@ -200,7 +238,9 @@ function PriorityGlyph({ priority }: { priority: TaskPriority }) {
           width="3"
           height={height}
           rx="1"
-          className={index < filledBars ? styles.priorityBarFilled : styles.priorityBar}
+          className={
+            index < filledBars ? styles.priorityBarFilled : styles.priorityBar
+          }
         />
       ))}
     </svg>
