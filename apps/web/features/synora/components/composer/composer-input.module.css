@@ -59,14 +59,14 @@
 }
 
 /* Контекст (проект, ветка, лимит): на десктопе — нижний ряд карточки,
-   на мобильном — верхний. Без разделителя: зону отделяет само
-   приглушение чипов и воздух между рядами. */
+   на мобильном — верхний. Компактнее тулбара и прижат к нему:
+   читается как подпись, а не третий равный этаж. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin: 0 calc(-1 * var(--space-2)) 0;
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
   padding: 0 var(--space-2);
   background: transparent;
   color: var(--c-ink-subtle);
@@ -506,13 +506,13 @@ button.iconBtn[data-loading="true"] svg {
   }
 }
 
-/* Чипы строки контекста: те же размеры, что у контролов тулбара
-   (--c-control, --text-sm), но приглушённые — своя зона, не тулбар. */
+/* Чипы строки контекста: ниже контролов тулбара (--space-6 против
+   --space-8) — визуально подпись, не второй тулбар. Текст --text-sm. */
 .footChip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  min-height: var(--c-control);
+  min-height: var(--space-6);
   padding: 0 var(--space-2);
   border-radius: var(--c-row-radius);
   font-size: var(--text-sm);
