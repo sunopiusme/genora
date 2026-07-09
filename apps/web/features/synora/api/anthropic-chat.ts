@@ -15,6 +15,14 @@ export function isSupportedModel(modelId: string): boolean {
   return modelId in GATEWAY_MODELS;
 }
 
+function normalizeBaseUrl(raw: string): string {
+  const trimmed = raw
+    .trim()
+    .replace(/^['"]+|['"]+$/g, "")
+    .replace(/\/+$/, "");
+  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+}
+
 function readGatewayEnv() {
   const baseURL = process.env.ANTHROPIC_GATEWAY_BASE_URL;
   const apiKey = process.env.ANTHROPIC_GATEWAY_API_KEY;
@@ -23,7 +31,10 @@ function readGatewayEnv() {
       "ANTHROPIC_GATEWAY_BASE_URL and ANTHROPIC_GATEWAY_API_KEY must be set",
     );
   }
-  return { baseURL, apiKey };
+  return {
+    baseURL: normalizeBaseUrl(baseURL),
+    apiKey: apiKey.trim().replace(/^['"]+|['"]+$/g, ""),
+  };
 }
 
 export function streamAnthropicChat(
