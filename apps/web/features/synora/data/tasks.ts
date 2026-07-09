@@ -1,11 +1,17 @@
 import type { Task, TaskPriority, TaskStatus } from "../types";
 
-export const TASK_STATUS_ORDER: TaskStatus[] = ["in-progress", "todo", "done"];
+export const TASK_STATUS_ORDER: TaskStatus[] = [
+  "in-progress",
+  "todo",
+  "done",
+  "archived",
+];
 
 export const TASK_STATUS_LABELS: Record<TaskStatus, string> = {
   "in-progress": "В работе",
   todo: "К выполнению",
   done: "Готово",
+  archived: "Архив",
 };
 
 export const TASK_PRIORITY_LABELS: Record<TaskPriority, string> = {

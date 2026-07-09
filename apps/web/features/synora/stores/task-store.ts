@@ -6,7 +6,8 @@ import type { Task, TaskStatus } from "../types";
 const NEXT_STATUS: Record<TaskStatus, TaskStatus> = {
   todo: "in-progress",
   "in-progress": "done",
-  done: "todo",
+  done: "archived",
+  archived: "todo",
 };
 
 type TaskStore = {
