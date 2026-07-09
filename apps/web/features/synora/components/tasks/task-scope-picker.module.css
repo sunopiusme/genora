@@ -67,9 +67,7 @@
   padding: var(--space-1);
   border-radius: var(--radius-2xl);
   background: var(--color-surface-elevated);
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08),
-    var(--shadow-lg);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -199,9 +197,7 @@
   padding: var(--space-1);
   border-radius: var(--radius-2xl);
   background: var(--color-surface-elevated);
-  box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08),
-    var(--shadow-lg);
+  box-shadow: var(--shadow-lg);
   display: none;
   flex-direction: column;
   gap: 1px;
