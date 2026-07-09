@@ -29,8 +29,10 @@
   --c-corner-inset: var(--space-2);
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
 
-  --c-pop-radius: var(--radius-xl);
-  --c-pop-row-radius: var(--radius-lg);
+  /* Крупные скругления выпадающих меню (референс iOS: ~24px).
+     Радиус ряда = радиус карточки минус внутренний отступ (concentric). */
+  --c-pop-radius: var(--radius-2xl);
+  --c-pop-row-radius: calc(var(--radius-2xl) - var(--c-corner-inset));
   --c-pad-x: var(--space-4);
   --c-icon-col: var(--space-4);
   --c-gap-icon: var(--space-2);
