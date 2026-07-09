@@ -111,7 +111,7 @@ export function PromptInput({
         onKeyDown={handleKeyDown}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Задай задачу"
+        placeholder="Опиши задачу"
         rows={1}
         aria-label="Промпт"
         disabled={disabled}

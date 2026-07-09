@@ -49,15 +49,28 @@
 
 .triggerChevron {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
-  margin-left: 2px;
+  width: var(--space-3);
+  height: var(--space-3);
   color: var(--c-ink-subtle);
 }
 
 .triggerChevron svg {
   width: 100%;
   height: 100%;
+}
+
+/* Тише в покое: шеврон проявляется при наведении или открытии. */
+@media (hover: hover) {
+  .triggerChevron {
+    opacity: 0;
+    transition: opacity var(--composer-duration-hover) ease;
+  }
+
+  .trigger:hover .triggerChevron,
+  .trigger:focus-visible .triggerChevron,
+  .trigger[aria-expanded="true"] .triggerChevron {
+    opacity: 1;
+  }
 }
 
 .popover {
