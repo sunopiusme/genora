@@ -42,8 +42,8 @@
 
 .triggerIcon {
   display: inline-flex;
-  width: var(--space-4);
-  height: var(--space-4);
+  width: var(--text-lg);
+  height: var(--text-lg);
   align-items: center;
   justify-content: center;
 
@@ -51,8 +51,8 @@
 }
 
 .triggerIcon svg {
-  width: var(--space-4);
-  height: var(--space-4);
+  width: var(--text-lg);
+  height: var(--text-lg);
 
   transform: translateX(-1px);
 }

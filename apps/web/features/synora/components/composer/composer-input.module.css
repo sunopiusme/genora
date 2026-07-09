@@ -1,8 +1,9 @@
 /* Композер Синоры.
    Все размеры — только через токены @genora/design-tokens
    (см. docs/standards/UI_STANDARDS.md: без «магических» значений).
-   Масштаб намеренно компактный: текст --text-sm, иконки 1rem,
-   контролы 2rem — интерфейс «отдалён» и не давит на диалог. */
+   Масштаб синхронизирован с диалогом: текст ввода = тексту сообщений
+   (--text-base на десктопе, --text-sm на мобильном), иконки --text-lg,
+   контролы --space-8 — спокойный, но не мелкий. */
 
 .root {
   --composer-ink: var(--color-foreground);
@@ -34,9 +35,10 @@
   --c-icon-col: var(--space-4);
   --c-gap-icon: var(--space-2);
 
-  /* Единый размер контролов и иконок тулбара. */
+  /* Единый размер контролов и иконок тулбара.
+     Иконки --text-lg (18px) — золотая середина между 16 и 20. */
   --c-control: var(--space-8);
-  --c-icon: var(--space-4);
+  --c-icon: var(--text-lg);
 
   width: 100%;
   max-width: var(--composer-width, 42rem);
@@ -226,14 +228,15 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: var(--text-sm);
+  /* Синхронизировано с текстом сообщений диалога (--text-base). */
+  font-size: var(--text-base);
   font-weight: var(--weight-normal);
-  line-height: var(--leading-sm);
+  line-height: var(--leading-base);
   color: var(--c-ink);
   resize: none;
 
-  min-height: var(--leading-sm);
-  max-height: calc(var(--leading-sm) * 6);
+  min-height: var(--leading-base);
+  max-height: calc(var(--leading-base) * 6);
   white-space: pre-wrap;
   overflow-wrap: break-word;
   overflow-x: hidden;
@@ -367,9 +370,9 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  line-height: var(--leading-xs);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: default;
 }
@@ -396,9 +399,9 @@ button.iconBtn[data-loading="true"] svg {
   margin-left: var(--space-1);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  line-height: var(--leading-xs);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: default;
 }
@@ -492,8 +495,8 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: var(--text-xs);
-  line-height: var(--leading-xs);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
   color: var(--c-ink-muted);
   cursor: default;
 }
@@ -810,6 +813,19 @@ button.iconBtn[data-loading="true"] svg {
   }
   .inputWrap {
     padding: var(--space-1) var(--space-2) 0;
+  }
+  /* Синхронизировано с текстом сообщений на мобильном (--text-sm). */
+  .input {
+    font-size: var(--text-sm);
+    line-height: var(--leading-sm);
+    min-height: var(--leading-sm);
+    max-height: calc(var(--leading-sm) * 6);
+  }
+  .permission,
+  .modelChip,
+  .footChip {
+    font-size: var(--text-xs);
+    line-height: var(--leading-xs);
   }
   .toolbar {
     gap: var(--space-1);
