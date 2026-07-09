@@ -10,10 +10,9 @@
   --composer-ink-muted: var(--color-foreground-muted);
   --composer-surface: var(--color-surface-elevated);
   --composer-surface-raised: var(--color-surface-raised);
-  /* Обводка карточки: заметная, но не «рамка». */
-  --composer-hairline: rgb(255 255 255 / 0.1);
-  /* Световой блик по верхней кромке — нативная глубина без рамок. */
-  --composer-highlight: rgb(255 255 255 / 0.07);
+  /* Свой стиль: без обводок — глубина за счёт поверхности и тени.
+     Hairline остаётся только у выпадающих меню, едва заметный. */
+  --composer-hairline: rgb(255 255 255 / 0.06);
   --composer-duration-hover: 120ms;
 
   --c-line: rgb(255 255 255 / 0.12);
@@ -89,11 +88,10 @@
   gap: var(--space-2);
   padding: var(--space-3) var(--c-pad-x);
   border-radius: var(--c-card-radius);
-  background: var(--c-surface);
-  box-shadow:
-    inset 0 1px 0 var(--composer-highlight),
-    0 0 0 1px var(--composer-hairline),
-    var(--shadow-lg);
+  /* Поверхность чуть светлее фона страницы — карточка читается сама,
+     без обводки; глубина — мягкой тенью. */
+  background: var(--composer-surface-raised);
+  box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 1;
 }
