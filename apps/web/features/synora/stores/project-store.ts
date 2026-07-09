@@ -16,10 +16,19 @@ type ProjectStore = {
   syncFromQuery: (label: string | null) => void;
 };
 
-function syncBranch(selection: ProjectSelection) {
+export function selectionFromQuery(label: string | null): ProjectSelection {
+  const match = label ? findProjectByLabel(label) : undefined;
+  return match ? { kind: "project", id: match.id } : DEFAULT_PROJECT;
+}
+
+export function branchForSelection(selection: ProjectSelection): string {
   const project =
     selection.kind === "project" ? findProject(selection.id) : undefined;
-  useBranchStore.getState().setBranch(project?.branch ?? DEFAULT_BRANCH);
+  return project?.branch ?? DEFAULT_BRANCH;
+}
+
+function syncBranch(selection: ProjectSelection) {
+  useBranchStore.getState().setBranch(branchForSelection(selection));
 }
 
 export const useProjectStore = create<ProjectStore>((set) => ({
@@ -30,10 +39,7 @@ export const useProjectStore = create<ProjectStore>((set) => ({
     syncBranch(next);
   },
   syncFromQuery: (label) => {
-    const match = label ? findProjectByLabel(label) : undefined;
-    const next: ProjectSelection = match
-      ? { kind: "project", id: match.id }
-      : DEFAULT_PROJECT;
+    const next = selectionFromQuery(label);
     set({ selection: next, hasSynced: true });
     syncBranch(next);
   },

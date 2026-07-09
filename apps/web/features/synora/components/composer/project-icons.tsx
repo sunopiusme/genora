@@ -1,27 +1,27 @@
 import { Icon } from "@/lib/icon";
 
-export function FolderIcon() {
-  return <Icon icon="solar:folder-linear" />;
+export function WorkspaceIcon() {
+  return <Icon icon="solar:layers-minimalistic-linear" />;
 }
 
-export function ProjectFolderIcon() {
-  return <Icon icon="solar:folder-with-files-linear" />;
+export function RepoIcon() {
+  return <Icon icon="solar:github-mark" />;
 }
 
-export function FolderPlusIcon() {
-  return <Icon icon="solar:add-folder-linear" />;
+export function RepoPlusIcon() {
+  return <Icon icon="solar:add-square-linear" />;
 }
 
-export function FolderXIcon() {
-  return <Icon icon="solar:folder-error-linear" />;
+export function NoProjectIcon() {
+  return <Icon icon="solar:close-square-linear" />;
 }
 
 export function PlusIcon() {
   return <Icon icon="solar:plus-linear" />;
 }
 
-export function ExistingFolderIcon() {
-  return <Icon icon="solar:folder-linear" />;
+export function GithubIcon() {
+  return <Icon icon="solar:github-mark" />;
 }
 
 export function SearchIcon() {

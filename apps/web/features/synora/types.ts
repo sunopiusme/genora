@@ -9,8 +9,6 @@ export type Attachment = {
   size: number;
 };
 
-export type EnvironmentMode = "local" | "worktree" | "cloud";
-
 export type MentionKind = "plugin" | "file";
 
 export type PluginId = "github" | "linear" | "figma" | "notion" | "slack";

@@ -20,12 +20,12 @@
   --c-surface-glass: var(--composer-surface-raised);
 
   --c-card-radius: 28px;
-  --c-corner-inset: 6px;
+  --c-corner-inset: var(--space-2);
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
 
-  --c-pop-radius: 18px;
-  --c-pop-row-radius: calc(var(--c-pop-radius) - var(--c-corner-inset));
-  --c-pad-x: 16px;
+  --c-pop-radius: var(--radius-2xl);
+  --c-pop-row-radius: var(--radius-xl);
+  --c-pad-x: 18px;
   --c-icon-col: 20px;
   --c-gap-icon: 8px;
 
@@ -71,8 +71,8 @@
 
 .card {
   display: grid;
-  gap: 12px;
-  padding: 16px var(--c-pad-x);
+  gap: 14px;
+  padding: 18px var(--c-pad-x);
   border-radius: var(--c-card-radius);
   background: var(--c-surface);
   box-shadow: var(--shadow-lg);
@@ -217,14 +217,14 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 0.92rem;
-  font-weight: 400;
-  line-height: 1.5;
+  font-size: 1rem;
+  font-weight: var(--weight-medium);
+  line-height: 1.55;
   color: var(--c-ink);
   resize: none;
 
-  min-height: calc(0.92rem * 1.5);
-  max-height: calc(0.92rem * 1.5 * 6);
+  min-height: calc(1rem * 1.55);
+  max-height: calc(1rem * 1.55 * 6);
   white-space: pre-wrap;
   overflow-wrap: break-word;
   overflow-x: hidden;
@@ -270,7 +270,7 @@
   justify-content: space-between;
   gap: 12px;
 
-  min-height: 36px;
+  min-height: 40px;
 }
 
 .toolbarLeft,
@@ -291,8 +291,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   border: none;
   border-radius: var(--c-row-radius);
@@ -360,8 +360,8 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
   padding: 8px 12px;
   border-radius: var(--c-row-radius);
-  font-size: 0.82rem;
-  font-weight: 400;
+  font-size: 0.875rem;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
   cursor: default;
 }
@@ -388,8 +388,8 @@ button.iconBtn[data-loading="true"] svg {
   margin-left: 4px;
   padding: 8px 8px 8px 12px;
   border-radius: var(--c-row-radius);
-  font-size: 0.82rem;
-  font-weight: 400;
+  font-size: 0.875rem;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
   cursor: default;
 }
@@ -421,8 +421,8 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   margin-left: 4px;
   padding: 0;
   border: none;
@@ -483,7 +483,7 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
   padding: 8px 12px;
   border-radius: var(--c-row-radius);
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   color: var(--c-ink-muted);
   cursor: default;
 }
@@ -651,8 +651,8 @@ button.iconBtn[data-loading="true"] svg {
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 400;
+  font-size: 0.875rem;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
   cursor: pointer;
   text-align: left;
@@ -752,7 +752,7 @@ button.iconBtn[data-loading="true"] svg {
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
   color: var(--c-ink);
   cursor: pointer;
   text-align: left;

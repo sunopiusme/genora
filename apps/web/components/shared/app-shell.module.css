@@ -184,16 +184,13 @@
   opacity: 1;
 }
 
-.sidebarToggleWrap {
-  /* No transform here: a transformed ancestor would become the containing
-     block for the fixed-position tooltip and shift it off-screen */
+.sidebarHeader .sidebarToggleWrap {
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   display: flex;
   align-items: center;
-  /* Slide with the width animation instead of teleporting left <-> right */
   transition: left var(--sidebar-anim) var(--sidebar-ease);
 }
 
@@ -205,7 +202,7 @@
   justify-content: center;
   padding: 0.5rem var(--sidebar-item-pad);
   border: none;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   background: none;
   color: var(--color-foreground);
   cursor: pointer;
@@ -269,7 +266,7 @@
   align-items: center;
   gap: var(--space-2);
   padding: 0.5rem var(--sidebar-item-pad);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
   color: var(--color-foreground);
@@ -528,7 +525,7 @@
   align-items: center;
   width: 100%;
   overflow: hidden;
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   transition: background-color 0.15s ease;
 }
 
@@ -542,7 +539,7 @@
 }
 
 /* Кнопка сворачивания: иконка ветки + название + шеврон.
-   Паддинги и gap повторяют .navLink, поэтому ико������ка ветки стоит
+   Паддинги и gap повторяют .navLink, поэтому ико��������������ка ветки стоит
    на одной вертикали с иконками навигации, а название прижато
    к иконке с тем же зазором, что и подписи пунктов навигации. */
 .projectToggle {
@@ -606,28 +603,21 @@
   flex-shrink: 0;
 }
 
-/* Шеврон сворачивания: скрыт, появляется при наведении на строку
-   проекта или фокусе с клавиатуры; у свёрнутого проекта виден
-   всегда и развёрнут остриём к названию (повёрнут на -90°). */
 .projectChevron {
   width: 1rem;
   height: 1rem;
   flex-shrink: 0;
   margin-left: auto;
   color: var(--color-foreground-subtle);
-  opacity: 0;
-  transition:
-    opacity 0.15s ease,
-    transform 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .projectRow:hover .projectChevron,
 .projectRow:has(:focus-visible) .projectChevron {
-  opacity: 1;
+  color: var(--color-foreground-muted);
 }
 
 .projectChevronCollapsed {
-  opacity: 1;
   transform: rotate(-90deg);
 }
 
@@ -643,41 +633,25 @@
   stroke-width: 1.8;
 }
 
-/* Заголовок строки проекта — ветка GitHub напротив иконки;
-   моноширинный, как принято для имён веток. */
 .projectName {
+  flex-shrink: 0;
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  font-family: var(--font-mono, monospace);
   color: var(--color-foreground);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Рабочая ветка GitHub — вторичная подпись под названием проекта:
-   приглушённый цвет и моноширинный шрифт (как имя ветки в Git);
-   левый отступ повторяет .recentLinkNested — на одном уровне
-   с чатами. */
-.projectCaption {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  margin: 0;
-  padding: 0 var(--sidebar-item-pad) var(--space-1)
-    calc(var(--sidebar-item-pad) + var(--sidebar-icon-size) + var(--space-2));
-  font-size: var(--text-xs);
+.projectBranch {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
   font-family: var(--font-mono, monospace);
+  color: var(--color-foreground-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: var(--color-foreground-muted);
-}
-
-.projectCaptionIcon {
-  flex-shrink: 0;
-  width: 0.75rem;
-  height: 0.75rem;
 }
 
 .subsection {
@@ -699,7 +673,7 @@
 
 .recentLink {
   padding: 0.5rem var(--sidebar-item-pad);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-xl);
   /* Тот же стиль текста, что у заголовка строки проекта
      (.projectName): размер, насыщенность и цвет совпадают. */
   font-size: var(--text-sm);
@@ -1302,12 +1276,6 @@
     font-size: var(--text-sm);
   }
 
-  /* Подпись ветки некликабельна — высокая touch-цель не нужна,
-     достаточно компактной строки под названием проекта. */
-  .projectCaption {
-    padding-block: 0 var(--space-1);
-  }
-
   /* Плотнее вертикальный ритм секций проектов. */
   .subsection {
     margin-top: var(--space-2);
@@ -1418,11 +1386,11 @@
     transform: translateX(var(--sidebar-expanded-width));
   }
 
-  /* До инициализации sidebar (initSidebar) store хранит десктопный
+  /* До инициа��изации sidebar (initSidebar) store хранит десктопный
      дефолт «открыт», чтобы SSR-разметка сразу рисовала раскрытый sidebar
      на десктопе. На мобильных до инициализации drawer принудительно
      скрыт, кнопка-FAB видна, а контент не сдвинут — без переходов,
-     чтобы снятие класса не запускало анимацию. */
+     ��тобы снятие класса не запускало анимацию. */
   .shellPreInit .sidebar {
     transform: translateX(-100%);
     transition: none;

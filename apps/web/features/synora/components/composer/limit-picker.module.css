@@ -13,8 +13,8 @@
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 400;
+  font-size: 0.875rem;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
   cursor: pointer;
   transition: background-color var(--composer-duration-hover) ease;
@@ -43,6 +43,11 @@
   white-space: nowrap;
 }
 
+.triggerValue {
+  color: var(--c-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
 .triggerChevron {
   display: inline-flex;
   width: 12px;
@@ -57,150 +62,44 @@
 }
 
 .popover {
-
-  --c-card-radius: var(--c-pop-radius);
-  --c-row-radius: var(--c-pop-row-radius);
-
   position: absolute;
   bottom: calc(100% + 8px);
   left: 0;
-  min-width: 240px;
-  padding: var(--c-corner-inset);
-  border-radius: var(--c-card-radius);
-
+  width: 340px;
+  padding: calc(var(--c-corner-inset) + 6px);
+  border-radius: var(--c-pop-radius);
   background: var(--composer-surface-raised);
   box-shadow:
     0 0 0 1px var(--composer-hairline),
     var(--shadow-lg);
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
   z-index: 20;
 }
 
-.sectionTitle {
-  margin: 4px 8px 2px;
-  font-size: 0.78rem;
-  color: var(--c-ink-subtle);
-  letter-spacing: 0;
-}
-
-.divider {
-  height: 1px;
-  margin: 4px 8px;
-  background: var(--c-line-soft);
-}
-
-.item {
-  position: relative;
-  display: grid;
-  grid-template-columns: 20px 1fr 16px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 8px 8px;
-  border: none;
-  border-radius: var(--c-row-radius);
-  background: transparent;
-  font-family: inherit;
-  font-size: 0.82rem;
-  color: var(--c-ink);
-  cursor: pointer;
-  text-align: left;
-}
-
-.item:hover:not([data-disabled="true"]),
-.item[data-active="true"] {
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.item[data-disabled="true"] {
-  cursor: not-allowed;
-  color: var(--c-ink-subtle);
-}
-
-.itemIcon {
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  align-items: center;
-  justify-content: center;
-  color: var(--c-ink-muted);
-}
-
-.item[data-disabled="true"] .itemIcon {
-  color: var(--c-ink-subtle);
-}
-
-.itemIcon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.itemLabel {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.itemCheck {
-  display: inline-flex;
-  width: 16px;
-  height: 16px;
-  color: var(--c-ink);
-}
-
-.itemCheck svg {
-  width: 100%;
-  height: 100%;
+.activity {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--composer-hairline);
 }
 
 .usage {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  padding: 8px 8px 10px;
 }
 
 .usageHeader {
-  display: grid;
-  grid-template-columns: 20px 1fr auto;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
-  font-size: 0.82rem;
+  font-size: 0.875rem;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
-}
-
-.usageIcon {
-  display: inline-flex;
-  width: 20px;
-  height: 20px;
-  align-items: center;
-  justify-content: center;
-  color: var(--c-ink-muted);
-}
-
-.usageIcon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.usageLabel {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .usageValue {
   color: var(--c-ink-muted);
   font-variant-numeric: tabular-nums;
-}
-
-.usageBody {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-left: 32px;
 }
 
 .usageBar {
@@ -231,13 +130,15 @@
     min-width: 0;
     flex: 0 0 auto;
   }
+
   .trigger {
     min-width: 0;
     padding: 8px 6px;
     gap: 0;
   }
 
-  .triggerLabel {
+  .triggerLabel,
+  .triggerValue {
     position: absolute;
     width: 1px;
     height: 1px;
@@ -245,12 +146,15 @@
     clip-path: inset(50%);
     white-space: nowrap;
   }
+
   .triggerChevron {
     display: none;
   }
+
   .popover {
     left: 0;
     right: 0;
+    width: auto;
     min-width: 0;
   }
 }

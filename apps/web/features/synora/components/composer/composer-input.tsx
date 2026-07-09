@@ -14,7 +14,7 @@ import {
   ListChecksIcon,
   SpinnerIcon,
 } from "./composer-icons";
-import { EnvironmentPicker } from "./environment-picker";
+import { LimitPicker } from "./limit-picker";
 import { MicButton, VOICE_INPUT_ENABLED } from "./mic-button";
 import { ModelPicker } from "./model-picker";
 import { PermissionPicker } from "./permission-picker";
@@ -29,9 +29,12 @@ import { useAttachments } from "../../hooks/use-attachments";
 import { useFileDrop } from "../../hooks/use-file-drop";
 import { useVoiceWaveform } from "../../hooks/use-voice-waveform";
 import { useBranchStore } from "../../stores/branch-store";
-import { useProjectStore } from "../../stores/project-store";
+import {
+  branchForSelection,
+  selectionFromQuery,
+  useProjectStore,
+} from "../../stores/project-store";
 import type {
-  EnvironmentMode,
   ModelSelection,
   PermissionLevel,
   VoiceStage,
@@ -49,12 +52,19 @@ export function ComposerInput() {
   const [planMode, setPlanMode] = useState(false);
   const [permission, setPermission] = useState<PermissionLevel>("standard");
   const [selection, setSelection] = useState<ModelSelection>(DEFAULT_SELECTION);
-  const project = useProjectStore((state) => state.selection);
+  const storeProject = useProjectStore((state) => state.selection);
+  const hasSyncedProject = useProjectStore((state) => state.hasSynced);
   const setProject = useProjectStore((state) => state.setSelection);
   const syncProjectFromQuery = useProjectStore((state) => state.syncFromQuery);
-  const [environment, setEnvironment] = useState<EnvironmentMode>("local");
-  const branch = useBranchStore((state) => state.branch);
+  const storeBranch = useBranchStore((state) => state.branch);
   const setBranch = useBranchStore((state) => state.setBranch);
+
+  const projectParam = searchParams.get("project");
+  const querySelection = selectionFromQuery(projectParam);
+  const project = hasSyncedProject ? storeProject : querySelection;
+  const branch = hasSyncedProject
+    ? storeBranch
+    : branchForSelection(querySelection);
   const [voiceStage, setVoiceStage] = useState<VoiceStage>("idle");
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -67,7 +77,6 @@ export function ComposerInput() {
 
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
-  const projectParam = searchParams.get("project");
   useEffect(() => {
     syncProjectFromQuery(projectParam);
   }, [projectParam, syncProjectFromQuery]);
@@ -229,8 +238,8 @@ export function ComposerInput() {
 
         <div className={styles.context}>
           <ProjectPicker selection={project} onChange={setProject} />
-          <EnvironmentPicker mode={environment} onChange={setEnvironment} />
           <BranchPicker branch={branch} onChange={setBranch} />
+          <LimitPicker />
         </div>
       </div>
 

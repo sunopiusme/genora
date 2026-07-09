@@ -2,7 +2,7 @@ import { SYNORA_PROJECT_GROUPS } from "./recent-sandboxes";
 import type { Project, ProjectSelection } from "../types";
 
 export const PROJECTS: Project[] = [
-  { id: "workspaces", label: "Песочницы", kind: "workspace" },
+  { id: "workspaces", label: "Все проекты", kind: "workspace" },
   ...SYNORA_PROJECT_GROUPS.map(
     (group): Project => ({
       id: group.branch,
