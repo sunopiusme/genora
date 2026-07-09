@@ -157,7 +157,10 @@ function SortableTaskCard({ task }: { task: Task }) {
       ref={setNodeRef}
       className={styles.cardSlot}
       data-dragging={isDragging || undefined}
-      style={{ transform: CSS.Transform.toString(transform), transition }}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: isDragging ? "none" : transition,
+      }}
       {...attributes}
       {...listeners}
     >

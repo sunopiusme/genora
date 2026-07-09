@@ -20,7 +20,7 @@
 .board {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-4);
+  gap: var(--space-3);
   height: 100%;
   min-width: max-content;
 }
@@ -28,7 +28,7 @@
 .column {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: var(--space-2);
   width: min(17.5rem, calc(100vw - var(--space-12)));
   max-height: 100%;
   flex-shrink: 0;
@@ -63,8 +63,8 @@
   min-height: 4.5rem;
   padding: var(--space-4) var(--space-3);
   border-radius: var(--radius-2xl);
-  outline: 1px dashed var(--color-border);
-  outline-offset: -1px;
+  outline: 2px dashed var(--color-border);
+  outline-offset: -2px;
   font-size: var(--text-xs);
   color: var(--color-foreground-subtle);
 }
@@ -92,8 +92,9 @@
 .cardSlot[data-dragging] .card {
   background: transparent;
   box-shadow: 0 0 0 1px transparent;
-  outline: 1px dashed var(--color-border-strong);
-  outline-offset: -1px;
+  outline: 2px dashed var(--color-border-strong);
+  outline-offset: -2px;
+  transition: none;
 }
 
 .cardSlot[data-dragging] .card > * {
@@ -104,7 +105,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
   border-radius: var(--radius-2xl);
   background: var(--color-surface-elevated);
   box-shadow:
@@ -154,7 +155,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  margin-top: var(--space-2);
+  margin-top: var(--space-1);
 }
 
 .cardPriority {
