@@ -35,7 +35,7 @@ export type MentionGroup = {
   items: MentionItem[];
 };
 
-export type ProviderId = "fable";
+export type ProviderId = "fable" | "anthropic";
 
 export type ReasoningLevel = {
   id: string;

@@ -8,6 +8,11 @@ const FABLE_5_LEVELS: ReasoningLevel[] = [
   { id: "ultracode", label: "Ultracode" },
 ];
 
+const SONNET_45_LEVELS: ReasoningLevel[] = [
+  { id: "standard", label: "Standard" },
+  { id: "thinking", label: "Thinking" },
+];
+
 export const PROVIDERS: Provider[] = [
   {
     id: "fable",
@@ -18,6 +23,18 @@ export const PROVIDERS: Provider[] = [
         label: "Fable 5",
         levels: FABLE_5_LEVELS,
         defaultLevelId: "high",
+      },
+    ],
+  },
+  {
+    id: "anthropic",
+    label: "Anthropic",
+    models: [
+      {
+        id: "claude-sonnet-4-5",
+        label: "Sonnet 4.5",
+        levels: SONNET_45_LEVELS,
+        defaultLevelId: "standard",
       },
     ],
   },

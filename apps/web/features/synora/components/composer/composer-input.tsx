@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { useComposerStore } from "@/stores/composer-store";
 
 import styles from "./composer-input.module.css";
+import { AssistantReply } from "./assistant-reply";
 import { AttachmentTile } from "./attachment-tile";
 import { BranchPicker } from "./branch-picker";
 import {
@@ -26,6 +27,7 @@ import { Tooltip } from "./tooltip";
 import { VoiceRecorder } from "./voice-recorder";
 import { DEFAULT_SELECTION } from "../../data/models";
 import { useAttachments } from "../../hooks/use-attachments";
+import { useChatRequest } from "../../hooks/use-chat-request";
 import { useFileDrop } from "../../hooks/use-file-drop";
 import { useVoiceWaveform } from "../../hooks/use-voice-waveform";
 import { useBranchStore } from "../../stores/branch-store";
@@ -74,6 +76,7 @@ export function ComposerInput() {
 
   const attachments = useAttachments();
   const fileDrop = useFileDrop(attachments.add);
+  const chat = useChatRequest();
 
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
@@ -113,6 +116,27 @@ export function ComposerInput() {
     }
     if (!promptReady && attachments.attachments.length === 0) return;
 
+    if (selection.providerId === "anthropic" && promptReady) {
+      const trimmed = prompt.trim();
+      setSending(true);
+      setPrompt("");
+      attachments.clear();
+      void chat
+        .send({
+          prompt: trimmed,
+          modelId: selection.modelId,
+          levelId: selection.levelId,
+        })
+        .then((ok) => {
+          if (!ok) setToast("Не удалось получить ответ модели");
+        })
+        .finally(() => {
+          setSending(false);
+          rootRef.current?.querySelector("textarea")?.focus();
+        });
+      return;
+    }
+
     setSending(true);
     window.setTimeout(() => {
       setPrompt("");
@@ -120,7 +144,7 @@ export function ComposerInput() {
       setSending(false);
       rootRef.current?.querySelector("textarea")?.focus();
     }, SUBMIT_MS);
-  }, [sending, voiceStage, promptReady, attachments]);
+  }, [sending, voiceStage, promptReady, attachments, selection, prompt, chat]);
 
   const openFilePicker = () => fileInputRef.current?.click();
 
@@ -241,6 +265,8 @@ export function ComposerInput() {
           <BranchPicker branch={branch} onChange={setBranch} />
           <LimitPicker />
         </div>
+
+        <AssistantReply />
       </div>
 
       {toast ? (
