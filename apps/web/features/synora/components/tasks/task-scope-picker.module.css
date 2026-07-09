@@ -268,19 +268,34 @@
 @media (max-width: 560px) {
   /* На узком экране ветке не хватает места в одной строке с
      проектом, поэтому она переезжает на вторую строку и читается
-     целиком — рабочий контекст всегда виден без среза. */
+     целиком — рабочий контекст всегда виден без среза. Каждый
+     элемент закреплён в своей ячейке явно, чтобы шеврон не
+     переносился авторазмещением на отдельный ряд. */
   .trigger {
     display: grid;
     grid-template-columns: minmax(0, auto) auto;
     justify-content: start;
     align-items: center;
+    column-gap: var(--space-2);
     row-gap: 2px;
   }
 
+  .triggerLabel {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .triggerChevron {
+    grid-row: 1;
+    grid-column: 2;
+  }
+
   .triggerBranch {
+    grid-row: 2;
     grid-column: 1 / -1;
     font-size: var(--text-xs);
     line-height: var(--leading-xs, 1.4);
+    text-align: left;
   }
 
   /* Поповер позиционируется от вьюпорта, а не от триггера:
