@@ -10,11 +10,12 @@
   --composer-ink-muted: var(--color-foreground-muted);
   --composer-surface: var(--color-surface-elevated);
   --composer-surface-raised: var(--color-surface-raised);
-  --composer-hairline: rgb(255 255 255 / 0.08);
+  /* Обводка карточки заметнее: на чёрном фоне 0.08 сливалась. */
+  --composer-hairline: rgb(255 255 255 / 0.14);
   --composer-duration-hover: 120ms;
 
-  --c-line: rgb(255 255 255 / 0.08);
-  --c-line-soft: rgb(255 255 255 / 0.06);
+  --c-line: rgb(255 255 255 / 0.12);
+  --c-line-soft: rgb(255 255 255 / 0.08);
   --c-ink: var(--color-foreground);
   --c-ink-muted: var(--color-foreground-muted);
   --c-ink-subtle: var(--color-foreground-subtle);
@@ -67,6 +68,8 @@
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
 
   background: var(--c-drawer);
+  /* Тонкая обводка, чтобы шторка не сливалась с чёрным фоном. */
+  box-shadow: 0 0 0 1px var(--c-line-soft);
 }
 
 .srOnly {
@@ -499,7 +502,8 @@ button.iconBtn[data-loading="true"] svg {
   border-radius: var(--c-row-radius);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
-  color: var(--c-ink-muted);
+  /* Читаемость на тёмной шторке: secondary вместо muted. */
+  color: var(--color-foreground-secondary);
   cursor: default;
 }
 
