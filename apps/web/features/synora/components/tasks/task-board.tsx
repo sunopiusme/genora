@@ -32,8 +32,10 @@ import {
   TASK_STATUS_LABELS,
   TASK_STATUS_ORDER,
 } from "../../data/tasks";
+import { DEFAULT_BRANCH } from "../../data/branches";
 import type { Task, TaskPriority, TaskStatus } from "../../types";
 import { TaskScopePicker } from "./task-scope-picker";
+import type { TaskScope } from "./task-scope-picker";
 import styles from "./task-board.module.css";
 
 const TASK_STATUS_SET = new Set<TaskStatus>(TASK_STATUS_ORDER);
@@ -46,7 +48,10 @@ export function TaskBoard() {
   const tasks = useTaskStore((state) => state.tasks);
   const moveTask = useTaskStore((state) => state.moveTask);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
-  const [project, setProject] = useState<string | null>(null);
+  const [scope, setScope] = useState<TaskScope>({
+    project: null,
+    branch: DEFAULT_BRANCH,
+  });
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -55,9 +60,9 @@ export function TaskBoard() {
   );
 
   const visibleTasks =
-    project === null
+    scope.project === null
       ? tasks
-      : tasks.filter((task) => task.project === project);
+      : tasks.filter((task) => task.project === scope.project);
 
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? null;
 
@@ -127,7 +132,7 @@ export function TaskBoard() {
   return (
     <main className={styles.page}>
       <PageHeader
-        leading={<TaskScopePicker project={project} onChange={setProject} />}
+        leading={<TaskScopePicker scope={scope} onChange={setScope} />}
       />
 
       <DndContext

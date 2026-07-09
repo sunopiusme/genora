@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { BRANCHES } from "../../data/branches";
 import { SYNORA_PROJECT_GROUPS } from "../../data/recent-sandboxes";
 import { BranchIcon } from "../composer/branch-popover";
 import {
@@ -13,12 +14,17 @@ import {
 } from "../composer/project-icons";
 import styles from "./task-scope-picker.module.css";
 
-type Props = {
+export type TaskScope = {
   project: string | null;
-  onChange: (next: string | null) => void;
+  branch: string;
 };
 
-export function TaskScopePicker({ project, onChange }: Props) {
+type Props = {
+  scope: TaskScope;
+  onChange: (next: TaskScope) => void;
+};
+
+export function TaskScopePicker({ scope, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const wrapRef = useRef<HTMLDivElement | null>(null);
@@ -54,22 +60,34 @@ export function TaskScopePicker({ project, onChange }: Props) {
     searchRef.current?.focus({ preventScroll: true });
   }, [open]);
 
-  const filtered = useMemo(() => {
-    const q = query.toLowerCase().trim();
-    if (!q) return SYNORA_PROJECT_GROUPS;
-    return SYNORA_PROJECT_GROUPS.filter(
-      (group) =>
-        group.name.toLowerCase().includes(q) ||
-        group.branch.toLowerCase().includes(q),
+  const normalizedQuery = query.toLowerCase().trim();
+
+  const filteredGroups = useMemo(() => {
+    if (!normalizedQuery) return SYNORA_PROJECT_GROUPS;
+    return SYNORA_PROJECT_GROUPS.filter((group) =>
+      group.name.toLowerCase().includes(normalizedQuery),
     );
-  }, [query]);
+  }, [normalizedQuery]);
 
-  const selectedGroup = SYNORA_PROJECT_GROUPS.find(
-    (group) => group.name === project,
-  );
+  const filteredBranches = useMemo(() => {
+    if (!normalizedQuery) return BRANCHES;
+    return BRANCHES.filter((branch) =>
+      branch.toLowerCase().includes(normalizedQuery),
+    );
+  }, [normalizedQuery]);
 
-  const pick = (next: string | null) => {
-    onChange(next);
+  const pickProject = (group: (typeof SYNORA_PROJECT_GROUPS)[number]) => {
+    onChange({ project: group.name, branch: group.branch });
+    closePopover();
+  };
+
+  const pickAllProjects = () => {
+    onChange({ ...scope, project: null });
+    closePopover();
+  };
+
+  const pickBranch = (branch: string) => {
+    onChange({ ...scope, branch });
     closePopover();
   };
 
@@ -83,14 +101,14 @@ export function TaskScopePicker({ project, onChange }: Props) {
         onClick={togglePopover}
       >
         <span className={styles.triggerLabel}>
-          {selectedGroup ? selectedGroup.name : "Все проекты"}
+          {scope.project ?? "Все проекты"}
         </span>
-        {selectedGroup ? (
+        {scope.project ? (
           <span
             className={styles.triggerBranch}
-            title={`Ветка ${selectedGroup.branch}`}
+            title={`Ветка ${scope.branch}`}
           >
-            {selectedGroup.branch}
+            {scope.branch}
           </span>
         ) : null}
         <span className={styles.triggerChevron} aria-hidden="true">
@@ -115,12 +133,14 @@ export function TaskScopePicker({ project, onChange }: Props) {
           </div>
 
           <div className={styles.list}>
+            <div className={styles.sectionTitle}>Проекты</div>
+
             <button
               type="button"
               className={styles.item}
-              data-active={project === null}
+              data-active={scope.project === null}
               role="menuitem"
-              onClick={() => pick(null)}
+              onClick={pickAllProjects}
             >
               <span className={styles.itemIcon} aria-hidden="true">
                 <WorkspaceIcon />
@@ -128,7 +148,7 @@ export function TaskScopePicker({ project, onChange }: Props) {
               <span className={styles.itemBody}>
                 <span className={styles.itemLabel}>Все проекты</span>
               </span>
-              {project === null ? (
+              {scope.project === null ? (
                 <span className={styles.itemCheck} aria-hidden="true">
                   <CheckIcon />
                 </span>
@@ -137,46 +157,67 @@ export function TaskScopePicker({ project, onChange }: Props) {
               )}
             </button>
 
-            {filtered.length === 0 ? (
+            {filteredGroups.map((group) => {
+              const selected = group.name === scope.project;
+              return (
+                <button
+                  key={group.name}
+                  type="button"
+                  className={styles.item}
+                  data-active={selected}
+                  role="menuitem"
+                  onClick={() => pickProject(group)}
+                >
+                  <span className={styles.itemIcon} aria-hidden="true">
+                    <RepoIcon />
+                  </span>
+                  <span className={styles.itemBody}>
+                    <span className={styles.itemLabel}>{group.name}</span>
+                  </span>
+                  {selected ? (
+                    <span className={styles.itemCheck} aria-hidden="true">
+                      <CheckIcon />
+                    </span>
+                  ) : (
+                    <span aria-hidden="true" />
+                  )}
+                </button>
+              );
+            })}
+
+            <div className={styles.sectionTitle}>Ветки</div>
+
+            {filteredBranches.map((branch) => {
+              const selected = branch === scope.branch;
+              return (
+                <button
+                  key={branch}
+                  type="button"
+                  className={styles.item}
+                  data-active={selected}
+                  role="menuitem"
+                  onClick={() => pickBranch(branch)}
+                >
+                  <span className={styles.itemIcon} aria-hidden="true">
+                    <BranchIcon />
+                  </span>
+                  <span className={styles.itemBody}>
+                    <span className={styles.itemLabel}>{branch}</span>
+                  </span>
+                  {selected ? (
+                    <span className={styles.itemCheck} aria-hidden="true">
+                      <CheckIcon />
+                    </span>
+                  ) : (
+                    <span aria-hidden="true" />
+                  )}
+                </button>
+              );
+            })}
+
+            {filteredGroups.length === 0 && filteredBranches.length === 0 ? (
               <div className={styles.empty}>Ничего не найдено</div>
-            ) : (
-              filtered.map((group) => {
-                const selected = group.name === project;
-                return (
-                  <button
-                    key={group.name}
-                    type="button"
-                    className={styles.item}
-                    data-active={selected}
-                    role="menuitem"
-                    onClick={() => pick(group.name)}
-                  >
-                    <span className={styles.itemIcon} aria-hidden="true">
-                      <RepoIcon />
-                    </span>
-                    <span className={styles.itemBody}>
-                      <span className={styles.itemLabel}>{group.name}</span>
-                      <span className={styles.itemBranch}>
-                        <span
-                          className={styles.itemBranchIcon}
-                          aria-hidden="true"
-                        >
-                          <BranchIcon />
-                        </span>
-                        {group.branch}
-                      </span>
-                    </span>
-                    {selected ? (
-                      <span className={styles.itemCheck} aria-hidden="true">
-                        <CheckIcon />
-                      </span>
-                    ) : (
-                      <span aria-hidden="true" />
-                    )}
-                  </button>
-                );
-              })
-            )}
+            ) : null}
           </div>
         </div>
       ) : null}
