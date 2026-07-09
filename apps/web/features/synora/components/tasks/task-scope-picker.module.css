@@ -270,8 +270,22 @@
     display: none;
   }
 
+  /* Поповер позиционируется от вьюпорта, а не от триггера:
+     на узком экране лист под шапкой во всю ширину, как
+     нативное меню iOS, и не срезается краем. */
   .popover {
-    min-width: min(18rem, calc(100vw - var(--space-8)));
+    position: fixed;
+    top: calc(var(--space-12) + var(--space-2));
+    left: calc(var(--space-3) + env(safe-area-inset-left, 0px));
+    right: calc(var(--space-3) + env(safe-area-inset-right, 0px));
+    min-width: 0;
+    max-height: calc(100dvh - var(--space-20));
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .popover::-webkit-scrollbar {
+    display: none;
   }
 
   /* На мобильных подменю — нативный inline-аккордеон:

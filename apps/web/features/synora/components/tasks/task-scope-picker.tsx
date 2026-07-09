@@ -40,12 +40,21 @@ export function TaskScopePicker({ scope, onChange }: Props) {
     }
   }, []);
 
+  /* iOS эмулирует hover при тапе, поэтому раскрытие по наведению
+     доступно только устройствам с настоящим курсором; на touch
+     подменю управляется исключительно тапом по шеврону. */
+  const isHoverCapable = useCallback(
+    () => window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+    [],
+  );
+
   /* Подменю закрывается с задержкой: диагональное движение
      курсора к веткам не «срывает» его, в отличие от :hover. */
   const scheduleCollapse = useCallback(() => {
+    if (!isHoverCapable()) return;
     clearHoverTimer();
     hoverTimerRef.current = window.setTimeout(() => setExpanded(null), 200);
-  }, [clearHoverTimer]);
+  }, [clearHoverTimer, isHoverCapable]);
 
   const expandNow = useCallback(
     (name: string) => {
@@ -53,6 +62,14 @@ export function TaskScopePicker({ scope, onChange }: Props) {
       setExpanded(name);
     },
     [clearHoverTimer],
+  );
+
+  const expandOnHover = useCallback(
+    (name: string) => {
+      if (!isHoverCapable()) return;
+      expandNow(name);
+    },
+    [expandNow, isHoverCapable],
   );
 
   useEffect(() => clearHoverTimer, [clearHoverTimer]);
@@ -205,7 +222,7 @@ export function TaskScopePicker({ scope, onChange }: Props) {
                         setExpanded(null);
                       }
                     }}
-                    onMouseEnter={() => expandNow(group.name)}
+                    onMouseEnter={() => expandOnHover(group.name)}
                     onMouseLeave={scheduleCollapse}
                   >
                     <span className={styles.itemIcon} aria-hidden="true">
