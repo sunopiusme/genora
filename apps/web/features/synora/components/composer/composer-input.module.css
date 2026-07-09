@@ -71,11 +71,13 @@
 
 .card {
   display: grid;
-  gap: 14px;
+  gap: 12px;
   padding: 18px var(--c-pad-x);
   border-radius: var(--c-card-radius);
   background: var(--c-surface);
-  box-shadow: var(--shadow-lg);
+  box-shadow:
+    0 0 0 1px var(--composer-hairline),
+    var(--shadow-lg);
   position: relative;
   z-index: 1;
 }
@@ -244,7 +246,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  padding: 4px 6px 0;
+  padding: 4px 10px 0;
 }
 
 .input::placeholder {
@@ -277,14 +279,14 @@
 .toolbarRight {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .toolbarLeft {
   flex: 1;
   min-width: 0;
 
-  gap: 10px;
+  gap: 8px;
 }
 
 .iconBtn {
@@ -358,7 +360,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   font-weight: var(--weight-medium);
@@ -386,7 +388,7 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
 
   margin-left: 4px;
-  padding: 8px 8px 8px 12px;
+  padding: 8px 10px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   font-weight: var(--weight-medium);
@@ -481,7 +483,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 8px 12px;
+  padding: 8px 10px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   color: var(--c-ink-muted);
@@ -799,7 +801,7 @@ button.iconBtn[data-loading="true"] svg {
     gap: 10px;
   }
   .inputWrap {
-    padding: 2px 4px 0;
+    padding: 2px 8px 0;
   }
   .toolbar {
     gap: 6px;
