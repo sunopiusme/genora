@@ -40,21 +40,26 @@ export function TaskScopePicker({ scope, onChange }: Props) {
     }
   }, []);
 
-  /* iOS эмулирует hover при тапе, поэтому раскрытие по наведению
-     доступно только устройствам с настоящим курсором; на touch
-     подменю управляется исключительно тапом по шеврону. */
-  const isHoverCapable = useCallback(
-    () => window.matchMedia("(hover: hover) and (pointer: fine)").matches,
+  /* Мобильный режим определяется тем же брейкпоинтом 560px, что
+     переключает подменю в inline-аккордеон (см. CSS-модуль), а не
+     типом указателя: в узком превью десктопного браузера курсор
+     «тонкий», но UX должен быть тач-ориентированным. Плюс отсечка
+     по hover — на реальных touch-устройствах любой ширины
+     эмулированное наведение iOS не должно раскрывать подменю. */
+  const isCompactMode = useCallback(
+    () =>
+      window.matchMedia("(max-width: 560px)").matches ||
+      !window.matchMedia("(hover: hover) and (pointer: fine)").matches,
     [],
   );
 
   /* Подменю закрывается с задержкой: диагональное движение
      курсора к веткам не «срывает» его, в отличие от :hover. */
   const scheduleCollapse = useCallback(() => {
-    if (!isHoverCapable()) return;
+    if (isCompactMode()) return;
     clearHoverTimer();
     hoverTimerRef.current = window.setTimeout(() => setExpanded(null), 200);
-  }, [clearHoverTimer, isHoverCapable]);
+  }, [clearHoverTimer, isCompactMode]);
 
   const expandNow = useCallback(
     (name: string) => {
@@ -66,10 +71,10 @@ export function TaskScopePicker({ scope, onChange }: Props) {
 
   const expandOnHover = useCallback(
     (name: string) => {
-      if (!isHoverCapable()) return;
+      if (isCompactMode()) return;
       expandNow(name);
     },
-    [expandNow, isHoverCapable],
+    [expandNow, isCompactMode],
   );
 
   useEffect(() => clearHoverTimer, [clearHoverTimer]);
@@ -119,12 +124,12 @@ export function TaskScopePicker({ scope, onChange }: Props) {
     closePopover();
   };
 
-  /* На touch тап по строке проекта раскрывает список веток —
-     нативный disclosure-паттерн iOS; выбор делается тапом по
-     ветке. На десктопе клик по строке выбирает проект сразу,
+  /* В компактном режиме тап по строке проекта раскрывает список
+     веток — нативный disclosure-паттерн iOS; выбор делается тапом
+     по ветке. На десктопе клик по строке выбирает проект сразу,
      ветки доступны при наведении. */
   const handleProjectRow = (group: (typeof SYNORA_PROJECT_GROUPS)[number]) => {
-    if (isHoverCapable()) {
+    if (!isCompactMode()) {
       pickProject(group);
       return;
     }
