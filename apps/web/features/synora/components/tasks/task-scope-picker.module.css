@@ -1,0 +1,338 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  z-index: 30;
+}
+
+.trigger {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  max-width: calc(100vw - var(--space-12));
+  padding: var(--space-1) var(--space-2);
+  /* Текст триггера начинается там же, где текст шапек колонок:
+     паддинг скролла (space-4) + паддинг шапки колонки (space-3)
+     минус паддинг шапки страницы (space-3) и паддинг кнопки (space-2) */
+  margin-left: calc(var(--space-4) - var(--space-2));
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.trigger:hover,
+.trigger[aria-expanded="true"] {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.triggerLabel {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerBranch {
+  min-width: 0;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-normal);
+  font-family: var(--font-mono, monospace);
+  color: var(--color-foreground-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.triggerChevron {
+  display: inline-flex;
+  width: 0.75rem;
+  height: 0.75rem;
+  color: var(--color-foreground-subtle);
+  flex-shrink: 0;
+}
+
+.triggerChevron svg {
+  width: 100%;
+  height: 100%;
+}
+
+.popover {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: calc(var(--space-4) - var(--space-2));
+  min-width: 18rem;
+  padding: var(--space-1);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.search {
+  display: grid;
+  grid-template-columns: 1rem 1fr;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-2);
+}
+
+.searchIcon {
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-foreground-subtle);
+}
+
+.searchIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-foreground);
+}
+
+.searchInput::placeholder {
+  color: var(--color-foreground-subtle);
+}
+
+/* Без overflow: раскрывающееся вбок подменю веток
+   не должно обрезаться скролл-контейнером списка. */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1rem 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-foreground);
+  cursor: pointer;
+  text-align: left;
+}
+
+.item:hover,
+.item[data-active="true"] {
+  background: rgb(255 255 255 / 0.06);
+}
+
+.itemIcon {
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-foreground-muted);
+}
+
+.itemIcon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.itemLabel {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.itemCheck {
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-foreground);
+}
+
+.itemCheck svg {
+  width: 100%;
+  height: 100%;
+}
+
+.itemTrailing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 1rem;
+}
+
+.itemExpand {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-foreground-subtle);
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    transform 160ms ease;
+}
+
+.itemExpand:hover {
+  background: rgb(255 255 255 / 0.08);
+  color: var(--color-foreground);
+}
+
+.itemExpand svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Расширение мишени касания шеврона до ~44pt (HIG) на touch. */
+@media (pointer: coarse) {
+  .itemExpand::after {
+    content: "";
+    position: absolute;
+    inset: -0.75rem;
+  }
+}
+
+.submenu {
+  position: absolute;
+  top: calc(0px - var(--space-1));
+  left: calc(100% + var(--space-2));
+  min-width: 14rem;
+  max-height: 17.5rem;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  padding: var(--space-1);
+  border-radius: var(--radius-2xl);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  gap: 1px;
+  z-index: 31;
+}
+
+.submenu::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(0px - var(--space-2));
+  width: var(--space-2);
+}
+
+/* Видимость управляется состоянием (mouseenter с грейс-таймером,
+   клик по шеврону, стрелки) — не хрупким :hover. */
+.submenu[data-open="true"] {
+  display: flex;
+}
+
+.sectionTitle {
+  padding: var(--space-2) var(--space-2) var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  color: var(--color-foreground-subtle);
+}
+
+.empty {
+  padding: var(--space-3) var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-foreground-subtle);
+}
+
+@media (max-width: 560px) {
+  /* На узком экране ветке не хватает места в одной строке с
+     проектом, поэтому она переносится на вторую строку целиком.
+     Flex с переносом вместо грида: когда ветка длиннее имени
+     проекта, лишняя ширина не распределяется по колонкам и
+     первая строка не «плавает» к центру — всё прижато влево,
+     как контент доски. */
+  .trigger {
+    flex-wrap: wrap;
+    align-items: center;
+    row-gap: 2px;
+    text-align: left;
+  }
+
+  /* order: 1 ставит ветку визуально после шеврона (в DOM она
+     раньше), поэтому первая строка — «проект + шеврон», вторая —
+     ветка на всю ширину. */
+  .triggerBranch {
+    order: 1;
+    flex-basis: 100%;
+    font-size: var(--text-xs);
+    line-height: var(--leading-xs, 1.4);
+  }
+
+  /* Поповер позиционируется от вьюпорта, а не от триггера:
+     на узком экране лист под шапкой во всю ширину, как
+     нативное меню iOS, и не срезается краем. */
+  .popover {
+    position: fixed;
+    top: calc(var(--space-12) + var(--space-2));
+    left: calc(var(--space-3) + env(safe-area-inset-left, 0px));
+    right: calc(var(--space-3) + env(safe-area-inset-right, 0px));
+    min-width: 0;
+    max-height: calc(100dvh - var(--space-20));
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+
+  .popover::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* На мобильных подменю — нативный inline-аккордеон:
+     раскрывается под строкой проекта, а не парит сбоку.
+     Отступ 1rem + gap ставит иконки веток ровно под
+     названием проекта (после его иконки). */
+  .submenu {
+    position: static;
+    grid-column: 1 / -1;
+    min-width: 0;
+    max-height: none;
+    overflow: visible;
+    margin: var(--space-1) calc(0px - var(--space-2)) 0;
+    padding: 0 0 0 calc(1rem + var(--space-2));
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .submenu::before {
+    display: none;
+  }
+
+  .submenu .sectionTitle {
+    display: none;
+  }
+
+  .itemExpand[data-expanded="true"] svg {
+    transform: rotate(90deg);
+  }
+}

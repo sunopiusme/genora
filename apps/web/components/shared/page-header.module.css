@@ -73,6 +73,13 @@
   white-space: nowrap;
 }
 
+.leading {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  pointer-events: auto;
+}
+
 .trailing {
   display: flex;
   align-items: center;
