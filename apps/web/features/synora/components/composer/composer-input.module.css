@@ -1,14 +1,22 @@
-.root {
+/* Композер Синоры.
+   Все размеры — только через токены @genora/design-tokens
+   (см. docs/standards/UI_STANDARDS.md: без «магических» значений).
+   Масштаб синхронизирован с диалогом: текст ввода = тексту сообщений
+   (--text-base на десктопе, --text-sm на мобильном), иконки --text-lg,
+   контролы --space-8 — спокойный, но не мелкий. */
 
-  --composer-ink: var(--color-foreground, #fafafa);
-  --composer-ink-muted: var(--color-foreground-muted, #a3a3a3);
-  --composer-surface: var(--color-surface-elevated, #262626);
-  --composer-surface-raised: var(--color-surface-raised, #303030);
-  --composer-hairline: rgb(255 255 255 / 0.08);
+.root {
+  --composer-ink: var(--color-foreground);
+  --composer-ink-muted: var(--color-foreground-muted);
+  --composer-surface: var(--color-surface-elevated);
+  --composer-surface-raised: var(--color-surface-raised);
+  /* Свой стиль: без обводок — глубина за счёт поверхности и тени.
+     Hairline остаётся только у выпадающих меню, едва заметный. */
+  --composer-hairline: rgb(255 255 255 / 0.06);
   --composer-duration-hover: 120ms;
 
-  --c-line: rgb(255 255 255 / 0.08);
-  --c-line-soft: rgb(255 255 255 / 0.06);
+  --c-line: rgb(255 255 255 / 0.12);
+  --c-line-soft: rgb(255 255 255 / 0.08);
   --c-ink: var(--color-foreground);
   --c-ink-muted: var(--color-foreground-muted);
   --c-ink-subtle: var(--color-foreground-subtle);
@@ -19,22 +27,28 @@
 
   --c-surface-glass: var(--composer-surface-raised);
 
-  --c-card-radius: 24px;
+  --c-card-radius: var(--radius-2xl);
   --c-corner-inset: var(--space-2);
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
 
+  /* Крупные скругления выпадающих меню (референс iOS: ~24px).
+     Радиус ряда = радиус карточки минус внутренний отступ (concentric). */
   --c-pop-radius: var(--radius-2xl);
-  --c-pop-row-radius: var(--radius-xl);
-  --c-pad-x: 16px;
-  --c-icon-col: 20px;
-  --c-gap-icon: 8px;
+  --c-pop-row-radius: calc(var(--radius-2xl) - var(--c-corner-inset));
+  --c-pad-x: var(--space-4);
+  --c-icon-col: var(--space-4);
+  --c-gap-icon: var(--space-2);
+
+  /* Единый размер контролов и иконок тулбара.
+     Иконки --text-lg (18px) — золотая середина между 16 и 20. */
+  --c-control: var(--space-8);
+  --c-icon: var(--text-lg);
 
   width: 100%;
-
   max-width: var(--composer-width, 42rem);
   margin: 0 auto;
   display: grid;
-  gap: 10px;
+  gap: var(--space-2);
   font-family: var(--font-sans), sans-serif;
   color: var(--c-ink);
 }
@@ -44,17 +58,20 @@
   display: grid;
 }
 
+/* Контекст (проект, ветка, лимит): на десктопе — нижний ряд карточки,
+   на мобильном — верхний. Ниже тулбара по высоте и приглушён —
+   иерархия задаётся весом, а не сжатием отступов. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 4px;
-  margin: -14px 0 0;
-
-  padding: 20px var(--c-pad-x) 6px;
-  border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
-
-  background: var(--c-drawer);
+  gap: var(--space-1);
+  /* Без вылетов: иконки чипов встают на одну вертикаль с глифом
+     «плюса» за счёт паддинга самих триггеров (--space-2 ≈ 7px). */
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--c-ink-subtle);
 }
 
 .srOnly {
@@ -71,15 +88,26 @@
 
 .card {
   display: grid;
-  gap: 10px;
-  padding: 14px var(--c-pad-x);
+  /* Ровный вертикальный ритм: одинаковый шаг между всеми рядами. */
+  gap: var(--space-2);
+  padding: var(--space-3) var(--c-pad-x);
   border-radius: var(--c-card-radius);
-  background: var(--c-surface);
-  box-shadow:
-    0 0 0 1px var(--composer-hairline),
-    var(--shadow-lg);
+  /* Поверхность чуть светлее фона страницы — карточка читается сама,
+     без обводки; глубина — мягкой тенью. */
+  background: var(--composer-surface-raised);
+  box-shadow: var(--shadow-lg);
   position: relative;
   z-index: 1;
+  transition: box-shadow 160ms ease;
+}
+
+/* Бренд-акцент: при фокусе карточка мягко подсвечивается фирменным
+   цветом — живой отклик вместо рамок. */
+.card:focus-within {
+  box-shadow:
+    0 0 0 1px
+      color-mix(in srgb, var(--color-primary) 22%, transparent),
+    var(--shadow-lg);
 }
 
 .card[data-drag="true"] {
@@ -105,9 +133,8 @@
 .attachmentsRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-
-  margin: -8px -8px -2px;
+  gap: var(--space-2);
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
 }
 
 .dropOverlay {
@@ -139,9 +166,9 @@
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   text-align: center;
-  max-width: calc(100% - 32px);
+  max-width: calc(100% - var(--space-8));
   padding: 0 var(--c-pad-x);
   animation: dropOverlayContent 200ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -150,24 +177,24 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
   color: var(--c-ink-muted);
   flex-shrink: 0;
 }
 
 .dropOverlayIcon svg {
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
   stroke-width: 1.5;
 }
 
 .dropOverlayTitle {
-  font-size: 0.92rem;
-  font-weight: 400;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-normal);
   letter-spacing: -0.01em;
   color: var(--c-ink-muted);
-  line-height: 1.2;
+  line-height: var(--leading-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -219,14 +246,15 @@
   outline: none;
   background: transparent;
   font-family: inherit;
-  font-size: 1rem;
-  font-weight: var(--weight-medium);
-  line-height: 1.55;
+  /* Синхронизировано с текстом сообщений диалога (--text-base). */
+  font-size: var(--text-base);
+  font-weight: var(--weight-normal);
+  line-height: var(--leading-base);
   color: var(--c-ink);
   resize: none;
 
-  min-height: calc(1rem * 1.55);
-  max-height: calc(1rem * 1.55 * 6);
+  min-height: var(--leading-base);
+  max-height: calc(var(--leading-base) * 6);
   white-space: pre-wrap;
   overflow-wrap: break-word;
   overflow-x: hidden;
@@ -246,7 +274,9 @@
   display: block;
   width: 100%;
   min-width: 0;
-  padding: 2px 8px 0;
+  /* Текст ввода стартует с той же вертикали, что и глиф «плюса»
+     ((--c-control - --c-icon) / 2 ≈ --space-2) — одна левая линия. */
+  padding: 0 var(--space-2);
 }
 
 .input::placeholder {
@@ -254,12 +284,12 @@
 }
 
 .input::-webkit-scrollbar {
-  width: 8px;
+  width: var(--space-2);
 }
 
 .input::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.16);
-  border-radius: 3px;
+  background: rgb(255 255 255 / 0.16);
+  border-radius: var(--radius-sm);
 }
 
 .input::-webkit-scrollbar-track {
@@ -270,31 +300,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-2);
 
-  min-height: 36px;
+  min-height: var(--c-control);
 }
 
 .toolbarLeft,
 .toolbarRight {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
 }
 
 .toolbarLeft {
   flex: 1;
   min-width: 0;
-
-  gap: 6px;
 }
 
 .iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
+  width: var(--c-control);
+  height: var(--c-control);
   padding: 0;
   border: none;
   border-radius: var(--c-row-radius);
@@ -305,28 +333,28 @@
 
 button.iconBtn {
   cursor: pointer;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   transition: background-color var(--composer-duration-hover) ease,
               color var(--composer-duration-hover) ease;
 }
 
 button.iconBtn:hover {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgb(255 255 255 / 0.13);
   color: var(--c-ink);
 }
 
 button.iconBtn[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.17);
+  background: rgb(255 255 255 / 0.17);
   color: var(--c-ink);
 }
 
 button.iconBtn[data-active="true"] {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgb(255 255 255 / 0.15);
   color: var(--c-ink);
 }
 
 button.iconBtn[data-active="true"]:hover {
-  background: rgba(255, 255, 255, 0.19);
+  background: rgb(255 255 255 / 0.19);
   color: var(--c-ink);
 }
 
@@ -352,18 +380,19 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .iconBtn svg {
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
 }
 
 .permission {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 6px 8px;
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: default;
 }
@@ -378,8 +407,8 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .permissionIcon svg {
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
 }
 
 .modelChip {
@@ -387,11 +416,12 @@ button.iconBtn[data-loading="true"] svg {
   align-items: baseline;
   gap: var(--c-gap-icon);
 
-  margin-left: 4px;
-  padding: 6px 8px;
+  margin-left: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: default;
 }
@@ -407,9 +437,9 @@ button.iconBtn[data-loading="true"] svg {
 
 .chevron {
   display: inline-flex;
-  width: 16px;
-  height: 16px;
-  margin-left: 2px;
+  width: var(--space-3);
+  height: var(--space-3);
+  margin-left: var(--space-1);
   color: var(--c-ink-subtle);
   align-self: center;
 }
@@ -423,13 +453,13 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  margin-left: 4px;
+  width: var(--c-control);
+  height: var(--c-control);
+  margin-left: var(--space-1);
   padding: 0;
   border: none;
 
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: var(--color-primary);
   color: var(--color-primary-foreground);
   cursor: pointer;
@@ -465,8 +495,8 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .sendBtn svg {
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -479,15 +509,26 @@ button.iconBtn[data-loading="true"] svg {
   }
 }
 
+/* Чипы строки контекста: ниже контролов тулбара (--space-6 против
+   --space-8) — визуально подпись, не второй тулбар. Текст --text-sm. */
 .footChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--c-gap-icon);
-  padding: 6px 8px;
+  gap: var(--space-1);
+  min-height: var(--space-6);
+  /* Узкий горизонтальный паддинг: иконка чипа встаёт на ту же
+     вертикаль, что и глиф «плюса» в тулбаре. */
+  padding: 0 var(--space-1);
   border-radius: var(--c-row-radius);
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
   color: var(--c-ink-muted);
   cursor: default;
+  transition: color var(--composer-duration-hover) ease;
+}
+
+.footChip:hover {
+  color: var(--c-ink);
 }
 
 .footIcon {
@@ -500,8 +541,8 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .footIcon svg {
-  width: 16px;
-  height: 16px;
+  width: var(--space-3);
+  height: var(--space-3);
 }
 
 .plusMenu {
@@ -521,7 +562,7 @@ button.iconBtn[data-loading="true"] svg {
   left: 50%;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-1);
 
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--color-border);
@@ -540,12 +581,12 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .tooltip[data-side="top"] {
-  bottom: calc(100% + 6px);
+  bottom: calc(100% + var(--space-1));
   animation: tooltipInTop 0.12s ease-out both;
 }
 
 .tooltip[data-side="bottom"] {
-  top: calc(100% + 6px);
+  top: calc(100% + var(--space-1));
   animation: tooltipInBottom 0.12s ease-out both;
 }
 
@@ -560,22 +601,22 @@ button.iconBtn[data-loading="true"] svg {
   align-items: center;
   justify-content: center;
   gap: 1px;
-  height: 16px;
-  min-width: 16px;
-  padding: 0 3px;
+  height: var(--space-4);
+  min-width: var(--space-4);
+  padding: 0 var(--space-1);
   border: 1px solid var(--color-border);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   color: var(--color-foreground-muted);
   flex-shrink: 0;
   font-family: inherit;
-  font-size: 0.7rem;
-  font-weight: var(--weight-medium, 500);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
   line-height: 1;
 }
 
 .tooltipKbd svg {
-  width: 11px;
-  height: 11px;
+  width: var(--space-3);
+  height: var(--space-3);
   display: block;
 }
 
@@ -609,14 +650,13 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .dropdown {
-
   --c-card-radius: var(--c-pop-radius);
   --c-row-radius: var(--c-pop-row-radius);
 
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: -8px;
-  min-width: 200px;
+  bottom: calc(100% + var(--space-2));
+  left: calc(-1 * var(--space-2));
+  min-width: 12.5rem;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
 
@@ -626,67 +666,68 @@ button.iconBtn[data-loading="true"] svg {
     var(--shadow-lg);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--space-px);
   z-index: 20;
 }
 
 .dropdownGroup {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--space-px);
 }
 
 .dropdownDivider {
   height: 1px;
-  margin: 4px 8px;
+  margin: var(--space-1) var(--space-2);
   background: var(--c-line-soft);
 }
 
 .dropdownItem {
   display: grid;
-  grid-template-columns: 20px 1fr auto;
+  grid-template-columns: var(--c-icon) 1fr auto;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
-  padding: 8px 8px;
+  padding: var(--space-2);
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: pointer;
   text-align: left;
 }
 
 .dropdownItem:hover {
-  background: rgba(255, 255, 255, 0.11);
+  background: rgb(255 255 255 / 0.11);
 }
 
 .dropdownIcon {
   display: inline-flex;
-  width: 20px;
-  height: 20px;
+  width: var(--c-icon);
+  height: var(--c-icon);
   align-items: center;
   justify-content: center;
   color: var(--c-ink-muted);
 }
 
 .dropdownIcon svg {
-  width: 16px;
-  height: 16px;
+  width: var(--c-icon);
+  height: var(--c-icon);
 }
 
 .dropdownLabel {
-  line-height: 1.2;
+  line-height: var(--leading-sm);
   white-space: nowrap;
 }
 
 .dropdownChevron {
   display: inline-flex;
-  width: 16px;
-  height: 16px;
+  width: var(--space-3);
+  height: var(--space-3);
   color: var(--c-ink-subtle);
 }
 
@@ -701,15 +742,14 @@ button.iconBtn[data-loading="true"] svg {
 }
 
 .pluginsSubmenu {
-
   --c-card-radius: var(--c-pop-radius);
   --c-row-radius: var(--c-pop-row-radius);
 
   position: absolute;
 
   bottom: calc(0px - var(--c-corner-inset));
-  left: calc(100% + 8px);
-  min-width: 220px;
+  left: calc(100% + var(--space-2));
+  min-width: 13.75rem;
   padding: var(--c-corner-inset);
   border-radius: var(--c-card-radius);
   background: var(--composer-surface-raised);
@@ -718,7 +758,7 @@ button.iconBtn[data-loading="true"] svg {
     var(--shadow-lg);
   display: none;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--space-px);
 
   z-index: 20;
 }
@@ -728,8 +768,8 @@ button.iconBtn[data-loading="true"] svg {
   position: absolute;
   top: 0;
   bottom: 0;
-  left: -8px;
-  width: 8px;
+  left: calc(-1 * var(--space-2));
+  width: var(--space-2);
 }
 
 .pluginsTrigger[data-open="true"] .pluginsSubmenu {
@@ -745,48 +785,49 @@ button.iconBtn[data-loading="true"] svg {
 
 .pluginItem {
   display: grid;
-  grid-template-columns: 24px 1fr;
+  grid-template-columns: var(--space-5) 1fr;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
   width: 100%;
-  padding: 8px 8px;
+  padding: var(--space-2);
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
   color: var(--c-ink);
   cursor: pointer;
   text-align: left;
 }
 
 .pluginItem:hover {
-  background: rgba(255, 255, 255, 0.11);
+  background: rgb(255 255 255 / 0.11);
 }
 
 .pluginItemMain {
   display: inline-flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--space-px);
   min-width: 0;
 }
 
 .pluginItemLabel {
-  font-weight: 500;
+  font-weight: var(--weight-medium);
   color: var(--c-ink);
   white-space: nowrap;
 }
 
 .pluginItemDesc {
-  font-size: 0.74rem;
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
   color: var(--c-ink-subtle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-@media (max-width: 560px) {
-
+@media (max-width: 35rem) {
   .stack,
   .card,
   .toolbar,
@@ -797,47 +838,51 @@ button.iconBtn[data-loading="true"] svg {
     max-width: 100%;
   }
   .card {
-    padding: 12px;
-    gap: 10px;
+    padding: var(--space-3);
+    gap: var(--space-2);
   }
   .inputWrap {
-    padding: 2px 8px 0;
+    padding: var(--space-1) var(--space-1) 0;
+  }
+  /* Синхронизировано с текстом сообщений на мобильном (--text-sm). */
+  .input {
+    font-size: var(--text-sm);
+    line-height: var(--leading-sm);
+    min-height: var(--leading-sm);
+    max-height: calc(var(--leading-sm) * 6);
+  }
+  .permission,
+  .modelChip,
+  .footChip {
+    font-size: var(--text-xs);
+    line-height: var(--leading-xs);
   }
   .toolbar {
-    gap: 6px;
+    gap: var(--space-1);
   }
   .toolbarLeft {
-    gap: 6px;
+    gap: var(--space-1);
     flex-shrink: 0;
   }
   .toolbarRight {
     gap: 0;
-
     flex: 0 1 auto;
   }
   .sendBtn {
-    margin-left: 2px;
+    margin-left: var(--space-1);
   }
 
+  /* На мобильном контекст — верхний ряд карточки. */
   .context {
     order: -1;
     flex-wrap: nowrap;
     gap: 0;
-    margin: 0 0 -16px;
-
-    padding: 8px 10px 24px;
-    border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
-
-    position: relative;
-    z-index: 0;
+    margin: 0;
+    padding: 0;
   }
 
   .context > * {
     min-width: 0;
-  }
-  .footChip {
-    padding: 8px 8px;
-    font-size: 0.78rem;
   }
 
   .pluginsTrigger {
@@ -846,16 +891,16 @@ button.iconBtn[data-loading="true"] svg {
   .pluginsSubmenu {
     left: 0;
     right: 0;
-    bottom: calc(100% + 8px);
+    bottom: calc(100% + var(--space-2));
     min-width: 0;
   }
 
   .pluginsSubmenu::before {
     top: auto;
-    bottom: -8px;
+    bottom: calc(-1 * var(--space-2));
     left: 0;
     right: 0;
     width: auto;
-    height: 8px;
+    height: var(--space-2);
   }
 }

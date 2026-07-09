@@ -9,10 +9,12 @@
 .messages {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
-  width: min(100%, var(--composer-width, 42rem));
+  gap: var(--space-3);
+  /* Ширина колонки совпадает с карточкой композера: 42rem контента
+     плюс те же боковые поля var(--space-4), что и у .composer. */
+  width: min(100%, calc(var(--composer-width, 42rem) + var(--space-8)));
   margin: 0 auto;
-  padding: var(--space-16) var(--space-8) calc(var(--space-32) + var(--space-20));
+  padding: var(--space-16) var(--space-4) calc(var(--space-32) + var(--space-20));
 }
 
 .userMessage {
@@ -21,17 +23,27 @@
   align-items: flex-end;
   align-self: flex-end;
   width: 100%;
-  max-width: min(100%, 28rem);
+  max-width: min(100%, 30rem);
+}
+
+/* Между репликами (новый вопрос после ответа) — больше воздуха,
+   чем внутри пары «вопрос → ответ». */
+.userMessage:not(:first-child) {
+  margin-top: var(--space-6);
+}
+
+.userMessage[data-editing="true"] {
+  max-width: 100%;
 }
 
 .userContent {
   margin: 0;
   align-self: flex-end;
-  padding: var(--space-3) var(--space-4);
-  border-radius: var(--radius-xl) var(--radius-xl) var(--radius-sm) var(--radius-xl);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-2xl) var(--radius-2xl) var(--radius-md) var(--radius-2xl);
   background: var(--color-surface-elevated);
-  color: var(--color-foreground-secondary);
-  font-size: var(--text-sm);
+  color: var(--color-foreground);
+  font-size: var(--text-base);
   line-height: 1.55;
   overflow-wrap: anywhere;
   white-space: pre-wrap;
@@ -41,7 +53,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-1);
-  min-height: var(--space-8);
+  min-height: var(--space-6);
   padding-top: var(--space-1);
   color: var(--color-foreground-subtle);
   font-size: var(--text-xs);
@@ -93,66 +105,76 @@
   stroke-width: 1.7;
 }
 
+/* Режим редактирования (референс iOS): пузырь превращается в
+   редактируемую карточку с кнопками-пилюлями внизу справа. */
 .editForm {
   display: grid;
   width: 100%;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  border-radius: var(--radius-xl);
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-2xl);
   background: var(--color-surface-elevated);
-  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
 .editInput {
+  display: block;
   width: 100%;
-  min-height: var(--space-20);
-  padding: var(--space-2) var(--space-3);
+  padding: 0;
   border: none;
-  border-radius: var(--radius-lg);
   outline: none;
-  background: var(--color-surface);
+  background: transparent;
   color: var(--color-foreground);
   font: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: 1.55;
-  resize: vertical;
-}
-
-.editInput:focus-visible {
-  box-shadow: 0 0 0 1px var(--color-border-strong);
+  resize: none;
+  overflow: hidden;
+  max-height: 40vh;
+  overflow-y: auto;
 }
 
 .editActions {
   display: flex;
   justify-content: flex-end;
-  gap: var(--space-1);
+  gap: var(--space-2);
 }
 
 .editActions button {
-  padding: var(--space-1) var(--space-2);
+  padding: var(--space-2) var(--space-4);
   border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-foreground-muted);
+  border-radius: var(--radius-full);
   font: inherit;
-  font-size: var(--text-xs);
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
+  line-height: var(--leading-sm);
   cursor: pointer;
+  transition: opacity 120ms ease, background-color 120ms ease;
 }
 
-.editActions button:hover,
-.editActions button:focus-visible {
-  outline: none;
+.editCancelBtn {
   background: var(--color-surface-raised);
   color: var(--color-foreground);
 }
 
-.editActions button[type="submit"] {
+.editCancelBtn:hover,
+.editCancelBtn:focus-visible {
+  outline: none;
+  /* Поверх elevated-поверхности hover делаем светлее (см. UI_STANDARDS). */
+  background: rgb(255 255 255 / 0.16);
+}
+
+.editSaveBtn {
   background: var(--color-foreground);
   color: var(--color-background);
 }
 
-.editActions button[type="submit"]:disabled {
+.editSaveBtn:hover,
+.editSaveBtn:focus-visible {
+  outline: none;
+  opacity: 0.88;
+}
+
+.editSaveBtn:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
@@ -165,12 +187,54 @@
   color: var(--color-foreground-secondary);
 }
 
-.assistantContent {
-  width: 100%;
-  font-size: var(--text-base);
-  line-height: 1.7;
-  overflow-wrap: anywhere;
-  white-space: pre-wrap;
+.scrollDownDock {
+  position: sticky;
+  bottom: calc(var(--space-32) + var(--space-16));
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  height: 0;
+  pointer-events: none;
+}
+
+.scrollDownBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--space-10);
+  height: var(--space-10);
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: var(--color-surface-elevated);
+  color: var(--color-foreground);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(calc(-100% + var(--space-2)));
+  pointer-events: none;
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.scrollDownBtn[data-visible="true"] {
+  opacity: 1;
+  transform: translateY(-100%);
+  pointer-events: auto;
+}
+
+.scrollDownBtn:hover,
+.scrollDownBtn:focus-visible {
+  outline: none;
+  border-color: var(--color-border-strong);
+}
+
+.scrollDownBtn svg {
+  width: var(--text-base);
+  height: var(--text-base);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 
 .pending {
@@ -196,11 +260,75 @@
   animation-delay: 0.32s;
 }
 
-.errorMessage {
-  margin: 0;
+.errorBlock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-elevated);
+}
+
+.errorIcon {
+  display: inline-flex;
+  flex-shrink: 0;
   color: var(--color-danger-foreground);
+}
+
+.errorIcon svg {
+  width: var(--text-base);
+  height: var(--text-base);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
+}
+
+.errorMessage {
+  flex: 1;
+  min-width: 12rem;
+  margin: 0;
+  color: var(--color-foreground-secondary);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
+}
+
+.errorRetryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-foreground);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: border-color 120ms ease, background-color 120ms ease;
+}
+
+.errorRetryBtn:hover,
+.errorRetryBtn:focus-visible {
+  outline: none;
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-raised);
+}
+
+.errorRetryBtn svg {
+  width: var(--text-sm);
+  height: var(--text-sm);
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.7;
 }
 
 @keyframes pendingPulse {
@@ -221,7 +349,9 @@
     animation: none;
   }
 
-  .meta {
+  .meta,
+  .scrollDownBtn,
+  .errorRetryBtn {
     transition: none;
   }
 }
@@ -233,15 +363,41 @@
 }
 
 @media (max-width: 47.9375rem) {
+  .scrollArea {
+    scrollbar-gutter: auto;
+  }
+
   .messages {
-    padding: var(--space-20) var(--space-8) calc(var(--space-32) + var(--space-24));
+    padding: var(--space-20) var(--space-4) calc(var(--space-32) + var(--space-24));
   }
 
   .userMessage {
-    max-width: 88%;
+    max-width: 85%;
   }
 
-  .assistantContent {
-    line-height: var(--leading-base);
+  .userMessage[data-editing="true"] {
+    max-width: 100%;
   }
+
+  .userContent {
+    font-size: var(--text-sm);
+    line-height: var(--leading-sm);
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .editInput {
+    font-size: var(--text-sm);
+    line-height: var(--leading-sm);
+  }
+
+  .editForm {
+    padding: var(--space-3);
+  }
+
+  .editActions button {
+    font-size: var(--text-xs);
+    line-height: var(--leading-xs);
+    padding: var(--space-2) var(--space-3);
+  }
+
 }

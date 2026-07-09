@@ -8,21 +8,25 @@
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 8px 12px;
+  min-height: var(--space-6);
+  padding: 0 var(--space-2);
   border: none;
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: var(--text-sm);
   font-weight: var(--weight-medium);
-  color: var(--c-ink);
+  line-height: var(--leading-sm);
+  color: var(--c-ink-muted);
   cursor: pointer;
-  transition: background-color var(--composer-duration-hover) ease;
+  transition: background-color var(--composer-duration-hover) ease,
+              color var(--composer-duration-hover) ease;
 }
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.06);
+  color: var(--c-ink);
 }
 
 .triggerIcon {
@@ -35,8 +39,8 @@
 }
 
 .triggerIcon svg {
-  width: 20px;
-  height: 20px;
+  width: var(--space-4);
+  height: var(--space-4);
 }
 
 .triggerLabel {
@@ -45,15 +49,28 @@
 
 .triggerChevron {
   display: inline-flex;
-  width: 12px;
-  height: 12px;
-  margin-left: 2px;
+  width: var(--space-3);
+  height: var(--space-3);
   color: var(--c-ink-subtle);
 }
 
 .triggerChevron svg {
   width: 100%;
   height: 100%;
+}
+
+/* Тише в покое: шеврон проявляется при наведении или открытии. */
+@media (hover: hover) {
+  .triggerChevron {
+    opacity: 0;
+    transition: opacity var(--composer-duration-hover) ease;
+  }
+
+  .trigger:hover .triggerChevron,
+  .trigger:focus-visible .triggerChevron,
+  .trigger[aria-expanded="true"] .triggerChevron {
+    opacity: 1;
+  }
 }
 
 .popover {
