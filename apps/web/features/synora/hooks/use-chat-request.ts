@@ -1,0 +1,59 @@
+"use client";
+
+import { useCallback, useEffect, useRef } from "react";
+
+import type { ChatRequest } from "../schemas/chat";
+import { useChatStore } from "../stores/chat-store";
+
+export function useChatRequest() {
+  const abortRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => abortRef.current?.abort();
+  }, []);
+
+  const send = useCallback(async (request: ChatRequest): Promise<boolean> => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    const { startStream, appendChunk, finishStream, failStream } =
+      useChatStore.getState();
+
+    startStream();
+    try {
+      const response = await fetch("/api/synora/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      });
+      if (!response.ok || !response.body) {
+        failStream();
+        return false;
+      }
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        appendChunk(decoder.decode(value, { stream: true }));
+      }
+      finishStream();
+      return true;
+    } catch (error) {
+      if (controller.signal.aborted) return false;
+      console.error("Chat request failed", error);
+      failStream();
+      return false;
+    }
+  }, []);
+
+  const cancel = useCallback(() => {
+    abortRef.current?.abort();
+    useChatStore.getState().reset();
+  }, []);
+
+  return { send, cancel };
+}

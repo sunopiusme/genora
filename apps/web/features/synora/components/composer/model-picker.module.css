@@ -94,6 +94,16 @@
   gap: 1px;
 }
 
+.providerGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.modelRow:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .sectionTitle {
   margin: 4px 8px 2px;
   font-size: 0.78rem;

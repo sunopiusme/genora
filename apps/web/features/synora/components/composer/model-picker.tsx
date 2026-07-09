@@ -2,8 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { findModel } from "../../data/models";
-import type { ModelSelection } from "../../types";
+import { findModel, PROVIDERS } from "../../data/models";
+import type { ModelSelection, Provider, ProviderId } from "../../types";
 import { ReasoningSlider } from "./reasoning-slider";
 import styles from "./model-picker.module.css";
 
@@ -72,6 +72,21 @@ export function ModelPicker({ selection, onChange }: Props) {
     onChange({ ...selection, levelId: level.id });
   };
 
+  const pickModel = (provider: Provider, modelId: string) => {
+    const model = provider.models.find((m) => m.id === modelId);
+    if (!model) return;
+    if (provider.id === selection.providerId && model.id === selection.modelId) {
+      setOpen(false);
+      return;
+    }
+    onChange({
+      providerId: provider.id,
+      modelId: model.id,
+      levelId: model.defaultLevelId,
+    });
+    setOpen(false);
+  };
+
   return (
     <div ref={wrapRef} className={styles.wrap}>
       <button
@@ -83,7 +98,7 @@ export function ModelPicker({ selection, onChange }: Props) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <span className={styles.triggerIcon} aria-hidden="true">
-          <ClaudeLogo size={18} />
+          <ProviderIcon providerId={selection.providerId} size={18} />
         </span>
         <span className={styles.triggerLabel}>{current.model.label}</span>
         <span className={styles.triggerLevel}>{current.level?.label}</span>
@@ -106,21 +121,72 @@ export function ModelPicker({ selection, onChange }: Props) {
 
           <div className={styles.divider} />
 
-          <div className={styles.sectionTitle}>Модель</div>
-          <div className={styles.section}>
-            <div className={styles.modelRow} data-active="true" role="menuitem">
-              <span className={styles.modelIcon} aria-hidden="true">
-                <ClaudeLogo size={16} />
-              </span>
-              <span className={styles.modelLabel}>{current.model.label}</span>
-              <span className={styles.checkIcon} aria-hidden="true">
-                <CheckIcon />
-              </span>
+          {PROVIDERS.map((provider) => (
+            <div key={provider.id} className={styles.providerGroup}>
+              <div className={styles.sectionTitle}>{provider.label}</div>
+              <div className={styles.section}>
+                {provider.models.map((model) => {
+                  const active =
+                    provider.id === selection.providerId &&
+                    model.id === selection.modelId;
+                  return (
+                    <button
+                      key={model.id}
+                      type="button"
+                      className={styles.modelRow}
+                      data-active={active}
+                      role="menuitemradio"
+                      aria-checked={active}
+                      onClick={() => pickModel(provider, model.id)}
+                    >
+                      <span className={styles.modelIcon} aria-hidden="true">
+                        <ProviderIcon providerId={provider.id} size={16} />
+                      </span>
+                      <span className={styles.modelLabel}>{model.label}</span>
+                      {active ? (
+                        <span className={styles.checkIcon} aria-hidden="true">
+                          <CheckIcon />
+                        </span>
+                      ) : null}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       ) : null}
     </div>
+  );
+}
+
+function ProviderIcon({
+  providerId,
+  size,
+}: {
+  providerId: ProviderId;
+  size: number;
+}) {
+  if (providerId === "anthropic") return <ClaudeLogo size={size} />;
+  return <FableLogo size={size} />;
+}
+
+function FableLogo({ size }: { size: number }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      width={size}
+      height={size}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2 2.5 7.5v9L12 22l9.5-5.5v-9L12 2Z" />
+      <path d="M12 22V12" />
+      <path d="m2.5 7.5 9.5 4.5 9.5-4.5" />
+    </svg>
   );
 }
 
