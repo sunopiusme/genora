@@ -10,11 +10,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: var(--space-8);
+  height: var(--space-8);
   padding: 0;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: transparent;
   font-family: inherit;
   color: var(--c-ink-muted);
@@ -42,8 +42,8 @@
 
 .triggerIcon {
   display: inline-flex;
-  width: 20px;
-  height: 20px;
+  width: var(--space-4);
+  height: var(--space-4);
   align-items: center;
   justify-content: center;
 
@@ -51,8 +51,8 @@
 }
 
 .triggerIcon svg {
-  width: 20px;
-  height: 20px;
+  width: var(--space-4);
+  height: var(--space-4);
 
   transform: translateX(-1px);
 }
