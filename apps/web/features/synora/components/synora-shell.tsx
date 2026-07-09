@@ -50,9 +50,9 @@ const NAV_ITEMS: NavItem[] = [
     action: "search",
   },
   {
-    label: "Плагины",
-    href: "/synora/plugins",
-    icon: "solar:widget-add-linear",
+    label: "Задачи",
+    href: "/synora/tasks",
+    icon: "solar:checklist-minimalistic-linear",
   },
   {
     label: "Genora",
