@@ -5,7 +5,8 @@ import {
   DndContext,
   DragOverlay,
   MeasuringStrategy,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   closestCorners,
   useDroppable,
   useSensor,
@@ -53,9 +54,15 @@ export function TaskBoard() {
     branch: DEFAULT_BRANCH,
   });
 
+  /* Мышь захватывает карточку после сдвига на 6px (клики не мешают),
+     палец — после удержания 250мс (нативный iOS-паттерн long-press):
+     обычный свайп по карточке прокручивает доску, а не тащит её. */
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: { distance: 6 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 8 },
     }),
   );
 

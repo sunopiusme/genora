@@ -12,9 +12,21 @@
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x mandatory;
-  padding-block: calc(var(--space-16) + var(--space-4)) var(--space-6);
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  padding-block: calc(var(--space-16) + var(--space-4))
+    calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
   padding-inline: calc(var(--space-4) + env(safe-area-inset-left, 0px))
     calc(var(--space-4) + env(safe-area-inset-right, 0px));
+  /* Snap-позиция колонок совпадает с левым паддингом контейнера */
+  scroll-padding-inline-start: calc(
+    var(--space-4) + env(safe-area-inset-left, 0px)
+  );
+}
+
+.scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .board {
@@ -102,10 +114,14 @@
   overflow-y: auto;
 }
 
+/* manipulation вместо none: TouchSensor активируется long-press'ом
+   (250мс), поэтому обычный свайп пальцем по карточке должен
+   прокручивать доску, а не блокироваться. */
 .cardSlot {
-  touch-action: none;
+  touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
   cursor: grab;
 }
 
@@ -245,6 +261,7 @@
 }
 
 .statusButton {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -259,6 +276,16 @@
   transition:
     background 120ms ease,
     opacity 120ms ease;
+}
+
+/* Невидимое расширение мишени касания до ~44pt (HIG)
+   без изменения визуальной геометрии карточки. */
+@media (pointer: coarse) {
+  .statusButton::after {
+    content: "";
+    position: absolute;
+    inset: -0.625rem;
+  }
 }
 
 .statusButton:hover {
