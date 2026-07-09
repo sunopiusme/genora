@@ -20,7 +20,7 @@
 .board {
   display: flex;
   align-items: flex-start;
-  gap: var(--space-3);
+  gap: var(--space-4);
   height: 100%;
   min-width: max-content;
 }
@@ -129,14 +129,14 @@
   border-radius: var(--radius-2xl);
   background: var(--color-surface-elevated);
   box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.08),
+    0 0 0 1px rgb(255 255 255 / 0.05),
     var(--shadow-sm);
   transition: box-shadow 120ms ease;
 }
 
 .card:hover {
   box-shadow:
-    0 0 0 1px rgb(255 255 255 / 0.14),
+    0 0 0 1px rgb(255 255 255 / 0.1),
     var(--shadow-sm);
 }
 
@@ -168,6 +168,7 @@
 
 .cardDescription {
   font-size: var(--text-xs);
+  line-height: var(--leading-xs);
   color: var(--color-foreground-subtle);
   white-space: nowrap;
   overflow: hidden;
@@ -194,7 +195,7 @@
 }
 
 .priorityBar {
-  fill: rgb(255 255 255 / 0.16);
+  fill: rgb(255 255 255 / 0.12);
 }
 
 .priorityBarFilled {
@@ -202,11 +203,15 @@
 }
 
 .priorityIcon[data-priority="medium"] .priorityBarFilled {
-  fill: var(--color-warm);
+  fill: color-mix(in srgb, var(--color-warm) 72%, var(--color-foreground-subtle));
 }
 
 .priorityIcon[data-priority="high"] .priorityBarFilled {
-  fill: var(--color-danger);
+  fill: color-mix(
+    in srgb,
+    var(--color-danger) 72%,
+    var(--color-foreground-subtle)
+  );
 }
 
 .cardAge {
@@ -242,11 +247,15 @@
 }
 
 .statusButton[data-status="in-progress"] {
-  color: var(--color-warm);
+  color: color-mix(in srgb, var(--color-warm) 78%, var(--color-foreground-subtle));
 }
 
 .statusButton[data-status="done"] {
-  color: var(--color-success);
+  color: color-mix(
+    in srgb,
+    var(--color-success) 78%,
+    var(--color-foreground-subtle)
+  );
 }
 
 .statusIcon {
