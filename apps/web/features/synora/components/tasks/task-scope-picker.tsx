@@ -8,6 +8,7 @@ import { BranchIcon } from "../composer/branch-popover";
 import {
   CheckIcon,
   ChevronDownIcon,
+  ChevronRightIcon,
   RepoIcon,
   SearchIcon,
   WorkspaceIcon,
@@ -69,25 +70,21 @@ export function TaskScopePicker({ scope, onChange }: Props) {
     );
   }, [normalizedQuery]);
 
-  const filteredBranches = useMemo(() => {
-    if (!normalizedQuery) return BRANCHES;
-    return BRANCHES.filter((branch) =>
-      branch.toLowerCase().includes(normalizedQuery),
-    );
-  }, [normalizedQuery]);
-
   const pickProject = (group: (typeof SYNORA_PROJECT_GROUPS)[number]) => {
     onChange({ project: group.name, branch: group.branch });
     closePopover();
   };
 
-  const pickAllProjects = () => {
-    onChange({ ...scope, project: null });
+  const pickProjectBranch = (
+    group: (typeof SYNORA_PROJECT_GROUPS)[number],
+    branch: string,
+  ) => {
+    onChange({ project: group.name, branch });
     closePopover();
   };
 
-  const pickBranch = (branch: string) => {
-    onChange({ ...scope, branch });
+  const pickAllProjects = () => {
+    onChange({ ...scope, project: null });
     closePopover();
   };
 
@@ -125,7 +122,7 @@ export function TaskScopePicker({ scope, onChange }: Props) {
             <input
               className={styles.searchInput}
               type="text"
-              placeholder="Поиск проектов и веток"
+              placeholder="Поиск проектов"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               ref={searchRef}
@@ -133,8 +130,6 @@ export function TaskScopePicker({ scope, onChange }: Props) {
           </div>
 
           <div className={styles.list}>
-            <div className={styles.sectionTitle}>Проекты</div>
-
             <button
               type="button"
               className={styles.item}
@@ -145,9 +140,7 @@ export function TaskScopePicker({ scope, onChange }: Props) {
               <span className={styles.itemIcon} aria-hidden="true">
                 <WorkspaceIcon />
               </span>
-              <span className={styles.itemBody}>
-                <span className={styles.itemLabel}>Все проекты</span>
-              </span>
+              <span className={styles.itemLabel}>Все проекты</span>
               {scope.project === null ? (
                 <span className={styles.itemCheck} aria-hidden="true">
                   <CheckIcon />
@@ -157,67 +150,83 @@ export function TaskScopePicker({ scope, onChange }: Props) {
               )}
             </button>
 
-            {filteredGroups.map((group) => {
-              const selected = group.name === scope.project;
-              return (
-                <button
-                  key={group.name}
-                  type="button"
-                  className={styles.item}
-                  data-active={selected}
-                  role="menuitem"
-                  onClick={() => pickProject(group)}
-                >
-                  <span className={styles.itemIcon} aria-hidden="true">
-                    <RepoIcon />
-                  </span>
-                  <span className={styles.itemBody}>
-                    <span className={styles.itemLabel}>{group.name}</span>
-                  </span>
-                  {selected ? (
-                    <span className={styles.itemCheck} aria-hidden="true">
-                      <CheckIcon />
-                    </span>
-                  ) : (
-                    <span aria-hidden="true" />
-                  )}
-                </button>
-              );
-            })}
-
-            <div className={styles.sectionTitle}>Ветки</div>
-
-            {filteredBranches.map((branch) => {
-              const selected = branch === scope.branch;
-              return (
-                <button
-                  key={branch}
-                  type="button"
-                  className={styles.item}
-                  data-active={selected}
-                  role="menuitem"
-                  onClick={() => pickBranch(branch)}
-                >
-                  <span className={styles.itemIcon} aria-hidden="true">
-                    <BranchIcon />
-                  </span>
-                  <span className={styles.itemBody}>
-                    <span className={styles.itemLabel}>{branch}</span>
-                  </span>
-                  {selected ? (
-                    <span className={styles.itemCheck} aria-hidden="true">
-                      <CheckIcon />
-                    </span>
-                  ) : (
-                    <span aria-hidden="true" />
-                  )}
-                </button>
-              );
-            })}
-
-            {filteredGroups.length === 0 && filteredBranches.length === 0 ? (
+            {filteredGroups.length === 0 ? (
               <div className={styles.empty}>Ничего не найдено</div>
-            ) : null}
+            ) : (
+              filteredGroups.map((group) => {
+                const selected = group.name === scope.project;
+                return (
+                  <div
+                    key={group.name}
+                    className={styles.item}
+                    data-active={selected}
+                    data-has-submenu="true"
+                    role="menuitem"
+                    tabIndex={0}
+                    onClick={() => pickProject(group)}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        pickProject(group);
+                      }
+                    }}
+                  >
+                    <span className={styles.itemIcon} aria-hidden="true">
+                      <RepoIcon />
+                    </span>
+                    <span className={styles.itemLabel}>{group.name}</span>
+                    {selected ? (
+                      <span className={styles.itemCheck} aria-hidden="true">
+                        <CheckIcon />
+                      </span>
+                    ) : (
+                      <span className={styles.itemChevron} aria-hidden="true">
+                        <ChevronRightIcon />
+                      </span>
+                    )}
+
+                    <div className={styles.submenu} role="menu">
+                      <div className={styles.sectionTitle}>Ветки</div>
+                      {BRANCHES.map((branch) => {
+                        const branchSelected =
+                          selected && branch === scope.branch;
+                        return (
+                          <button
+                            key={branch}
+                            type="button"
+                            className={styles.item}
+                            data-active={branchSelected}
+                            role="menuitem"
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              pickProjectBranch(group, branch);
+                            }}
+                          >
+                            <span
+                              className={styles.itemIcon}
+                              aria-hidden="true"
+                            >
+                              <BranchIcon />
+                            </span>
+                            <span className={styles.itemLabel}>{branch}</span>
+                            {branchSelected ? (
+                              <span
+                                className={styles.itemCheck}
+                                aria-hidden="true"
+                              >
+                                <CheckIcon />
+                              </span>
+                            ) : (
+                              <span aria-hidden="true" />
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       ) : null}
