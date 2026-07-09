@@ -33,6 +33,7 @@ import {
   TASK_STATUS_ORDER,
 } from "../../data/tasks";
 import type { Task, TaskPriority, TaskStatus } from "../../types";
+import { TaskScopePicker } from "./task-scope-picker";
 import styles from "./task-board.module.css";
 
 const TASK_STATUS_SET = new Set<TaskStatus>(TASK_STATUS_ORDER);
@@ -45,12 +46,18 @@ export function TaskBoard() {
   const tasks = useTaskStore((state) => state.tasks);
   const moveTask = useTaskStore((state) => state.moveTask);
   const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [project, setProject] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 6 },
     }),
   );
+
+  const visibleTasks =
+    project === null
+      ? tasks
+      : tasks.filter((task) => task.project === project);
 
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? null;
 
@@ -88,7 +95,7 @@ export function TaskBoard() {
       activeTop !== undefined &&
       activeTop > over.rect.top + over.rect.height / 2;
 
-    const columnTasks = tasks.filter(
+    const columnTasks = visibleTasks.filter(
       (task) => task.status === overTask.status && task.id !== activeId,
     );
     const overIndex = columnTasks.findIndex((task) => task.id === overId);
@@ -119,7 +126,10 @@ export function TaskBoard() {
 
   return (
     <main className={styles.page}>
-      <PageHeader title="Задачи" />
+      <PageHeader
+        title="Задачи"
+        trailing={<TaskScopePicker project={project} onChange={setProject} />}
+      />
 
       <DndContext
         sensors={sensors}
@@ -136,7 +146,7 @@ export function TaskBoard() {
               <TaskColumn
                 key={status}
                 status={status}
-                tasks={tasks.filter((task) => task.status === status)}
+                tasks={visibleTasks.filter((task) => task.status === status)}
               />
             ))}
           </div>
@@ -215,8 +225,8 @@ function TaskCardContent({
       data-overlay={isOverlay || undefined}
     >
       <span className={styles.cardTitle}>{task.title}</span>
-      {task.project ? (
-        <span className={styles.cardProject}>{task.project}</span>
+      {task.description ? (
+        <span className={styles.cardDescription}>{task.description}</span>
       ) : null}
       <div className={styles.cardFooter}>
         <span
