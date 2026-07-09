@@ -153,7 +153,9 @@ function TaskCardContent({
           title={TASK_PRIORITY_LABELS[task.priority]}
         >
           <PriorityGlyph priority={task.priority} />
-          <span className="sr-only">{TASK_PRIORITY_LABELS[task.priority]}</span>
+          <span className={styles.srOnly}>
+            {TASK_PRIORITY_LABELS[task.priority]}
+          </span>
         </span>
         {task.age ? <span className={styles.cardAge}>{task.age}</span> : null}
         <button
