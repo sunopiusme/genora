@@ -45,6 +45,25 @@ export function ChatTranscript() {
     scrollArea.scrollTo({ top: scrollArea.scrollHeight });
   }, [messages]);
 
+  // Пересчёт положения при изменении размеров: без этого кнопка «вниз»
+  // может остаться видимой после ресайза, когда прокрутка уже внизу.
+  useEffect(() => {
+    const scrollArea = scrollRef.current;
+    if (!scrollArea) {
+      return;
+    }
+    const recompute = () => {
+      const remainingDistance =
+        scrollArea.scrollHeight - scrollArea.scrollTop - scrollArea.clientHeight;
+      const nextIsAtBottom = remainingDistance < BOTTOM_THRESHOLD;
+      isAtBottomRef.current = nextIsAtBottom;
+      setIsAtBottom(nextIsAtBottom);
+    };
+    const observer = new ResizeObserver(recompute);
+    observer.observe(scrollArea);
+    return () => observer.disconnect();
+  }, []);
+
   const scrollToBottom = useCallback(() => {
     const scrollArea = scrollRef.current;
     if (!scrollArea) {
@@ -195,22 +214,73 @@ function UserMessage({
   onEditCancel,
   onEditSave,
 }: UserMessageProps) {
+  const editInputRef = useRef<HTMLTextAreaElement | null>(null);
+
+  // Автовысота поля: пузырь растёт вместе с текстом, как в iOS.
+  useEffect(() => {
+    if (!isEditing) {
+      return;
+    }
+    const element = editInputRef.current;
+    if (!element) {
+      return;
+    }
+    element.style.height = "0";
+    element.style.height = `${element.scrollHeight}px`;
+  }, [isEditing, draft]);
+
+  useEffect(() => {
+    if (!isEditing) {
+      return;
+    }
+    const element = editInputRef.current;
+    if (!element) {
+      return;
+    }
+    element.focus();
+    element.setSelectionRange(element.value.length, element.value.length);
+  }, [isEditing]);
+
   if (isEditing) {
     return (
-      <article className={styles.userMessage}>
+      <article className={styles.userMessage} data-editing="true">
         <form className={styles.editForm} onSubmit={onEditSave}>
           <textarea
+            ref={editInputRef}
             className={styles.editInput}
             value={draft}
+            rows={1}
             onChange={(event) => onDraftChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                onEditCancel();
+                return;
+              }
+              if (
+                event.key === "Enter" &&
+                !event.shiftKey &&
+                !(event.nativeEvent.isComposing || event.keyCode === 229)
+              ) {
+                event.preventDefault();
+                event.currentTarget.form?.requestSubmit();
+              }
+            }}
             aria-label="Редактировать запрос"
-            autoFocus
           />
           <div className={styles.editActions}>
-            <button type="button" onClick={onEditCancel}>
+            <button
+              type="button"
+              className={styles.editCancelBtn}
+              onClick={onEditCancel}
+            >
               Отмена
             </button>
-            <button type="submit" disabled={!draft.trim()}>
+            <button
+              type="submit"
+              className={styles.editSaveBtn}
+              disabled={!draft.trim()}
+            >
               Сохранить
             </button>
           </div>
