@@ -139,15 +139,17 @@ export function ModelPicker({ selection, onChange }: Props) {
                       aria-checked={active}
                       onClick={() => pickModel(provider, model.id)}
                     >
-                      <span className={styles.modelIcon} aria-hidden="true">
-                        <ModelIcon size={16} />
+                      <span className={styles.checkIcon} aria-hidden="true">
+                        {active ? <CheckIcon /> : null}
                       </span>
-                      <span className={styles.modelLabel}>{model.label}</span>
-                      {active ? (
-                        <span className={styles.checkIcon} aria-hidden="true">
-                          <CheckIcon />
-                        </span>
-                      ) : null}
+                      <span className={styles.modelText}>
+                        <span className={styles.modelLabel}>{model.label}</span>
+                        {model.description ? (
+                          <span className={styles.modelDescription}>
+                            {model.description}
+                          </span>
+                        ) : null}
+                      </span>
                     </button>
                   );
                 })}

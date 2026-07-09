@@ -57,6 +57,7 @@ export type ReasoningLevel = {
 export type ModelEntry = {
   id: string;
   label: string;
+  description?: string;
   levels: ReasoningLevel[];
   defaultLevelId: string;
 };
