@@ -15,12 +15,18 @@ export function isSupportedModel(modelId: string): boolean {
   return modelId in GATEWAY_MODELS;
 }
 
+/**
+ * ANTHROPIC_GATEWAY_BASE_URL holds the exact `baseURL` from the gateway docs
+ * (e.g. `http://127.0.0.1:8000/v1`). The official `@anthropic-ai/sdk` appends
+ * `/v1/messages` to it, while `@ai-sdk/anthropic` appends only `/messages`,
+ * so `/v1` is added here to produce an identical final request URL.
+ */
 function normalizeBaseUrl(raw: string): string {
   const trimmed = raw
     .trim()
     .replace(/^['"]+|['"]+$/g, "")
     .replace(/\/+$/, "");
-  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
+  return `${trimmed}/v1`;
 }
 
 function readGatewayEnv() {
