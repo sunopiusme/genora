@@ -59,15 +59,17 @@
 }
 
 /* Контекст (проект, ветка, лимит): на десктопе — нижний ряд карточки,
-   на мобильном — верхний. Компактнее тулбара и прижат к нему:
-   читается как подпись, а не третий равный этаж. */
+   на мобильном — верхний. Ниже тулбара по высоте и приглушён —
+   иерархия задаётся весом, а не сжатием отступов. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
-  padding: 0 var(--space-2);
+  /* Без вылетов: иконки чипов встают на одну вертикаль с глифом
+     «плюса» за счёт паддинга самих триггеров (--space-2 ≈ 7px). */
+  margin: 0;
+  padding: 0;
   background: transparent;
   color: var(--c-ink-subtle);
 }
@@ -86,8 +88,9 @@
 
 .card {
   display: grid;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--c-pad-x) var(--space-3);
+  /* Ровный вертикальный ритм: одинаковый шаг между всеми рядами. */
+  gap: var(--space-2);
+  padding: var(--space-3) var(--c-pad-x);
   border-radius: var(--c-card-radius);
   /* Поверхность чуть светлее фона страницы — карточка читается сама,
      без обводки; глубина — мягкой тенью. */
@@ -271,9 +274,9 @@
   display: block;
   width: 100%;
   min-width: 0;
-  /* Текст ввода начинается от той же вертикали, что и иконка «плюс»
-     в тулбаре — единая внутренняя сетка карточки. */
-  padding: 0 var(--space-1);
+  /* Текст ввода стартует с той же вертикали, что и глиф «плюса»
+     ((--c-control - --c-icon) / 2 ≈ --space-2) — одна левая линия. */
+  padding: 0 var(--space-2);
 }
 
 .input::placeholder {
@@ -513,7 +516,9 @@ button.iconBtn[data-loading="true"] svg {
   align-items: center;
   gap: var(--space-1);
   min-height: var(--space-6);
-  padding: 0 var(--space-2);
+  /* Узкий горизонтальный паддинг: иконка чипа встаёт на ту же
+     вертикаль, что и глиф «плюса» в тулбаре. */
+  padding: 0 var(--space-1);
   border-radius: var(--c-row-radius);
   font-size: var(--text-sm);
   line-height: var(--leading-sm);
@@ -872,8 +877,8 @@ button.iconBtn[data-loading="true"] svg {
     order: -1;
     flex-wrap: nowrap;
     gap: 0;
-    margin: 0 calc(-1 * var(--space-1));
-    padding: 0 var(--space-1);
+    margin: 0;
+    padding: 0;
   }
 
   .context > * {
