@@ -11,17 +11,19 @@
   border-radius: var(--c-row-radius);
   background: transparent;
   font-family: inherit;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--weight-medium);
-  line-height: var(--leading-sm);
-  color: var(--c-ink);
+  line-height: var(--leading-xs);
+  color: var(--c-ink-muted);
   cursor: pointer;
-  transition: background-color var(--composer-duration-hover) ease;
+  transition: background-color var(--composer-duration-hover) ease,
+              color var(--composer-duration-hover) ease;
 }
 
 .trigger:hover,
 .trigger[aria-expanded="true"] {
   background: rgba(255, 255, 255, 0.06);
+  color: var(--c-ink);
 }
 
 .triggerIcon {

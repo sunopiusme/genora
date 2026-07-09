@@ -58,16 +58,18 @@
   display: grid;
 }
 
-/* Контекст (проект, ветка, лимит) — тихий ряд чипов под карточкой,
-   без собственной плашки: силуэт композера остаётся цельным. */
+/* Контекст (проект, ветка, лимит) — строка контекста ВНУТРИ карточки,
+   как заголовок документа в редакторе: тихая, приглушённая, задаёт
+   «где я работаю» до ввода задачи. Свой стиль вместо плашек. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin: 0;
-  padding: var(--space-1) var(--space-2) 0;
+  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
+  padding: 0;
   background: transparent;
+  color: var(--c-ink-subtle);
 }
 
 .srOnly {
@@ -504,17 +506,23 @@ button.iconBtn[data-loading="true"] svg {
   }
 }
 
+/* Чипы строки контекста: мельче основного UI, приглушённые —
+   иерархия «контекст тише задачи». Ярче при наведении. */
 .footChip {
   display: inline-flex;
   align-items: center;
-  gap: var(--c-gap-icon);
+  gap: var(--space-1);
   padding: var(--space-1) var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: var(--text-sm);
-  line-height: var(--leading-sm);
-  /* Читаемость на тёмной шторке: secondary вместо muted. */
-  color: var(--color-foreground-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-xs);
+  color: var(--c-ink-muted);
   cursor: default;
+  transition: color var(--composer-duration-hover) ease;
+}
+
+.footChip:hover {
+  color: var(--c-ink);
 }
 
 .footIcon {
@@ -859,18 +867,14 @@ button.iconBtn[data-loading="true"] svg {
   }
 
   .context {
-    order: -1;
     flex-wrap: nowrap;
     gap: 0;
-    margin: 0;
-    padding: 0 var(--space-2) var(--space-1);
+    margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) 0;
+    padding: 0;
   }
 
   .context > * {
     min-width: 0;
-  }
-  .footChip {
-    padding: var(--space-2);
   }
 
   .pluginsTrigger {
