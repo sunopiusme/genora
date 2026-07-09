@@ -82,6 +82,8 @@
 
 .cardSlot {
   touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
   cursor: grab;
 }
 
@@ -95,6 +97,24 @@
   outline: 2px dashed var(--color-border-strong);
   outline-offset: -2px;
   transition: none;
+  animation: slot-in 160ms ease;
+}
+
+@keyframes slot-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cardSlot[data-dragging] .card {
+    animation: none;
+  }
 }
 
 .cardSlot[data-dragging] .card > * {

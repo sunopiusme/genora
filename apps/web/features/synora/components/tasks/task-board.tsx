@@ -45,7 +45,7 @@ export function TaskBoard() {
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { delay: 150, tolerance: 6 },
+      activationConstraint: { distance: 6 },
     }),
   );
 
