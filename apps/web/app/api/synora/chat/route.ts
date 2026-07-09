@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = streamAnthropicChat(parsed.data, request.signal);
+    const result = await streamAnthropicChat(parsed.data, request.signal);
     return result.toTextStreamResponse();
   } catch {
     return Response.json({ error: "Upstream request failed" }, { status: 502 });

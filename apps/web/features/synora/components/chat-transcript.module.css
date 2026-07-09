@@ -9,19 +9,24 @@
 .messages {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  width: min(100%, 26rem);
+  gap: var(--space-4);
+  width: min(100%, var(--composer-width, 42rem));
   margin: 0 auto;
   padding: var(--space-16) var(--space-8) calc(var(--space-32) + var(--space-20));
 }
 
 .userMessage {
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  align-self: flex-end;
   width: 100%;
+  max-width: min(100%, 28rem);
 }
 
 .userContent {
   margin: 0;
+  align-self: flex-end;
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-xl) var(--radius-xl) var(--radius-sm) var(--radius-xl);
   background: var(--color-surface-elevated);
@@ -32,34 +37,31 @@
   white-space: pre-wrap;
 }
 
-.userMeta {
-  position: absolute;
-  top: calc(100% + var(--space-1));
-  right: 0;
-  z-index: 1;
+.meta {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   gap: var(--space-1);
+  min-height: var(--space-8);
+  padding-top: var(--space-1);
   color: var(--color-foreground-subtle);
   font-size: var(--text-xs);
   opacity: 0;
-  pointer-events: none;
   transition: opacity 120ms ease;
 }
 
-.userMessage:hover .userMeta,
-.userMessage:focus-within .userMeta {
+.userMessage:hover .meta,
+.userMessage:focus-within .meta,
+.assistantMessage:hover .meta,
+.assistantMessage:focus-within .meta {
   opacity: 1;
-  pointer-events: auto;
 }
 
-.userMeta time {
+.meta time {
   margin-right: var(--space-1);
   font-variant-numeric: tabular-nums;
 }
 
-.userMeta button {
+.meta button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -74,14 +76,14 @@
   transition: background-color 120ms ease, color 120ms ease;
 }
 
-.userMeta button:hover,
-.userMeta button:focus-visible {
+.meta button:hover,
+.meta button:focus-visible {
   outline: none;
   background: var(--color-surface-elevated);
   color: var(--color-foreground);
 }
 
-.userMeta svg {
+.meta svg {
   width: var(--text-sm);
   height: var(--text-sm);
   fill: none;
@@ -93,6 +95,7 @@
 
 .editForm {
   display: grid;
+  width: 100%;
   gap: var(--space-2);
   padding: var(--space-2);
   border-radius: var(--radius-xl);
@@ -155,13 +158,15 @@
 }
 
 .assistantMessage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: 100%;
   color: var(--color-foreground-secondary);
 }
 
 .assistantContent {
   width: 100%;
-  max-width: none;
   font-size: var(--text-base);
   line-height: 1.7;
   overflow-wrap: anywhere;
@@ -215,12 +220,25 @@
   .pending span {
     animation: none;
   }
+
+  .meta {
+    transition: none;
+  }
+}
+
+@media (hover: none) {
+  .meta {
+    opacity: 1;
+  }
 }
 
 @media (max-width: 47.9375rem) {
   .messages {
-    gap: var(--space-6);
     padding: var(--space-20) var(--space-8) calc(var(--space-32) + var(--space-24));
+  }
+
+  .userMessage {
+    max-width: 88%;
   }
 
   .assistantContent {

@@ -86,26 +86,35 @@ export function ChatTranscript() {
       }}
     >
       <div className={styles.messages}>
-        {messages.map((message) => (
-          <ChatMessageItem
-            key={message.id}
-            message={message}
-            isCopied={copiedMessageId === message.id}
-            isEditing={editingMessageId === message.id}
-            draft={draft}
-            onCopy={handleCopy}
-            onEdit={handleEdit}
-            onDraftChange={setDraft}
-            onEditCancel={handleEditCancel}
-            onEditSave={handleEditSave}
-          />
-        ))}
+        {messages.map((message) =>
+          message.role === "user" ? (
+            <UserMessage
+              key={message.id}
+              message={message}
+              isCopied={copiedMessageId === message.id}
+              isEditing={editingMessageId === message.id}
+              draft={draft}
+              onCopy={handleCopy}
+              onEdit={handleEdit}
+              onDraftChange={setDraft}
+              onEditCancel={handleEditCancel}
+              onEditSave={handleEditSave}
+            />
+          ) : (
+            <AssistantMessage
+              key={message.id}
+              message={message}
+              isCopied={copiedMessageId === message.id}
+              onCopy={handleCopy}
+            />
+          ),
+        )}
       </div>
     </section>
   );
 }
 
-type ChatMessageItemProps = {
+type UserMessageProps = {
   message: ChatMessage;
   isCopied: boolean;
   isEditing: boolean;
@@ -117,7 +126,7 @@ type ChatMessageItemProps = {
   onEditSave: (event: FormEvent<HTMLFormElement>) => void;
 };
 
-function ChatMessageItem({
+function UserMessage({
   message,
   isCopied,
   isEditing,
@@ -127,60 +136,69 @@ function ChatMessageItem({
   onDraftChange,
   onEditCancel,
   onEditSave,
-}: ChatMessageItemProps) {
-  if (message.role === "user") {
+}: UserMessageProps) {
+  if (isEditing) {
     return (
       <article className={styles.userMessage}>
-        {isEditing ? (
-          <form className={styles.editForm} onSubmit={onEditSave}>
-            <textarea
-              className={styles.editInput}
-              value={draft}
-              onChange={(event) => onDraftChange(event.target.value)}
-              aria-label="Редактировать запрос"
-              autoFocus
-            />
-            <div className={styles.editActions}>
-              <button type="button" onClick={onEditCancel}>
-                Отмена
-              </button>
-              <button type="submit" disabled={!draft.trim()}>
-                Сохранить
-              </button>
-            </div>
-          </form>
-        ) : (
-          <>
-            <p className={styles.userContent}>{message.content}</p>
-            <div className={styles.userMeta}>
-              <time dateTime={new Date(message.createdAt).toISOString()}>
-                {formatMessageTime(message.createdAt)}
-              </time>
-              <button
-                type="button"
-                aria-label="Скопировать запрос"
-                title="Скопировать"
-                onClick={() => void onCopy(message)}
-              >
-                {isCopied ? <CheckIcon /> : <CopyIcon />}
-              </button>
-              <button
-                type="button"
-                aria-label="Редактировать запрос"
-                title="Редактировать"
-                onClick={() => onEdit(message)}
-              >
-                <EditIcon />
-              </button>
-            </div>
-          </>
-        )}
+        <form className={styles.editForm} onSubmit={onEditSave}>
+          <textarea
+            className={styles.editInput}
+            value={draft}
+            onChange={(event) => onDraftChange(event.target.value)}
+            aria-label="Редактировать запрос"
+            autoFocus
+          />
+          <div className={styles.editActions}>
+            <button type="button" onClick={onEditCancel}>
+              Отмена
+            </button>
+            <button type="submit" disabled={!draft.trim()}>
+              Сохранить
+            </button>
+          </div>
+        </form>
       </article>
     );
   }
 
+  return (
+    <article className={styles.userMessage}>
+      <p className={styles.userContent}>{message.content}</p>
+      <div className={styles.meta}>
+        <time dateTime={new Date(message.createdAt).toISOString()}>
+          {formatMessageTime(message.createdAt)}
+        </time>
+        <button
+          type="button"
+          aria-label="Скопировать запрос"
+          title="Скопировать"
+          onClick={() => void onCopy(message)}
+        >
+          {isCopied ? <CheckIcon /> : <CopyIcon />}
+        </button>
+        <button
+          type="button"
+          aria-label="Редактировать запрос"
+          title="Редактировать"
+          onClick={() => onEdit(message)}
+        >
+          <EditIcon />
+        </button>
+      </div>
+    </article>
+  );
+}
+
+type AssistantMessageProps = {
+  message: ChatMessage;
+  isCopied: boolean;
+  onCopy: (message: ChatMessage) => void;
+};
+
+function AssistantMessage({ message, isCopied, onCopy }: AssistantMessageProps) {
   const isStreaming = message.status === "streaming";
   const isError = message.status === "error";
+  const isDone = message.status === "done" && message.content.length > 0;
 
   return (
     <article
@@ -197,15 +215,28 @@ function ChatMessageItem({
           <span />
           <span />
         </div>
-      ) : isError ? (
+      ) : null}
+      {isError ? (
         <p className={styles.errorMessage}>
-          Проверьте подключение и попробуйте отправить запрос ещё раз.
+          {message.content
+            ? "Соединение прервано. Попробуйте отправить запрос ещё раз."
+            : "Проверьте подключение и попробуйте отправить запрос ещё раз."}
         </p>
       ) : null}
-      {isError && message.content ? (
-        <p className={styles.errorMessage}>
-          Соединение прервано. Попробуйте отправить запрос ещё раз.
-        </p>
+      {isDone ? (
+        <div className={styles.meta}>
+          <time dateTime={new Date(message.createdAt).toISOString()}>
+            {formatMessageTime(message.createdAt)}
+          </time>
+          <button
+            type="button"
+            aria-label="Скопировать ответ"
+            title="Скопировать"
+            onClick={() => void onCopy(message)}
+          >
+            {isCopied ? <CheckIcon /> : <CopyIcon />}
+          </button>
+        </div>
       ) : null}
     </article>
   );
