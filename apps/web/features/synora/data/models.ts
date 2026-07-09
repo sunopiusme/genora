@@ -21,14 +21,14 @@ export const PROVIDERS: Provider[] = [
       {
         id: "fable-5",
         label: "Fable 5",
-        description: "Флагманская модель для сложных задач",
+        description: "Для сложных задач",
         levels: FABLE_5_LEVELS,
         defaultLevelId: "high",
       },
       {
         id: "claude-sonnet-4-5",
         label: "Sonnet 4.5",
-        description: "Сильная модель для повседневной работы",
+        description: "Для повседневной работы",
         levels: SONNET_45_LEVELS,
         defaultLevelId: "standard",
       },

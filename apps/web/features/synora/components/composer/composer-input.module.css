@@ -10,8 +10,10 @@
   --composer-ink-muted: var(--color-foreground-muted);
   --composer-surface: var(--color-surface-elevated);
   --composer-surface-raised: var(--color-surface-raised);
-  /* Обводка карточки заметнее: на чёрном фоне 0.08 сливалась. */
-  --composer-hairline: rgb(255 255 255 / 0.14);
+  /* Обводка карточки: заметная, но не «рамка». */
+  --composer-hairline: rgb(255 255 255 / 0.1);
+  /* Световой блик по верхней кромке — нативная глубина без рамок. */
+  --composer-highlight: rgb(255 255 255 / 0.07);
   --composer-duration-hover: 120ms;
 
   --c-line: rgb(255 255 255 / 0.12);
@@ -68,8 +70,6 @@
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
 
   background: var(--c-drawer);
-  /* Тонкая обводка, чтобы шторка не сливалась с чёрным фоном. */
-  box-shadow: 0 0 0 1px var(--c-line-soft);
 }
 
 .srOnly {
@@ -91,6 +91,7 @@
   border-radius: var(--c-card-radius);
   background: var(--c-surface);
   box-shadow:
+    inset 0 1px 0 var(--composer-highlight),
     0 0 0 1px var(--composer-hairline),
     var(--shadow-lg);
   position: relative;
