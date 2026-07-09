@@ -29,6 +29,12 @@
   display: none;
 }
 
+/* Во время перетаскивания snap отключается: он борется
+   с автопрокруткой dnd-kit у краёв экрана. */
+.scroll[data-dragging] {
+  scroll-snap-type: none;
+}
+
 .board {
   display: flex;
   align-items: flex-start;
@@ -178,6 +184,8 @@
     var(--shadow-sm);
 }
 
+/* «Подъём» карточки как в нативном iOS: лёгкое увеличение
+   с усилением тени при захвате. */
 .card[data-overlay] {
   width: 100%;
   box-shadow:
@@ -189,6 +197,22 @@
       ),
     var(--shadow-lg);
   cursor: grabbing;
+  animation: card-lift 160ms ease forwards;
+}
+
+@keyframes card-lift {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.03);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card[data-overlay] {
+    animation: none;
+  }
 }
 
 .cardTitle {

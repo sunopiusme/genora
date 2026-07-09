@@ -151,7 +151,10 @@ export function TaskBoard() {
         onDragEnd={handleDragEnd}
         onDragCancel={() => setActiveTaskId(null)}
       >
-        <div className={styles.scroll}>
+        <div
+          className={styles.scroll}
+          data-dragging={activeTaskId !== null || undefined}
+        >
           <div className={styles.board}>
             {TASK_STATUS_ORDER.map((status) => (
               <TaskColumn

@@ -28,12 +28,39 @@ type Props = {
 export function TaskScopePicker({ scope, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState<string | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
+  const hoverTimerRef = useRef<number | null>(null);
+
+  const clearHoverTimer = useCallback(() => {
+    if (hoverTimerRef.current !== null) {
+      window.clearTimeout(hoverTimerRef.current);
+      hoverTimerRef.current = null;
+    }
+  }, []);
+
+  /* Подменю закрывается с задержкой: диагональное движение
+     курсора к веткам не «срывает» его, в отличие от :hover. */
+  const scheduleCollapse = useCallback(() => {
+    clearHoverTimer();
+    hoverTimerRef.current = window.setTimeout(() => setExpanded(null), 200);
+  }, [clearHoverTimer]);
+
+  const expandNow = useCallback(
+    (name: string) => {
+      clearHoverTimer();
+      setExpanded(name);
+    },
+    [clearHoverTimer],
+  );
+
+  useEffect(() => clearHoverTimer, [clearHoverTimer]);
 
   const closePopover = useCallback(() => {
     setOpen(false);
     setQuery("");
+    setExpanded(null);
   }, []);
 
   const togglePopover = useCallback(() => {
@@ -155,6 +182,7 @@ export function TaskScopePicker({ scope, onChange }: Props) {
             ) : (
               filteredGroups.map((group) => {
                 const selected = group.name === scope.project;
+                const isExpanded = expanded === group.name;
                 return (
                   <div
                     key={group.name}
@@ -169,23 +197,51 @@ export function TaskScopePicker({ scope, onChange }: Props) {
                         event.preventDefault();
                         pickProject(group);
                       }
+                      if (event.key === "ArrowRight") {
+                        event.preventDefault();
+                        expandNow(group.name);
+                      }
+                      if (event.key === "ArrowLeft" || event.key === "Escape") {
+                        setExpanded(null);
+                      }
                     }}
+                    onMouseEnter={() => expandNow(group.name)}
+                    onMouseLeave={scheduleCollapse}
                   >
                     <span className={styles.itemIcon} aria-hidden="true">
                       <RepoIcon />
                     </span>
                     <span className={styles.itemLabel}>{group.name}</span>
-                    {selected ? (
-                      <span className={styles.itemCheck} aria-hidden="true">
-                        <CheckIcon />
-                      </span>
-                    ) : (
-                      <span className={styles.itemChevron} aria-hidden="true">
+                    <span className={styles.itemTrailing}>
+                      {selected ? (
+                        <span className={styles.itemCheck} aria-hidden="true">
+                          <CheckIcon />
+                        </span>
+                      ) : null}
+                      <button
+                        type="button"
+                        className={styles.itemExpand}
+                        data-expanded={isExpanded}
+                        aria-expanded={isExpanded}
+                        aria-label={`Ветки проекта ${group.name}`}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          if (isExpanded) {
+                            setExpanded(null);
+                          } else {
+                            expandNow(group.name);
+                          }
+                        }}
+                      >
                         <ChevronRightIcon />
-                      </span>
-                    )}
+                      </button>
+                    </span>
 
-                    <div className={styles.submenu} role="menu">
+                    <div
+                      className={styles.submenu}
+                      data-open={isExpanded}
+                      role="menu"
+                    >
                       <div className={styles.sectionTitle}>Ветки</div>
                       {BRANCHES.map((branch) => {
                         const branchSelected =
