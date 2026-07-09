@@ -54,39 +54,66 @@ export function TaskBoard() {
 
   const activeTask = tasks.find((task) => task.id === activeTaskId) ?? null;
 
-  function resolveDropTarget(overId: string): {
-    status: TaskStatus;
-    targetId?: string;
-  } | null {
-    if (isTaskStatus(overId)) {
-      return { status: overId };
-    }
-    const overTask = tasks.find((task) => task.id === overId);
-    return overTask ? { status: overTask.status, targetId: overTask.id } : null;
-  }
-
   function handleDragStart(event: DragStartEvent) {
     setActiveTaskId(String(event.active.id));
   }
 
   function handleDragOver(event: DragOverEvent) {
-    if (!event.over) {
+    const { active, over } = event;
+    if (!over) {
       return;
     }
-    const target = resolveDropTarget(String(event.over.id));
-    if (target) {
-      moveTask(String(event.active.id), target.status, target.targetId);
+
+    const activeId = String(active.id);
+    const overId = String(over.id);
+    const current = tasks.find((task) => task.id === activeId);
+    if (!current) {
+      return;
     }
+
+    if (isTaskStatus(overId)) {
+      if (current.status !== overId) {
+        moveTask(activeId, overId);
+      }
+      return;
+    }
+
+    const overTask = tasks.find((task) => task.id === overId);
+    if (!overTask || overTask.status === current.status) {
+      return;
+    }
+
+    const activeTop = active.rect.current.translated?.top;
+    const isBelowOverTask =
+      activeTop !== undefined &&
+      activeTop > over.rect.top + over.rect.height / 2;
+
+    const columnTasks = tasks.filter(
+      (task) => task.status === overTask.status && task.id !== activeId,
+    );
+    const overIndex = columnTasks.findIndex((task) => task.id === overId);
+    const targetTask = isBelowOverTask
+      ? columnTasks[overIndex + 1]
+      : columnTasks[overIndex];
+
+    moveTask(activeId, overTask.status, targetTask?.id);
   }
 
   function handleDragEnd(event: DragEndEvent) {
     setActiveTaskId(null);
-    if (!event.over) {
+    const { active, over } = event;
+    if (!over) {
       return;
     }
-    const target = resolveDropTarget(String(event.over.id));
-    if (target) {
-      moveTask(String(event.active.id), target.status, target.targetId);
+
+    const overId = String(over.id);
+    if (isTaskStatus(overId)) {
+      return;
+    }
+
+    const overTask = tasks.find((task) => task.id === overId);
+    if (overTask) {
+      moveTask(String(active.id), overTask.status, overTask.id);
     }
   }
 
@@ -136,17 +163,13 @@ function TaskColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) {
         items={tasks.map((task) => task.id)}
         strategy={verticalListSortingStrategy}
       >
-        {tasks.length === 0 ? (
-          <p ref={setNodeRef} className={styles.columnEmpty}>
-            Перетащите задачу сюда
-          </p>
-        ) : (
-          <ul ref={setNodeRef} className={styles.cardList}>
-            {tasks.map((task) => (
-              <SortableTaskCard key={task.id} task={task} />
-            ))}
-          </ul>
-        )}
+        <ul ref={setNodeRef} className={styles.cardList}>
+          {tasks.length === 0 ? (
+            <li className={styles.columnEmpty}>Перетащите задачу сюда</li>
+          ) : (
+            tasks.map((task) => <SortableTaskCard key={task.id} task={task} />)
+          )}
+        </ul>
       </SortableContext>
     </section>
   );
