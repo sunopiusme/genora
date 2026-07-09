@@ -73,6 +73,26 @@
   overflow-y: auto;
 }
 
+.column[data-drop-active] .cardList,
+.column[data-drop-active] .columnEmpty {
+  border-radius: var(--radius-2xl);
+  outline: 1px dashed var(--color-border-strong);
+  outline-offset: 2px;
+}
+
+.cardSlot {
+  touch-action: none;
+  cursor: grab;
+}
+
+.cardSlot[data-dragging] {
+  cursor: grabbing;
+}
+
+.cardSlot[data-dragging] .card {
+  opacity: 0.35;
+}
+
 .card {
   display: flex;
   flex-direction: column;
@@ -90,6 +110,15 @@
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 0.14),
     var(--shadow-sm);
+}
+
+.card[data-overlay] {
+  width: min(17.5rem, calc(100vw - var(--space-12)));
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.16),
+    var(--shadow-lg);
+  transform: scale(1.02);
+  cursor: grabbing;
 }
 
 .cardTitle {
@@ -120,26 +149,29 @@
 .cardPriority {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--color-foreground-subtle);
-  min-width: 0;
-}
-
-.priorityDot {
-  width: 0.375rem;
-  height: 0.375rem;
-  border-radius: var(--radius-full);
-  background: var(--color-foreground-subtle);
   flex-shrink: 0;
 }
 
-.priorityDot[data-priority="medium"] {
-  background: var(--color-warm);
+.priorityIcon {
+  width: 0.875rem;
+  height: 0.75rem;
+  display: block;
 }
 
-.priorityDot[data-priority="high"] {
-  background: var(--color-danger);
+.priorityBar {
+  fill: rgb(255 255 255 / 0.16);
+}
+
+.priorityBarFilled {
+  fill: var(--color-foreground-subtle);
+}
+
+.priorityIcon[data-priority="medium"] .priorityBarFilled {
+  fill: var(--color-warm);
+}
+
+.priorityIcon[data-priority="high"] .priorityBarFilled {
+  fill: var(--color-danger);
 }
 
 .cardAge {
@@ -149,42 +181,42 @@
   flex-shrink: 0;
 }
 
-.statusBadge {
+.statusButton {
   display: flex;
   align-items: center;
-  gap: var(--space-1);
-  padding: 2px var(--space-2);
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
   border: none;
   border-radius: var(--radius-full);
-  font-family: inherit;
-  font-size: var(--text-xs);
+  background: transparent;
   cursor: pointer;
   flex-shrink: 0;
-  transition: opacity 120ms ease;
+  transition:
+    background 120ms ease,
+    opacity 120ms ease;
 }
 
-.statusBadge:hover {
-  opacity: 0.8;
+.statusButton:hover {
+  background: rgb(255 255 255 / 0.08);
 }
 
-.statusBadge[data-status="todo"] {
+.statusButton[data-status="todo"] {
   color: var(--color-foreground-subtle);
-  background: rgb(255 255 255 / 0.06);
 }
 
-.statusBadge[data-status="in-progress"] {
+.statusButton[data-status="in-progress"] {
   color: var(--color-warm);
-  background: color-mix(in srgb, var(--color-warm) 12%, transparent);
 }
 
-.statusBadge[data-status="done"] {
+.statusButton[data-status="done"] {
   color: var(--color-success);
-  background: color-mix(in srgb, var(--color-success) 12%, transparent);
 }
 
 .statusIcon {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1rem;
+  height: 1rem;
   display: block;
   flex-shrink: 0;
 }

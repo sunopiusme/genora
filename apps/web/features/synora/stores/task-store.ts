@@ -12,6 +12,7 @@ const NEXT_STATUS: Record<TaskStatus, TaskStatus> = {
 type TaskStore = {
   tasks: Task[];
   cycleTaskStatus: (id: string) => void;
+  moveTaskToStatus: (id: string, status: TaskStatus) => void;
 };
 
 export const useTaskStore = create<TaskStore>((set) => ({
@@ -20,6 +21,12 @@ export const useTaskStore = create<TaskStore>((set) => ({
     set((state) => ({
       tasks: state.tasks.map((task) =>
         task.id === id ? { ...task, status: NEXT_STATUS[task.status] } : task,
+      ),
+    })),
+  moveTaskToStatus: (id, status) =>
+    set((state) => ({
+      tasks: state.tasks.map((task) =>
+        task.id === id ? { ...task, status } : task,
       ),
     })),
 }));
