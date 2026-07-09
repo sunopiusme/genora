@@ -41,7 +41,47 @@ type ResolvedModel = {
   supportsThinking: boolean;
 };
 
-function resolveModel(modelId: string): ResolvedModel {
+const LOCAL_GATEWAY_PROBE_TIMEOUT_MS = 700;
+const LOCAL_GATEWAY_PROBE_TTL_MS = 30_000;
+
+let localGatewayProbe: { reachable: boolean; checkedAt: number } | null = null;
+
+function isLocalHostUrl(url: string): boolean {
+  try {
+    const { hostname } = new URL(url);
+    return hostname === "localhost" || hostname === "127.0.0.1";
+  } catch {
+    return false;
+  }
+}
+
+async function isGatewayReachable(baseUrl: string): Promise<boolean> {
+  if (!isLocalHostUrl(baseUrl)) {
+    return true;
+  }
+  const now = Date.now();
+  if (
+    localGatewayProbe &&
+    now - localGatewayProbe.checkedAt < LOCAL_GATEWAY_PROBE_TTL_MS
+  ) {
+    return localGatewayProbe.reachable;
+  }
+  let reachable = false;
+  try {
+    const { origin } = new URL(baseUrl);
+    await fetch(origin, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(LOCAL_GATEWAY_PROBE_TIMEOUT_MS),
+    });
+    reachable = true;
+  } catch {
+    reachable = false;
+  }
+  localGatewayProbe = { reachable, checkedAt: now };
+  return reachable;
+}
+
+async function resolveModel(modelId: string): Promise<ResolvedModel> {
   const anthropicGatewayModelId = ANTHROPIC_GATEWAY_MODELS[modelId];
   const vercelGatewayModelId = VERCEL_GATEWAY_MODELS[modelId];
   const openRouterModelId = OPENROUTER_MODELS[modelId];
@@ -53,7 +93,11 @@ function resolveModel(modelId: string): ResolvedModel {
     process.env.ANTHROPIC_GATEWAY_BASE_URL_OVERRIDE ??
     process.env.ANTHROPIC_GATEWAY_BASE_URL;
   const anthropicApiKey = process.env.ANTHROPIC_GATEWAY_API_KEY;
-  if (anthropicBaseUrl && anthropicApiKey) {
+  if (
+    anthropicBaseUrl &&
+    anthropicApiKey &&
+    (await isGatewayReachable(anthropicBaseUrl))
+  ) {
     const anthropic = createAnthropic({
       baseURL: normalizeBaseUrl(anthropicBaseUrl),
       apiKey: anthropicApiKey.trim().replace(/^['"]+|['"]+$/g, ""),
@@ -81,7 +125,7 @@ function resolveModel(modelId: string): ResolvedModel {
   );
 }
 
-export function streamAnthropicChat(
+export async function streamAnthropicChat(
   request: ChatRequest,
   abortSignal?: AbortSignal,
 ) {
@@ -89,7 +133,7 @@ export function streamAnthropicChat(
     throw new Error(`Unsupported model: ${request.modelId}`);
   }
 
-  const { model, supportsThinking } = resolveModel(request.modelId);
+  const { model, supportsThinking } = await resolveModel(request.modelId);
 
   const providerOptions =
     request.levelId === "thinking" && supportsThinking
