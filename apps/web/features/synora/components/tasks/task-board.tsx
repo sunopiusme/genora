@@ -4,6 +4,7 @@ import { useState } from "react";
 import {
   DndContext,
   DragOverlay,
+  MeasuringStrategy,
   PointerSensor,
   closestCorners,
   useDroppable,
@@ -17,9 +18,11 @@ import type {
 } from "@dnd-kit/core";
 import {
   SortableContext,
+  defaultAnimateLayoutChanges,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
+import type { AnimateLayoutChanges } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import { PageHeader } from "@/components/shared/page-header";
@@ -94,6 +97,7 @@ export function TaskBoard() {
       <DndContext
         sensors={sensors}
         collisionDetection={closestCorners}
+        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
         onDragStart={handleDragStart}
         onDragOver={handleDragOver}
         onDragEnd={handleDragEnd}
@@ -148,9 +152,12 @@ function TaskColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) {
   );
 }
 
+const animateLayoutChanges: AnimateLayoutChanges = (args) =>
+  defaultAnimateLayoutChanges({ ...args, wasDragging: true });
+
 function SortableTaskCard({ task }: { task: Task }) {
   const { setNodeRef, attributes, listeners, transform, transition, isDragging } =
-    useSortable({ id: task.id });
+    useSortable({ id: task.id, animateLayoutChanges });
 
   return (
     <li
