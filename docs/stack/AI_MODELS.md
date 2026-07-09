@@ -16,8 +16,7 @@
 
 ## Провайдеры
 
-- **Fable** — демонстрационный провайдер, отправка работает как заглушка.
-- **Anthropic** — Claude Sonnet 4.5 (`claude-sonnet-4-5`), уровни `standard` и `thinking`. Реальный стриминговый инференс через Anthropic-совместимый шлюз.
+- **Anthropic** — Fable 5 (демонстрационная модель, отправка работает как заглушка) и Claude Sonnet 4.5 (`claude-sonnet-4-5`) с уровнями `standard` и `thinking`. Для Claude доступен реальный стриминговый инференс через Anthropic-совместимый шлюз.
 
 Уровень `thinking` включает extended thinking (`providerOptions.anthropic.thinking`, бюджет 12 000 токенов).
 

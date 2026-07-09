@@ -6,7 +6,6 @@ import { useSearchParams } from "next/navigation";
 import { useComposerStore } from "@/stores/composer-store";
 
 import styles from "./composer-input.module.css";
-import { AssistantReply } from "./assistant-reply";
 import { AttachmentTile } from "./attachment-tile";
 import { BranchPicker } from "./branch-picker";
 import {
@@ -116,7 +115,7 @@ export function ComposerInput() {
     }
     if (!promptReady && attachments.attachments.length === 0) return;
 
-    if (selection.providerId === "anthropic" && promptReady) {
+    if (selection.modelId === "claude-sonnet-4-5" && promptReady) {
       const trimmed = prompt.trim();
       setSending(true);
       setPrompt("");
@@ -265,8 +264,6 @@ export function ComposerInput() {
           <BranchPicker branch={branch} onChange={setBranch} />
           <LimitPicker />
         </div>
-
-        <AssistantReply />
       </div>
 
       {toast ? (

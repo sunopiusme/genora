@@ -19,22 +19,22 @@
 
   --c-surface-glass: var(--composer-surface-raised);
 
-  --c-card-radius: 28px;
+  --c-card-radius: 24px;
   --c-corner-inset: var(--space-2);
   --c-row-radius: calc(var(--c-card-radius) - var(--c-corner-inset));
 
   --c-pop-radius: var(--radius-2xl);
   --c-pop-row-radius: var(--radius-xl);
-  --c-pad-x: 18px;
+  --c-pad-x: 16px;
   --c-icon-col: 20px;
   --c-gap-icon: 8px;
 
   width: 100%;
 
-  max-width: var(--composer-width, 44rem);
+  max-width: var(--composer-width, 42rem);
   margin: 0 auto;
   display: grid;
-  gap: 12px;
+  gap: 10px;
   font-family: var(--font-sans), sans-serif;
   color: var(--c-ink);
 }
@@ -49,9 +49,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
-  margin: -16px 0 0;
+  margin: -14px 0 0;
 
-  padding: 24px var(--c-pad-x) 8px;
+  padding: 20px var(--c-pad-x) 6px;
   border-radius: 0 0 var(--c-card-radius) var(--c-card-radius);
 
   background: var(--c-drawer);
@@ -71,8 +71,8 @@
 
 .card {
   display: grid;
-  gap: 12px;
-  padding: 18px var(--c-pad-x);
+  gap: 10px;
+  padding: 14px var(--c-pad-x);
   border-radius: var(--c-card-radius);
   background: var(--c-surface);
   box-shadow:
@@ -107,7 +107,7 @@
   flex-wrap: wrap;
   gap: 8px;
 
-  margin: -10px -10px -4px;
+  margin: -8px -8px -2px;
 }
 
 .dropOverlay {
@@ -246,7 +246,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  padding: 4px 10px 0;
+  padding: 2px 8px 0;
 }
 
 .input::placeholder {
@@ -270,9 +270,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 
-  min-height: 40px;
+  min-height: 36px;
 }
 
 .toolbarLeft,
@@ -286,15 +286,15 @@
   flex: 1;
   min-width: 0;
 
-  gap: 8px;
+  gap: 6px;
 }
 
 .iconBtn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   padding: 0;
   border: none;
   border-radius: var(--c-row-radius);
@@ -360,7 +360,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   font-weight: var(--weight-medium);
@@ -388,7 +388,7 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--c-gap-icon);
 
   margin-left: 4px;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   font-weight: var(--weight-medium);
@@ -423,8 +423,8 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   margin-left: 4px;
   padding: 0;
   border: none;
@@ -483,7 +483,7 @@ button.iconBtn[data-loading="true"] svg {
   display: inline-flex;
   align-items: center;
   gap: var(--c-gap-icon);
-  padding: 8px 10px;
+  padding: 6px 8px;
   border-radius: var(--c-row-radius);
   font-size: 0.875rem;
   color: var(--c-ink-muted);

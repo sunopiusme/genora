@@ -20,7 +20,7 @@ export function useChatRequest() {
     const { startStream, appendChunk, finishStream, failStream } =
       useChatStore.getState();
 
-    startStream();
+    startStream(request.prompt);
     try {
       const response = await fetch("/api/synora/chat", {
         method: "POST",
@@ -39,6 +39,10 @@ export function useChatRequest() {
         const { done, value } = await reader.read();
         if (done) break;
         appendChunk(decoder.decode(value, { stream: true }));
+      }
+      const finalChunk = decoder.decode();
+      if (finalChunk) {
+        appendChunk(finalChunk);
       }
       finishStream();
       return true;

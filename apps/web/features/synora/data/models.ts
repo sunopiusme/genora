@@ -15,8 +15,8 @@ const SONNET_45_LEVELS: ReasoningLevel[] = [
 
 export const PROVIDERS: Provider[] = [
   {
-    id: "fable",
-    label: "Fable",
+    id: "anthropic",
+    label: "Anthropic",
     models: [
       {
         id: "fable-5",
@@ -24,12 +24,6 @@ export const PROVIDERS: Provider[] = [
         levels: FABLE_5_LEVELS,
         defaultLevelId: "high",
       },
-    ],
-  },
-  {
-    id: "anthropic",
-    label: "Anthropic",
-    models: [
       {
         id: "claude-sonnet-4-5",
         label: "Sonnet 4.5",
@@ -41,9 +35,9 @@ export const PROVIDERS: Provider[] = [
 ];
 
 export const DEFAULT_SELECTION: ModelSelection = {
-  providerId: "fable",
-  modelId: "fable-5",
-  levelId: "high",
+  providerId: "anthropic",
+  modelId: "claude-sonnet-4-5",
+  levelId: "standard",
 };
 
 export function findProvider(id: string): Provider | undefined {

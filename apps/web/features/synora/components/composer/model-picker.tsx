@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { findModel, PROVIDERS } from "../../data/models";
-import type { ModelSelection, Provider, ProviderId } from "../../types";
+import type { ModelSelection, Provider } from "../../types";
 import { ReasoningSlider } from "./reasoning-slider";
 import styles from "./model-picker.module.css";
 
@@ -98,7 +98,7 @@ export function ModelPicker({ selection, onChange }: Props) {
         onClick={() => setOpen((prev) => !prev)}
       >
         <span className={styles.triggerIcon} aria-hidden="true">
-          <ProviderIcon providerId={selection.providerId} size={18} />
+          <ModelIcon size={18} />
         </span>
         <span className={styles.triggerLabel}>{current.model.label}</span>
         <span className={styles.triggerLevel}>{current.level?.label}</span>
@@ -140,7 +140,7 @@ export function ModelPicker({ selection, onChange }: Props) {
                       onClick={() => pickModel(provider, model.id)}
                     >
                       <span className={styles.modelIcon} aria-hidden="true">
-                        <ProviderIcon providerId={provider.id} size={16} />
+                        <ModelIcon size={16} />
                       </span>
                       <span className={styles.modelLabel}>{model.label}</span>
                       {active ? (
@@ -160,34 +160,8 @@ export function ModelPicker({ selection, onChange }: Props) {
   );
 }
 
-function ProviderIcon({
-  providerId,
-  size,
-}: {
-  providerId: ProviderId;
-  size: number;
-}) {
-  if (providerId === "anthropic") return <ClaudeLogo size={size} />;
-  return <FableLogo size={size} />;
-}
-
-function FableLogo({ size }: { size: number }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      width={size}
-      height={size}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1.8}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M12 2 2.5 7.5v9L12 22l9.5-5.5v-9L12 2Z" />
-      <path d="M12 22V12" />
-      <path d="m2.5 7.5 9.5 4.5 9.5-4.5" />
-    </svg>
-  );
+function ModelIcon({ size }: { size: number }) {
+  return <ClaudeLogo size={size} />;
 }
 
 function ClaudeLogo({ size }: { size: number }) {

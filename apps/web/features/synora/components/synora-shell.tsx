@@ -24,6 +24,7 @@ import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/composer-input";
+import { useChatStore } from "../stores/chat-store";
 import { SYNORA_PROJECT_GROUPS } from "../data/recent-sandboxes";
 import styles from "@/components/shared/app-shell.module.css";
 import synoraStyles from "./synora-shell.module.css";
@@ -83,6 +84,7 @@ export function SynoraShell({
   const user = useAuthStore((state) => state.user);
   const hasHydrated = useAuthStore((state) => state.hasHydrated);
   const requestComposerFocus = useComposerStore((state) => state.requestFocus);
+  const hasMessages = useChatStore((state) => state.messages.length > 0);
   const authenticatedUser = hasHydrated ? user : initialUser;
 
   const [isAnimating, setIsAnimating] = useState(false);
@@ -104,6 +106,7 @@ export function SynoraShell({
   }
 
   function handleNewRequest() {
+    useChatStore.getState().reset();
     if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
       closeSidebar();
     }
@@ -380,12 +383,14 @@ export function SynoraShell({
             <div
               className={cn(
                 styles.composer,
-                pathname === "/synora" && synoraStyles.composerCentered,
+                pathname === "/synora" &&
+                  !hasMessages &&
+                  synoraStyles.composerCentered,
               )}
             >
               <div className={styles.composerInner}>
                 <Suspense fallback={null}>
-                  {pathname === "/synora" && <SynoraHeading />}
+                  {pathname === "/synora" && !hasMessages && <SynoraHeading />}
                   <ComposerInput />
                 </Suspense>
               </div>

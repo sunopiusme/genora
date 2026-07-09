@@ -1,5 +1,17 @@
 export type AttachmentKind = "image" | "audio";
 
+export type ChatStatus = "idle" | "streaming" | "done" | "error";
+
+export type ChatMessageRole = "user" | "assistant";
+
+export type ChatMessage = {
+  id: string;
+  role: ChatMessageRole;
+  content: string;
+  status: ChatStatus;
+  createdAt: number;
+};
+
 export type Attachment = {
   id: string;
   kind: AttachmentKind;
@@ -35,7 +47,7 @@ export type MentionGroup = {
   items: MentionItem[];
 };
 
-export type ProviderId = "fable" | "anthropic";
+export type ProviderId = "anthropic";
 
 export type ReasoningLevel = {
   id: string;

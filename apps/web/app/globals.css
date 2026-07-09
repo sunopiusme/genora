@@ -3,7 +3,7 @@
 :root {
   /* Ширина чат-инпута — опорная (эталонная) ширина, по которой на десктопе
      выравнивается контент дашборда (Product Showcase и др.) */
-  --composer-width: 44rem;
+  --composer-width: 42rem;
 
   /* Ширина контентной зоны витрины на десктопе. Шире композера
      (сетка каталога — не текст для чтения), но заметно уже окна:
@@ -159,5 +159,4 @@ body[data-scroll-locked][data-scroll-locked] {
   padding-right: 0 !important;
   --removed-body-scroll-bar-size: 0px;
 }
-
 
