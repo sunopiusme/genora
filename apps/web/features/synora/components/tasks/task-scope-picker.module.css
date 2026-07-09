@@ -6,12 +6,13 @@
 
 .trigger {
   display: inline-flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-2);
   max-width: calc(100vw - var(--space-12));
   padding: var(--space-1) var(--space-2);
+  margin-left: calc(var(--space-2) * -1);
   border: none;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-lg);
   background: transparent;
   font-family: inherit;
   font-size: var(--text-sm);
@@ -26,21 +27,6 @@
   background: rgb(255 255 255 / 0.06);
 }
 
-.triggerIcon {
-  display: inline-flex;
-  width: 1rem;
-  height: 1rem;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-foreground-muted);
-  flex-shrink: 0;
-}
-
-.triggerIcon svg {
-  width: 100%;
-  height: 100%;
-}
-
 .triggerLabel {
   white-space: nowrap;
   overflow: hidden;
@@ -48,9 +34,6 @@
 }
 
 .triggerBranch {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-1);
   min-width: 0;
   font-size: var(--text-xs);
   font-weight: var(--weight-normal);
@@ -58,18 +41,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.triggerBranchIcon {
-  display: inline-flex;
-  width: 0.75rem;
-  height: 0.75rem;
-  flex-shrink: 0;
-}
-
-.triggerBranchIcon svg {
-  width: 100%;
-  height: 100%;
 }
 
 .triggerChevron {
@@ -88,7 +59,7 @@
 .popover {
   position: absolute;
   top: calc(100% + var(--space-2));
-  right: 0;
+  left: calc(var(--space-2) * -1);
   min-width: 18rem;
   padding: var(--space-1);
   border-radius: var(--radius-2xl);

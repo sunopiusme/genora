@@ -82,17 +82,14 @@ export function TaskScopePicker({ project, onChange }: Props) {
         aria-expanded={open}
         onClick={togglePopover}
       >
-        <span className={styles.triggerIcon} aria-hidden="true">
-          {selectedGroup ? <RepoIcon /> : <WorkspaceIcon />}
-        </span>
         <span className={styles.triggerLabel}>
           {selectedGroup ? selectedGroup.name : "Все проекты"}
         </span>
         {selectedGroup ? (
-          <span className={styles.triggerBranch}>
-            <span className={styles.triggerBranchIcon} aria-hidden="true">
-              <BranchIcon />
-            </span>
+          <span
+            className={styles.triggerBranch}
+            title={`Ветка ${selectedGroup.branch}`}
+          >
             {selectedGroup.branch}
           </span>
         ) : null}

@@ -127,8 +127,7 @@ export function TaskBoard() {
   return (
     <main className={styles.page}>
       <PageHeader
-        title="Задачи"
-        trailing={<TaskScopePicker project={project} onChange={setProject} />}
+        leading={<TaskScopePicker project={project} onChange={setProject} />}
       />
 
       <DndContext
