@@ -13,7 +13,7 @@ const VERCEL_GATEWAY_MODELS: Record<string, string> = {
 };
 
 const OPENROUTER_MODELS: Record<string, string> = {
-  "claude-sonnet-4-5": "openrouter/free",
+  "claude-sonnet-4-5": "nvidia/nemotron-3-super-120b-a12b:free",
 };
 
 const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
