@@ -12,6 +12,12 @@ const VERCEL_GATEWAY_MODELS: Record<string, string> = {
   "claude-sonnet-4-5": "anthropic/claude-sonnet-4.5",
 };
 
+const OPENROUTER_MODELS: Record<string, string> = {
+  "claude-sonnet-4-5": "openrouter/free",
+};
+
+const OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1";
+
 const REQUEST_TIMEOUT_MS = 60_000;
 const THINKING_BUDGET_TOKENS = 12_000;
 
@@ -30,32 +36,49 @@ function normalizeBaseUrl(raw: string): string {
   return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
 }
 
-function resolveModel(modelId: string): LanguageModel {
-  const vercelGatewayModelId = VERCEL_GATEWAY_MODELS[modelId];
+type ResolvedModel = {
+  model: LanguageModel;
+  supportsThinking: boolean;
+};
+
+function resolveModel(modelId: string): ResolvedModel {
   const anthropicGatewayModelId = ANTHROPIC_GATEWAY_MODELS[modelId];
-  if (!vercelGatewayModelId || !anthropicGatewayModelId) {
+  const vercelGatewayModelId = VERCEL_GATEWAY_MODELS[modelId];
+  const openRouterModelId = OPENROUTER_MODELS[modelId];
+  if (!anthropicGatewayModelId || !vercelGatewayModelId || !openRouterModelId) {
     throw new Error(`Unsupported model: ${modelId}`);
   }
 
-  if (process.env.AI_GATEWAY_API_KEY) {
-    return vercelGatewayModelId;
-  }
-
-  const baseURL =
+  const anthropicBaseUrl =
     process.env.ANTHROPIC_GATEWAY_BASE_URL_OVERRIDE ??
     process.env.ANTHROPIC_GATEWAY_BASE_URL;
-  const apiKey = process.env.ANTHROPIC_GATEWAY_API_KEY;
-  if (!baseURL || !apiKey) {
-    throw new Error(
-      "Set AI_GATEWAY_API_KEY, or ANTHROPIC_GATEWAY_BASE_URL and ANTHROPIC_GATEWAY_API_KEY",
-    );
+  const anthropicApiKey = process.env.ANTHROPIC_GATEWAY_API_KEY;
+  if (anthropicBaseUrl && anthropicApiKey) {
+    const anthropic = createAnthropic({
+      baseURL: normalizeBaseUrl(anthropicBaseUrl),
+      apiKey: anthropicApiKey.trim().replace(/^['"]+|['"]+$/g, ""),
+    });
+    return { model: anthropic(anthropicGatewayModelId), supportsThinking: true };
   }
 
-  const anthropic = createAnthropic({
-    baseURL: normalizeBaseUrl(baseURL),
-    apiKey: apiKey.trim().replace(/^['"]+|['"]+$/g, ""),
-  });
-  return anthropic(anthropicGatewayModelId);
+  const openRouterApiKey = process.env.OPENROUTER_API_KEY;
+  if (openRouterApiKey) {
+    const key = openRouterApiKey.trim().replace(/^['"]+|['"]+$/g, "");
+    const openRouter = createAnthropic({
+      baseURL: OPENROUTER_BASE_URL,
+      apiKey: key,
+      headers: { authorization: `Bearer ${key}` },
+    });
+    return { model: openRouter(openRouterModelId), supportsThinking: false };
+  }
+
+  if (process.env.AI_GATEWAY_API_KEY) {
+    return { model: vercelGatewayModelId, supportsThinking: true };
+  }
+
+  throw new Error(
+    "Set ANTHROPIC_GATEWAY_BASE_URL and ANTHROPIC_GATEWAY_API_KEY, OPENROUTER_API_KEY, or AI_GATEWAY_API_KEY",
+  );
 }
 
 export function streamAnthropicChat(
@@ -66,8 +89,10 @@ export function streamAnthropicChat(
     throw new Error(`Unsupported model: ${request.modelId}`);
   }
 
+  const { model, supportsThinking } = resolveModel(request.modelId);
+
   const providerOptions =
-    request.levelId === "thinking"
+    request.levelId === "thinking" && supportsThinking
       ? {
           anthropic: {
             thinking: {
@@ -79,7 +104,7 @@ export function streamAnthropicChat(
       : undefined;
 
   return streamText({
-    model: resolveModel(request.modelId),
+    model,
     system: SYSTEM_PROMPT,
     prompt: request.prompt,
     abortSignal,
