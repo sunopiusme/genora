@@ -1,0 +1,143 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  font-size: var(--text-base);
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.paragraph {
+  margin: 0;
+}
+
+.heading2,
+.heading3,
+.heading4 {
+  margin: var(--space-3) 0 0;
+  color: var(--color-foreground);
+  font-weight: var(--weight-semibold);
+  line-height: 1.35;
+  text-wrap: balance;
+}
+
+.heading2 {
+  font-size: var(--text-lg);
+}
+
+.heading3 {
+  font-size: var(--text-base);
+}
+
+.heading4 {
+  font-size: var(--text-sm);
+  text-transform: none;
+}
+
+.root > .heading2:first-child,
+.root > .heading3:first-child,
+.root > .heading4:first-child {
+  margin-top: 0;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+
+.listItem {
+  padding-inline-start: var(--space-1);
+}
+
+.listItem::marker {
+  color: var(--color-foreground-subtle);
+}
+
+.quote {
+  margin: 0;
+  padding: var(--space-1) var(--space-4);
+  border-inline-start: 2px solid var(--color-border-strong);
+  color: var(--color-foreground-muted);
+}
+
+.divider {
+  width: 100%;
+  margin: var(--space-2) 0;
+  border: none;
+  border-top: 1px solid var(--color-border);
+}
+
+.inlineCode {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-elevated);
+  color: var(--color-foreground);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.875em;
+}
+
+.mono {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-elevated);
+  color: var(--color-foreground-secondary);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.link {
+  color: var(--color-foreground);
+  text-decoration: underline;
+  text-decoration-color: var(--color-border-strong);
+  text-underline-offset: 0.2em;
+  transition: text-decoration-color 120ms ease;
+}
+
+.link:hover,
+.link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* Мигающая каретка в конце последнего блока во время стрима. */
+.root[data-streaming] > :last-child:not(.mono)::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-inline-start: var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--color-foreground-subtle);
+  vertical-align: text-bottom;
+  animation: caretPulse 1s steps(2, jump-none) infinite;
+}
+
+@keyframes caretPulse {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root[data-streaming] > :last-child:not(.mono)::after {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+@media (max-width: 47.9375rem) {
+  .root {
+    line-height: var(--leading-base);
+  }
+}

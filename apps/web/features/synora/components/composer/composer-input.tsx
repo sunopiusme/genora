@@ -13,6 +13,7 @@ import {
   ClipIcon,
   ListChecksIcon,
   SpinnerIcon,
+  StopIcon,
 } from "./composer-icons";
 import { LimitPicker } from "./limit-picker";
 import { MicButton, VOICE_INPUT_ENABLED } from "./mic-button";
@@ -30,6 +31,7 @@ import { useChatRequest } from "../../hooks/use-chat-request";
 import { useFileDrop } from "../../hooks/use-file-drop";
 import { useVoiceWaveform } from "../../hooks/use-voice-waveform";
 import { useBranchStore } from "../../stores/branch-store";
+import { useChatStore } from "../../stores/chat-store";
 import {
   branchForSelection,
   selectionFromQuery,
@@ -76,6 +78,7 @@ export function ComposerInput() {
   const attachments = useAttachments();
   const fileDrop = useFileDrop(attachments.add);
   const chat = useChatRequest();
+  const isStreaming = useChatStore((state) => state.status === "streaming");
 
   const voiceWaveform = useVoiceWaveform(voiceStage === "recording");
 
@@ -200,7 +203,7 @@ export function ComposerInput() {
 
           <PromptInput
             value={prompt}
-            disabled={sending}
+            disabled={sending && !isStreaming}
             canSubmit={canSubmit}
             onValueChange={setPrompt}
             onSubmit={handleSubmit}
@@ -242,19 +245,32 @@ export function ComposerInput() {
               {VOICE_INPUT_ENABLED ? (
                 <MicButton stage={voiceStage} onToggle={handleMicToggle} />
               ) : null}
-              <Tooltip label="Отправить">
-                <button
-                  type="button"
-                  className={styles.sendBtn}
-                  aria-label="Отправить"
-                  disabled={!canSubmit}
-                  data-disabled={!canSubmit}
-                  data-sending={sending}
-                  onClick={handleSubmit}
-                >
-                  {sending ? <SpinnerIcon /> : <ArrowUpIcon />}
-                </button>
-              </Tooltip>
+              {isStreaming ? (
+                <Tooltip label="Остановить">
+                  <button
+                    type="button"
+                    className={styles.sendBtn}
+                    aria-label="Остановить генерацию"
+                    onClick={() => chat.cancel()}
+                  >
+                    <StopIcon />
+                  </button>
+                </Tooltip>
+              ) : (
+                <Tooltip label="Отправить">
+                  <button
+                    type="button"
+                    className={styles.sendBtn}
+                    aria-label="Отправить"
+                    disabled={!canSubmit}
+                    data-disabled={!canSubmit}
+                    data-sending={sending}
+                    onClick={handleSubmit}
+                  >
+                    {sending ? <SpinnerIcon /> : <ArrowUpIcon />}
+                  </button>
+                </Tooltip>
+              )}
             </div>
           </div>
         </div>
