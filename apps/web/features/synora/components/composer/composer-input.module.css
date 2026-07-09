@@ -58,17 +58,16 @@
   display: grid;
 }
 
-/* Контекст (проект, ветка, лимит) — нижний ряд карточки под тулбаром.
-   Отделён тонким разделителем: своя зона, не смешивается с тулбаром.
-   Без отрицательных вылетов — pill не бьётся в скругление карточки. */
+/* Контекст (проект, ветка, лимит): на десктопе — нижний ряд карточки,
+   на мобильном — верхний. Без разделителя: зону отделяет само
+   приглушение чипов и воздух между рядами. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-1);
   margin: 0 calc(-1 * var(--space-2)) 0;
-  padding: var(--space-2) var(--space-2) 0;
-  border-top: 1px solid var(--c-line-soft);
+  padding: 0 var(--space-2);
   background: transparent;
   color: var(--c-ink-subtle);
 }
@@ -868,11 +867,13 @@ button.iconBtn[data-loading="true"] svg {
     margin-left: var(--space-1);
   }
 
+  /* На мобильном контекст — верхний ряд карточки. */
   .context {
+    order: -1;
     flex-wrap: nowrap;
     gap: 0;
     margin: 0 calc(-1 * var(--space-1));
-    padding: var(--space-1) var(--space-1) 0;
+    padding: 0 var(--space-1);
   }
 
   .context > * {
