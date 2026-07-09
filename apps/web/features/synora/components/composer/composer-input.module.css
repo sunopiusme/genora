@@ -446,9 +446,9 @@ button.iconBtn[data-loading="true"] svg {
 
 .sendBtn:disabled,
 .sendBtn[data-disabled="true"] {
-
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.34);
+  background: var(--color-primary);
+  color: var(--color-primary-foreground);
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
