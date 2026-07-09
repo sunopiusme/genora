@@ -182,7 +182,8 @@
   overflow-wrap: anywhere;
 }
 
-.card[data-status="done"] .cardTitle {
+.card[data-status="done"] .cardTitle,
+.card[data-status="archived"] .cardTitle {
   color: var(--color-foreground-muted);
 }
 
@@ -276,6 +277,10 @@
     var(--color-success) 78%,
     var(--color-foreground-subtle)
   );
+}
+
+.statusButton[data-status="archived"] {
+  color: var(--color-foreground-subtle);
 }
 
 .statusIcon {

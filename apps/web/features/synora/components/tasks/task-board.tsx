@@ -327,6 +327,28 @@ function StatusGlyph({ status }: { status: TaskStatus }) {
     );
   }
 
+  if (status === "archived") {
+    return (
+      <svg viewBox="0 0 16 16" className={styles.statusIcon} aria-hidden="true">
+        <circle
+          cx="8"
+          cy="8"
+          r="6.25"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path
+          d="M5.5 8h5M8 5.5v5"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          transform="rotate(45 8 8)"
+        />
+      </svg>
+    );
+  }
+
   return (
     <svg viewBox="0 0 16 16" className={styles.statusIcon} aria-hidden="true">
       <circle

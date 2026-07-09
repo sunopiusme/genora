@@ -75,4 +75,13 @@ export const INITIAL_TASKS: Task[] = [
     project: "Genora",
     age: "36д",
   },
+  {
+    id: "task-legacy-theme",
+    title: "Перенос старой темы оформления",
+    description: "Светлая тема заменена системой токенов",
+    status: "archived",
+    priority: "low",
+    project: "@genora/ui",
+    age: "58д",
+  },
 ];
