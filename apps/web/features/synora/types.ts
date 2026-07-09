@@ -94,4 +94,5 @@ export type Task = {
   status: TaskStatus;
   priority: TaskPriority;
   project?: string;
+  age?: string;
 };

@@ -376,19 +376,21 @@ export function SynoraShell({
       <div className={styles.main}>
         <div className={styles.content}>
           {children}
-          <div
-            className={cn(
-              styles.composer,
-              pathname === "/synora" && synoraStyles.composerCentered,
-            )}
-          >
-            <div className={styles.composerInner}>
-              <Suspense fallback={null}>
-                {pathname === "/synora" && <SynoraHeading />}
-                <ComposerInput />
-              </Suspense>
+          {pathname !== "/synora/tasks" && (
+            <div
+              className={cn(
+                styles.composer,
+                pathname === "/synora" && synoraStyles.composerCentered,
+              )}
+            >
+              <div className={styles.composerInner}>
+                <Suspense fallback={null}>
+                  {pathname === "/synora" && <SynoraHeading />}
+                  <ComposerInput />
+                </Suspense>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

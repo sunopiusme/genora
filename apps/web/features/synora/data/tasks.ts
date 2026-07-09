@@ -21,6 +21,7 @@ export const INITIAL_TASKS: Task[] = [
     status: "in-progress",
     priority: "high",
     project: "Genora",
+    age: "2д",
   },
   {
     id: "task-project-branch-sync",
@@ -28,6 +29,7 @@ export const INITIAL_TASKS: Task[] = [
     status: "in-progress",
     priority: "medium",
     project: "Synora",
+    age: "5д",
   },
   {
     id: "task-modal-radius",
@@ -35,6 +37,7 @@ export const INITIAL_TASKS: Task[] = [
     status: "todo",
     priority: "medium",
     project: "Genora",
+    age: "1д",
   },
   {
     id: "task-composer-picker",
@@ -42,6 +45,7 @@ export const INITIAL_TASKS: Task[] = [
     status: "todo",
     priority: "low",
     project: "Synora",
+    age: "8д",
   },
   {
     id: "task-design-tokens",
@@ -49,6 +53,7 @@ export const INITIAL_TASKS: Task[] = [
     status: "todo",
     priority: "low",
     project: "@genora/ui",
+    age: "12д",
   },
   {
     id: "task-email-truncation",
@@ -56,5 +61,6 @@ export const INITIAL_TASKS: Task[] = [
     status: "done",
     priority: "medium",
     project: "Genora",
+    age: "36д",
   },
 ];
