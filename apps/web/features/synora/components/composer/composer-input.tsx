@@ -201,12 +201,6 @@ export function ComposerInput() {
             </div>
           ) : null}
 
-          <div className={styles.context}>
-            <ProjectPicker selection={project} onChange={setProject} />
-            <BranchPicker branch={branch} onChange={setBranch} />
-            <LimitPicker />
-          </div>
-
           <PromptInput
             value={prompt}
             disabled={sending && !isStreaming}
@@ -278,6 +272,12 @@ export function ComposerInput() {
                 </Tooltip>
               )}
             </div>
+          </div>
+
+          <div className={styles.context}>
+            <ProjectPicker selection={project} onChange={setProject} />
+            <BranchPicker branch={branch} onChange={setBranch} />
+            <LimitPicker />
           </div>
         </div>
       </div>

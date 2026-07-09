@@ -58,16 +58,17 @@
   display: grid;
 }
 
-/* Контекст (проект, ветка, лимит) — строка контекста ВНУТРИ карточки,
-   как заголовок документа в редакторе: тихая, приглушённая, задаёт
-   «где я работаю» до ввода задачи. Свой стиль вместо плашек. */
+/* Контекст (проект, ветка, лимит) — нижний ряд карточки под тулбаром.
+   Отделён тонким разделителем: своя зона, не смешивается с тулбаром.
+   Без отрицательных вылетов — pill не бьётся в скругление карточки. */
 .context {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: var(--space-1);
-  margin: calc(-1 * var(--space-2)) calc(-1 * var(--space-2)) 0;
-  padding: 0;
+  margin: 0 calc(-1 * var(--space-2)) 0;
+  padding: var(--space-2) var(--space-2) 0;
+  border-top: 1px solid var(--c-line-soft);
   background: transparent;
   color: var(--c-ink-subtle);
 }
@@ -506,16 +507,17 @@ button.iconBtn[data-loading="true"] svg {
   }
 }
 
-/* Чипы строки контекста: мельче основного UI, приглушённые —
-   иерархия «контекст тише задачи». Ярче при наведении. */
+/* Чипы строки контекста: те же размеры, что у контролов тулбара
+   (--c-control, --text-sm), но приглушённые — своя зона, не тулбар. */
 .footChip {
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  padding: var(--space-1) var(--space-2);
+  min-height: var(--c-control);
+  padding: 0 var(--space-2);
   border-radius: var(--c-row-radius);
-  font-size: var(--text-xs);
-  line-height: var(--leading-xs);
+  font-size: var(--text-sm);
+  line-height: var(--leading-sm);
   color: var(--c-ink-muted);
   cursor: default;
   transition: color var(--composer-duration-hover) ease;
@@ -869,8 +871,8 @@ button.iconBtn[data-loading="true"] svg {
   .context {
     flex-wrap: nowrap;
     gap: 0;
-    margin: calc(-1 * var(--space-1)) calc(-1 * var(--space-1)) 0;
-    padding: 0;
+    margin: 0 calc(-1 * var(--space-1));
+    padding: var(--space-1) var(--space-1) 0;
   }
 
   .context > * {
