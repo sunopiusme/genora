@@ -5,7 +5,7 @@ import { streamText } from "ai";
 import type { ChatRequest } from "../schemas/chat";
 
 const GATEWAY_MODELS: Record<string, string> = {
-  "claude-sonnet-4-5": "claude-sonnet-4-5",
+  "claude-sonnet-4-5": "claude-sonnet-4.5",
 };
 
 const REQUEST_TIMEOUT_MS = 60_000;
@@ -16,23 +16,23 @@ export function isSupportedModel(modelId: string): boolean {
 }
 
 /**
- * The gateway docs use the official `@anthropic-ai/sdk` with
- * `baseURL: http://127.0.0.1:8000/v1`; that SDK appends `/v1/messages`,
- * so the documented final URL is `<host>/v1/v1/messages`.
- * `@ai-sdk/anthropic` appends only `/messages`, so this helper builds
- * `<host>/v1/v1` from either env form (`<host>` or `<host>/v1`).
+ * The gateway serves the Anthropic API at `<host>/v1/messages` (verified
+ * against a live KiroaaS instance). `@ai-sdk/anthropic` appends `/messages`
+ * to the base URL, so this helper builds `<host>/v1` from either env form
+ * (`<host>` or `<host>/v1`).
  */
 function normalizeBaseUrl(raw: string): string {
   const trimmed = raw
     .trim()
     .replace(/^['"]+|['"]+$/g, "")
     .replace(/\/+$/, "");
-  const documented = trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
-  return `${documented}/v1`;
+  return trimmed.endsWith("/v1") ? trimmed : `${trimmed}/v1`;
 }
 
 function readGatewayEnv() {
-  const baseURL = process.env.ANTHROPIC_GATEWAY_BASE_URL;
+  const baseURL =
+    process.env.ANTHROPIC_GATEWAY_BASE_URL_OVERRIDE ??
+    process.env.ANTHROPIC_GATEWAY_BASE_URL;
   const apiKey = process.env.ANTHROPIC_GATEWAY_API_KEY;
   if (!baseURL || !apiKey) {
     throw new Error(
