@@ -119,6 +119,18 @@ export function TaskScopePicker({ scope, onChange }: Props) {
     closePopover();
   };
 
+  /* На touch тап по строке проекта раскрывает список веток —
+     нативный disclosure-паттерн iOS; выбор делается тапом по
+     ветке. На десктопе клик по строке выбирает проект сразу,
+     ветки доступны при наведении. */
+  const handleProjectRow = (group: (typeof SYNORA_PROJECT_GROUPS)[number]) => {
+    if (isHoverCapable()) {
+      pickProject(group);
+      return;
+    }
+    setExpanded((prev) => (prev === group.name ? null : group.name));
+  };
+
   const pickProjectBranch = (
     group: (typeof SYNORA_PROJECT_GROUPS)[number],
     branch: string,
@@ -208,11 +220,11 @@ export function TaskScopePicker({ scope, onChange }: Props) {
                     data-has-submenu="true"
                     role="menuitem"
                     tabIndex={0}
-                    onClick={() => pickProject(group)}
+                    onClick={() => handleProjectRow(group)}
                     onKeyDown={(event) => {
                       if (event.key === "Enter" || event.key === " ") {
                         event.preventDefault();
-                        pickProject(group);
+                        handleProjectRow(group);
                       }
                       if (event.key === "ArrowRight") {
                         event.preventDefault();

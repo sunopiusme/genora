@@ -289,21 +289,27 @@
   }
 
   /* На мобильных подменю — нативный inline-аккордеон:
-     раскрывается под строкой проекта, а не парит сбоку. */
+     раскрывается под строкой проекта, а не парит сбоку.
+     Отступ 1rem + gap ставит иконки веток ровно под
+     названием проекта (после его иконки). */
   .submenu {
     position: static;
     grid-column: 1 / -1;
     min-width: 0;
     max-height: none;
     overflow: visible;
-    margin-top: var(--space-1);
-    padding: 0 0 0 var(--space-4);
+    margin: var(--space-1) calc(0px - var(--space-2)) 0;
+    padding: 0 0 0 calc(1rem + var(--space-2));
     background: transparent;
     box-shadow: none;
     border-radius: 0;
   }
 
   .submenu::before {
+    display: none;
+  }
+
+  .submenu .sectionTitle {
     display: none;
   }
 
