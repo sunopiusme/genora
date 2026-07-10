@@ -88,13 +88,16 @@
   justify-content: center;
 }
 
+/* Подсветка доходит ровно до верхнего края карточки инпута (bottom: 0),
+   не свисая под неё — иначе при поднятом z-index сегмента полоска
+   рисуется поверх скругления карточки и выглядит светлее. */
 .context > :first-child::before,
 .context > :nth-child(2)::before,
 .context > :last-child::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--space-2));
-  bottom: calc(-1 * var(--space-1));
+  bottom: 0;
   background: rgb(255 255 255 / 0.06);
   opacity: 0;
   pointer-events: none;
@@ -912,19 +915,6 @@ button.iconBtn[data-loading="true"] svg {
     padding: var(--space-3);
     gap: var(--space-2);
   }
-  .card {
-    transition: transform var(--composer-duration-hover) ease;
-  }
-  .card:has(.context button[aria-expanded="true"]) {
-    transform: translateY(
-      calc(-1 * var(--space-32) - var(--space-32))
-    );
-  }
-  .card:has(.context button[data-context-edge="end"][aria-expanded="true"]) {
-    transform: translateY(
-      calc(-1 * var(--space-32) - var(--space-32) - var(--space-12))
-    );
-  }
   .inputWrap {
     padding: var(--space-1) var(--space-1) 0;
   }
@@ -976,8 +966,3 @@ button.iconBtn[data-loading="true"] svg {
   }
 }
 
-@media (max-width: 35rem) and (prefers-reduced-motion: reduce) {
-  .card {
-    transition: none;
-  }
-}

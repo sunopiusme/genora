@@ -1,7 +1,9 @@
+/* Без z-index: в покое и при ховере сегмент (и его подсветка ::before)
+   рисуется ПОД карточкой инпута. При открытии пикера сегмент поднимает
+   правило в composer-input.module.css, а у поповера свой z-index. */
 .wrap {
   position: relative;
   display: inline-flex;
-  z-index: 10;
 }
 
 .trigger {
@@ -297,10 +299,13 @@
   .triggerChevron {
     display: none;
   }
-  /* Обёртка на мобильном static → поповер якорится к .context:
-     ширина 100% плашки плюс её боковые отступы (по краям карточки). */
+  /* Обёртка на мобильном static → поповер якорится к .context.
+     Открывается ВВЕРХ от плашки: композер стоит у нижнего края экрана,
+     вниз места нет (и карточку больше не сдвигаем transform-ом).
+     Ширина — 100% плашки плюс её боковые отступы (по краям карточки). */
   .popover {
-    top: calc(var(--space-8) + var(--space-2));
+    top: auto;
+    bottom: calc(100% + var(--space-2));
     right: auto;
     left: calc(-1 * var(--space-2));
     width: calc(100% + var(--space-4));
