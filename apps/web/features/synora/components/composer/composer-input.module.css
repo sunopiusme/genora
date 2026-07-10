@@ -118,23 +118,16 @@
   left: 0;
 }
 
-.context
-  > :first-child:has(> button[data-empty="true"]:hover)::before,
-.context
-  > :first-child:has(> button[data-empty="true"][aria-expanded="true"])::before,
-.context
-  > :nth-child(2):has(> button[data-context-segment="middle"]:hover)::before,
-.context
-  > :nth-child(2):has(
-    > button[data-context-segment="middle"][aria-expanded="true"]
-  )::before,
-.context
-  > :last-child:has(> button[data-context-edge="end"]:hover)::before,
-.context
-  > :last-child:has(
-    > button[data-context-edge="end"][aria-expanded="true"]
-  )::before {
+/* Подсветка сегмента не зависит от состояния пикера (пустой/выбранный).
+   :hover — только на устройствах с курсором, чтобы не «залипать» на touch. */
+.context > *:has(> button[aria-expanded="true"])::before {
   opacity: 1;
+}
+
+@media (hover: hover) {
+  .context > *:has(> button:hover)::before {
+    opacity: 1;
+  }
 }
 
 .srOnly {
@@ -907,6 +900,13 @@ button.iconBtn[data-loading="true"] svg {
   .context {
     min-width: 0;
     max-width: 100%;
+  }
+  /* На мобильном поповеры пикеров позиционируются от всей плашки
+     (.context), а не от своего сегмента. Правило здесь, в том же файле,
+     что и `.context > * { position: relative }` — порядок каскада
+     детерминирован, в отличие от порядка инъекции CSS-модулей. */
+  .context > * {
+    position: static;
   }
   .composerBody {
     padding: var(--space-3);

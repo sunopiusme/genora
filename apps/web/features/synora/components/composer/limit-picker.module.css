@@ -23,15 +23,16 @@
               color var(--composer-duration-hover) ease;
 }
 
-.trigger:hover,
+/* Подсветку при наведении/открытии рисует сегмент плашки (::before
+   в composer-input.module.css) — у самого триггера фон не меняется. */
 .trigger[aria-expanded="true"] {
-  background: rgba(255, 255, 255, 0.06);
   color: var(--c-ink);
 }
 
-.trigger[data-context-edge="end"]:hover,
-.trigger[data-context-edge="end"][aria-expanded="true"] {
-  background: transparent;
+@media (hover: hover) {
+  .trigger:hover {
+    color: var(--c-ink);
+  }
 }
 
 .triggerIcon {
@@ -172,11 +173,13 @@
     display: none;
   }
 
+  /* Обёртка на мобильном static → поповер якорится к .context:
+     ширина 100% плашки плюс её боковые отступы (по краям карточки). */
   .popover {
     top: calc(var(--space-8) + var(--space-2));
     right: calc(-1 * var(--space-2));
     left: auto;
-    width: calc(300% + var(--space-4));
+    width: calc(100% + var(--space-4));
     min-width: 0;
   }
 }
