@@ -29,6 +29,11 @@
   color: var(--c-ink);
 }
 
+.trigger[data-context-segment="middle"]:hover,
+.trigger[data-context-segment="middle"][aria-expanded="true"] {
+  background: transparent;
+}
+
 .triggerIcon {
   display: inline-flex;
   width: var(--c-icon-col);
@@ -82,12 +87,11 @@
   left: 0;
   min-width: 280px;
   padding: var(--c-corner-inset);
+  border: var(--space-px) solid var(--c-line-soft);
   border-radius: var(--c-card-radius);
 
-  background: var(--composer-surface-raised);
-  box-shadow:
-    0 0 0 1px var(--composer-hairline),
-    var(--shadow-lg);
+  background: var(--color-surface-elevated);
+  box-shadow: var(--shadow-lg);
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -97,11 +101,11 @@
 }
 
 .popover[data-placement="up"] {
-  bottom: calc(100% + 8px);
+  bottom: calc(100% + var(--space-2));
 }
 
 .popover[data-placement="down"] {
-  top: calc(100% + 8px);
+  top: calc(100% + var(--space-2));
 }
 
 .search {
@@ -247,8 +251,8 @@
   .trigger {
     min-width: 0;
     max-width: 100%;
-    padding: 8px 6px;
-    gap: 6px;
+    padding: 0 var(--space-2);
+    gap: var(--space-2);
   }
   .triggerLabel {
     overflow: hidden;
@@ -258,9 +262,11 @@
   .triggerChevron {
     display: none;
   }
-  .popover {
-    left: 0;
-    right: 0;
+  .popover[data-placement="down"] {
+    top: calc(var(--space-8) + var(--space-2));
+    right: auto;
+    left: calc(-100% - var(--space-2));
+    width: calc(300% + var(--space-4));
     min-width: 0;
   }
   .list {

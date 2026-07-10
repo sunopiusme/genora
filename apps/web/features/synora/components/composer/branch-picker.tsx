@@ -29,8 +29,15 @@ export function BranchPicker({ branch, onChange }: Props) {
       if (wrapRef.current.contains(event.target as Node)) return;
       closePopover();
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closePopover();
+    };
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [closePopover, open]);
 
   return (
@@ -38,6 +45,7 @@ export function BranchPicker({ branch, onChange }: Props) {
       <button
         type="button"
         className={styles.trigger}
+        data-context-segment="middle"
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={togglePopover}
@@ -54,7 +62,7 @@ export function BranchPicker({ branch, onChange }: Props) {
       {open ? (
         <BranchPopover
           branch={branch}
-          placement="up"
+          placement="down"
           onSelect={(name) => {
             onChange(name);
             closePopover();

@@ -20,7 +20,10 @@ import { useComposerStore } from "@/stores/composer-store";
 import { ProfileMenu } from "@/components/shared/app-shell";
 import { SidebarTooltip } from "@/components/shared/sidebar-tooltip";
 import { SidebarProjects } from "@/components/shared/sidebar-projects";
-import { MOBILE_MEDIA_QUERY } from "@/components/shared/breakpoints";
+import {
+  DESKTOP_SIDEBAR_MEDIA_QUERY,
+  MOBILE_MEDIA_QUERY,
+} from "@/components/shared/breakpoints";
 import { SynoraGate } from "./synora-gate";
 import { SynoraHeading } from "./synora-heading";
 import { ComposerInput } from "./composer/composer-input";
@@ -93,8 +96,10 @@ export function SynoraShell({
   const touchStart = useRef<{ x: number; y: number } | null>(null);
 
   useLayoutEffect(() => {
-    const isDesktop = !window.matchMedia(MOBILE_MEDIA_QUERY).matches;
-    useUiStore.getState().initSidebar(isDesktop);
+    const shouldOpenSidebar = window.matchMedia(
+      DESKTOP_SIDEBAR_MEDIA_QUERY,
+    ).matches;
+    useUiStore.getState().initSidebar(shouldOpenSidebar);
     prevSidebarOpen.current = useUiStore.getState().isSidebarOpen;
   }, []);
 
@@ -149,6 +154,9 @@ export function SynoraShell({
   }
 
   useEffect(() => {
+    if (!hasInitializedSidebar) {
+      return;
+    }
     if (prevSidebarOpen.current === isSidebarOpen) {
       return;
     }
@@ -160,7 +168,7 @@ export function SynoraShell({
     animationTimeout.current = setTimeout(() => {
       setIsAnimating(false);
     }, 440);
-  }, [isSidebarOpen]);
+  }, [hasInitializedSidebar, isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
     if (
@@ -198,9 +206,9 @@ export function SynoraShell({
   }, [isSidebarOpen, closeSidebar]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const mediaQuery = window.matchMedia(DESKTOP_SIDEBAR_MEDIA_QUERY);
     function handleChange(event: MediaQueryListEvent) {
-      if (event.matches) {
+      if (!event.matches) {
         closeSidebar();
       }
     }

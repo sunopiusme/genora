@@ -1418,6 +1418,62 @@
   }
 }
 
+@media (min-width: 48rem) and (max-width: 63.9375rem) {
+  .shellPreInit .sidebarOpen {
+    width: var(--sidebar-rail-width);
+    transition: none;
+  }
+
+  .shellPreInit.shellOpen .main {
+    padding-left: var(--sidebar-rail-width);
+    transition: none;
+  }
+
+  .shellPreInit .backdrop {
+    display: none;
+  }
+
+  .shellPreInit .sidebarOpen .logo,
+  .shellPreInit .sidebarOpen .loginGlyph {
+    opacity: 1;
+  }
+
+  .shellPreInit .sidebarOpen .wordmark,
+  .shellPreInit .sidebarOpen .sidebarToggle,
+  .shellPreInit .sidebarOpen .loginLabel,
+  .shellPreInit .sidebarOpen .navLabel,
+  .shellPreInit .sidebarOpen .section,
+  .shellPreInit .sidebarOpen .profileIdentity,
+  .shellPreInit .sidebarOpen .profileBalance {
+    opacity: 0;
+  }
+
+  .shellPreInit .sidebarOpen .sidebarToggleWrap {
+    left: 0;
+  }
+
+  .shellPreInit .sidebarOpen .sidebarToggle,
+  .shellPreInit .sidebarOpen .section {
+    pointer-events: none;
+  }
+
+  .shellPreInit .sidebarOpen .loginButton {
+    gap: var(--space-2);
+  }
+
+  .shellPreInit .sidebarOpen .loginButton::before {
+    background-color: transparent;
+  }
+
+  .shellPreInit .sidebarOpen .loginGlyph {
+    width: 1.625rem;
+  }
+
+  .shellPreInit .navExternalArrow {
+    display: none;
+  }
+}
+
 @media (min-width: 64rem) {
   .backdrop {
     display: none;

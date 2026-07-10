@@ -53,8 +53,15 @@ export function ProjectPicker({ selection, onChange }: Props) {
       if (wrapRef.current.contains(event.target as Node)) return;
       closePopover();
     };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closePopover();
+    };
     document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [closePopover, open]);
 
   useEffect(() => {
@@ -86,6 +93,7 @@ export function ProjectPicker({ selection, onChange }: Props) {
       <button
         type="button"
         className={styles.trigger}
+        data-empty={selection.kind === "none"}
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={togglePopover}

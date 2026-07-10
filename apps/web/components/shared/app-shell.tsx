@@ -24,7 +24,7 @@ import { useComposerStore } from "@/stores/composer-store";
 import { ComposerBar } from "./composer-bar";
 import { SidebarTooltip } from "./sidebar-tooltip";
 import { ProfileSheet } from "./profile-sheet";
-import { MOBILE_MEDIA_QUERY } from "./breakpoints";
+import { DESKTOP_SIDEBAR_MEDIA_QUERY, MOBILE_MEDIA_QUERY } from "./breakpoints";
 import styles from "./app-shell.module.css";
 
 type NavItem = {
@@ -253,13 +253,11 @@ export function AppShell({
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  /* Базовое состояние интерфейса: на десктопе sidebar развёрнут
-     по умолчанию, на мобильных остаётся скрытым (overlay по кнопке).
-     useLayoutEffect выставляет состояние до первой отрисовки, а ручное
-     обновление prevSidebarOpen не даёт запуститься анимации открытия. */
   useLayoutEffect(() => {
-    const isDesktop = !window.matchMedia(MOBILE_MEDIA_QUERY).matches;
-    useUiStore.getState().initSidebar(isDesktop);
+    const shouldOpenSidebar = window.matchMedia(
+      DESKTOP_SIDEBAR_MEDIA_QUERY,
+    ).matches;
+    useUiStore.getState().initSidebar(shouldOpenSidebar);
     prevSidebarOpen.current = useUiStore.getState().isSidebarOpen;
   }, []);
 
@@ -295,6 +293,9 @@ export function AppShell({
   }
 
   useEffect(() => {
+    if (!hasInitializedSidebar) {
+      return;
+    }
     if (prevSidebarOpen.current === isSidebarOpen) {
       return;
     }
@@ -306,7 +307,7 @@ export function AppShell({
     animationTimeout.current = setTimeout(() => {
       endSidebarAnimation();
     }, 440);
-  }, [isSidebarOpen]);
+  }, [hasInitializedSidebar, isSidebarOpen]);
 
   function handleSidebarTransitionEnd(event: TransitionEvent<HTMLElement>) {
     if (
@@ -344,9 +345,9 @@ export function AppShell({
   }, [isSidebarOpen, closeSidebar]);
 
   useEffect(() => {
-    const mediaQuery = window.matchMedia(MOBILE_MEDIA_QUERY);
+    const mediaQuery = window.matchMedia(DESKTOP_SIDEBAR_MEDIA_QUERY);
     function handleChange(event: MediaQueryListEvent) {
-      if (event.matches) {
+      if (!event.matches) {
         closeSidebar();
       }
     }

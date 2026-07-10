@@ -35,6 +35,7 @@ export function LimitPicker() {
       <button
         type="button"
         className={styles.trigger}
+        data-context-edge="end"
         aria-haspopup="dialog"
         aria-expanded={open}
         aria-label={`Лимит использован на ${USAGE_PERCENT}%`}

@@ -21,7 +21,6 @@
   --c-ink-muted: var(--color-foreground-muted);
   --c-ink-subtle: var(--color-foreground-subtle);
   --c-surface: var(--color-surface-elevated);
-  --c-surface-soft: var(--color-surface);
 
   --c-drawer: var(--color-surface);
 
@@ -56,22 +55,86 @@
 .stack {
   position: relative;
   display: grid;
+  align-items: start;
 }
 
-/* Контекст (проект, ветка, лимит): на десктопе — нижний ряд карточки,
-   на мобильном — верхний. Ниже тулбара по высоте и приглушён —
-   иерархия задаётся весом, а не сжатием отступов. */
 .context {
-  display: flex;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-1);
-  /* Без вылетов: иконки чипов встают на одну вертикаль с глифом
-     «плюса» за счёт паддинга самих триггеров (--space-2 ≈ 7px). */
-  margin: 0;
-  padding: 0;
-  background: transparent;
+  gap: 0;
+  width: calc(100% - var(--space-4));
+  max-width: none;
+  margin: 0 var(--space-2) calc(-1 * var(--space-4));
+  padding: var(--space-2) var(--space-2) var(--space-4);
+  border-radius: var(--c-card-radius) var(--c-card-radius) 0 0;
+  background: var(--composer-surface);
   color: var(--c-ink-subtle);
+}
+
+.context > * {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+}
+
+.context > *:has(> button[aria-expanded="true"]) {
+  z-index: var(--z-overlay);
+}
+
+.context > * > button {
+  width: 100%;
+  justify-content: center;
+}
+
+.context > :first-child::before,
+.context > :nth-child(2)::before,
+.context > :last-child::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--space-2));
+  bottom: calc(-1 * var(--space-1));
+  background: rgb(255 255 255 / 0.06);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--composer-duration-hover) ease;
+}
+
+.context > :first-child::before {
+  right: 0;
+  left: calc(-1 * var(--space-2));
+  border-radius: var(--c-card-radius) 0 0 0;
+}
+
+.context > :last-child::before {
+  right: calc(-1 * var(--space-2));
+  left: 0;
+  border-radius: 0 var(--c-card-radius) 0 0;
+}
+
+.context > :nth-child(2)::before {
+  right: 0;
+  left: 0;
+}
+
+.context
+  > :first-child:has(> button[data-empty="true"]:hover)::before,
+.context
+  > :first-child:has(> button[data-empty="true"][aria-expanded="true"])::before,
+.context
+  > :nth-child(2):has(> button[data-context-segment="middle"]:hover)::before,
+.context
+  > :nth-child(2):has(
+    > button[data-context-segment="middle"][aria-expanded="true"]
+  )::before,
+.context
+  > :last-child:has(> button[data-context-edge="end"]:hover)::before,
+.context
+  > :last-child:has(
+    > button[data-context-edge="end"][aria-expanded="true"]
+  )::before {
+  opacity: 1;
 }
 
 .srOnly {
@@ -88,29 +151,37 @@
 
 .card {
   display: grid;
-  /* Ровный вертикальный ритм: одинаковый шаг между всеми рядами. */
-  gap: var(--space-2);
-  padding: var(--space-3) var(--c-pad-x);
-  border-radius: var(--c-card-radius);
-  /* Поверхность чуть светлее фона страницы — карточка читается сама,
-     без обводки; глубина — мягкой тенью. */
-  background: var(--composer-surface-raised);
-  box-shadow: var(--shadow-lg);
+  align-items: start;
+  gap: 0;
+  padding: 0;
+  background: transparent;
   position: relative;
   z-index: 1;
+}
+
+.composerBody {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--c-card-radius);
+  background: var(--composer-surface-raised);
+  box-shadow: var(--shadow-lg);
   transition: box-shadow 160ms ease;
 }
 
-/* Бренд-акцент: при фокусе карточка мягко подсвечивается фирменным
-   цветом — живой отклик вместо рамок. */
-.card:focus-within {
-  box-shadow:
-    0 0 0 1px
-      color-mix(in srgb, var(--color-primary) 22%, transparent),
-    var(--shadow-lg);
+.composerBody:has(button[aria-expanded="true"]) {
+  z-index: var(--z-overlay);
 }
 
-.card[data-drag="true"] {
+@media (min-width: 48rem) and (max-width: 63.9375rem) {
+  .root {
+    max-width: calc(var(--composer-width) - var(--space-16));
+  }
+}
+
+.card[data-drag="true"] .composerBody {
   background: var(--composer-surface-raised);
 }
 
@@ -837,9 +908,22 @@ button.iconBtn[data-loading="true"] svg {
     min-width: 0;
     max-width: 100%;
   }
-  .card {
+  .composerBody {
     padding: var(--space-3);
     gap: var(--space-2);
+  }
+  .card {
+    transition: transform var(--composer-duration-hover) ease;
+  }
+  .card:has(.context button[aria-expanded="true"]) {
+    transform: translateY(
+      calc(-1 * var(--space-32) - var(--space-32))
+    );
+  }
+  .card:has(.context button[data-context-edge="end"][aria-expanded="true"]) {
+    transform: translateY(
+      calc(-1 * var(--space-32) - var(--space-32) - var(--space-12))
+    );
   }
   .inputWrap {
     padding: var(--space-1) var(--space-1) 0;
@@ -872,19 +956,6 @@ button.iconBtn[data-loading="true"] svg {
     margin-left: var(--space-1);
   }
 
-  /* На мобильном контекст — верхний ряд карточки. */
-  .context {
-    order: -1;
-    flex-wrap: nowrap;
-    gap: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .context > * {
-    min-width: 0;
-  }
-
   .pluginsTrigger {
     position: static;
   }
@@ -902,5 +973,11 @@ button.iconBtn[data-loading="true"] svg {
     right: 0;
     width: auto;
     height: var(--space-2);
+  }
+}
+
+@media (max-width: 35rem) and (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
   }
 }

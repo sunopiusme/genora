@@ -1,5 +1,4 @@
 .heading {
-
   --c-ink: var(--color-foreground);
   --c-ink-muted: var(--color-foreground-muted);
   --c-ink-subtle: var(--color-foreground-subtle);

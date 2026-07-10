@@ -171,113 +171,128 @@ export function ComposerInput() {
           aria-busy={sending}
           {...fileDrop.handlers}
         >
-          {attachments.attachments.length > 0 ? (
-            <div className={styles.attachmentsRow}>
-              {attachments.attachments.map((att) => (
-                <AttachmentTile
-                  key={att.id}
-                  attachment={att}
-                  onRemove={attachments.remove}
-                  onReorder={attachments.reorder}
-                />
-              ))}
-            </div>
-          ) : null}
-          {fileDrop.dragOver ? (
-            <div className={styles.dropOverlay} aria-hidden="true">
-              <div className={styles.dropOverlayInner}>
-                <span className={styles.dropOverlayIcon}>
-                  <ClipIcon />
-                </span>
-                <span className={styles.dropOverlayCopy}>
-                  <span className={styles.dropOverlayTitle}>
-                    Отпустите, чтобы прикрепить
-                  </span>
-                  <span className={styles.dropOverlayHint}>
-                    Изображение или аудио до 25 МБ
-                  </span>
-                </span>
-              </div>
-            </div>
-          ) : null}
-
-          <PromptInput
-            value={prompt}
-            disabled={sending && !isStreaming}
-            canSubmit={canSubmit}
-            onValueChange={setPrompt}
-            onSubmit={handleSubmit}
-          />
-
-          <div className={styles.toolbar} data-recording={voiceStage !== "idle"}>
-            <div className={styles.toolbarLeft}>
-              <PlusDropdown onAttach={openFilePicker} />
-              <Tooltip
-                label={planMode ? "Выключить планирование" : "Планирование"}
-              >
-                <button
-                  type="button"
-                  className={styles.iconBtn}
-                  data-active={planMode}
-                  aria-label="Режим планирования"
-                  aria-pressed={planMode}
-                  onClick={() => setPlanMode((prev) => !prev)}
-                >
-                  <ListChecksIcon />
-                </button>
-              </Tooltip>
-              {voiceStage !== "idle" ? (
-                <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
-              ) : null}
-            </div>
-
-            <div className={styles.toolbarRight}>
-              {voiceStage !== "idle" ? null : (
-                <>
-                  <Tooltip label="Уровень доступа">
-                    <PermissionPicker level={permission} onChange={setPermission} />
-                  </Tooltip>
-                  <Tooltip label="Выбрать модель">
-                    <ModelPicker selection={selection} onChange={setSelection} />
-                  </Tooltip>
-                </>
-              )}
-              {VOICE_INPUT_ENABLED ? (
-                <MicButton stage={voiceStage} onToggle={handleMicToggle} />
-              ) : null}
-              {isStreaming ? (
-                <Tooltip label="Остановить">
-                  <button
-                    type="button"
-                    className={styles.sendBtn}
-                    aria-label="Остановить генерацию"
-                    onClick={() => chat.cancel()}
-                  >
-                    <StopIcon />
-                  </button>
-                </Tooltip>
-              ) : (
-                <Tooltip label="Отправить">
-                  <button
-                    type="button"
-                    className={styles.sendBtn}
-                    aria-label="Отправить"
-                    disabled={!canSubmit}
-                    data-disabled={!canSubmit}
-                    data-sending={sending}
-                    onClick={handleSubmit}
-                  >
-                    {sending ? <SpinnerIcon /> : <ArrowUpIcon />}
-                  </button>
-                </Tooltip>
-              )}
-            </div>
-          </div>
-
-          <div className={styles.context}>
+          <div
+            className={styles.context}
+            role="group"
+            aria-label="Контекст чата"
+          >
             <ProjectPicker selection={project} onChange={setProject} />
             <BranchPicker branch={branch} onChange={setBranch} />
             <LimitPicker />
+          </div>
+
+          <div className={styles.composerBody}>
+            {attachments.attachments.length > 0 ? (
+              <div className={styles.attachmentsRow}>
+                {attachments.attachments.map((att) => (
+                  <AttachmentTile
+                    key={att.id}
+                    attachment={att}
+                    onRemove={attachments.remove}
+                    onReorder={attachments.reorder}
+                  />
+                ))}
+              </div>
+            ) : null}
+            {fileDrop.dragOver ? (
+              <div className={styles.dropOverlay} aria-hidden="true">
+                <div className={styles.dropOverlayInner}>
+                  <span className={styles.dropOverlayIcon}>
+                    <ClipIcon />
+                  </span>
+                  <span className={styles.dropOverlayCopy}>
+                    <span className={styles.dropOverlayTitle}>
+                      Отпустите, чтобы прикрепить
+                    </span>
+                    <span className={styles.dropOverlayHint}>
+                      Изображение или аудио до 25 МБ
+                    </span>
+                  </span>
+                </div>
+              </div>
+            ) : null}
+
+            <PromptInput
+              value={prompt}
+              disabled={sending && !isStreaming}
+              canSubmit={canSubmit}
+              onValueChange={setPrompt}
+              onSubmit={handleSubmit}
+            />
+
+            <div
+              className={styles.toolbar}
+              data-recording={voiceStage !== "idle"}
+            >
+              <div className={styles.toolbarLeft}>
+                <PlusDropdown onAttach={openFilePicker} />
+                <Tooltip
+                  label={planMode ? "Выключить планирование" : "Планирование"}
+                >
+                  <button
+                    type="button"
+                    className={styles.iconBtn}
+                    data-active={planMode}
+                    aria-label="Режим планирования"
+                    aria-pressed={planMode}
+                    onClick={() => setPlanMode((prev) => !prev)}
+                  >
+                    <ListChecksIcon />
+                  </button>
+                </Tooltip>
+                {voiceStage !== "idle" ? (
+                  <VoiceRecorder stage={voiceStage} waveform={voiceWaveform} />
+                ) : null}
+              </div>
+
+              <div className={styles.toolbarRight}>
+                {voiceStage !== "idle" ? null : (
+                  <>
+                    <Tooltip label="Уровень доступа">
+                      <PermissionPicker
+                        level={permission}
+                        onChange={setPermission}
+                      />
+                    </Tooltip>
+                    <Tooltip label="Выбрать модель">
+                      <ModelPicker
+                        selection={selection}
+                        onChange={setSelection}
+                      />
+                    </Tooltip>
+                  </>
+                )}
+                {VOICE_INPUT_ENABLED ? (
+                  <MicButton stage={voiceStage} onToggle={handleMicToggle} />
+                ) : null}
+                {isStreaming ? (
+                  <Tooltip label="Остановить">
+                    <button
+                      type="button"
+                      className={styles.sendBtn}
+                      aria-label="Остановить генерацию"
+                      onClick={() => chat.cancel()}
+                    >
+                      <StopIcon />
+                    </button>
+                  </Tooltip>
+                ) : (
+                  <Tooltip label="Отправить">
+                    <button
+                      type="button"
+                      className={styles.sendBtn}
+                      aria-label="Отправить"
+                      disabled={!canSubmit}
+                      data-disabled={!canSubmit}
+                      data-sending={sending}
+                      onClick={handleSubmit}
+                    >
+                      {sending ? <SpinnerIcon /> : <ArrowUpIcon />}
+                    </button>
+                  </Tooltip>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
