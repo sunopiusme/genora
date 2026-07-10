@@ -79,25 +79,23 @@
   width: 100%;
 }
 
-.context > *:has(> button[aria-expanded="true"]) {
-  z-index: var(--z-overlay);
-}
-
 .context > * > button {
   width: 100%;
   justify-content: center;
 }
 
-/* Подсветка доходит ровно до верхнего края карточки инпута (bottom: 0),
-   не свисая под неё — иначе при поднятом z-index сегмента полоска
-   рисуется поверх скругления карточки и выглядит светлее. */
+/* Подсветка тянется вниз ЗА карточку инпута (bottom: -space-4 — до низа
+   плашки, скрытого под карточкой). Сегмент никогда не поднимается по
+   z-index (карточка с z-index: 1 всегда перекрывает подсветку) — поэтому
+   на видимой полоске и боковых краях плашки нет светлого шва поверх
+   скругления карточки. Поверх карточки поднимается только сам поповер. */
 .context > :first-child::before,
 .context > :nth-child(2)::before,
 .context > :last-child::before {
   content: "";
   position: absolute;
   top: calc(-1 * var(--space-2));
-  bottom: 0;
+  bottom: calc(-1 * var(--space-4));
   background: rgb(255 255 255 / 0.06);
   opacity: 0;
   pointer-events: none;
@@ -341,7 +339,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  /* Текст ввода стартует с той же вертикали, что и глиф «плюса»
+  /* Текст вв��да стартует с той же вертикали, что и глиф «плюса»
      ((--c-control - --c-icon) / 2 ≈ --space-2) — одна левая линия. */
   padding: 0 var(--space-2);
 }
