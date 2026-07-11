@@ -92,12 +92,21 @@
 }
 
 @keyframes modelPickerIn {
-  from { opacity: 0; transform: translateY(6px) scale(0.98); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
+  from {
+    opacity: 0;
+    transform: translate(var(--model-picker-shift, 0px), 6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translate(var(--model-picker-shift, 0px), 0) scale(1);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .providers { animation: none; }
+  .providers {
+    animation: none;
+    transform: translateX(var(--model-picker-shift, 0px));
+  }
 }
 
 .section {

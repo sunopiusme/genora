@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { findModel, PROVIDERS } from "../../data/models";
@@ -111,7 +112,11 @@ export function ModelPicker({ selection, onChange }: Props) {
           ref={popRef}
           className={styles.providers}
           role="menu"
-          style={shift !== 0 ? { transform: `translateX(${shift}px)` } : undefined}
+          style={
+            shift !== 0
+              ? ({ "--model-picker-shift": `${shift}px` } as CSSProperties)
+              : undefined
+          }
         >
           <ReasoningSlider
             levels={current.model.levels}
