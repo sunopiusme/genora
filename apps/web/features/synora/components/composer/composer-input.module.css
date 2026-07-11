@@ -907,6 +907,12 @@ button.iconBtn[data-loading="true"] svg {
   .context > * {
     position: static;
   }
+  /* На touch-компоновке псевдоэлемент нельзя оставлять абсолютным слоем:
+     из-за position: static у сегментов его containing block — вся плашка,
+     поэтому сохранённый браузером :hover закрашивает большую область. */
+  .context > *::before {
+    display: none;
+  }
   .composerBody {
     padding: var(--space-3);
     gap: var(--space-2);
