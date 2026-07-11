@@ -97,6 +97,22 @@
   background: var(--color-surface-elevated);
   box-shadow: var(--shadow-lg);
   z-index: 20;
+  transform-origin: top right;
+  animation: limitPopoverInDown 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes limitPopoverInDown {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes limitPopoverInUp {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { animation: none; }
 }
 
 .activity {
@@ -186,5 +202,7 @@
     left: auto;
     width: calc(100% + var(--space-4));
     min-width: 0;
+    transform-origin: bottom center;
+    animation-name: limitPopoverInUp;
   }
 }

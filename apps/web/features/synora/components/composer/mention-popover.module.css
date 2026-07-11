@@ -18,6 +18,17 @@
   z-index: 5;
 
   overflow: visible;
+  transform-origin: bottom center;
+  animation: mentionPopoverIn 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes mentionPopoverIn {
+  from { opacity: 0; transform: translateY(6px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { animation: none; }
 }
 
 .scroller {

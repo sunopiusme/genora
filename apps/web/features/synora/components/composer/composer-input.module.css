@@ -731,6 +731,23 @@ button.iconBtn[data-loading="true"] svg {
   flex-direction: column;
   gap: var(--space-px);
   z-index: 20;
+  transform-origin: bottom left;
+  animation: composerMenuInUp 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes composerMenuInUp {
+  from { opacity: 0; transform: translateY(6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes composerSubmenuIn {
+  from { opacity: 0; transform: translateX(-5px) scale(0.98); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown,
+  .pluginsSubmenu { animation: none; }
 }
 
 .dropdownGroup {
@@ -824,6 +841,8 @@ button.iconBtn[data-loading="true"] svg {
   gap: var(--space-px);
 
   z-index: 20;
+  transform-origin: left center;
+  animation: composerSubmenuIn 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .pluginsSubmenu::before {
