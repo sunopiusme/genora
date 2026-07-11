@@ -119,14 +119,12 @@
   left: 0;
 }
 
-/* Подсветка сегмента не зависит от состояния пикера (пустой/выбранный).
-   :hover — только на устройствах с курсором, чтобы не «залипать» на touch. */
-.context > *:has(> button[aria-expanded="true"])::before {
-  opacity: 1;
-}
-
-@media (hover: hover) {
-  .context > *:has(> button:hover)::before {
+/* Подсветка существует только на устройствах с настоящим курсором.
+   На touch даже открытый пикер не включает её: иначе aria-expanded
+   визуально имитирует «залипший» hover после тапа. */
+@media (hover: hover) and (pointer: fine) {
+  .context > *:has(> button:hover)::before,
+  .context > *:has(> button[aria-expanded="true"])::before {
     opacity: 1;
   }
 }
@@ -914,20 +912,14 @@ button.iconBtn[data-loading="true"] svg {
     gap: var(--space-2);
   }
   .inputWrap {
-    padding: var(--space-1) var(--space-1) 0;
+    padding-inline: var(--space-1);
   }
-  /* Синхронизировано с текстом сообщений на мобильном (--text-sm). */
+  /* На узком экране placeholder переносится на две строки. Авторазмер
+     textarea учитывает этот перенос, а после первого короткого символа
+     пытался схлопнуть поле до одной строки. Одинаковый минимум сохраняет
+     высоту композера; дальше textarea по-прежнему растёт до шести строк. */
   .input {
-    font-size: var(--text-sm);
-    line-height: var(--leading-sm);
-    min-height: var(--leading-sm);
-    max-height: calc(var(--leading-sm) * 6);
-  }
-  .permission,
-  .modelChip,
-  .footChip {
-    font-size: var(--text-xs);
-    line-height: var(--leading-xs);
+    min-height: calc(var(--leading-base) * 2);
   }
   .toolbar {
     gap: var(--space-1);
