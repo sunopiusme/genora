@@ -13,15 +13,15 @@ type Props = {
   onChange: (next: ModelSelection) => void;
 };
 
-const VIEWPORT_GUTTER = 12;
+const DESKTOP_VIEWPORT_GUTTER = 12;
+const MOBILE_VIEWPORT_GUTTER = 16;
+const MOBILE_BREAKPOINT = 560;
 
 export function ModelPicker({ selection, onChange }: Props) {
   const [open, setOpen] = useState(false);
   const [shift, setShift] = useState(0);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const popRef = useRef<HTMLDivElement | null>(null);
-  const shiftRef = useRef(0);
-  shiftRef.current = shift;
 
   useLayoutEffect(() => {
     if (!open) {
@@ -30,16 +30,23 @@ export function ModelPicker({ selection, onChange }: Props) {
     }
     const clamp = () => {
       const pop = popRef.current;
-      if (!pop) return;
-      const rect = pop.getBoundingClientRect();
-      const currentShift = shiftRef.current;
-      const left = rect.left - currentShift;
-      const right = rect.right - currentShift;
+      const wrap = wrapRef.current;
+      if (!pop || !wrap) return;
+      /* Панель привязана right: 0 к wrap. Считаем её исходные границы
+         через стабильные размеры, а не getBoundingClientRect() панели:
+         последний во время entrance-анимации уже содержит scale/translate. */
+      const wrapRect = wrap.getBoundingClientRect();
+      const right = wrapRect.right;
+      const left = right - pop.offsetWidth;
+      const viewportGutter =
+        window.innerWidth <= MOBILE_BREAKPOINT
+          ? MOBILE_VIEWPORT_GUTTER
+          : DESKTOP_VIEWPORT_GUTTER;
       let next = 0;
-      if (left < VIEWPORT_GUTTER) {
-        next = VIEWPORT_GUTTER - left;
-      } else if (right > window.innerWidth - VIEWPORT_GUTTER) {
-        next = window.innerWidth - VIEWPORT_GUTTER - right;
+      if (left < viewportGutter) {
+        next = viewportGutter - left;
+      } else if (right > window.innerWidth - viewportGutter) {
+        next = window.innerWidth - viewportGutter - right;
       }
       setShift(next);
     };
